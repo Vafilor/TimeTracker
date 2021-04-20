@@ -1,0 +1,42 @@
+security:
+    encoders:
+        App\Entity\User:
+            algorithm: auto
+
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
+
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            pattern: ^/
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 31536000 # 1 year in seconds
+
+            logout:
+                path: app_logout
+            anonymous: lazy
+            http_basic: ~
+
+            guard:
+                authenticators:
+                    - App\Security\LoginFormAuthenticator
+
+    access_control:
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin, roles: [ ROLE_ADMIN ]}
+        - { path: ^/, role: IS_AUTHENTICATED_ANONYMOUSLY }

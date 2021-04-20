@@ -1,0 +1,36 @@
+<header class="navbar navbar-dark bg-dark">
+    <button class="sidebar-visibility btn text-light {% if sidebarClass is defined %}{{ sidebarClass }}{% endif %}" type="button">
+        <i class="fas fa-bars"></i>
+    </button>
+    <ul class="nav nav-pills">
+        {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+            <li class="nav-item dropdown">
+                <div class="profile-button">
+                    <a class="text-light nav-link" id="user-profile" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userProfile">
+                        <div>
+                            <div class="profile-picture-container d-inline-block">
+                                <img class="profile-picture" src="{{ app.user.gravatarUrl(80) }}" alt="User profile picture">
+                            </div>
+                            <div class="user-information d-inline-block">
+                                <h5>{{ app.user.username }}</h5>
+                                <h6>{{ app.user.email }}</h6>
+                            </div>
+                        </div>
+                        {#TODO#}
+                        <div class="dropdown-divider"></div>
+{#                        <a class="dropdown-item" href="{{ path('edit_user', {'username': app.user.username}) }}">Settings</a>#}
+                        <a class="dropdown-item" href="#">Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ path('app_logout') }}">
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </li>
+        {% endif %}
+    </ul>
+</header>

@@ -1,0 +1,188 @@
+// customize some Bootstrap variables
+//$primary: darken(#428bca, 20%);
+
+@import "colors";
+@import "~bootstrap";
+
+$sidebarWidth: 260px;
+$headerHeight: 58px;
+$paddingFromHeader: 20px;
+
+.ml-sidebar {
+    margin-left: $sidebarWidth;
+}
+
+.full-width-with-sidebar {
+    width: calc(100% - #{$sidebarWidth});
+
+    @media (max-width: 768px) {
+        width: 100%;
+    }
+
+}
+
+.full-height-with-elements {
+    height: calc(100vh - #{$headerHeight});
+}
+
+.full-height-no-footer-header {
+    height: calc(100vh - #{$headerHeight});
+}
+
+.under-header {
+    margin-top: $headerHeight;
+}
+
+body {
+    height: 100vh;
+    background-color: $light;
+
+    header {
+        z-index: 10;
+
+        .sidebar-visibility {
+            margin-right: 20px;
+
+            &:focus {
+                box-shadow: none; // Clear bootstrap's button focus color
+            }
+        }
+
+        &.navbar {
+            position: fixed;
+            width: 100vw;
+            height: $headerHeight;
+        }
+    }
+
+    .center {
+        display: flex;
+        align-items: stretch;
+
+        .sidebar {
+            position: fixed;
+            width: $sidebarWidth;
+            height: 100vh;
+            top: $headerHeight;
+            transition: all 0.3s;
+            border-right: 1px darken($light, 10%) solid;
+            background-color: $dark;
+            left: 0;
+            z-index: 9;
+            overflow-y: scroll;
+
+            &.hide {
+                left: -$sidebarWidth;
+            }
+
+            a, a:hover, a:focus {
+                text-decoration: none;
+                transition: 0.3s all;
+            }
+
+            ul {
+                padding: 10px 0 0 0;
+
+                li {
+                    a {
+                        display: block;
+                        padding: 10px 10px 10px 20px;
+                        color: lighten($primary, 30%);
+
+                        &:hover {
+                            background-color: lighten($dark, 20%);
+                        }
+                    }
+                }
+            }
+        }
+
+        > .content {
+            padding-top: $headerHeight;
+            transition: 0.3s all;
+
+            // Rename to something else.
+            &.hide {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -$sidebarWidth;
+                border-right: none;
+
+                &.hide {
+                    left: 0;
+                    width: 100vw;
+                }
+
+                ul {
+                    padding: 10px 0 0 0;
+
+                    li {
+                        a {
+                            display: block;
+                            padding: 10px 10px 10px 20px;
+                            color: lighten($primary, 30%);
+                            text-align: center;
+
+                            &:hover {
+                                background-color: lighten($dark, 20%);
+                            }
+                        }
+                    }
+                }
+            }
+
+            .content {
+                margin-left: 0;
+            }
+        }
+    }
+}
+
+#user-profile, #notifications-icon {
+    cursor: pointer;
+}
+
+#user-profile ~ .dropdown-menu {
+    width: 200px;
+
+    h5 {
+        font-size: 1.0rem;
+        margin-bottom: 0;
+    }
+
+    h6 {
+        font-size: 0.8rem;
+        margin-bottom: 0;
+        font-weight: 400;
+    }
+
+    .user-information {
+        vertical-align: top;
+    }
+}
+
+.small-text {
+    font-size: 14px;
+}
+
+
+.header {
+    font-size: 40px;
+}
+
+.title {
+    font-size: 26px;
+    font-weight: 400;
+}
+
+.subtitle {
+    font-size: 18px;
+}
+
+.inline-form-header {
+    font-weight: bold;
+}

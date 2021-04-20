@@ -1,0 +1,65 @@
+@import "colors";
+
+$lighterGray: lighten($darkGray, 20%);
+
+.time-entry-tag {
+  color: #fff;
+  background-color: $darkGray;
+  display: inline-block;
+  padding: 0.25em 0.6em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  border-radius: 10rem;
+
+  .time-entry-remove {
+    color: $lighterGray;
+    border-left: 1px solid $lighterGray;
+    padding-left: 8px;
+    margin-left: 8px;
+
+    &:hover {
+      color: white;
+      cursor: pointer;
+    }
+  }
+}
+
+ul {
+    &.ui-autocomplete {
+      list-style-type: none;
+      padding-left: 0;
+      background-color: white;
+      border: 1px solid gray;
+      max-width: 200px;
+
+      li {
+        padding: 4px;
+
+        &:hover {
+          cursor: pointer;
+          background-color: $primaryLight;
+        }
+      }
+    }
+}
+
+.ui-helper-hidden-accessible {
+  display: none;
+}
+
+#markdown {
+  textarea {
+    min-height: 300px;
+  }
+}
+
+#preview-content {
+  min-height: 300px;
+  background-color: white;
+  padding: 6px 12px;
+}

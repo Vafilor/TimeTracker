@@ -1,0 +1,50 @@
+{% import 'flash/utilities.html.twig' as flashes %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>{% block title %}Time tracker{% endblock %}</title>
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+            <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        {% endblock stylesheets %}
+
+    {% endblock head %}
+</head>
+<body>
+{% block body %}
+    {% block header %}
+        {% include('header.html.twig') %}
+    {% endblock %}
+
+    {% block center %}
+        <div class="center {% block center_class %}{% endblock %}">
+            {% block content %}
+                <div class="content">
+                    {% block content_header %}
+                        {% if app.request.hasPreviousSession %}
+                            {% block flash_messages %}
+                                <div id="flash-messages">
+                                    {{ flashes.display() }}
+                                </div>
+                            {% endblock flash_messages %}
+                        {% endif %}
+                    {% endblock %}
+
+                    {% block content_body %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock center %}
+{% endblock body %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+{% endblock javascripts %}
+
+</body>
+</html>

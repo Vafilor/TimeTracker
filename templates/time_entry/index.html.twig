@@ -1,0 +1,71 @@
+{% extends 'sidebar.html.twig' %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}TimeTracker{% endblock %}
+
+{% block content_body %}
+    <div class="p-3">
+        <h1 class="text-center">Time Entries</h1>
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+        <table class="table table-hover table-bordered">
+            <thead>
+            <tr>
+                <th>Tags</th>
+                <th>{{ knp_pagination_sortable(pagination, 'Start', 'time_entry.createdAt') }}</th>
+                <th>{{ knp_pagination_sortable(pagination, 'End', 'time_entry.endedAt') }}</th>
+                <th>Duration</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for timeEntry in pagination.items %}
+                <tr>
+                    <td>
+                        {% for timeEntryTag in timeEntry.timeEntryTags %}
+                            {% set tagName = timeEntryTag.tag.name %}
+
+                            <div class="badge badge-dark-gray">{{ tagName }}</div>
+                        {% endfor %}
+                    </td>
+                    <td>{{ timeEntry.createdAt|date('m/d/y h:i:s A', app.user.timezone) }}</td>
+                    <td>
+                        {% if timeEntry.over %}
+                        {{ timeEntry.endedAt|date('m/d/y h:i:s A', app.user.timezone) }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if timeEntry.over %}
+                        {{ timeEntry.duration|date("%hh %Im %Ss") }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('time_entry_view', {id: timeEntry.idString}) }}" class="btn btn-primary">View</a>
+                        <a href="{{ path('time_entry_continue', {id: timeEntry.idString}) }}" class="btn btn-secondary">Continue</a>
+                        {% if timeEntry.running %}
+                            <a href="{{ path('time_entry_stop', {id: timeEntry.idString}) }}" class="btn btn-secondary">Stop</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div>
+            <a href="{{ path('time_entry_create') }}" class="btn btn-primary">Create time entry</a>
+        </div>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+

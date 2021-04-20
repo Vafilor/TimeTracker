@@ -1,0 +1,34 @@
+{% import 'flash/utilities.html.twig' as flashes %}
+
+{% extends 'base.html.twig' %}
+
+{% block center %}
+    <div class="center">
+        {% block sidebar %}
+            <div class="sidebar">
+                <ul class="list-unstyled">
+                    <li><a href="{{ path('time_entry_today') }}">Today</a></li>
+                    <li><a href="{{ path('time_entry_list') }}">Time Entries</a></li>
+                    <li><a href="{{ path('tag_list') }}">Tags</a></li>
+                </ul>
+            </div>
+        {% endblock %}
+
+        {% block content %}
+            <div class="content full-width-with-sidebar ml-sidebar {% block content_class %}{% endblock %}">
+                {% block content_header %}
+                    {% if app.request.hasPreviousSession %}
+                        {% block flash_messages %}
+                            <div id="flash-messages">
+                                {{ flashes.display() }}
+                            </div>
+                        {% endblock flash_messages %}
+                    {% endif %}
+                {% endblock %}
+
+                {% block content_body %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock center %}

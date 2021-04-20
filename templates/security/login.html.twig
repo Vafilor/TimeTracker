@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('login') }}
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block center %}
+<div class="d-flex justify-content-center align-items-center m-auto vh-100">
+    <div class="login-form p-3 bg-white border-dark-gray border rounded">
+        <div class="content">
+            <h1 class="text-center title">Time Tracker</h1>
+
+            <form method="post">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="text" id="inputEmail" name="email" class="form-control" value="{{ last_username }}" required="required" autofocus autocomplete="username" />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required="required" autocomplete="current-password" />
+                </div>
+
+                <input type="checkbox" id="remember_me" name="_remember_me" checked/>
+                <label for="remember_me">Keep me logged in</label>
+
+                {% if error %}
+                    <div class="login-error invalid-feedback d-block">
+                        <span class="form-error-icon badge badge-danger text-uppercase">Error</span>
+                        {{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
+
+                <input type="submit" id="_submit" name="_submit" class="btn btn-primary form-control" value="Log in" />
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('login') }}
+{% endblock %}

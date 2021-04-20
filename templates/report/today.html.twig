@@ -1,0 +1,54 @@
+{% extends 'sidebar.html.twig' %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}TimeTracker - Today{% endblock %}
+
+{% block content_body %}
+    <div class="p-3">
+        <h1 class="text-center">Today</h1>
+
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('time_entry_today') }}">Entries</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Report</a>
+            </li>
+        </ul>
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Tag</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in summary %}
+                <tr>
+                    <td>
+                        <div class="badge badge-dark-gray">{{ item.name }}</div>
+                    </td>
+                    <td>{{ item.duration }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Total time</th>
+                    <td>{{ totalTime }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+

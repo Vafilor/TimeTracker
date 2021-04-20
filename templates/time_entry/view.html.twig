@@ -1,0 +1,111 @@
+{% extends 'sidebar.html.twig' %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}TimeTracker{% endblock %}
+
+{% block content_body %}
+<div class="p-3">
+
+    <h4 class="d-flex align-items-center js-time-entry-tags">
+        <div class="js-time-entry-tags-container">
+            {% for timeEntryTag in timeEntryTags %}
+            <div class="time-entry-tag mr-2" data-name="{{ timeEntryTag.tag.name }}">{{ timeEntryTag.tag.name }}<span class="time-entry-remove js-time-entry-remove"><i class="fas fa-times"></i></span></div>
+            {% endfor %}
+        </div>
+        <div class="form-inline">
+            <div class="js-time-entry-tag form-group" data-time-entry-id="{{ timeEntry.idString }}">
+                <input type="text" class="js-time-entry-tag-input form-control" placeholder="tag name..." />
+                <button class="btn btn-primary ml-2 js-time-entry-tag-button" type="button">Add</button>
+            </div>
+        </div>
+    </h4>
+
+    <div>
+        {% if not timeEntry.over %}
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        {% endif %}
+    </div>
+
+    {{ form_start(form) }}
+
+    <div class="d-flex">
+        {{ form_row(form.createdAt) }}
+        <div class="ml-4">
+        {{ form_row(form.endedAt) }}
+        </div>
+    </div>
+
+
+    <ul class="nav nav-tabs" id="description-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">Markdown</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="markdown-tab" data-toggle="tab" href="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="description-content">
+        <div class="tab-pane fade show active" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
+            {{ form_widget(form.description, {attr: { rows: 10, class: 'js-description' }}) }}
+        </div>
+        <div class="tab-pane fade" id="preview" role="tabpanel" aria-labelledby="profile-tab">
+            <div id="preview-content" class="border rounded"></div>
+        </div>
+    </div>
+
+    {{ form_widget(form) }}
+    <div class="d-flex mt-3">
+        <button type="submit" class="btn btn-primary" name="how">Update</button>
+        {% if not timeEntry.over %}
+            <a href="{{ path('time_entry_stop', {id: timeEntry.id}) }}" class="btn btn-secondary ml-2">Stop</a>
+        {% else %}
+            <a href="{{ path('time_entry_resume', {id: timeEntry.idString}) }}" class="btn btn-secondary ml-2">Resume</a>
+            <a href="{{ path('time_entry_continue', {id: timeEntry.idString}) }}" class="btn btn-secondary ml-2">Continue</a>
+        {% endif %}
+
+
+        <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#delete-modal">
+            Delete
+        </button>
+    </div>
+    {{ form_end(form) }}
+
+
+    <!-- Delete modal -->
+    <div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="delete-modal-label">Are you sure you want to delete?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    This will delete the time entry.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a href="{{ path('time_entry_delete', {id: timeEntry.id}) }}" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('time_entry') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('time_entry') }}
+{% endblock %}
+
