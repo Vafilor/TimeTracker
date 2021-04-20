@@ -30,7 +30,13 @@ yarn encore dev
 ./bin/console doctrine:migrations:migrate
 ```
 
-8. To start the symfony server
+8. Create your user
+
+```bash
+./bin/console app:user:create
+```
+
+9. Start the symfony server
 
 ```bash
 symfony serve
