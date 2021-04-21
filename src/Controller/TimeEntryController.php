@@ -26,7 +26,6 @@ class TimeEntryController extends BaseController
     public function list(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        TimeEntryTagRepository $timeEntryTagRepository,
         PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
