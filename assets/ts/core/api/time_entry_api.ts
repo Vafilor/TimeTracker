@@ -2,6 +2,7 @@ import { CoreApi } from "./api";
 
 export interface ApiTag {
     name: string;
+    color: string;
 }
 
 export interface ApiUpdateTimeEntry {
