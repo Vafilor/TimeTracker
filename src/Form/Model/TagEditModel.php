@@ -4,9 +4,21 @@ declare(strict_types=1);
 
 namespace App\Form\Model;
 
+use App\Entity\Tag;
+
 class TagEditModel
 {
     private string $color;
+
+    public static function fromEntity(Tag $tag)
+    {
+        return new TagEditModel($tag->getColor());
+    }
+
+    public function __construct(string $color)
+    {
+        $this->setColor($color);
+    }
 
     public function getColor(): string
     {

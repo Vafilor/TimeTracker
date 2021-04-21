@@ -23,6 +23,7 @@ Encore
     .addEntry('app', './assets/ts/app.ts')
     .addEntry('login', './assets/ts/login.ts')
     .addEntry('time_entry', './assets/ts/time_entry.ts')
+    .addEntry('tag', './assets/ts/tag.ts')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')

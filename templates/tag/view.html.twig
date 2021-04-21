@@ -9,12 +9,31 @@
 
     <h1 class="text-center">{{ tag.name }}</h1>
 
+    <div>Preview</div>
+    <div class="tag js-tag-preview" style="background-color: {{ tag.color }}">{{ tag.name }}</div>
+    <hr/>
+
     {{ form_start(form) }}
     {{ form_label(form.color) }}
-    {{ form_widget(form.color, {attr: {class: 'w-p-50'}}) }}
+    {{ form_widget(form.color, {attr: {class: 'w-p-50 js-tag-color'}}) }}
 
     {{ form_widget(form) }}
+
+
     <button type="submit" class="btn btn-primary mt-4">Update</button>
     {{ form_end(form) }}
 </div>
 {% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('tag') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('tag') }}
+{% endblock %}
+

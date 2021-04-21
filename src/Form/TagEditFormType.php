@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Form\Model\TagModel;
+use App\Form\Model\TagEditModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ColorType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -23,7 +22,7 @@ class TagEditFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-                                   'data_class' => TagModel::class
+                                   'data_class' => TagEditModel::class
                                ]);
     }
 }

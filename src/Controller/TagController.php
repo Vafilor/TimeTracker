@@ -107,7 +107,9 @@ class TagController extends BaseController
             $this->createNotFoundException();
         }
 
-        $form = $this->createForm(TagEditFormType::class);
+        $tagEditModel = TagEditModel::fromEntity($tag);
+
+        $form = $this->createForm(TagEditFormType::class, $tagEditModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var TagEditModel $data */
