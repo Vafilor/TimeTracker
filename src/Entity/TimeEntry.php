@@ -28,13 +28,13 @@ class TimeEntry
     protected $createdAt;
 
     /**
-     * @var DateTimeInterface
+     * @var DateTime
      * @ORM\Column(type="datetimetz", nullable=true)
      */
     protected $endedAt;
 
     /**
-     * @var DateTimeInterface
+     * @var DateTime
      * @ORM\Column(type="datetimetz", nullable=true)
      */
     protected $deletedAt;
@@ -106,9 +106,9 @@ class TimeEntry
     }
 
     /**
-     * @return DateTimeInterface
+     * @return DateTime
      */
-    public function getEndedAt(): ?DateTimeInterface
+    public function getEndedAt(): ?DateTime
     {
         return $this->endedAt;
     }

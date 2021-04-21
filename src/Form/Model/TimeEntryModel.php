@@ -6,7 +6,6 @@ namespace App\Form\Model;
 
 use App\Entity\TimeEntry;
 use DateTime;
-use DateTimeInterface;
 
 class TimeEntryModel
 {

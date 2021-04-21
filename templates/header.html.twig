@@ -19,10 +19,8 @@
                                 <h6>{{ app.user.email }}</h6>
                             </div>
                         </div>
-                        {#TODO#}
                         <div class="dropdown-divider"></div>
-{#                        <a class="dropdown-item" href="{{ path('edit_user', {'username': app.user.username}) }}">Settings</a>#}
-                        <a class="dropdown-item" href="#">Settings</a>
+                        <a class="dropdown-item" href="{{ path('user_view', {id: app.user.idString}) }}">Settings</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ path('app_logout') }}">
                             Logout
