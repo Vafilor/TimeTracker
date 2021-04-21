@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Tag;
+use App\Form\Model\TagEditModel;
 use App\Form\Model\TagModel;
+use App\Form\TagEditFormType;
 use App\Form\TagFormType;
 use App\Repository\TagRepository;
 use Knp\Component\Pager\PaginatorInterface;
@@ -27,7 +29,8 @@ class TagController extends BaseController
             'direction' => 'asc'
         ]);
 
-        $createForm = $this->createForm(TagFormType::class, null, [
+        $defaultTagModel = new TagModel();
+        $createForm = $this->createForm(TagFormType::class, $defaultTagModel, [
             'action' => $this->generateUrl('tag_create')
         ]);
 
@@ -75,10 +78,11 @@ class TagController extends BaseController
     public function create(Request $request): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $form = $this->createForm(TagFormType::class);
+        $defaultTagModel = new TagModel();
+        $form = $this->createForm(TagFormType::class, $defaultTagModel);
 
         $form->handleRequest($request);
-        if ($form->isValid() && $form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             /** @var TagModel $data */
             $data = $form->getData();
             $name = $data->getName();
@@ -92,5 +96,34 @@ class TagController extends BaseController
         }
 
         return $this->redirectToRoute('tag_list');
+    }
+
+    #[Route('/tag/{name}/view', name: 'tag_view')]
+    public function view(Request $request, TagRepository $tagRepository, string $name): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $tag = $tagRepository->findOneBy(['name' => $name]);
+        if (is_null($tag)) {
+            $this->createNotFoundException();
+        }
+
+        $form = $this->createForm(TagEditFormType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var TagEditModel $data */
+            $data = $form->getData();
+            $color = $data->getColor();
+            $tag->setColor($color);
+
+            $this->getDoctrine()->getManager()->persist($tag);
+            $this->getDoctrine()->getManager()->flush();
+
+            $this->addFlash('success', "Tag '{$tag->getName()}' has been updated");
+        }
+
+        return $this->render('tag/view.html.twig', [
+            'tag' => $tag,
+            'form' => $form->createView()
+        ]);
     }
 }

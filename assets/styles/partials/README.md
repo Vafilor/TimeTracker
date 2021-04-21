@@ -1,0 +1,1 @@
+This directory contains styles that don't apply to a whole page, but are distinct enough to warrant their own file for better separation.

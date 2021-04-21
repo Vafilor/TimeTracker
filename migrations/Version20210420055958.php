@@ -14,7 +14,7 @@ final class Version20210420055958 extends AbstractMigration
 {
     public function getDescription() : string
     {
-        return '';
+        return 'Sets up the basic tables: tag, time_entry, users, and the relations between time entries and tags.';
     }
 
     public function up(Schema $schema) : void

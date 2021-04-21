@@ -1,8 +1,9 @@
 // customize some Bootstrap variables
 //$primary: darken(#428bca, 20%);
 
-@import "colors";
+@import "partials/colors";
 @import "~bootstrap";
+@import "partials/tags";
 
 $sidebarWidth: 260px;
 $headerHeight: 58px;
@@ -31,6 +32,10 @@ $paddingFromHeader: 20px;
 
 .under-header {
     margin-top: $headerHeight;
+}
+
+.w-p-50 {
+    width: 50px !important;
 }
 
 body {
@@ -185,4 +190,10 @@ body {
 
 .inline-form-header {
     font-weight: bold;
+}
+
+.color-tile {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
 }
