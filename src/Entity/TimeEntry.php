@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\TimeEntryRepository;
@@ -11,21 +13,31 @@ use DateTimeInterface;
 use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=TimeEntryRepository::class)
- */
+ * @ORM\HasLifecycleCallbacks()
+*/
 class TimeEntry
 {
     use UUIDTrait;
 
     /**
-     * @var DateTime
      * @ORM\Column(type="datetimetz")
+     * @var DateTime
      */
     protected $createdAt;
+
+
+    /**
+     * @ORM\Column(type="datetimetz")
+     * @var DateTime
+     */
+    protected $updatedAt;
 
     /**
      * @var DateTime
@@ -68,6 +80,8 @@ class TimeEntry
         } else {
             $this->createdAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         }
+
+        $this->updatedAt = $createdAt;
     }
 
     public function getDescription(): string
@@ -113,6 +127,14 @@ class TimeEntry
         return $this->endedAt;
     }
 
+    /**
+     * @return DateTime
+     */
+    public function getupdatedAt(): DateTimeImmutable|DateTime
+    {
+        return $this->updatedAt;
+    }
+
     public function duration(): DateInterval
     {
         if (!$this->isOver()) {
@@ -126,11 +148,11 @@ class TimeEntry
     public function stop(DateTimeInterface $endedAt = null): self
     {
         if (is_null($endedAt)) {
-            $endedAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));;
+            $endedAt = new DateTime('now', new DateTimeZone('UTC'));;
         }
 
         if ($endedAt < $this->createdAt) {
-            throw new \InvalidArgumentException("End time can not be before start time");
+            throw new InvalidArgumentException("End time can not be before start time");
         }
 
         $this->endedAt = $endedAt;
@@ -189,5 +211,12 @@ class TimeEntry
         $endedAt->setTimezone(new DateTimeZone('UTC'));
         $this->endedAt = $endedAt;
         return $this;
+    }
+
+    /**
+     * @ORM\PreUpdate()
+     */
+    public function onPreUpdate(PreUpdateEventArgs $event) {
+        $this->updatedAt = new DateTime('now', new DateTimeZone('UTC'));
     }
 }
