@@ -6,6 +6,7 @@ namespace App\Form;
 
 use App\Form\Model\UserEditModel;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimezoneType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -16,6 +17,8 @@ class UserEditFormType extends AbstractType
     {
         $builder
             ->add('timezone', TimezoneType::class)
+            ->add('dateFormat', TextType::class)
+            ->add('durationFormat', TextType::class)
         ;
     }
 

@@ -1,0 +1,7 @@
+{% macro user_date(input_date, user) %}
+    {{ input_date|date(user.dateFormat, user.timezone) }}
+{% endmacro %}
+
+{% macro user_duration(input_duration, user) %}
+    {{ input_duration|date(user.durationFormat) }}
+{% endmacro %}

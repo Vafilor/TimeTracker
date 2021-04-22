@@ -1,4 +1,5 @@
 {% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
 {% import 'tag/partials.html.twig' as tags %}
 
 {% block content_class %}w-100{% endblock %}
@@ -30,15 +31,15 @@
                         {{ tags.view(tag.name, tag.color) }}
                         {% endfor %}
                     </td>
-                    <td>{{ timeEntry.createdAt|date('m/d/y h:i:s A', app.user.timezone) }}</td>
+                    <td>{{ time.user_date(timeEntry.createdAt, app.user) }}</td>
                     <td>
                         {% if timeEntry.over %}
-                        {{ timeEntry.endedAt|date('m/d/y h:i:s A', app.user.timezone) }}
+                        {{ time.user_date(timeEntry.endedAt, app.user) }}
                         {% endif %}
                     </td>
                     <td>
                         {% if timeEntry.over %}
-                        {{ timeEntry.duration|date("%hh %Im %Ss") }}
+                        {{ time.user_duration(timeEntry.duration, app.user) }}
                         {% endif %}
                     </td>
                     <td>

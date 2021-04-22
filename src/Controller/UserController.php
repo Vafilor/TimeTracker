@@ -33,7 +33,12 @@ class UserController extends BaseController
             $data = $form->getData();
 
             $user->setTimezone($data->getTimezone());
+            $user->setDurationFormat($data->getDurationFormat());
+            $user->setDateFormat($data->getDateFormat());
+
             $this->getDoctrine()->getManager()->flush();
+
+            $this->addFlash('success', 'User settings updated');
         }
 
         return $this->render('user/view.html.twig', [
