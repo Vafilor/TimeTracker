@@ -47,7 +47,7 @@ class TimeEntryController extends BaseController
         }
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
-            'sort' => 'time_entry.createdAt',
+            'sort' => 'time_entry.startedAt',
             'direction' => 'desc'
         ]);
 
@@ -81,17 +81,17 @@ class TimeEntryController extends BaseController
             ->leftJoin('time_entry.timeEntryTags', 'time_entry_tag')
             ->leftJoin('time_entry_tag.tag', 'tag')
             ->andWhere('time_entry.deletedAt IS NULL')
-            ->andWhere('time_entry.createdAt > :start')
-            ->andWhere('time_entry.createdAt < :end')
+            ->andWhere('time_entry.startedAt > :start')
+            ->andWhere('time_entry.startedAt < :end')
             ->setParameter('start', $todayStart)
             ->setParameter('end', $todayEnd)
         ;
 
         $totalTime = $timeEntryRepository->findByUserQueryBuilder($this->getUser())
-            ->select('SUM(time_entry.endedAt - time_entry.createdAt)')
+            ->select('SUM(time_entry.endedAt - time_entry.startedAt)')
             ->andWhere('time_entry.deletedAt IS NULL')
-            ->andWhere('time_entry.createdAt > :start')
-            ->andWhere('time_entry.createdAt < :end')
+            ->andWhere('time_entry.startedAt > :start')
+            ->andWhere('time_entry.startedAt < :end')
             ->andWhere('time_entry.endedAt IS NOT NULL')
             ->setParameter('start', $todayStart)
             ->setParameter('end', $todayEnd)
@@ -100,7 +100,7 @@ class TimeEntryController extends BaseController
         ;
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
-            'sort' => 'time_entry.createdAt',
+            'sort' => 'time_entry.startedAt',
             'direction' => 'desc',
         ]);
 
@@ -201,7 +201,7 @@ class TimeEntryController extends BaseController
             /** @var TimeEntryModel $data */
             $data = $form->getData();
             $timeEntry->setDescription($data->getDescription());
-            $timeEntry->setCreatedAt($data->getCreatedAt());
+            $timeEntry->setStartedAt($data->getStartedAt());
             if ($data->isEnded()) {
                 $timeEntry->setEndedAt($data->getEndedAt());
             }

@@ -27,7 +27,7 @@
             <thead>
             <tr>
                 <th>Tags</th>
-                <th>{{ knp_pagination_sortable(pagination, 'Start', 'time_entry.createdAt') }}</th>
+                <th>{{ knp_pagination_sortable(pagination, 'Start', 'time_entry.startedAt') }}</th>
                 <th>{{ knp_pagination_sortable(pagination, 'End', 'time_entry.endedAt') }}</th>
                 <th>Duration</th>
                 <th>Actions</th>
@@ -42,7 +42,7 @@
                             {{ tags.view(tag.name, tag.color) }}
                         {% endfor %}
                     </td>
-                    <td>{{ time.user_date_today(timeEntry.createdAt, app.user) }}</td>
+                    <td>{{ time.user_date_today(timeEntry.startedAt, app.user) }}</td>
                     <td>
                         {% if timeEntry.over %}
                             {{ time.user_date_today(timeEntry.endedAt, app.user) }}

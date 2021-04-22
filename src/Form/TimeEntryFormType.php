@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Form\Model\TagModel;
 use App\Form\Model\TimeEntryModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -17,7 +16,7 @@ class TimeEntryFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('createdAt', DateTimeType::class, [
+            ->add('startedAt', DateTimeType::class, [
                 'date_widget' => 'single_text',
                 'time_widget' => 'single_text',
                 'view_timezone' => $options['timezone']

@@ -32,6 +32,11 @@ class TimeEntry
      */
     protected $createdAt;
 
+    /**
+     * @ORM\Column(type="datetimetz")
+     * @var DateTime
+     */
+    protected $startedAt;
 
     /**
      * @ORM\Column(type="datetimetz")
@@ -40,14 +45,14 @@ class TimeEntry
     protected $updatedAt;
 
     /**
-     * @var DateTime
      * @ORM\Column(type="datetimetz", nullable=true)
+     * @var DateTime
      */
     protected $endedAt;
 
     /**
-     * @var DateTime
      * @ORM\Column(type="datetimetz", nullable=true)
+     * @var DateTime
      */
     protected $deletedAt;
 
@@ -75,12 +80,12 @@ class TimeEntry
         $this->description = '';
         $this->timeEntryTags = new ArrayCollection();
 
-        if (!is_null($createdAt)) {
-            $this->createdAt = $createdAt;
-        } else {
-            $this->createdAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        if (is_null($createdAt)) {
+            $createdAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         }
 
+        $this->createdAt = $createdAt;
+        $this->startedAt = $createdAt;
         $this->updatedAt = $createdAt;
     }
 
@@ -96,12 +101,6 @@ class TimeEntry
         return $this;
     }
 
-    /**
-     * Sets createdAt.
-     *
-     * @param  DateTime $createdAt
-     * @return $this
-     */
     public function setCreatedAt(DateTime $createdAt): self
     {
         $createdAt->setTimezone(new DateTimeZone('UTC'));
@@ -109,27 +108,27 @@ class TimeEntry
         return $this;
     }
 
-    /**
-     * Returns createdAt.
-     *
-     * @return DateTime
-     */
     public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
-    /**
-     * @return DateTime
-     */
+    public function getStartedAt(): DateTime
+    {
+        return $this->startedAt;
+    }
+
+    public function setStartedAt(DateTime $startedAt): self
+    {
+        $this->startedAt = $startedAt;
+        return $this;
+    }
+
     public function getEndedAt(): ?DateTime
     {
         return $this->endedAt;
     }
 
-    /**
-     * @return DateTime
-     */
     public function getupdatedAt(): DateTimeImmutable|DateTime
     {
         return $this->updatedAt;

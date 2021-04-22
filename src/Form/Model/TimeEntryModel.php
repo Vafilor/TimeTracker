@@ -9,32 +9,25 @@ use DateTime;
 
 class TimeEntryModel
 {
-    private DateTime $createdAt;
+    private DateTime $startedAt;
     private ?DateTime $endedAt;
     private string $description;
 
     public static function fromEntity(TimeEntry $timeEntry): TimeEntryModel
     {
         $model = new TimeEntryModel();
-        $model->setCreatedAt($timeEntry->getCreatedAt());
+        $model->setStartedAt($timeEntry->getStartedAt());
         $model->setEndedAt($timeEntry->getEndedAt());
         $model->setDescription($timeEntry->getDescription());
 
         return $model;
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         return $this->description;
     }
 
-    /**
-     * @param string $description
-     * @return TimeEntryModel
-     */
     public function setDescription(?string $description): self
     {
         if (is_null($description)) {
@@ -45,36 +38,22 @@ class TimeEntryModel
         return $this;
     }
 
-    /**
-     * @return DateTime
-     */
-    public function getCreatedAt(): DateTime
+    public function getStartedAt(): DateTime
     {
-        return $this->createdAt;
+        return $this->startedAt;
     }
 
-    /**
-     * @param DateTime $createdAt
-     * @return TimeEntryModel
-     */
-    public function setCreatedAt(DateTime $createdAt): TimeEntryModel
+    public function setStartedAt(DateTime $startedAt): self
     {
-        $this->createdAt = $createdAt;
+        $this->startedAt = $startedAt;
         return $this;
     }
 
-    /**
-     * @return DateTime|null
-     */
     public function getEndedAt(): ?DateTime
     {
         return $this->endedAt;
     }
 
-    /**
-     * @param DateTime|null $endedAt
-     * @return TimeEntryModel
-     */
     public function setEndedAt(?DateTime $endedAt): TimeEntryModel
     {
         $this->endedAt = $endedAt;
