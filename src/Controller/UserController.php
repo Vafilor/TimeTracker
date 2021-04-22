@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends BaseController
 {
     #[Route('/user/{id}/view', name: 'user_view')]
-    public function list(Request $request): Response {
+    public function view(Request $request): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $user = $this->getUser();
@@ -35,6 +35,7 @@ class UserController extends BaseController
             $user->setTimezone($data->getTimezone());
             $user->setDurationFormat($data->getDurationFormat());
             $user->setDateFormat($data->getDateFormat());
+            $user->setTodayDateFormat($data->getTodayDateFormat());
 
             $this->getDoctrine()->getManager()->flush();
 

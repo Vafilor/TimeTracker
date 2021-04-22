@@ -18,6 +18,7 @@ class UserEditFormType extends AbstractType
         $builder
             ->add('timezone', TimezoneType::class)
             ->add('dateFormat', TextType::class)
+            ->add('todayDateFormat', TextType::class)
             ->add('durationFormat', TextType::class)
         ;
     }

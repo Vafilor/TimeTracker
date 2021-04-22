@@ -10,6 +10,7 @@ class UserEditModel
 {
     private string $timezone;
     private string $dateFormat;
+    private string $todayDateFormat;
     private string $durationFormat;
 
     public static function fromEntity(User $user): self
@@ -18,6 +19,7 @@ class UserEditModel
         $model->setTimezone($user->getTimezone());
         $model->setDateFormat($user->getDateFormat());
         $model->setDurationFormat($user->getDurationFormat());
+        $model->setTodayDateFormat($user->getTodayDateFormat());
 
         return $model;
     }
@@ -45,6 +47,17 @@ class UserEditModel
     public function setDateFormat(string $dateFormat): self
     {
         $this->dateFormat = $dateFormat;
+        return $this;
+    }
+
+    public function getTodayDateFormat(): string
+    {
+        return $this->todayDateFormat;
+    }
+
+    public function setTodayDateFormat(string $todayDateFormat): self
+    {
+        $this->todayDateFormat = $todayDateFormat;
         return $this;
     }
 

@@ -1,12 +1,12 @@
 import $ from 'jquery';
 import 'jquery-ui/ui/widgets/autocomplete';
 import 'bootstrap'; // Adds functions to jQuery
+import '../styles/time_entry.scss';
 
 import { TimeEntryApi } from "./core/api/time_entry_api";
-import '../styles/time_entry.scss';
 import { TagApi } from "./core/api/tag_api";
 import Flashes from "./components/flashes";
-import { formatTimeDifference } from "./components/time";
+import TimerView from "./components/timer";
 
 function createTagView(tagName: string, tagColor: string, extraClasses: string = ''): string {
     return `<div class="tag mr-2 ${extraClasses}" style="background-color: ${tagColor}" data-name="${tagName}">${tagName} <span class="time-entry-remove js-time-entry-remove"><i class="fas fa-times"></i></span></div>`;
@@ -186,19 +186,7 @@ $(document).ready(() => {
     const autoComplete = new AutocompleteTags(timeEntryId, flashes);
 
     const durationFormat = $('.js-data').data('duration-format');
-    const $timers = $('.js-timer');
-    if($timers.length !== 0) {
-        setInterval(() => {
-            $timers.each(((index, element) => {
-                const $element = $(element);
-                const milliSecondsSinceEpoch = $element.data('start') * 1000;
-                const now = Math.floor((new Date()).getTime());
-
-                const durationAsString = formatTimeDifference(milliSecondsSinceEpoch, now, durationFormat);
-                $element.text(durationAsString);
-
-                document.title = durationAsString;
-            }));
-        }, 1000);
-    }
+    const timerView = new TimerView('.js-timer', durationFormat, (durationString) => {
+       document.title = durationString;
+    });
 });

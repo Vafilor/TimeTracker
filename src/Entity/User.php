@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -7,7 +9,6 @@ use App\Traits\UUIDTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Intl\Timezones;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -24,16 +25,25 @@ class User extends BaseUser
 
     /**
      * @ORM\Column(type="string")
+     * @var string
      */
     private $timezone;
 
     /**
      * @ORM\Column(type="string")
+     * @var string
      */
     private $dateFormat;
 
     /**
      * @ORM\Column(type="string")
+     * @var string
+     */
+    private $todayDateFormat;
+
+    /**
+     * @ORM\Column(type="string")
+     * @var string
      */
     private $durationFormat;
 
@@ -42,7 +52,8 @@ class User extends BaseUser
         parent::__construct();
         $this->timeEntries = new ArrayCollection();
         $this->timezone = "America/Los_Angeles";
-        $this->dateFormat = 'h:i:s A';
+        $this->dateFormat = 'm/d/Y h:i:s A';
+        $this->todayDateFormat = 'h:i:s A';
         $this->durationFormat = '%hh %Im %Ss';
     }
 
@@ -63,27 +74,17 @@ class User extends BaseUser
         return $this->timeEntries;
     }
 
-    /**
-     * @return string
-     */
     public function getTimezone(): string
     {
         return $this->timezone;
     }
 
-    /**
-     * @param string $timezone
-     * @return User
-     */
     public function setTimezone(string $timezone): self
     {
         $this->timezone = $timezone;
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getDateFormat(): string
     {
         return $this->dateFormat;
@@ -95,9 +96,17 @@ class User extends BaseUser
         return $this;
     }
 
-    /**
-     * @return string
-     */
+    public function getTodayDateFormat(): string
+    {
+        return $this->todayDateFormat;
+    }
+
+    public function setTodayDateFormat(string $todayDateFormat): User
+    {
+        $this->todayDateFormat = $todayDateFormat;
+        return $this;
+    }
+
     public function getDurationFormat(): string
     {
         return $this->durationFormat;
