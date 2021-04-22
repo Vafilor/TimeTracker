@@ -1,11 +1,14 @@
 {% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
 
 {% block content_class %}w-100{% endblock %}
 
-{% block title %}TimeTracker{% endblock %}
+{% block title %}{{ time.user_duration(timeEntry.duration, app.user) }}{% endblock %}
 
 {% block content_body %}
-<div class="p-3">
+<div class="p-3 js-data"
+     data-duration-format="{{ app.user.durationFormat }}">
+
     <div class="d-flex align-items-center js-time-entry-tags">
         <div class="js-time-entry-tags-container">
             {% for timeEntryTag in timeEntryTags %}
@@ -20,15 +23,22 @@
         </div>
     </div>
 
-    <div>
+    <div class="mt-2">
         {% if not timeEntry.over %}
-        <div class="spinner-border spinner-border-sm text-primary" role="status">
+        <div class="spinner-border spinner-border-sm text-primary mr-1" role="status">
             <span class="sr-only">Loading...</span>
         </div>
         {% endif %}
+
+        Duration
+        <span class="ml-1 {% if timeEntry.running %}js-timer{% endif %}"
+              data-start="{{ timeEntry.createdAt.timestamp }}">
+            {{ time.user_duration(timeEntry.duration, app.user) }}
+        </span>
+
     </div>
 
-    {{ form_start(form) }}
+    {{ form_start(form, {attr: {class: 'mt-2'}}) }}
 
     <div class="d-flex">
         {{ form_row(form.createdAt) }}

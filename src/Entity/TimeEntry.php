@@ -113,10 +113,11 @@ class TimeEntry
         return $this->endedAt;
     }
 
-    public function duration(): ?DateInterval
+    public function duration(): DateInterval
     {
         if (!$this->isOver()) {
-            return null;
+            $now = new DateTime('now', new DateTimeZone('UTC'));
+            return $now->diff($this->createdAt);
         }
 
         return $this->endedAt->diff($this->createdAt);
