@@ -338,7 +338,8 @@ class TimeEntryController extends BaseController
         $manager->persist($timeEntryTag);
         $manager->flush();
 
-        return $this->json([], Response::HTTP_CREATED);
+        $apiTag = ApiTag::fromEntity($tag);
+        return $this->json($apiTag, Response::HTTP_CREATED);
     }
 
     #[Route('/json/time-entry/{id}/tag/{tagName}', name: 'time_entry_json_tag_delete', methods: ['DELETE'])]

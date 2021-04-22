@@ -125,10 +125,11 @@ class AutocompleteTags {
         this.$tagsContainer.append($newTag);
 
         TimeEntryApi.addTag(this.timeEntryId, tagName)
-            .then(() => {
+            .then((newTag) => {
                 this.pendingTags.delete(tagName);
                 this.currentTags.push(tagName);
                 $newTag.removeClass('pending');
+                $newTag.css('background-color', newTag.data.color);
 
                 $(".js-time-entry-tag-input").val('');
             }).catch(() => {
