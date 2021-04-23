@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiTag;
+use App\Api\ApiTimeEntry;
 use App\Entity\Tag;
 use App\Entity\TimeEntry;
 use App\Entity\TimeEntryTag;
@@ -241,6 +242,36 @@ class TimeEntryController extends BaseController
         $this->getDoctrine()->getManager()->flush();
 
         return $this->redirectToRoute('time_entry_view', ['id' => $id]);
+    }
+
+    #[Route('/json/time-entry/{id}/stop', name: 'time_entry_json_stop', methods: ['PUT'])]
+    public function jsonStop(Request $request, TimeEntryRepository $timeEntryRepository, string $id): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        /** @var TimeEntry|null $timeEntry */
+        $timeEntry = $timeEntryRepository->findWithTagFetch($id);
+        if (is_null($timeEntry)) {
+            return $this->json(['error' => 'Time entry not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        if ($timeEntry->isOver()) {
+            return $this->json(['error' => 'Time entry is already over'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $timeEntry->stop();
+        $this->getDoctrine()->getManager()->flush();
+
+        $data = json_decode($request->getContent(), true);
+        if (!array_key_exists('time_format', $data)) {
+            $timeFormat = 'date';
+        } else {
+            $timeFormat = $data['time_format'];
+        }
+
+        $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser(), $timeFormat);
+
+        return $this->json($apiTimeEntry);
     }
 
     #[Route('/time-entry/{id}/resume', name: 'time_entry_resume')]

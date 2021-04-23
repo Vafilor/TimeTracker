@@ -1,8 +1,18 @@
 import { CoreApi } from "./api";
+import { ApiTag } from "./tag_api";
 
-export interface ApiTag {
-    name: string;
-    color: string;
+export type DateFormat = 'date' | 'today';
+
+export interface ApiTimeEntry {
+    createdAt: string;
+    updatedAt: string;
+    startedAt: string;
+    startedAtEpoch: number;
+    endedAt: string;
+    endedAtEpoch: number;
+    description: string;
+    duration: string;
+    apiTags: ApiTag[];
 }
 
 export interface ApiUpdateTimeEntry {
@@ -11,6 +21,12 @@ export interface ApiUpdateTimeEntry {
 }
 
 export class TimeEntryApi {
+    public static stop(timeEntryId: string, format: DateFormat = 'date') {
+        return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}/stop`, {
+            'time_format': format
+        });
+    }
+
     public static addTag(timeEntryId: string, tagName: string) {
         return CoreApi.post<ApiTag>(`/json/time-entry/${timeEntryId}/tag`, {
             tagName

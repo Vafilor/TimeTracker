@@ -1,4 +1,9 @@
-import { CoreApi } from "./api";
+import { CoreApi } from './api';
+
+export interface ApiTag {
+    name: string;
+    color: string;
+}
 
 export class TagApi {
     public static listTags(searchTerm: string, excludeTags: Array<string> = [] ) {

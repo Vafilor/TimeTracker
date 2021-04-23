@@ -129,7 +129,7 @@ class TimeEntry
         return $this->endedAt;
     }
 
-    public function getupdatedAt(): DateTimeImmutable|DateTime
+    public function getUpdatedAt(): DateTimeImmutable|DateTime
     {
         return $this->updatedAt;
     }
