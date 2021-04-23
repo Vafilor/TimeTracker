@@ -13,6 +13,8 @@
 
         <h1 class="text-center">Today</h1>
 
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
         <ul class="nav nav-tabs">
             <li class="nav-item">
                 <a class="nav-link active" href="#">Entries</a>
@@ -21,8 +23,6 @@
                 <a class="nav-link" href="{{ path('report_today') }}">Report</a>
             </li>
         </ul>
-
-        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
         <table class="table table-hover table-bordered">
             <thead>
