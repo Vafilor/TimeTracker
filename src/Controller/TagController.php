@@ -26,6 +26,14 @@ class TagController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $tagRepository->createDefaultQueryBuilder();
+
+        if ($request->query->has('name')) {
+            $nameLike = $request->query->get('name');
+            $queryBuilder = $queryBuilder->andWhere('tag.name LIKE :name')
+                                         ->setParameter('name', "%$nameLike%")
+            ;
+        }
+
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'tag.name',
             'direction' => 'asc'
