@@ -81,7 +81,7 @@ class TimeEntry
         $this->timeEntryTags = new ArrayCollection();
 
         if (is_null($createdAt)) {
-            $createdAt = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+            $createdAt = new DateTime('now', new DateTimeZone('UTC'));
         }
 
         $this->createdAt = $createdAt;

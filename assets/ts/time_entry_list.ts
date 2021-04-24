@@ -4,32 +4,74 @@ import 'bootstrap'; // Adds functions to jQuery
 import '../styles/time_entry_list.scss';
 import { TimeEntryApi } from "./core/api/time_entry_api";
 import Flashes from "./components/flashes";
+import LoadingButton from "./components/loading_button";
 
 $(document).ready( () => {
     const dateFormat = $('.js-data').data('date-format');
     const flashes = new Flashes($('#flash-messages'));
 
-    $('.js-stop').on('click', (event) => {
+    const stopButton = new LoadingButton($('.js-stop'));
+
+    stopButton.$container.on('click', (event) => {
         const $target = $(event.currentTarget);
         const $row = $target.parent().parent();
 
         const timeEntryId = $target.data('time-entry-id') as string;
 
-        $target.attr('disabled', 'true');
-        $target.find('.js-loading').toggleClass('d-none');
+        stopButton.stopLoading();
 
         TimeEntryApi.stop(timeEntryId, dateFormat)
             .then(res => {
                 $row.find('.js-ended-at').text(res.data.endedAt);
                 $row.find('.js-duration').text(res.data.duration);
-                $target.removeAttr('disabled');
-                $target.find('.js-loading').toggleClass('d-none');
+                stopButton.stopLoading();
                 $target.remove();
             }).catch(res => {
                 flashes.append('danger', 'Unable to stop time entry');
-                $target.removeAttr('disabled');
-                $target.find('.js-loading').toggleClass('d-none');
+                stopButton.stopLoading();
             }
         );
+    })
+
+    const createTimeEntryButton = new LoadingButton($('.js-create-time-entry'));
+
+    createTimeEntryButton.$container.on('click', (event) => {
+        createTimeEntryButton.startLoading();
+
+        TimeEntryApi.create(dateFormat)
+            .then(res => {
+                window.location.href = res.data.url;
+                createTimeEntryButton.stopLoading();
+            }).catch(res => {
+                $('.js-stop-running').data('time-entry-id', res.errors[0].data);
+                $('#confirm-stop-modal').modal();
+                createTimeEntryButton.stopLoading();
+            }
+        );
+    })
+
+
+    const stopRunningButton = new LoadingButton($('.js-stop-running'));
+    stopRunningButton.$container.on('click', (event)=> {
+        const $target = $(event.currentTarget);
+        const timeEntryId = $target.data('time-entry-id');
+
+        stopRunningButton.startLoading();
+
+        TimeEntryApi.stop(timeEntryId, dateFormat)
+            .then(() => {
+                TimeEntryApi.create(dateFormat)
+                    .then(res => {
+                        window.location.href = res.data.url;
+                        stopRunningButton.stopLoading();
+                    }).catch(res => {
+                        $('#confirm-stop-modal').modal('hide');
+                        stopRunningButton.stopLoading();
+                    }
+                );
+            })
+            .catch(() => {
+                flashes.append('danger', 'Unable to stop time entry');
+            });
     })
 });

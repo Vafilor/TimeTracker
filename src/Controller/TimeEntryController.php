@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiError;
+use App\Api\ApiErrorResponseBody;
 use App\Api\ApiTag;
 use App\Api\ApiTimeEntry;
 use App\Entity\Tag;
@@ -23,6 +25,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TimeEntryController extends BaseController
 {
+    const codeRunningTimer = 'code_running_timer';
+
     #[Route('/time-entry/list', name: 'time_entry_list')]
     public function list(
         Request $request,
@@ -131,6 +135,43 @@ class TimeEntryController extends BaseController
         $manager->flush();
 
         return $this->redirectToRoute('time_entry_view', ['id' => $timeEntry->getIdString()]);
+    }
+
+    #[Route('/json/time-entry/create', name: 'time_entry_json_create', methods: ['POST'])]
+    public function jsonCreate(Request $request, TimeEntryRepository $timeEntryRepository): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
+        if (!is_null($runningTimeEntry)) {
+            $data = new ApiErrorResponseBody(
+                new ApiError(
+                    self::codeRunningTimer,
+                    'You have a running timer',
+                    $runningTimeEntry->getIdString())
+            );
+            return $this->json($data, Response::HTTP_BAD_REQUEST);
+        }
+
+        $timeEntry = new TimeEntry($this->getUser());
+        $manager = $this->getDoctrine()->getManager();
+        $manager->persist($timeEntry);
+        $manager->flush();
+
+        $data = json_decode($request->getContent(), true);
+        if (!array_key_exists('time_format', $data)) {
+            $timeFormat = 'date';
+        } else {
+            $timeFormat = $data['time_format'];
+        }
+
+        $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser(), $timeFormat);
+        $data = [
+            'timeEntry' => $apiTimeEntry,
+            'url' => $this->generateUrl('time_entry_view', ['id' => $timeEntry->getIdString()])
+        ];
+
+        return $this->json($data, Response::HTTP_CREATED);
     }
 
     #[Route('/time-entry/{id}/continue', name: 'time_entry_continue')]
@@ -317,6 +358,10 @@ class TimeEntryController extends BaseController
         if (!$timeEntry->getOwner()->equalIds($this->getUser())) {
             $this->addFlash('danger', 'You do not have permission to delete this time entry');
             return $this->redirectToRoute('time_entry_list');
+        }
+
+        if ($timeEntry->running()) {
+            $timeEntry->stop();
         }
 
         $timeEntry->softDelete();

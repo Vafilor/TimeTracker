@@ -47,11 +47,11 @@ class ApiTimeEntry
         $apiTimeEntry->startedAt = self::formatUserDate($timeEntry->getStartedAt(), $user, $format);
         $apiTimeEntry->startedAtEpoch = $timeEntry->getStartedAt()->getTimestamp();
         $apiTimeEntry->updatedAt = self::formatUserDate($timeEntry->getUpdatedAt(), $user, $format);
-        $apiTimeEntry->endedAt = self::formatUserDate($timeEntry->getEndedAt(), $user, $format);
-        $apiTimeEntry->endedAtEpoch = $timeEntry->getEndedAt()->getTimestamp();
         $apiTimeEntry->description = $timeEntry->getDescription();
 
         if ($timeEntry->isOver()) {
+            $apiTimeEntry->endedAt = self::formatUserDate($timeEntry->getEndedAt(), $user, $format);
+            $apiTimeEntry->endedAtEpoch = $timeEntry->getEndedAt()->getTimestamp();
             $apiTimeEntry->duration = $timeEntry->duration()->format($user->getDurationFormat());
         }
 

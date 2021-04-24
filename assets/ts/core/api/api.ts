@@ -6,6 +6,7 @@ export interface JsonResponse<T> {
 export interface ApiError {
     code: string;
     message: string;
+    data: any;
 }
 
 export class ApiErrorResponse extends Error {

@@ -15,12 +15,23 @@ export interface ApiTimeEntry {
     apiTags: ApiTag[];
 }
 
+export interface CreateTimeEntryResponse {
+    timeEntry: ApiTimeEntry;
+    url: string;
+}
+
 export interface ApiUpdateTimeEntry {
     description?: string;
     endedAt?: boolean;
 }
 
 export class TimeEntryApi {
+    public static create(format: DateFormat = 'date') {
+        return CoreApi.post<CreateTimeEntryResponse>(`/json/time-entry/create`, {
+            'time_format': format
+        });
+    }
+
     public static stop(timeEntryId: string, format: DateFormat = 'date') {
         return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}/stop`, {
             'time_format': format
