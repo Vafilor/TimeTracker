@@ -11,14 +11,17 @@ use App\Api\ApiTimeEntry;
 use App\Entity\Tag;
 use App\Entity\TimeEntry;
 use App\Entity\TimeEntryTag;
+use App\Form\Model\TimeEntryListFilterModel;
 use App\Form\Model\TimeEntryModel;
 use App\Form\TimeEntryFormType;
+use App\Form\TimeEntryListFilterFormType;
 use App\Repository\TagRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\TimeEntryTagRepository;
 use DateTime;
 use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,15 +34,10 @@ class TimeEntryController extends BaseController
     public function list(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
+        FormFactoryInterface $formFactory,
         PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        $tagsString = $request->query->get('tags', '');
-        $tags = [];
-        if ($tagsString !== '') {
-            $tags = explode(',', $tagsString);
-        }
 
         $queryBuilder = $timeEntryRepository->findByUserQueryBuilder($this->getUser())
             ->addSelect('time_entry_tag')
@@ -47,8 +45,41 @@ class TimeEntryController extends BaseController
             ->leftJoin('time_entry_tag.tag', 'tag')
             ->andWhere('time_entry.deletedAt IS NULL');
 
-        if (count($tags) !== 0) {
-            $queryBuilder = $queryBuilder->andWhere('tag.name IN (:tags)')->setParameter('tags', $tags);
+        $filterForm = $formFactory->createNamed('',
+            TimeEntryListFilterFormType::class,
+            new TimeEntryListFilterModel(), [
+                'timezone' => $this->getUser()->getTimezone(),
+                'csrf_protection' => false,
+                'method' => 'GET',
+            ]
+        );
+
+        $filterForm->handleRequest($request);
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
+            /** @var TimeEntryListFilterModel $data */
+            $data = $filterForm->getData();
+
+            if ($data->hasStart()) {
+                $queryBuilder = $queryBuilder
+                    ->andWhere('time_entry.startedAt >= :start')
+                    ->setParameter('start', $data->getStart())
+                ;
+            }
+
+            if ($data->hasEnd()) {
+                $queryBuilder = $queryBuilder
+                    ->andWhere('time_entry.endedAt <= :end')
+                    ->setParameter('end', $data->getEnd())
+                ;
+            }
+
+            if ($data->hasTags()) {
+                $tags = $data->getTagsArray();
+                $queryBuilder = $queryBuilder
+                    ->andWhere('tag.name IN (:tags)')
+                    ->setParameter('tags', $tags)
+                ;
+            }
         }
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
@@ -58,6 +89,7 @@ class TimeEntryController extends BaseController
 
         return $this->render('time_entry/index.html.twig', [
             'pagination' => $pagination,
+            'filterForm' => $filterForm->createView()
         ]);
     }
 

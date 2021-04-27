@@ -1,10 +1,14 @@
 $primary: #007bff;
 $primaryLight: lighten($primary, 30%);
 $light: #f8f9fa;
+$light-gray: #cdcdcd;
+$gray: #ababab;
 $darkGray: #5d5d5d;
 $dark: #222;
 
 $theme-colors: (
+  "light-gray": $light-gray,
+  "gray": $gray,
   "dark-gray": $darkGray
 );
 

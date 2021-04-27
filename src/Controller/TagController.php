@@ -6,11 +6,14 @@ namespace App\Controller;
 
 use App\Entity\Tag;
 use App\Form\Model\TagEditModel;
+use App\Form\Model\TagListFilterModel;
 use App\Form\Model\TagModel;
 use App\Form\TagEditFormType;
 use App\Form\TagFormType;
+use App\Form\TagListFilterFormType;
 use App\Repository\TagRepository;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,17 +24,28 @@ class TagController extends BaseController
     public function list(
         Request $request,
         TagRepository $tagRepository,
+        FormFactoryInterface $formFactory,
         PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $tagRepository->createDefaultQueryBuilder();
 
-        if ($request->query->has('name')) {
-            $nameLike = $request->query->get('name');
-            $queryBuilder = $queryBuilder->andWhere('tag.name LIKE :name')
-                                         ->setParameter('name', "%$nameLike%")
-            ;
+        $filterForm = $formFactory->createNamed('',
+            TagListFilterFormType::class,
+            new TagListFilterModel(),
+            ['csrf_protection' => false, 'method' => 'GET']
+        );
+        $filterForm->handleRequest($request);
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
+            /** @var TagListFilterModel $data */
+            $data = $filterForm->getData();
+            $nameLike = $data->getName();
+            if ($nameLike !== '') {
+                $queryBuilder = $queryBuilder->andWhere('tag.name LIKE :name')
+                    ->setParameter('name', "%$nameLike%")
+                ;
+            }
         }
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
@@ -46,7 +60,8 @@ class TagController extends BaseController
 
         return $this->render('tag/index.html.twig', [
             'pagination' => $pagination,
-            'form' => $createForm->createView()
+            'form' => $createForm->createView(),
+            'filterForm' => $filterForm->createView()
         ]);
     }
 
@@ -85,7 +100,7 @@ class TagController extends BaseController
     }
 
     #[Route('/tag/create', name: 'tag_create')]
-    public function create(Request $request): Response {
+    public function create(Request $request, TagRepository $tagRepository): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $defaultTagModel = new TagModel();
@@ -96,6 +111,13 @@ class TagController extends BaseController
             /** @var TagModel $data */
             $data = $form->getData();
             $name = $data->getName();
+
+            $tagExists = $tagRepository->exists($name);
+            if ($tagExists) {
+                $this->addFlash('danger', "Tag '$name' already exists");
+                return $this->redirectToRoute('tag_view', ['name' => $name]);
+            }
+
             $tag = new Tag($name);
             $this->getDoctrine()->getManager()->persist($tag);
             $this->getDoctrine()->getManager()->flush();

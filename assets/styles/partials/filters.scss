@@ -1,0 +1,15 @@
+@import 'colors';
+
+.filter {
+  border: 1px solid $light-gray;
+  border-radius: 4px;
+  padding: 5px;
+
+  .filter-title {
+    font-weight: bold;
+  };
+}
+
+.filter-table {
+
+}

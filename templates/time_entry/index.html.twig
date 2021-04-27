@@ -9,6 +9,68 @@
 {% block content_body %}
     <div class="p-3">
         <h1 class="text-center">Time Entries</h1>
+
+        <div class="filter table-filter mb-3">
+            <div class="filter-title">Filter</div>
+            {{ form_start(filterForm) }}
+            <div class="d-flex mb-2">
+                <div>
+                    <div>
+                    {{ form_label(filterForm.start) }}
+                    {% if filterForm.end.vars.errors|length != 0 %}
+                        &nbsp;
+                    {% endif %}
+                    </div>
+                    <div class="d-inline-flex mt-1">
+                        {{ form_widget(filterForm.start, {attr: {class: 'anti-form-control'}}) }}
+                        <button type="button" class="btn btn-danger js-clear-datetime ml-2">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ml-3">
+                    <div>
+                    {{ form_label(filterForm.end) }}
+                    {% if filterForm.start.vars.errors|length != 0 %}
+                        &nbsp;
+                    {% endif %}
+                    </div>
+                    <div class="d-inline-flex mt-1">
+
+                        {{ form_widget(filterForm.end, {attr: {class: 'anti-form-control'}}) }}
+                        <button type="button" class="btn btn-danger js-clear-datetime ml-2">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{ form_row(filterForm.tags) }}
+
+            <button type="submit" class="btn btn-primary mt-2">Search</button>
+            {{ form_end(filterForm) }}
+{#            <form method="get">#}
+{#                <div class="d-flex">#}
+{#                    <fieldset class="form-group form-inline">#}
+{#                        <legend class="col-form-label required">Start</legend>#}
+{#                        <div class="form-inline">#}
+{#                            <input class="form-control" type="date" name="start-date" required="required" value="{{ app.request.query.get('start-date', '') }}"/>#}
+{#                            <input class="form-control" type="time" name="start-time" required="required" value="{{ app.request.query.get('start-time', '00:00') }}"/>#}
+{#                        </div>#}
+{#                    </fieldset>#}
+{#                    <fieldset class="form-group form-inline ml-3">#}
+{#                        <legend class="col-form-label required">End</legend>#}
+{#                        <div class="form-inline">#}
+{#                            <input class="form-control" type="date" name="end-date" required="required" value="{{ app.request.query.get('end-date', '') }}"/>#}
+{#                            <input class="form-control" type="time" name="end-time" required="required" value="{{ app.request.query.get('end-time', '23:59') }}"/>#}
+{#                        </div>#}
+{#                    </fieldset>#}
+{#                </div>#}
+{#                <button type="submit" class="btn btn-primary">Search</button>#}
+{#            </form>#}
+        </div>
+
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
         <table class="table table-hover table-bordered">

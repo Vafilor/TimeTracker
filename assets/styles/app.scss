@@ -4,6 +4,7 @@
 @import "partials/colors";
 @import "~bootstrap";
 @import "partials/tags";
+@import "partials/filters";
 
 $sidebarWidth: 260px;
 $headerHeight: 58px;
@@ -196,4 +197,14 @@ body {
     width: 20px;
     height: 20px;
     display: inline-block;
+}
+
+.form-control {
+    &.is-invalid {
+        &.anti-form-control {
+            padding: unset;
+            border-color: unset;
+            border: unset;
+        }
+    }
 }

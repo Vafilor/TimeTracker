@@ -26,4 +26,11 @@ class TagRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('tag');
     }
+
+    public function exists(string $name): bool
+    {
+        $existingTag = $this->findOneBy(['name' => $name]);
+
+        return !is_null($existingTag);
+    }
 }

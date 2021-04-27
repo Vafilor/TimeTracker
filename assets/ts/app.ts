@@ -27,5 +27,11 @@ $(document).ready(() => {
             .toggleClass('ml-sidebar')
         ;
     });
+
+    $('.js-clear-datetime').on('click', (event) => {
+        const $parent = $(event.currentTarget).parent();
+
+        $parent.find('input').val('');
+    })
 });
 
