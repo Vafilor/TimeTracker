@@ -154,7 +154,7 @@ class AutocompleteTags {
             return;
         }
 
-        this.currentTags.splice(index)
+        this.currentTags.splice(index, 1);
 
         const $element = this.$tagsContainer.find(`[data-name=${tagName}]`);
         $element.addClass('pending');
