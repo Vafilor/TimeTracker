@@ -1,4 +1,5 @@
 {% extends 'sidebar.html.twig' %}
+{% import 'tag/partials.html.twig' as tags %}
 
 {% block content_class %}w-100{% endblock %}
 
@@ -28,7 +29,7 @@
                 {% for item in summary %}
                 <tr>
                     <td>
-                        <div class="badge badge-dark-gray">{{ item.name }}</div>
+                        {{ tags.view(item.name, item.color) }}
                     </td>
                     <td>{{ item.duration }}</td>
                 </tr>

@@ -35,8 +35,8 @@ class ReportController extends BaseController
         $todayEnd->setTimezone(new DateTimeZone('UTC'));
 
         $summary = $timeEntryRepository->findByUserQueryBuilder($this->getUser())
-            ->select('tag.name, SUM(time_entry.endedAt - time_entry.createdAt) as duration')
-            ->groupBy('tag.name')
+            ->select('tag.name, tag.color, SUM(time_entry.endedAt - time_entry.createdAt) as duration')
+            ->groupBy('tag.name, tag.color')
             ->leftJoin('time_entry.timeEntryTags', 'time_entry_tag')
             ->leftJoin('time_entry_tag.tag', 'tag')
             ->andWhere('time_entry.deletedAt IS NULL')
