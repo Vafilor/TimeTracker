@@ -40,13 +40,32 @@
     {{ form_start(form, {attr: {class: 'mt-2'}}) }}
 
     <div class="d-flex">
-        {{ form_row(form.startedAt) }}
+        <div>
+            <div>
+                {{ form_label(form.startedAt) }}
+                {% if form.endedAt.vars.errors|length != 0 %}
+                    &nbsp;
+                {% endif %}
+            </div>
+            <div class="d-inline-flex mt-1">
+                {{ form_widget(form.startedAt, {attr: {class: 'anti-form-control'}}) }}
+            </div>
+        </div>
+
         <div class="ml-4">
-        {{ form_row(form.endedAt) }}
+            <div>
+                {{ form_label(form.endedAt) }}
+                {% if form.startedAt.vars.errors|length != 0 %}
+                    &nbsp;
+                {% endif %}
+            </div>
+            <div class="d-inline-flex mt-1">
+                {{ form_widget(form.endedAt, {attr: {class: 'anti-form-control'}}) }}
+            </div>
         </div>
     </div>
 
-    <ul class="nav nav-tabs" id="description-tab" role="tablist">
+    <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
         <li class="nav-item" role="presentation">
             <a class="nav-link active" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">Markdown</a>
         </li>
