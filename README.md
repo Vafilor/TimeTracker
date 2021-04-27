@@ -2,6 +2,10 @@
 
 Web App for tracking your time. Currently only locally deployable.
 
+<img src="readme_assets/today.png" width="100%" />
+
+<img src="readme_assets/active_entry.png" width="100%" />
+
 ## Features
 
 * Use tags on each time entry so you can track multiple records at once
@@ -19,6 +23,7 @@ Web App for tracking your time. Currently only locally deployable.
 
 ```bash
 composer install
+yarn install
 yarn encore dev
 ```
 
@@ -41,3 +46,16 @@ yarn encore dev
 ```bash
 symfony serve
 ```
+
+## Concepts
+
+### Continue
+
+This will create a new time entry with the same tags. 
+
+### Resume
+
+This will remove the 'ended' part of the current time entry and resume the timer.
+This is mostly for "oops" moments when you accidentally stopped a time entry.
+
+
