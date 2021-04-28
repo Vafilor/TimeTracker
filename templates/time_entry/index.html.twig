@@ -46,7 +46,23 @@
                 </div>
             </div>
 
-            {{ form_row(filterForm.tags) }}
+            {{ form_label(filterForm.tags) }}
+            <div class="js-autocomplete-tags d-flex align-items-center">
+                {{ form_widget(filterForm.tags, {attr: {class: 'js-real-input d-none'}}) }}
+                <div class="js-tags tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
+
+                <div class="input-group unset-width flex-shrink-0 align-self-start">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                            <div class="spinner-border spinner-border-sm text-primary js-load opacity-invisible" role="status">
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" class="js-tag-input" placeholder="tag name..." aria-label="loading indicator">
+                    <button type="button" class="btn btn-secondary js-add-tag ml-2">Add</button>
+                </div>
+            </div>
 
             <button type="submit" class="btn btn-primary mt-2">Search</button>
             {{ form_end(filterForm) }}
@@ -67,7 +83,7 @@
             <tbody>
             {% for timeEntry in pagination.items %}
                 <tr>
-                    <td>
+                    <td class="tag-list many-rows">
                         {% for timeEntryTag in timeEntry.timeEntryTags %}
                         {% set tag = timeEntryTag.tag %}
 

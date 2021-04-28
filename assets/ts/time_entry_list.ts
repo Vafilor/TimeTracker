@@ -5,6 +5,10 @@ import '../styles/time_entry_list.scss';
 import { TimeEntryApi } from "./core/api/time_entry_api";
 import Flashes from "./components/flashes";
 import LoadingButton from "./components/loading_button";
+import AutocompleteTags from "./components/autocomplete_tags";
+import { ApiTag } from "./core/api/tag_api";
+import TagList from "./components/tag_list";
+
 
 $(document).ready( () => {
     const dateFormat = $('.js-data').data('date-format');
@@ -74,4 +78,17 @@ $(document).ready( () => {
                 flashes.append('danger', 'Unable to stop time entry');
             });
     })
+
+    const tagList = new TagList('.js-tags');
+    const $realInput = $('.js-real-input');
+
+    const autoComplete = new AutocompleteTags('.js-autocomplete-tags');
+    autoComplete.tagEmitter.addObserver((apiTag: ApiTag) => {
+        tagList.add(apiTag);
+    })
+
+    tagList.tagsChanged.addObserver(() => {
+        autoComplete.setTags(tagList.getTagNames());
+        $realInput.val(tagList.getTagNamesCommaSeparated());
+    });
 });

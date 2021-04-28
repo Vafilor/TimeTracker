@@ -48,7 +48,7 @@ export class TimeEntryApi {
         return CoreApi.get<ApiTag[]>(`/json/time-entry/${timeEntryId}/tags`);
     }
 
-    public static deleteTag(timeEntryId: string, tagName: string) {
+    public static removeTag(timeEntryId: string, tagName: string) {
         return CoreApi.delete(`/json/time-entry/${timeEntryId}/tag/${tagName}`);
     }
 

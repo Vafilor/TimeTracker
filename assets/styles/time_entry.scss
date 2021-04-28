@@ -1,47 +1,5 @@
 @import "partials/colors";
-
-$lighterGray: lighten($darkGray, 20%);
-
-.tag {
-  &.pending {
-    opacity: 0.5;
-  }
-
-  .time-entry-remove {
-    color: $lighterGray;
-    border-left: 1px solid $lighterGray;
-    padding-left: 8px;
-    margin-left: 8px;
-
-    &:hover {
-      color: white;
-      cursor: pointer;
-    }
-  }
-}
-
-ul {
-    &.ui-autocomplete {
-      list-style-type: none;
-      padding-left: 0;
-      background-color: white;
-      border: 1px solid gray;
-      max-width: 200px;
-
-      li {
-        padding: 4px;
-
-        &:hover {
-          cursor: pointer;
-          background-color: $primaryLight;
-        }
-      }
-    }
-}
-
-.ui-helper-hidden-accessible {
-  display: none;
-}
+@import "partials/tags";
 
 #markdown {
   textarea {

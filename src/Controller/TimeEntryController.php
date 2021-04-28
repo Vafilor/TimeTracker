@@ -286,11 +286,15 @@ class TimeEntryController extends BaseController
         }
 
         $timeEntryTags = $timeEntryTagRepository->findBy(['timeEntry' => $timeEntry]);
+        $apiTags = array_map(
+            fn($timeEntryTag) => ApiTag::fromEntity($timeEntryTag->getTag()),
+            $timeEntryTags
+        );
 
         return $this->render('time_entry/view.html.twig', [
             'timeEntry' => $timeEntry,
             'form' => $form->createView(),
-            'timeEntryTags' => $timeEntryTags
+            'tags' => $apiTags
         ]);
     }
 
@@ -447,6 +451,7 @@ class TimeEntryController extends BaseController
         $manager->flush();
 
         $apiTag = ApiTag::fromEntity($tag);
+
         return $this->json($apiTag, Response::HTTP_CREATED);
     }
 

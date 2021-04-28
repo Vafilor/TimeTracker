@@ -7,19 +7,22 @@
 
 {% block content_body %}
 <div class="p-3 js-data"
-     data-duration-format="{{ app.user.durationFormat }}">
+     data-duration-format="{{ app.user.durationFormat }}"
+     data-time-entry-id="{{ timeEntry.idString }}">
 
-    <div class="d-flex align-items-center js-time-entry-tags">
-        <div class="js-time-entry-tags-container">
-            {% for timeEntryTag in timeEntryTags %}
-            <div class="tag js-tag mr-2" style="background-color: {{ timeEntryTag.tag.color }}" data-name="{{ timeEntryTag.tag.name }}">{{ timeEntryTag.tag.name }}<span class="time-entry-remove js-time-entry-remove"><i class="fas fa-times"></i></span></div>
-            {% endfor %}
-        </div>
-        <div class="form-inline">
-            <div class="js-time-entry-tag form-group" data-time-entry-id="{{ timeEntry.idString }}">
-                <input type="text" class="js-time-entry-tag-input form-control" placeholder="tag name..." />
-                <button class="btn btn-primary ml-2 js-time-entry-tag-button" type="button">Add</button>
+    <div class="js-autocomplete-tags d-flex align-items-center">
+        <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+
+        <div class="input-group unset-width flex-shrink-0 align-self-start">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <div class="spinner-border spinner-border-sm text-primary js-load opacity-invisible" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
             </div>
+            <input type="text" class="js-tag-input" placeholder="tag name..." aria-label="loading indicator">
+            <button type="button" class="btn btn-secondary js-add-tag ml-2">Add</button>
         </div>
     </div>
 
@@ -67,7 +70,10 @@
 
     <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">Markdown</a>
+            <a class="nav-link active markdown-link" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">
+                <i class="fas fa-sync-alt fa-spin mr-1 d-none js-loading"></i>
+                Markdown
+            </a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="markdown-tab" data-toggle="tab" href="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</a>
