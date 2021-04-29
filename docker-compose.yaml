@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  database:
+    image: "postgres:13.2"
+    ports:
+      - '5432:5432'
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: timetracker
+      POSTGRES_USER: adminuser
+      POSTGRES_PASSWORD: adminpassword
+volumes:
+  data:

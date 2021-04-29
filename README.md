@@ -27,27 +27,73 @@ yarn install
 yarn encore dev
 ```
 
-6. Set up your database connection in `.env`
+6. Set up your database connection in `.env`. Only PGSql is supported as of right now.
+    
+7. Setup database
 
-7. Run migrations
+```bash
+symfony console doctrine:database:create 
+```
+
+8. Run migrations
 
 ```bash
 ./bin/console doctrine:migrations:migrate
 ```
 
-8. Create your user
+9. Create your user
 
 ```bash
 ./bin/console app:user:create
 ```
 
-9. Start the symfony server
+10. Start the symfony server
 
 ```bash
 symfony serve
 ```
 
-## Concepts
+## Local Setup with Docker (wip)
+
+1. Make sure you have php 8.0 or greater
+2. Install [Composer](https://getcomposer.org/download/)
+3. Install [Yarn](https://classic.yarnpkg.com/en/docs/install)
+4. Install [Symfony Binary](https://symfony.com/download)
+5. Install [Docker](https://www.docker.com/get-started)
+
+6. Cd to project root and run
+
+```bash
+composer install
+yarn install
+yarn encore dev
+```
+
+7. Setup database with docker
+
+```bash
+docker-compose up -d 
+```
+
+8. Run migrations
+
+```bash
+./bin/console doctrine:migrations:migrate
+```
+
+9. Create your user
+
+```bash
+./bin/console app:user:create
+```
+
+10. Start the symfony server
+
+```bash
+symfony serve
+```
+
+## App Concepts
 
 ### Continue
 
