@@ -75,6 +75,27 @@ final class Version20210420055958 extends AbstractMigration
         $this->addSql('DROP TABLE users');
     }
 
+    protected function upSqlite(Schema $schema) : void
+    {
+        $this->addSql('CREATE TABLE tag (id CHAR(36) NOT NULL --(DC2Type:uuid), name VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_389B7835E237E06 ON tag (name)');
+        $this->addSql('CREATE TABLE time_entry (id CHAR(36) NOT NULL --(DC2Type:uuid), owner_id CHAR(36) NOT NULL --(DC2Type:uuid), created_at DATETIME NOT NULL, ended_at DATETIME DEFAULT NULL, deleted_at DATETIME DEFAULT NULL, description CLOB NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_6E537C0C7E3C61F9 ON time_entry (owner_id)');
+        $this->addSql('CREATE TABLE time_entry_tag (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, time_entry_id CHAR(36) NOT NULL --(DC2Type:uuid), tag_id CHAR(36) NOT NULL --(DC2Type:uuid))');
+        $this->addSql('CREATE INDEX IDX_6243C23D1EB30A8E ON time_entry_tag (time_entry_id)');
+        $this->addSql('CREATE INDEX IDX_6243C23DBAD26311 ON time_entry_tag (tag_id)');
+        $this->addSql('CREATE TABLE users (id CHAR(36) NOT NULL --(DC2Type:uuid), password_requested_at DATETIME DEFAULT NULL, is_verified BOOLEAN NOT NULL, timezone VARCHAR(255) NOT NULL, email VARCHAR(180) NOT NULL, username VARCHAR(180) NOT NULL, enabled BOOLEAN NOT NULL, confirmation_token VARCHAR(180) DEFAULT NULL, roles CLOB NOT NULL --(DC2Type:json), password VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_1483A5E9E7927C74 ON users (email)');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_1483A5E9F85E0677 ON users (username)');
+    }
+
+    protected function downSqlite(Schema $schema) : void
+    {
+        $this->addSql('DROP TABLE tag');
+        $this->addSql('DROP TABLE time_entry');
+        $this->addSql('DROP TABLE time_entry_tag');
+        $this->addSql('DROP TABLE users');
+    }
 
     public function up(Schema $schema) : void
     {
@@ -82,6 +103,9 @@ final class Version20210420055958 extends AbstractMigration
         $platformName = $this->platform->getName();
         switch ($platformName)
         {
+            case 'sqlite':
+                $this->upSqlite($schema);
+                break;
             case 'postgresql':
                 $this->upPostgresql($schema);
                 break;
@@ -99,6 +123,9 @@ final class Version20210420055958 extends AbstractMigration
         $platformName = $this->platform->getName();
         switch ($platformName)
         {
+            case 'sqlite':
+                $this->downSqlite($schema);
+                break;
             case 'postgresql':
                 $this->downPostgresql($schema);
                 break;
