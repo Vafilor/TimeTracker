@@ -27,7 +27,7 @@ yarn install
 yarn encore dev
 ```
 
-6. Set up your database connection in `.env`. Only PGSql is supported as of right now.
+6. Set up your database connection in `.env`. postgresql, mysql, mariadb, sqlite are supported.
     
 7. Setup database
 
