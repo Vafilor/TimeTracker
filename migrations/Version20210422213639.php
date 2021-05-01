@@ -31,12 +31,12 @@ final class Version20210422213639 extends AbstractMigration
 
     protected function upMysql(Schema $schema) : void
     {
-        $this->addSql('ALTER TABLE time_entry ADD started_at DATETIME NOT NULL, ADD updated_at DATETIME NOT NULL, CHANGE created_at created_at DATETIME NOT NULL, CHANGE ended_at ended_at DATETIME DEFAULT NULL, CHANGE deleted_at deleted_at DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE time_entry ADD started_at DATETIME NOT NULL, CHANGE created_at created_at DATETIME NOT NULL, CHANGE ended_at ended_at DATETIME DEFAULT NULL, CHANGE deleted_at deleted_at DATETIME DEFAULT NULL, CHANGE updated_at updated_at DATETIME NOT NULL');
     }
 
     protected function downMysql(Schema $schema) : void
     {
-        $this->addSql('ALTER TABLE time_entry DROP started_at, DROP updated_at, CHANGE created_at created_at DATETIME NOT NULL, CHANGE ended_at ended_at DATETIME DEFAULT NULL, CHANGE deleted_at deleted_at DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE time_entry DROP started_at, CHANGE created_at created_at DATETIME NOT NULL, CHANGE updated_at updated_at DATETIME NOT NULL, CHANGE ended_at ended_at DATETIME DEFAULT NULL, CHANGE deleted_at deleted_at DATETIME DEFAULT NULL');
     }
 
     protected function upSqlite(Schema $schema) : void
