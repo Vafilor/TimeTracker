@@ -19,8 +19,11 @@ final class Version20210501013203 extends AbstractMigration
 
     protected function upPostgresql(Schema $schema) : void
     {
-        $this->addSql('CREATE TABLE task (id UUID NOT NULL, name VARCHAR(255) NOT NULL, description TEXT NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE task (id UUID NOT NULL, created_by_id UUID NOT NULL, created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL, completed_at TIMESTAMP(0) WITH TIME ZONE DEFAULT NULL, name VARCHAR(255) NOT NULL, description TEXT NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_527EDB25B03A8386 ON task (created_by_id)');
         $this->addSql('COMMENT ON COLUMN task.id IS \'(DC2Type:uuid)\'');
+        $this->addSql('COMMENT ON COLUMN task.created_by_id IS \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE task ADD CONSTRAINT FK_527EDB25B03A8386 FOREIGN KEY (created_by_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE time_entry ADD task_id UUID DEFAULT NULL');
         $this->addSql('COMMENT ON COLUMN time_entry.task_id IS \'(DC2Type:uuid)\'');
         $this->addSql('ALTER TABLE time_entry ADD CONSTRAINT FK_6E537C0C8DB60186 FOREIGN KEY (task_id) REFERENCES task (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
@@ -37,7 +40,8 @@ final class Version20210501013203 extends AbstractMigration
 
     protected function upMysql(Schema $schema) : void
     {
-        $this->addSql('CREATE TABLE task (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', name VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE task (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', created_by_id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', created_at DATETIME NOT NULL, completed_at DATETIME DEFAULT NULL, name VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, INDEX IDX_527EDB25B03A8386 (created_by_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('ALTER TABLE task ADD CONSTRAINT FK_527EDB25B03A8386 FOREIGN KEY (created_by_id) REFERENCES users (id)');
         $this->addSql('ALTER TABLE time_entry ADD task_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', CHANGE created_at created_at DATETIME NOT NULL, CHANGE ended_at ended_at DATETIME DEFAULT NULL, CHANGE deleted_at deleted_at DATETIME DEFAULT NULL, CHANGE updated_at updated_at DATETIME NOT NULL, CHANGE started_at started_at DATETIME NOT NULL');
         $this->addSql('ALTER TABLE time_entry ADD CONSTRAINT FK_6E537C0C8DB60186 FOREIGN KEY (task_id) REFERENCES task (id)');
         $this->addSql('CREATE INDEX IDX_6E537C0C8DB60186 ON time_entry (task_id)');
@@ -54,7 +58,9 @@ final class Version20210501013203 extends AbstractMigration
     protected function upSqlite(Schema $schema) : void
     {
         $this->addSql('CREATE TABLE task (id CHAR(36) NOT NULL --(DC2Type:uuid)
-        , name VARCHAR(255) NOT NULL, description CLOB NOT NULL, PRIMARY KEY(id))');
+        , created_by_id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , created_at DATETIME NOT NULL, completed_at DATETIME DEFAULT NULL, name VARCHAR(255) NOT NULL, description CLOB NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_527EDB25B03A8386 ON task (created_by_id)');
         $this->addSql('DROP INDEX IDX_6E537C0C7E3C61F9');
         $this->addSql('CREATE TEMPORARY TABLE __temp__time_entry AS SELECT id, owner_id, description, created_at, ended_at, deleted_at, started_at, updated_at FROM time_entry');
         $this->addSql('DROP TABLE time_entry');
