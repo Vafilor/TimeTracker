@@ -47,6 +47,11 @@ class User extends BaseUser
      */
     private $durationFormat;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="createdBy", orphanRemoval=true)
+     */
+    private $tasks;
+
     public function __construct()
     {
         parent::__construct();
@@ -55,6 +60,7 @@ class User extends BaseUser
         $this->dateFormat = 'm/d/Y h:i:s A';
         $this->todayDateFormat = 'h:i:s A';
         $this->durationFormat = '%hh %Im %Ss';
+        $this->tasks = new ArrayCollection();
     }
 
     public function gravatarUrl(int $size = 30): string
@@ -115,6 +121,36 @@ class User extends BaseUser
     public function setDurationFormat(string $durationFormat): self
     {
         $this->durationFormat = $durationFormat;
+        return $this;
+    }
+
+    /**
+     * @return Collection|Task[]
+     */
+    public function getTasks(): Collection
+    {
+        return $this->tasks;
+    }
+
+    public function addTask(Task $task): self
+    {
+        if (!$this->tasks->contains($task)) {
+            $this->tasks[] = $task;
+            $task->setCreatedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTask(Task $task): self
+    {
+        if ($this->tasks->removeElement($task)) {
+            // set the owning side to null (unless already changed)
+            if ($task->getCreatedBy() === $this) {
+                $task->setCreatedBy(null);
+            }
+        }
+
         return $this;
     }
 }

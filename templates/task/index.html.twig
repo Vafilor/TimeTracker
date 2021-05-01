@@ -1,0 +1,50 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+{% import 'tag/partials.html.twig' as tags %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}TimeTracker{% endblock %}
+
+{% block content_body %}
+    <div class="p-3">
+        <h1 class="text-center">Tasks</h1>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Completed</th>
+                    <th>name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in pagination %}
+                <tr>
+                    <td><input type="checkbox" {% if task.completed %} checked="true" {% endif%} /></td>
+                    <td>{{ task.name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div>
+            <a href="{{ path('task_create') }}" class="btn btn-primary">Create task</a>
+        </div>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('task_list') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('task_list') }}
+{% endblock %}

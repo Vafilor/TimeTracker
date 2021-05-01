@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Form\Model\TaskModel;
 use App\Repository\TaskRepository;
 use App\Traits\UUIDTrait;
+use DateTime;
+use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=TaskRepository::class)
@@ -16,6 +20,18 @@ use Doctrine\ORM\Mapping as ORM;
 class Task
 {
     use UUIDTrait;
+
+    /**
+     * @ORM\Column(type="datetimetz")
+     * @var DateTime
+     */
+    protected $createdAt;
+
+    /**
+     * @ORM\Column(type="datetimetz", nullable=true)
+     * @var DateTime
+     */
+    protected $completedAt;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -32,9 +48,22 @@ class Task
      */
     private $timeEntries;
 
-    public function __construct()
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tasks")
+     * @ORM\JoinColumn(nullable=false)
+     *
+     * @var User
+     */
+    private $createdBy;
+
+    public function __construct(User $createdBy, string $name)
     {
+        $this->id = Uuid::uuid4();
+        $this->createdBy = $createdBy;
+        $this->name = $name;
+        $this->createdAt = new DateTime('now', new DateTimeZone('UTC'));
         $this->timeEntries = new ArrayCollection();
+        $this->description = '';
     }
 
     public function getName(): ?string
@@ -64,5 +93,38 @@ class Task
     public function getTimeEntries(): Collection
     {
         return $this->timeEntries;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): self
+    {
+        $this->createdBy = $createdBy;
+
+        return $this;
+    }
+
+    public function getCompletedAt(): ?DateTime
+    {
+        return $this->completedAt;
+    }
+
+    public function completed(): bool
+    {
+        return !is_null($this->completedAt);
+    }
+
+    public function setCompletedAt(?DateTime $completedAt): Task
+    {
+        if (is_null($completedAt)) {
+            $completedAt = new DateTime('now', new DateTimeZone('UTC'));
+        }
+
+        $this->completedAt = $completedAt;
+
+        return $this;
     }
 }

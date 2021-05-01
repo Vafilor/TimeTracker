@@ -74,6 +74,7 @@
             <thead>
             <tr>
                 <th>Tags</th>
+                <th>Task</th>
                 <th>{{ knp_pagination_sortable(pagination, 'Start', 'time_entry.startedAt') }}</th>
                 <th>{{ knp_pagination_sortable(pagination, 'End', 'time_entry.endedAt') }}</th>
                 <th>Duration</th>
@@ -89,6 +90,11 @@
 
                         {{ tags.view(tag.name, tag.color) }}
                         {% endfor %}
+                    </td>
+                    <td>
+                        {% if timeEntry.task.id is defined %}
+                        <a href="{{ path('task_view', {id: timeEntry.task.id}) }}">{{ timeEntry.task.name }}</a>
+                        {% endif %}
                     </td>
                     <td>{{ time.user_date(timeEntry.startedAt, app.user) }}</td>
                     <td class="js-ended-at">

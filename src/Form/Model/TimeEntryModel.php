@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form\Model;
 
+use App\Entity\Task;
 use App\Entity\TimeEntry;
 use DateTime;
 
@@ -12,6 +13,7 @@ class TimeEntryModel
     private DateTime $startedAt;
     private ?DateTime $endedAt;
     private string $description;
+    private ?Task $task;
 
     public static function fromEntity(TimeEntry $timeEntry): TimeEntryModel
     {
@@ -19,6 +21,7 @@ class TimeEntryModel
         $model->setStartedAt($timeEntry->getStartedAt());
         $model->setEndedAt($timeEntry->getEndedAt());
         $model->setDescription($timeEntry->getDescription());
+        $model->setTask($timeEntry->getTask());
 
         return $model;
     }
@@ -63,5 +66,16 @@ class TimeEntryModel
     public function isEnded(): bool
     {
         return !is_null($this->endedAt);
+    }
+
+    public function getTask(): ?Task
+    {
+        return $this->task;
+    }
+
+    public function setTask(?Task $task): TimeEntryModel
+    {
+        $this->task = $task;
+        return $this;
     }
 }

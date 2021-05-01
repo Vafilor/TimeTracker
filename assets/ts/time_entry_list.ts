@@ -54,7 +54,6 @@ $(document).ready( () => {
         );
     })
 
-
     const stopRunningButton = new LoadingButton($('.js-stop-running'));
     stopRunningButton.$container.on('click', (event)=> {
         const $target = $(event.currentTarget);

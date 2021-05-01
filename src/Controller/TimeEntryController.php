@@ -267,7 +267,8 @@ class TimeEntryController extends BaseController
         }
 
         $form = $this->createForm(TimeEntryFormType::class, TimeEntryModel::fromEntity($timeEntry), [
-            'timezone' => $this->getUser()->getTimezone()
+            'timezone' => $this->getUser()->getTimezone(),
+            'user' => $this->getUser()
         ]);
 
         $form->handleRequest($request);
@@ -276,6 +277,7 @@ class TimeEntryController extends BaseController
             $data = $form->getData();
             $timeEntry->setDescription($data->getDescription());
             $timeEntry->setStartedAt($data->getStartedAt());
+            $timeEntry->setTask($data->getTask());
             if ($data->isEnded()) {
                 $timeEntry->setEndedAt($data->getEndedAt());
             }

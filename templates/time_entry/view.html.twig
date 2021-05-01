@@ -26,11 +26,17 @@
         </div>
     </div>
 
+    {{ form_start(form, {attr: {class: 'mt-2'}}) }}
+
+    {% if form.task is defined %}
+        {{ form_row(form.task) }}
+    {% endif %}
+
     <div class="mt-2">
         {% if not timeEntry.over %}
-        <div class="spinner-border spinner-border-sm text-primary mr-1" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
+            <div class="spinner-border spinner-border-sm text-primary mr-1" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
         {% endif %}
 
         Duration
@@ -39,8 +45,6 @@
             {{ time.user_duration(timeEntry.duration, app.user) }}
         </span>
     </div>
-
-    {{ form_start(form, {attr: {class: 'mt-2'}}) }}
 
     <div class="d-flex">
         <div>
@@ -113,7 +117,7 @@
 
     {{ form_widget(form) }}
     <div class="d-flex mt-3">
-        <button type="submit" class="btn btn-primary" name="how">Update</button>
+        <button type="submit" class="btn btn-primary">Update</button>
         {% if not timeEntry.over %}
             <a href="{{ path('time_entry_stop', {id: timeEntry.id}) }}" class="btn btn-secondary ml-2">Stop</a>
         {% else %}
