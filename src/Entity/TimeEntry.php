@@ -73,6 +73,11 @@ class TimeEntry
      */
     private $timeEntryTags;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="timeEntries")
+     */
+    private $task;
+
     public function __construct(User $owner, DateTimeInterface $createdAt = null)
     {
         $this->id = Uuid::uuid4();
@@ -217,5 +222,17 @@ class TimeEntry
      */
     public function onPreUpdate(PreUpdateEventArgs $event) {
         $this->updatedAt = new DateTime('now', new DateTimeZone('UTC'));
+    }
+
+    public function getTask(): ?Task
+    {
+        return $this->task;
+    }
+
+    public function setTask(?Task $task): self
+    {
+        $this->task = $task;
+
+        return $this;
     }
 }
