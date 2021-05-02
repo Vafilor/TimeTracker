@@ -117,12 +117,19 @@ class Task
         return !is_null($this->completedAt);
     }
 
-    public function setCompletedAt(?DateTime $completedAt): Task
+    public function complete(?DateTime $completedAt = null): self
     {
         if (is_null($completedAt)) {
             $completedAt = new DateTime('now', new DateTimeZone('UTC'));
         }
 
+        $this->completedAt = $completedAt;
+
+        return $this;
+    }
+
+    public function setCompletedAt(?DateTime $completedAt): self
+    {
         $this->completedAt = $completedAt;
 
         return $this;

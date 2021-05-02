@@ -37,7 +37,6 @@
                     {% endif %}
                     </div>
                     <div class="d-inline-flex mt-1">
-
                         {{ form_widget(filterForm.end, {attr: {class: 'anti-form-control'}}) }}
                         <button type="button" class="btn btn-danger js-clear-datetime ml-2">
                             <i class="fas fa-trash"></i>
@@ -117,6 +116,10 @@
                         </button>
                         {% endif %}
                     </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td class="text-center" colspan="6">No results found</td>
                 </tr>
             {% endfor %}
             </tbody>

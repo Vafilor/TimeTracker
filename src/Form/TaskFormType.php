@@ -21,6 +21,7 @@ class TaskFormType extends AbstractType
             ->add('name', TextType::class)
             ->add('description', TextareaType::class)
             ->add('completedAt', DateTimeType::class, [
+                'required' => false,
                 'date_widget' => 'single_text',
                 'time_widget' => 'single_text',
                 'view_timezone' => $options['timezone'],

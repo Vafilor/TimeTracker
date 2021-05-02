@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiTask;
 use App\Entity\Task;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
@@ -19,33 +20,47 @@ class TaskController extends BaseController
     public function index(
         Request $request,
         TaskRepository $taskRepository,
-        PaginatorInterface $paginator): Response
-    {
+        PaginatorInterface $paginator
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
 
-        $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
-            'sort' => 'task.createdAt',
-            'direction' => 'desc'
-        ]);
+        $pagination = $this->populatePaginationData(
+            $request,
+            $paginator,
+            $queryBuilder,
+            [
+                'sort' => 'task.createdAt',
+                'direction' => 'desc'
+            ]
+        );
 
-        return $this->render('task/index.html.twig', [
-            'pagination' => $pagination,
-        ]);
+        return $this->render(
+            'task/index.html.twig',
+            [
+                'pagination' => $pagination,
+            ]
+        );
     }
 
     #[Route('/task/create', name: 'task_create')]
-    public function create(Request $request): Response
-    {
+    public function create(
+        Request $request
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $task = new TaskModel();
 
-        $form = $this->createForm(TaskFormType::class, $task);
+        $form = $this->createForm(
+            TaskFormType::class,
+            $task,
+            [
+                'timezone' => $this->getUser()->getTimezone()
+            ]
+        );
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             /** @var TaskModel $data */
             $data = $form->getData();
 
@@ -57,14 +72,20 @@ class TaskController extends BaseController
             $manager->flush();
         }
 
-        return $this->render('task/create.html.twig', [
-            'form' => $form->createView()
-        ]);
+        return $this->render(
+            'task/create.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
     }
 
     #[Route('/task/{id}/view', name: 'task_view')]
-    public function view(Request $request, TaskRepository $taskRepository, string $id): Response
-    {
+    public function view(
+        Request $request,
+        TaskRepository $taskRepository,
+        string $id
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $task = $taskRepository->find($id);
@@ -75,24 +96,76 @@ class TaskController extends BaseController
 
         $taskModel = TaskModel::fromEntity($task);
 
-        $form = $this->createForm(TaskFormType::class, $taskModel, [
-            'timezone' => $this->getUser()->getTimezone()
-        ]);
+        $form = $this->createForm(
+            TaskFormType::class,
+            $taskModel,
+            [
+                'timezone' => $this->getUser()->getTimezone()
+            ]
+        );
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid())
-        {
+        if ($form->isSubmitted() && $form->isValid()) {
             /** @var TaskModel $data */
             $data = $form->getData();
 
             $task->setName($data->getName());
             $task->setDescription($data->getDescription());
+            $task->setCompletedAt($data->getCompletedAt());
 
             $this->getDoctrine()->getManager()->flush();
         }
 
-        return $this->render('task/view.html.twig', [
-            'task' => $task,
-            'form' => $form->createView()
-        ]);
+        return $this->render(
+            'task/view.html.twig',
+            [
+                'task' => $task,
+                'form' => $form->createView()
+            ]
+        );
+    }
+
+    /**
+     * Change the completedAt status of a Task.
+     * If the body has a json field of "checked", as in
+     * {
+     *  "checked": true|false
+     * }
+     *
+     * then that value is used. Otherwise, it defaults to "true".
+     */
+    #[Route('/json/task/{id}/check', name: 'task_json_complete', methods: ['PUT'])]
+    public function jsonComplete(
+        Request $request,
+        TaskRepository $taskRepository,
+        string $id
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $task = $taskRepository->find($id);
+        if (is_null($task)) {
+            return $this->json([], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!$task->getCreatedBy()->equalIds($this->getUser())) {
+            return $this->json([], Response::HTTP_FORBIDDEN);
+        }
+
+        $completed = true;
+        $data = json_decode($request->getContent(), true);
+        if (array_key_exists('completed', $data)) {
+            $completed = $data['completed'];
+        }
+
+        if ($completed) {
+            $task->complete();
+        } else {
+            $task->setCompletedAt(null);
+        }
+
+        $this->getDoctrine()->getManager()->flush();
+
+        $apiTask = ApiTask::fromEntity($task, $this->getUser());
+
+        return $this->json($apiTask);
     }
 }
