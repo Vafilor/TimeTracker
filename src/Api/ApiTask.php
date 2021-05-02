@@ -29,6 +29,8 @@ class ApiTask
     public function __construct(string $id, string $name) {
         $this->id = $id;
         $this->name = $name;
+        $this->description = '';
+        $this->completedAt = null;
     }
 
     public function getId(): string
@@ -64,7 +66,7 @@ class ApiTask
         return $this;
     }
 
-    public function getCompletedAt(): string
+    public function getCompletedAt(): ?string
     {
         return $this->completedAt;
     }

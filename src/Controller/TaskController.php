@@ -16,8 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TaskController extends BaseController
 {
-    #[Route('/task/list', name: 'task_list')]
-    public function index(
+    #[Route('/task', name: 'task_list')]
+    public function list(
         Request $request,
         TaskRepository $taskRepository,
         PaginatorInterface $paginator
@@ -42,6 +42,37 @@ class TaskController extends BaseController
                 'pagination' => $pagination,
             ]
         );
+    }
+
+    #[Route('/json/task', name: 'task_json_list')]
+    public function jsonList(
+        Request $request,
+        TaskRepository $taskRepository,
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser())
+                                       ->setMaxResults(15)
+                                       ->orderBy('task.createdAt', 'DESC')
+        ;
+
+        $name = $request->request->get('name', null);
+        if (!is_null($name))
+        {
+            $queryBuilder = $queryBuilder->andWhere('task.name LIKE :name')
+                                         ->setParameter('name', $name)
+            ;
+        }
+
+        /** @var Task[] $results */
+        $tasks = $queryBuilder->getQuery()->getResult();
+
+        $apiTasks = array_map(
+            fn($task) => ApiTask::fromEntity($task, $this->getUser()),
+            $tasks
+        );
+
+        return $this->json($apiTasks);
     }
 
     #[Route('/task/create', name: 'task_create')]

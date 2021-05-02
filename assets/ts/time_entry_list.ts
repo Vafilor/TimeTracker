@@ -8,6 +8,8 @@ import LoadingButton from "./components/loading_button";
 import AutocompleteTags from "./components/autocomplete_tags";
 import { ApiTag } from "./core/api/tag_api";
 import TagList from "./components/tag_list";
+import AutocompleteTasks from "./components/autocomplete_tasks";
+import { ApiTask } from "./core/api/task_api";
 
 
 $(document).ready( () => {
@@ -89,5 +91,15 @@ $(document).ready( () => {
     tagList.tagsChanged.addObserver(() => {
         autoComplete.setTags(tagList.getTagNames());
         $realInput.val(tagList.getTagNamesCommaSeparated());
+    });
+
+    const $realTaskInput = $('.js-real-task-input');
+    const autoCompleteTask = new AutocompleteTasks('.js-autocomplete-tasks');
+    autoCompleteTask.valueEmitter.addObserver((task: ApiTask) => {
+        $realTaskInput.val(task.id);
+    });
+
+    autoCompleteTask.$nameInput.on('input', () => {
+        $realTaskInput.val('');
     });
 });

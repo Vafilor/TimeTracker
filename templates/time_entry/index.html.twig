@@ -46,7 +46,7 @@
             </div>
 
             {{ form_label(filterForm.tags) }}
-            <div class="js-autocomplete-tags d-flex align-items-center">
+            <div class="js-autocomplete-tags d-flex align-items-center mb-1">
                 {{ form_widget(filterForm.tags, {attr: {class: 'js-real-input d-none'}}) }}
                 <div class="js-tags tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
 
@@ -61,6 +61,31 @@
                     <input type="text" class="js-tag-input" placeholder="tag name..." aria-label="loading indicator">
                     <button type="button" class="btn btn-secondary js-add-tag ml-2">Add</button>
                 </div>
+            </div>
+
+            {{ form_label(filterForm.taskId) }}
+            <div class="js-autocomplete-tasks">
+                <div class="input-group unset-width flex-shrink-0 align-self-start">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                            <div class="spinner-border spinner-border-sm text-primary js-loading opacity-invisible" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input
+                            type="text"
+                            class="js-input"
+                            placeholder="task name..."
+                            aria-label="loading indicator"
+                            {% if task %}
+                            value="{{ task.name }}"
+                            {% endif %}
+                    />
+                </div>
+
+                {{ form_widget(filterForm.taskId, {attr: {class: 'd-none js-real-task-input'}}) }}
             </div>
 
             <button type="submit" class="btn btn-primary mt-2">Search</button>

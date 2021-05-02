@@ -9,6 +9,7 @@ use App\Api\ApiErrorResponseBody;
 use App\Api\ApiTag;
 use App\Api\ApiTimeEntry;
 use App\Entity\Tag;
+use App\Entity\Task;
 use App\Entity\TimeEntry;
 use App\Entity\TimeEntryTag;
 use App\Form\Model\TimeEntryListFilterModel;
@@ -16,6 +17,7 @@ use App\Form\Model\TimeEntryModel;
 use App\Form\TimeEntryFormType;
 use App\Form\TimeEntryListFilterFormType;
 use App\Repository\TagRepository;
+use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\TimeEntryTagRepository;
 use DateTime;
@@ -35,6 +37,7 @@ class TimeEntryController extends BaseController
         Request $request,
         TimeEntryRepository $timeEntryRepository,
         FormFactoryInterface $formFactory,
+        TaskRepository $taskRepository,
         PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -54,6 +57,8 @@ class TimeEntryController extends BaseController
             ]
         );
 
+        /** @var Task|null $task */
+        $task = null;
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
             /** @var TimeEntryListFilterModel $data */
@@ -80,6 +85,14 @@ class TimeEntryController extends BaseController
                     ->setParameter('tags', $tags)
                 ;
             }
+
+            if ($data->hasTask()) {
+                $queryBuilder = $queryBuilder
+                    ->andWhere('time_entry.task = :taskId')
+                    ->setParameter('taskId', $data->getTaskId())
+                ;
+                $task = $taskRepository->find($data->getTaskId());
+            }
         }
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
@@ -89,7 +102,8 @@ class TimeEntryController extends BaseController
 
         return $this->render('time_entry/index.html.twig', [
             'pagination' => $pagination,
-            'filterForm' => $filterForm->createView()
+            'filterForm' => $filterForm->createView(),
+            'task' => $task
         ]);
     }
 

@@ -29,7 +29,7 @@ class Task
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
-     * @var DateTime
+     * @var DateTime|null
      */
     protected $completedAt;
 
@@ -64,6 +64,7 @@ class Task
         $this->createdAt = new DateTime('now', new DateTimeZone('UTC'));
         $this->timeEntries = new ArrayCollection();
         $this->description = '';
+        $this->completedAt = null;
     }
 
     public function getName(): ?string
