@@ -66,6 +66,11 @@ class Task
         $this->description = '';
         $this->completedAt = null;
     }
+    
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
 
     public function getName(): ?string
     {
