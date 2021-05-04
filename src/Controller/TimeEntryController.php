@@ -540,7 +540,7 @@ class TimeEntryController extends BaseController
         /** @var TimeEntry|null $timeEntry */
         $timeEntry = $timeEntryRepository->find($id);
         if (is_null($timeEntry)) {
-            $this->createNotFoundException();
+            throw $this->createNotFoundException();
         }
 
         $data = json_decode($request->getContent(), true);

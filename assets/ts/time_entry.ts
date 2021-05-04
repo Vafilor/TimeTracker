@@ -9,6 +9,7 @@ import Flashes from "./components/flashes";
 import TimerView from "./components/timer";
 import TagList, { TagListDelegate } from "./components/tag_list";
 import AutocompleteTags from "./components/autocomplete_tags";
+import AutoMarkdown from "./components/automarkdown";
 
 class TimeEntryApiAdapter implements TagListDelegate {
     constructor(private timeEntryId: string, private flashes: Flashes) {
@@ -34,40 +35,35 @@ class TimeEntryApiAdapter implements TagListDelegate {
     }
 }
 
-class TimeEntryPage {
-    private $loadingContainer: JQuery;
+class TimeEntryAutoMarkdown extends AutoMarkdown {
+    private readonly timeEntryId: string;
 
-    constructor(private timeEntryId: string) {
-        this.$loadingContainer = $('.markdown-link');
+    constructor(
+        inputSelector: string,
+        markdownSelector: string,
+        loadingSelector: string,
+        timeEntryId: string) {
+        super(inputSelector, markdownSelector, loadingSelector);
+        this.timeEntryId = timeEntryId;
     }
 
-    setMarkDownConverter(markDownConverter: any) {
-        const $preview = $('#preview-content');
-        const $descriptionTextArea = $('.js-description');
+    protected update(body: string): Promise<any> {
+        return TimeEntryApi.update(this.timeEntryId, {
+            description: body,
+        });
+    }
+}
 
-        // Initial rendering
-        const text = $descriptionTextArea.val();
-        const html = markDownConverter.makeHtml(text);
-        $preview.html(html);
+class TimeEntryPage {
+    private autoMarkdown: TimeEntryAutoMarkdown;
 
-        let textAreaTimeout;
-        $descriptionTextArea.on('input propertychange', () => {
-            clearTimeout(textAreaTimeout);
-            this.$loadingContainer.find('.js-loading').removeClass('d-none');
-
-            textAreaTimeout = setTimeout(() => {
-                const text = $descriptionTextArea.val() as string;
-                const html = markDownConverter.makeHtml(text);
-                $preview.html(html);
-
-
-                TimeEntryApi.update(this.timeEntryId, {
-                    description: text,
-                }).then(() => {
-                    this.$loadingContainer.find('.js-loading').addClass('d-none');
-                })
-            }, 500);
-        })
+    constructor(private timeEntryId: string) {
+        this.autoMarkdown = new TimeEntryAutoMarkdown(
+            '.js-description',
+            '#preview-content',
+            '.markdown-link',
+            timeEntryId
+        );
     }
 }
 
@@ -79,10 +75,6 @@ $(document).ready(() => {
     const flashes = new Flashes($('#flash-messages'));
 
     const page = new TimeEntryPage(timeEntryId);
-
-    import('showdown').then(res => {
-        page.setMarkDownConverter(new res.Converter())
-    });
 
     const timerView = new TimerView('.js-timer', durationFormat, (durationString) => {
        document.title = durationString;

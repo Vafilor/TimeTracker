@@ -7,6 +7,10 @@ export interface ApiTask {
     completedAt?: string;
 }
 
+export interface ApiUpdateTask {
+    description?: string;
+}
+
 export class TaskApi {
     public static list(nameLike?: string) {
         let url = `/json/task`;
@@ -27,5 +31,9 @@ export class TaskApi {
         return CoreApi.put<ApiTask>(url, {
             completed
         });
+    }
+
+    public static update(taskId: string, update: ApiUpdateTask) {
+        return CoreApi.put(`/json/task/${taskId}`, update);
     }
 }

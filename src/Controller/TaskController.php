@@ -6,11 +6,13 @@ namespace App\Controller;
 
 use App\Api\ApiTask;
 use App\Entity\Task;
+use App\Entity\TimeEntry;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
 use App\Form\TaskListFilterFormType;
 use App\Repository\TaskRepository;
+use App\Repository\TimeEntryRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -234,5 +236,27 @@ class TaskController extends BaseController
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
         return $this->json($apiTask);
+    }
+
+    #[Route('/json/task/{id}', name: 'task_json_update', methods: ['PUT'])]
+    public function jsonUpdate(Request $request, TaskRepository $taskRepository, string $id): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        /** @var Task|null $task */
+        $task = $taskRepository->find($id);
+        if (is_null($task)) {
+            throw $this->createNotFoundException();
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (array_key_exists('description', $data)) {
+            $task->setDescription($data['description']);
+        }
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->json([]);
     }
 }
