@@ -6,10 +6,13 @@ namespace App\Controller;
 
 use App\Api\ApiTask;
 use App\Entity\Task;
+use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
+use App\Form\TaskListFilterFormType;
 use App\Repository\TaskRepository;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,11 +23,43 @@ class TaskController extends BaseController
     public function list(
         Request $request,
         TaskRepository $taskRepository,
+        FormFactoryInterface $formFactory,
         PaginatorInterface $paginator
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
+
+        $filterForm = $formFactory->createNamed('',
+        TaskListFilterFormType::class,
+            new TaskListFilterModel(), [
+            'csrf_protection' => false,
+            'method' => 'GET'
+        ]);
+
+        $filterForm->handleRequest($request);
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
+            /** @var TaskListFilterModel $data */
+            $data = $filterForm->getData();
+
+            if ($data->hasName()) {
+                $queryBuilder->andWhere('task.name LIKE :name')
+                             ->setParameter('name', "%{$data->getName()}%")
+                ;
+            }
+
+            if ($data->hasDescription()) {
+                $queryBuilder->andWhere('task.description LIKE :description')
+                             ->setParameter('description', "%{$data->getDescription()}%")
+                ;
+            }
+
+            if (!$data->getShowCompleted()) {
+                $queryBuilder->andWhere('task.completedAt IS NULL');
+            }
+        } else {
+            $queryBuilder->andWhere('task.completedAt IS NULL');
+        }
 
         $pagination = $this->populatePaginationData(
             $request,
@@ -40,6 +75,7 @@ class TaskController extends BaseController
             'task/index.html.twig',
             [
                 'pagination' => $pagination,
+                'filterForm' => $filterForm->createView()
             ]
         );
     }

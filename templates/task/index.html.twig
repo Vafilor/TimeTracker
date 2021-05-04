@@ -12,6 +12,14 @@
 
         <h1 class="text-center">Tasks</h1>
 
+        <div class="filter table-filter mb-3">
+            <div class="filter-title">Filter</div>
+            {{ form_start(filterForm) }}
+            {{ form_widget(filterForm) }}
+            <button type="submit" class="btn btn-primary">Search</button>
+            {{ form_end(filterForm) }}
+        </div>
+
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
         <table class="table table-bordered table-hover">
@@ -20,6 +28,7 @@
                     <th>{{ knp_pagination_sortable(pagination, 'Completed', 'task.completedAt') }}</th>
                     <th>{{ knp_pagination_sortable(pagination, 'Name', 'task.name') }}</th>
                     <th>Description</th>
+                    <th>Links</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -38,6 +47,9 @@
                         {% if task.description | length > 50 %}
                         ...
                         {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('time_entry_list', {taskId: task.idString}) }}">Time Entries</a>
                     </td>
                     <td>
                         <a href="{{ path('task_view', {id: task.id}) }}" class="btn btn-primary">View</a>

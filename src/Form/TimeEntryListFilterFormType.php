@@ -35,6 +35,7 @@ class TimeEntryListFilterFormType extends AbstractType
             ])
             ->add('taskId', TextType::class, [
                 'required' => false,
+                'label' => 'Task'
             ])
         ;
     }
