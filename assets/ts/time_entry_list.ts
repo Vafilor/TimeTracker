@@ -95,11 +95,13 @@ $(document).ready( () => {
 
     const $realTaskInput = $('.js-real-task-input');
     const autoCompleteTask = new AutocompleteTasks('.js-autocomplete-tasks');
-    autoCompleteTask.valueEmitter.addObserver((task: ApiTask) => {
-        $realTaskInput.val(task.id);
-    });
+    if (autoCompleteTask.live()) {
+        autoCompleteTask.valueEmitter.addObserver((task: ApiTask) => {
+            $realTaskInput.val(task.id);
+        });
 
-    autoCompleteTask.$nameInput.on('input', () => {
-        $realTaskInput.val('');
-    });
+        autoCompleteTask.$nameInput.on('input', () => {
+            $realTaskInput.val('');
+        });
+    }
 });

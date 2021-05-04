@@ -21,6 +21,10 @@ export default abstract class Autocomplete<T> {
         this.setupAutoComplete();
     }
 
+    public live() {
+        return this.$container !== undefined;
+    }
+
     protected getInputValue(): string {
         return this.$nameInput.val() as string;
     }
