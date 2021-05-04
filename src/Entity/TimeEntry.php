@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\TimeEntryRepository;
+use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateInterval;
 use DateTime;
@@ -25,6 +26,7 @@ use Ramsey\Uuid\Uuid;
 class TimeEntry
 {
     use UUIDTrait;
+    use UpdateTimestampableTrait;
 
     /**
      * @ORM\Column(type="datetimetz")
@@ -37,12 +39,6 @@ class TimeEntry
      * @var DateTime
      */
     protected $startedAt;
-
-    /**
-     * @ORM\Column(type="datetimetz")
-     * @var DateTime
-     */
-    protected $updatedAt;
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
@@ -215,13 +211,6 @@ class TimeEntry
         $endedAt->setTimezone(new DateTimeZone('UTC'));
         $this->endedAt = $endedAt;
         return $this;
-    }
-
-    /**
-     * @ORM\PreUpdate()
-     */
-    public function onPreUpdate(PreUpdateEventArgs $event) {
-        $this->updatedAt = new DateTime('now', new DateTimeZone('UTC'));
     }
 
     public function getTask(): ?Task

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Form\Model\TaskModel;
 use App\Repository\TaskRepository;
+use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
 use DateTimeZone;
@@ -20,6 +20,7 @@ use Ramsey\Uuid\Uuid;
 class Task
 {
     use UUIDTrait;
+    use UpdateTimestampableTrait;
 
     /**
      * @ORM\Column(type="datetimetz")
@@ -62,6 +63,7 @@ class Task
         $this->createdBy = $createdBy;
         $this->name = $name;
         $this->createdAt = new DateTime('now', new DateTimeZone('UTC'));
+        $this->updatedAt = $this->createdAt;
         $this->timeEntries = new ArrayCollection();
         $this->description = '';
         $this->completedAt = null;
