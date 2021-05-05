@@ -39,6 +39,7 @@ export default abstract class Autocomplete<T> {
         const $nameInput = this.$nameInput;
 
         $nameInput.autocomplete({
+            minLength: 0,
             source: (request, response) => {
                 this.$loading.removeClass('opacity-invisible');
 
@@ -67,5 +68,11 @@ export default abstract class Autocomplete<T> {
                 .appendTo(ul)
             ;
         };
+    }
+
+    public clearInput() {
+        if (this.live()) {
+            this.$nameInput.val('');
+        }
     }
 }

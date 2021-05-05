@@ -35,20 +35,6 @@ class TimeEntryFormType extends AbstractType
                 'required' => false,
             ])
         ;
-
-        if (array_key_exists('user', $options)) {
-            $builder->add('task', EntityType::class, [
-                'class' => Task::class,
-                'choice_label' => 'name',
-                'required' => false,
-                'placeholder' => 'Optionally assign to a task',
-                'query_builder' => function (TaskRepository $tr) use ($options) {
-                    return $tr->findByUserQueryBuilder($options['user'])
-                              ->orderBy('task.name', 'ASC')
-                    ;
-                },
-            ]);
-        }
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -57,8 +43,6 @@ class TimeEntryFormType extends AbstractType
                                    'data_class' => TimeEntryModel::class
                                ]);
 
-        $resolver->setDefined(['user']);
-        $resolver->setAllowedTypes('user', User::class);
         $resolver->setRequired(['timezone']);
     }
 }

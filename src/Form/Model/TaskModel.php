@@ -10,7 +10,7 @@ use DateTime;
 class TaskModel
 {
     private string $name;
-    private string $description;
+    private ?string $description;
     private ?DateTime $completedAt;
 
     public static function fromEntity(Task $task): TaskModel
@@ -45,8 +45,12 @@ class TaskModel
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
+        if (is_null($description)) {
+            $description = '';
+        }
+
         $this->description = $description;
         return $this;
     }

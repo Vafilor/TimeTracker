@@ -84,9 +84,11 @@ $(document).ready( () => {
     const $realInput = $('.js-real-input');
 
     const autoComplete = new AutocompleteTags('.js-autocomplete-tags');
-    autoComplete.tagEmitter.addObserver((apiTag: ApiTag) => {
-        tagList.add(apiTag);
-    })
+    if (autoComplete.live()) {
+        autoComplete.valueEmitter.addObserver((apiTag: ApiTag) => {
+            tagList.add(apiTag);
+        })
+    }
 
     tagList.tagsChanged.addObserver(() => {
         autoComplete.setTags(tagList.getTagNames());

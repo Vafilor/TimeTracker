@@ -27,6 +27,7 @@
                 <tr>
                     <th>{{ knp_pagination_sortable(pagination, 'Completed', 'task.completedAt') }}</th>
                     <th>{{ knp_pagination_sortable(pagination, 'Name', 'task.name') }}</th>
+                    <th>{{ knp_pagination_sortable(pagination, 'Created', 'task.createdAt') }}</th>
                     <th>Description</th>
                     <th>Links</th>
                     <th>Actions</th>
@@ -42,6 +43,7 @@
                         {% endif %}
                     </td>
                     <td>{{ task.name }}</td>
+                    <td>{{ time.user_date(task.createdAt, app.user) }}</td>
                     <td>
                         {{ task.description | slice(0,50) }}
                         {% if task.description | length > 50 %}
@@ -57,7 +59,7 @@
                 </tr>
                 {% else %}
                     <tr>
-                        <td class="text-center" colspan="2">No results found</td>
+                        <td class="text-center" colspan="6">No results found</td>
                     </tr>
                 {% endfor %}
             </tbody>

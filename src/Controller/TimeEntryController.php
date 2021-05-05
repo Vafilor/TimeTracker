@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Api\ApiError;
 use App\Api\ApiErrorResponseBody;
 use App\Api\ApiTag;
+use App\Api\ApiTask;
 use App\Api\ApiTimeEntry;
 use App\Entity\Tag;
 use App\Entity\Task;
@@ -31,8 +32,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class TimeEntryController extends BaseController
 {
     const codeRunningTimer = 'code_running_timer';
+    const codeNoAssignedTask = 'code_no_assigned_task';
 
-    #[Route('/time-entry/list', name: 'time_entry_list')]
+    #[Route('/time-entry', name: 'time_entry_list')]
     public function list(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
@@ -236,8 +238,7 @@ class TimeEntryController extends BaseController
 
         $existingTimeEntry = $timeEntryRepository->find($id);
         if (is_null($existingTimeEntry)) {
-            $this->addFlash('danger', 'Time entry does not exist');
-            return $this->redirectToRoute('time_entry_list');
+            throw $this->createNotFoundException();
         }
 
         /** @var TimeEntryTag[] $timeEntryTags */
@@ -276,13 +277,11 @@ class TimeEntryController extends BaseController
         /** @var TimeEntry|null $timeEntry */
         $timeEntry = $timeEntryRepository->find($id);
         if (is_null($timeEntry)) {
-            $this->addFlash('danger', 'Time Entry not found');
-            return $this->redirectToRoute('time_entry_list');
+            throw $this->createNotFoundException();
         }
 
         $form = $this->createForm(TimeEntryFormType::class, TimeEntryModel::fromEntity($timeEntry), [
             'timezone' => $this->getUser()->getTimezone(),
-            'user' => $this->getUser()
         ]);
 
         $form->handleRequest($request);
@@ -291,7 +290,6 @@ class TimeEntryController extends BaseController
             $data = $form->getData();
             $timeEntry->setDescription($data->getDescription());
             $timeEntry->setStartedAt($data->getStartedAt());
-            $timeEntry->setTask($data->getTask());
             if ($data->isEnded()) {
                 $timeEntry->setEndedAt($data->getEndedAt());
             }
@@ -322,8 +320,7 @@ class TimeEntryController extends BaseController
         /** @var TimeEntry|null $timeEntry */
         $timeEntry = $timeEntryRepository->find($id);
         if (is_null($timeEntry)) {
-            $this->addFlash('danger', 'Time Entry not found');
-            return $this->redirectToRoute('time_entry_list');
+            throw $this->createNotFoundException();
         }
 
         if ($timeEntry->isOver()) {
@@ -374,8 +371,7 @@ class TimeEntryController extends BaseController
 
         $timeEntry = $timeEntryRepository->find($id);
         if (is_null($timeEntry)) {
-            $this->addFlash('danger', 'Time Entry not found');
-            return $this->redirectToRoute('time_entry_list');
+            throw $this->createNotFoundException();
         }
 
         $activeTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
@@ -403,8 +399,7 @@ class TimeEntryController extends BaseController
         /** @var TimeEntry|null $timeEntry */
         $timeEntry = $timeEntryRepository->find($id);
         if (is_null($timeEntry)) {
-            $this->addFlash('danger', 'Time Entry not found');
-            return $this->redirectToRoute('time_entry_list');
+            throw $this->createNotFoundException();
         }
 
         if (!$timeEntry->getOwner()->equalIds($this->getUser())) {
@@ -552,5 +547,75 @@ class TimeEntryController extends BaseController
         $this->getDoctrine()->getManager()->flush();
 
         return $this->json([]);
+    }
+
+    #[Route('/json/time-entry/{id}/task', name: 'time_entry_json_task_create', methods: ['POST'])]
+    public function jsonAddTask(
+        Request $request,
+        TaskRepository $taskRepository,
+        TimeEntryRepository $timeEntryRepository,
+        string $id) {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $timeEntry = $timeEntryRepository->find($id);
+        if (is_null($timeEntry)) {
+            return $this->json([], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!array_key_exists('name', $data)) {
+            return $this->json(['error' => 'missing name'], Response::HTTP_BAD_REQUEST);
+        }
+        $taskName = $data['name'];
+
+        $manager = $this->getDoctrine()->getManager();
+
+        /** @var Task|null $task */
+        $task = null;
+        if (array_key_exists('id', $data)) {
+            $taskId = $data['id'];
+            $task = $taskRepository->find($taskId);
+        }
+
+        if (is_null($task)) {
+            $task = new Task($this->getUser(), $taskName);
+            $manager->persist($task);
+        }
+
+        $timeEntry->setTask($task);
+        $manager->flush();
+
+        $apiTask = ApiTask::fromEntity($task, $this->getUser());
+
+        return $this->json($apiTask, Response::HTTP_CREATED);
+    }
+
+    #[Route('/json/time-entry/{id}/task', name: 'time_entry_json_task_delete', methods: ['DELETE'])]
+    public function jsonRemoveTask(
+        Request $request,
+        TimeEntryRepository $timeEntryRepository,
+        string $id) {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $timeEntry = $timeEntryRepository->find($id);
+        if (is_null($timeEntry)) {
+            return $this->json([], Response::HTTP_NOT_FOUND);
+        }
+
+        $manager = $this->getDoctrine()->getManager();
+
+        if (!$timeEntry->assignedToTask()) {
+            $data = new ApiErrorResponseBody(
+                new ApiError(
+                    self::codeNoAssignedTask,
+                    'Time entry has no assigned task')
+            );
+            return $this->json($data, Response::HTTP_BAD_REQUEST);
+        }
+
+        $timeEntry->removeTask();
+        $manager->flush();
+
+        return $this->json([], Response::HTTP_OK);
     }
 }

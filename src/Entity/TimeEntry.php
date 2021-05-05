@@ -218,9 +218,21 @@ class TimeEntry
         return $this->task;
     }
 
+    public function assignedToTask(): bool
+    {
+        return !is_null($this->task);
+    }
+
     public function setTask(?Task $task): self
     {
         $this->task = $task;
+
+        return $this;
+    }
+
+    public function removeTask(): self
+    {
+        $this->task = null;
 
         return $this;
     }

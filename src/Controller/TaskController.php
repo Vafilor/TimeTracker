@@ -6,13 +6,11 @@ namespace App\Controller;
 
 use App\Api\ApiTask;
 use App\Entity\Task;
-use App\Entity\TimeEntry;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
 use App\Form\TaskListFilterFormType;
 use App\Repository\TaskRepository;
-use App\Repository\TimeEntryRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -94,11 +92,11 @@ class TaskController extends BaseController
                                        ->orderBy('task.createdAt', 'DESC')
         ;
 
-        $name = $request->request->get('name', null);
+        $name = $request->query->get('name');
         if (!is_null($name))
         {
             $queryBuilder = $queryBuilder->andWhere('task.name LIKE :name')
-                                         ->setParameter('name', $name)
+                                         ->setParameter('name', "%$name%")
             ;
         }
 
@@ -159,8 +157,7 @@ class TaskController extends BaseController
 
         $task = $taskRepository->find($id);
         if (is_null($task)) {
-            $this->addFlash('danger', "Task not found");
-            return $this->redirectToRoute('task_list');
+            throw $this->createNotFoundException();
         }
 
         $taskModel = TaskModel::fromEntity($task);

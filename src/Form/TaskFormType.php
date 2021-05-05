@@ -19,7 +19,9 @@ class TaskFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class)
-            ->add('description', TextareaType::class)
+            ->add('description', TextareaType::class, [
+                'required' => false,
+            ])
             ->add('completedAt', DateTimeType::class, [
                 'required' => false,
                 'date_widget' => 'single_text',

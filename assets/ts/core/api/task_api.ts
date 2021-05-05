@@ -7,6 +7,13 @@ export interface ApiTask {
     completedAt?: string;
 }
 
+// The data required to assign a task to something.
+// If id is not provided, a new task will be created.
+export interface ApiTaskAssign {
+    id?: string;
+    name: string;
+}
+
 export interface ApiUpdateTask {
     description?: string;
 }
