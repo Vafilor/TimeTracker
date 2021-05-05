@@ -8,6 +8,8 @@ import LoadingButton from "./components/loading_button";
 import AutocompleteTags from "./components/autocomplete_tags";
 import { ApiTag } from "./core/api/tag_api";
 import TagList from "./components/tag_list";
+import AutocompleteTasks from "./components/autocomplete_tasks";
+import { ApiTask } from "./core/api/task_api";
 
 
 $(document).ready( () => {
@@ -54,7 +56,6 @@ $(document).ready( () => {
         );
     })
 
-
     const stopRunningButton = new LoadingButton($('.js-stop-running'));
     stopRunningButton.$container.on('click', (event)=> {
         const $target = $(event.currentTarget);
@@ -83,12 +84,26 @@ $(document).ready( () => {
     const $realInput = $('.js-real-input');
 
     const autoComplete = new AutocompleteTags('.js-autocomplete-tags');
-    autoComplete.tagEmitter.addObserver((apiTag: ApiTag) => {
-        tagList.add(apiTag);
-    })
+    if (autoComplete.live()) {
+        autoComplete.valueEmitter.addObserver((apiTag: ApiTag) => {
+            tagList.add(apiTag);
+        })
+    }
 
     tagList.tagsChanged.addObserver(() => {
         autoComplete.setTags(tagList.getTagNames());
         $realInput.val(tagList.getTagNamesCommaSeparated());
     });
+
+    const $realTaskInput = $('.js-real-task-input');
+    const autoCompleteTask = new AutocompleteTasks('.js-autocomplete-tasks');
+    if (autoCompleteTask.live()) {
+        autoCompleteTask.valueEmitter.addObserver((task: ApiTask) => {
+            $realTaskInput.val(task.id);
+        });
+
+        autoCompleteTask.$nameInput.on('input', () => {
+            $realTaskInput.val('');
+        });
+    }
 });

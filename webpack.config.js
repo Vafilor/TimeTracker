@@ -25,6 +25,8 @@ Encore
     .addEntry('time_entry_list', './assets/ts/time_entry_list.ts')
     .addEntry('time_entry', './assets/ts/time_entry.ts')
     .addEntry('tag', './assets/ts/tag.ts')
+    .addEntry('task', './assets/ts/task.ts')
+    .addEntry('task_list', './assets/ts/task_list.ts')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')

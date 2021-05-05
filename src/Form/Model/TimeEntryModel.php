@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form\Model;
 
+use App\Entity\Task;
 use App\Entity\TimeEntry;
 use DateTime;
 

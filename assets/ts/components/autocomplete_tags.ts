@@ -1,72 +1,44 @@
 import $ from "jquery";
 import { ApiTag, TagApi } from "../core/api/tag_api";
-import Observable from "./observable";
+import Autocomplete from "./autocomplete";
+import { JsonResponse } from "../core/api/api";
 
-export default class AutocompleteTags {
-    private $container: JQuery;
-    private $loading: JQuery;
-    private readonly $tagNameInput: any;
+export default class AutocompleteTags extends Autocomplete<ApiTag> {
     private tags = new Array<string>();
-    public readonly tagEmitter = new Observable<ApiTag>()
 
     constructor(selector: string) {
-        this.$container = $(selector);
-        if (this.$container.length === 0) {
-            this.$container = undefined;
-            return;
+        super(selector);
+
+        if (this.live()) {
+            this.$nameInput.on('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    // So form doesn't submit, if there is one.
+                    event.preventDefault();
+                    this.enterTag(this.getInputValue());
+                }
+            });
+
+            $('.js-add').on('click', (event) => {
+                this.enterTag(this.getInputValue());
+            });
         }
-
-        this.$tagNameInput = this.$container.find('.js-tag-input');
-        this.$loading = this.$container.find('.js-load');
-
-        this.$container.find('.js-add-tag').on('click', (event) => {
-            this.enterTag(this.getTagInput());
-        });
-
-        this.setupAutoComplete();
     }
 
-    private getTagInput(): string {
-        return this.$tagNameInput.val() as string;
+    protected createItemTemplate(item: ApiTag): string {
+        return `<div>${item.name}</div>`;
     }
 
-    private setupAutoComplete() {
-        const $tagNameInput = this.$tagNameInput;
+    protected listItems(name: string, request: any): Promise<JsonResponse<any>> {
+        return TagApi.listTags(name, this.tags);
+    }
 
-        $tagNameInput.on('keypress', (event) => {
-            if (event.key === 'Enter') {
-                // So form doesn't submit, if there is one.
-                event.preventDefault();
-                this.enterTag(this.getTagInput());
-            }
-        });
+    protected onItemSelected(item: ApiTag) {
+        this.valueEmitter.emit(item);
+        this.$nameInput.val('');
+    }
 
-        $tagNameInput.autocomplete({
-            source: (request, response) => {
-                this.$loading.removeClass('opacity-invisible');
-
-                TagApi.listTags(request.term, this.tags)
-                    .then(res => {
-                        this.$loading.addClass('opacity-invisible');
-                        response(res.data);
-                    })
-            },
-            focus: function (event, ui) {
-                $tagNameInput.val(ui.item.name);
-                return false;
-            },
-            select: (event, ui) => {
-                $tagNameInput.val(ui.item.name);
-                this.enterTag(ui.item.name);
-
-                return false;
-            },
-            delay: 300,
-        }).autocomplete("instance")._renderItem = function (ul, item) {
-            return $("<li>")
-                .append("<div>" + item.name + "</div>")
-                .appendTo(ul);
-        };
+    public setTags(tags: Array<string>) {
+        this.tags = tags;
     }
 
     private enterTag(name: string, color: string = '#5d5d5d') {
@@ -74,15 +46,11 @@ export default class AutocompleteTags {
             return;
         }
 
-        this.tagEmitter.emit({
+        this.valueEmitter.emit({
             name,
-            color,
+            color
         });
 
-        this.$tagNameInput.val('');
-    }
-
-    public setTags(tags: Array<string>) {
-        this.tags = tags;
+        this.$nameInput.val('');
     }
 }

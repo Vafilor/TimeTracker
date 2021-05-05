@@ -11,12 +11,14 @@ class TimeEntryListFilterModel
     private ?DateTime $start;
     private ?DateTime $end;
     private ?string $tags;
+    private ?string $taskId;
 
     public function __construct()
     {
         $this->start = null;
         $this->end = null;
         $this->tags = null;
+        $this->taskId = null;
     }
 
     public function getStart(): ?DateTime
@@ -83,6 +85,22 @@ class TimeEntryListFilterModel
     public function setTags(?string $tags): self
     {
         $this->tags = $tags;
+        return $this;
+    }
+
+    public function getTaskId(): ?string
+    {
+        return $this->taskId;
+    }
+
+    public function hasTask(): bool
+    {
+        return !is_null($this->taskId);
+    }
+
+    public function setTaskId(?string $taskId): TimeEntryListFilterModel
+    {
+        $this->taskId = $taskId;
         return $this;
     }
 }

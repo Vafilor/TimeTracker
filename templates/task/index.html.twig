@@ -1,0 +1,87 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}TimeTracker{% endblock %}
+
+{% block content_body %}
+    <div class="p-3 js-data"
+         data-duration-format="{{ app.user.durationFormat }}"
+         data-date-format="today"
+         data-show-completed="{{ filterForm.showCompleted.vars.data }}">
+
+        <h1 class="text-center">Tasks</h1>
+
+        <div class="filter table-filter mb-3">
+            <div class="filter-title">Filter</div>
+            {{ form_start(filterForm) }}
+            {{ form_widget(filterForm) }}
+            <button type="submit" class="btn btn-primary">Search</button>
+            {{ form_end(filterForm) }}
+        </div>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>{{ knp_pagination_sortable(pagination, 'Completed', 'task.completedAt') }}</th>
+                    <th>{{ knp_pagination_sortable(pagination, 'Name', 'task.name') }}</th>
+                    <th>{{ knp_pagination_sortable(pagination, 'Created', 'task.createdAt') }}</th>
+                    <th>Description</th>
+                    <th>Links</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in pagination %}
+                <tr>
+                    <td>
+                        <input data-task-id="{{ task.idString }}" type="checkbox" class="js-task-completed" {% if task.completed %} checked="true" {% endif%} />
+                        {% if task.completed %}
+                        <span class="ml-1 js-completed-at">{{ time.user_date(task.completedAt, app.user) }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ task.name }}</td>
+                    <td>{{ time.user_date(task.createdAt, app.user) }}</td>
+                    <td>
+                        {{ task.description | slice(0,50) }}
+                        {% if task.description | length > 50 %}
+                        ...
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('time_entry_list', {taskId: task.idString}) }}">Time Entries</a>
+                    </td>
+                    <td>
+                        <a href="{{ path('task_view', {id: task.id}) }}" class="btn btn-primary">View</a>
+                    </td>
+                </tr>
+                {% else %}
+                    <tr>
+                        <td class="text-center" colspan="6">No results found</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div>
+            <a href="{{ path('task_create') }}" class="btn btn-primary">Create task</a>
+        </div>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('task_list') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('task_list') }}
+{% endblock %}

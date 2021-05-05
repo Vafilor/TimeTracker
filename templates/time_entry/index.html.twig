@@ -37,7 +37,6 @@
                     {% endif %}
                     </div>
                     <div class="d-inline-flex mt-1">
-
                         {{ form_widget(filterForm.end, {attr: {class: 'anti-form-control'}}) }}
                         <button type="button" class="btn btn-danger js-clear-datetime ml-2">
                             <i class="fas fa-trash"></i>
@@ -47,21 +46,46 @@
             </div>
 
             {{ form_label(filterForm.tags) }}
-            <div class="js-autocomplete-tags d-flex align-items-center">
+            <div class="js-autocomplete-tags d-flex align-items-center mb-1">
                 {{ form_widget(filterForm.tags, {attr: {class: 'js-real-input d-none'}}) }}
                 <div class="js-tags tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
 
                 <div class="input-group unset-width flex-shrink-0 align-self-start">
                     <div class="input-group-prepend">
                         <div class="input-group-text">
-                            <div class="spinner-border spinner-border-sm text-primary js-load opacity-invisible" role="status">
+                            <div class="spinner-border spinner-border-sm text-primary js-loading opacity-invisible" role="status">
                               <span class="sr-only">Loading...</span>
                             </div>
                         </div>
                     </div>
-                    <input type="text" class="js-tag-input" placeholder="tag name..." aria-label="loading indicator">
+                    <input type="text" class="js-input" placeholder="tag name..." aria-label="loading indicator">
                     <button type="button" class="btn btn-secondary js-add-tag ml-2">Add</button>
                 </div>
+            </div>
+
+            {{ form_label(filterForm.taskId) }}
+            <div class="js-autocomplete-tasks">
+                <div class="input-group unset-width flex-shrink-0 align-self-start">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                            <div class="spinner-border spinner-border-sm text-primary js-loading opacity-invisible" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input
+                            type="text"
+                            class="js-input"
+                            placeholder="task name..."
+                            aria-label="loading indicator"
+                            {% if task %}
+                            value="{{ task.name }}"
+                            {% endif %}
+                    />
+                </div>
+
+                {{ form_widget(filterForm.taskId, {attr: {class: 'd-none js-real-task-input'}}) }}
             </div>
 
             <button type="submit" class="btn btn-primary mt-2">Search</button>
@@ -74,6 +98,7 @@
             <thead>
             <tr>
                 <th>Tags</th>
+                <th>Task</th>
                 <th>{{ knp_pagination_sortable(pagination, 'Start', 'time_entry.startedAt') }}</th>
                 <th>{{ knp_pagination_sortable(pagination, 'End', 'time_entry.endedAt') }}</th>
                 <th>Duration</th>
@@ -89,6 +114,11 @@
 
                         {{ tags.view(tag.name, tag.color) }}
                         {% endfor %}
+                    </td>
+                    <td>
+                        {% if timeEntry.task.id is defined %}
+                        <a href="{{ path('task_view', {id: timeEntry.task.id}) }}">{{ timeEntry.task.name }}</a>
+                        {% endif %}
                     </td>
                     <td>{{ time.user_date(timeEntry.startedAt, app.user) }}</td>
                     <td class="js-ended-at">
@@ -111,6 +141,10 @@
                         </button>
                         {% endif %}
                     </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td class="text-center" colspan="6">No results found</td>
                 </tr>
             {% endfor %}
             </tbody>

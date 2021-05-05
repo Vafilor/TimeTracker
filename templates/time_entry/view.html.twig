@@ -8,7 +8,8 @@
 {% block content_body %}
 <div class="p-3 js-data"
      data-duration-format="{{ app.user.durationFormat }}"
-     data-time-entry-id="{{ timeEntry.idString }}">
+     data-time-entry-id="{{ timeEntry.idString }}"
+     data-assigned-task="{{ timeEntry.assignedToTask }}">
 
     <div class="js-autocomplete-tags d-flex align-items-center">
         <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
@@ -16,21 +17,68 @@
         <div class="input-group unset-width flex-shrink-0 align-self-start">
             <div class="input-group-prepend">
                 <div class="input-group-text">
-                    <div class="spinner-border spinner-border-sm text-primary js-load opacity-invisible" role="status">
+                    <div class="spinner-border spinner-border-sm text-primary js-loading opacity-invisible" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
             </div>
-            <input type="text" class="js-tag-input" placeholder="tag name..." aria-label="loading indicator">
-            <button type="button" class="btn btn-secondary js-add-tag ml-2">Add</button>
+            <input type="text" class="js-input" placeholder="tag name..." aria-label="loading indicator">
+            <button type="button" class="btn btn-secondary js-add ml-2">Add</button>
         </div>
     </div>
 
+    <label for="task">Task</label>
+    <div class="js-autocomplete-task-create mt-2">
+        <div class="js-task"></div>
+
+        <div class="input-group unset-width flex-shrink-0 align-self-start">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <div class="spinner-border spinner-border-sm text-primary js-loading opacity-invisible" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <input
+                    type="text"
+                    class="js-input"
+                    placeholder="task name..."
+                    aria-label="loading indicator"
+                    name="task"
+                    {% if timeEntry.assignedToTask %}
+                    value="{{ timeEntry.task.name }}"
+                    disabled
+                    {% endif %}
+            />
+            <div class="js-task-actions">
+                <button type="button" class="btn btn-danger js-clear-task ml-2">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <button
+                        type="button"
+                        class="btn btn-secondary js-edit ml-2 {% if not timeEntry.assignedToTask %} d-none{% endif %}">
+                    Edit
+                </button>
+                <button
+                        type="button"
+                        class="btn btn-secondary js-set ml-2 {% if timeEntry.assignedToTask %} d-none{% endif %}">
+                    Set
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{ form_start(form, {attr: {class: 'mt-2'}}) }}
+
+    {% if form.task is defined %}
+        {{ form_row(form.task) }}
+    {% endif %}
+
     <div class="mt-2">
         {% if not timeEntry.over %}
-        <div class="spinner-border spinner-border-sm text-primary mr-1" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
+            <div class="spinner-border spinner-border-sm text-primary mr-1" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
         {% endif %}
 
         Duration
@@ -39,8 +87,6 @@
             {{ time.user_duration(timeEntry.duration, app.user) }}
         </span>
     </div>
-
-    {{ form_start(form, {attr: {class: 'mt-2'}}) }}
 
     <div class="d-flex">
         <div>
@@ -113,7 +159,7 @@
 
     {{ form_widget(form) }}
     <div class="d-flex mt-3">
-        <button type="submit" class="btn btn-primary" name="how">Update</button>
+        <button type="submit" class="btn btn-primary">Update</button>
         {% if not timeEntry.over %}
             <a href="{{ path('time_entry_stop', {id: timeEntry.id}) }}" class="btn btn-secondary ml-2">Stop</a>
         {% else %}

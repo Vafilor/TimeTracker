@@ -4,35 +4,29 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Entity\Task;
-use App\Entity\User;
-use App\Form\Model\TimeEntryModel;
-use App\Repository\TaskRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Form\Model\TagModel;
+use App\Form\Model\TaskModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TimeEntryFormType extends AbstractType
+class TaskFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('startedAt', DateTimeType::class, [
-                'date_widget' => 'single_text',
-                'time_widget' => 'single_text',
-                'view_timezone' => $options['timezone']
+            ->add('name', TextType::class)
+            ->add('description', TextareaType::class, [
+                'required' => false,
             ])
-            ->add('endedAt', DateTimeType::class, [
+            ->add('completedAt', DateTimeType::class, [
+                'required' => false,
                 'date_widget' => 'single_text',
                 'time_widget' => 'single_text',
                 'view_timezone' => $options['timezone'],
-                'required' => false,
-            ])
-            ->add('description', TextareaType::class, [
-                'required' => false,
             ])
         ;
     }
@@ -40,10 +34,9 @@ class TimeEntryFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-                                   'data_class' => TimeEntryModel::class
+                                   'data_class' => TaskModel::class
                                ]);
 
-        $resolver->setRequired(['timezone']);
+        $resolver->setRequired('timezone');
     }
 }
-

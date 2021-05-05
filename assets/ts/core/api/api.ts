@@ -24,6 +24,16 @@ export class ApiErrorResponse extends Error {
             this.errors = [];
         }
     }
+
+    public hasErrorCode(code: string): boolean {
+        for(const error of this.errors) {
+            if (error.code === code) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 export class CoreApi {
