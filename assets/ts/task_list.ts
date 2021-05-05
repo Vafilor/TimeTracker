@@ -6,7 +6,9 @@ import { ApiTask, TaskApi } from "./core/api/task_api";
 import { JsonResponse } from "./core/api/api";
 
 $(document).ready(() => {
-    const dateFormat = $('.js-data').data('date-format');
+    const $data = $('.js-data');
+    const dateFormat = $data.data('date-format');
+    const showCompleted = $data.data('show-completed');
 
     $('.js-task-completed').on('change', (event) => {
         const $target = $(event.currentTarget);
@@ -20,8 +22,10 @@ $(document).ready(() => {
                 $target.removeAttr('disabled');
                 $target.parent().find('.js-completed-at').remove();
 
-                if (res.data.completedAt) {
+                if (res.data.completedAt && showCompleted) {
                     $target.parent().append(`<span class="ml-1 js-completed-at">${res.data.completedAt}</span>`);
+                } else {
+                    $target.parent().parent().remove();
                 }
             })
             .catch(() => {

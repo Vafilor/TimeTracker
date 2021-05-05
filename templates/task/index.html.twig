@@ -8,7 +8,8 @@
 {% block content_body %}
     <div class="p-3 js-data"
          data-duration-format="{{ app.user.durationFormat }}"
-         data-date-format="today">
+         data-date-format="today"
+         data-show-completed="{{ filterForm.showCompleted.vars.data }}">
 
         <h1 class="text-center">Tasks</h1>
 
