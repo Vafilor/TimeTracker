@@ -13,6 +13,7 @@ class ApiTask
     public string $name;
     public string $description;
     public ?string $completedAt;
+    public ?string $url;
 
     public static function fromEntity(Task $task,  User $user, string $format = 'date'): ApiTask
     {
@@ -31,6 +32,7 @@ class ApiTask
         $this->name = $name;
         $this->description = '';
         $this->completedAt = null;
+        $this->url = null;
     }
 
     public function getId(): string
@@ -74,6 +76,17 @@ class ApiTask
     public function setCompletedAt(string $completedAt): self
     {
         $this->completedAt = $completedAt;
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(?string $url): ApiTask
+    {
+        $this->url = $url;
         return $this;
     }
 }

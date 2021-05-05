@@ -586,6 +586,7 @@ class TimeEntryController extends BaseController
         $manager->flush();
 
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
+        $apiTask->setUrl($this->generateUrl('task_view', ['id' => $task->getIdString()]));
 
         return $this->json($apiTask, Response::HTTP_CREATED);
     }

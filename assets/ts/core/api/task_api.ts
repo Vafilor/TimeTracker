@@ -5,6 +5,7 @@ export interface ApiTask {
     name: string;
     description: string;
     completedAt?: string;
+    url?: string;
 }
 
 // The data required to assign a task to something.

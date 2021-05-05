@@ -87,7 +87,7 @@ class TimeEntryTaskAssigner {
             TimeEntryApi.assignToTask(timeEntryId, apiTaskAssign.name, apiTaskAssign.id)
                 .then((res) => {
                     if (res.source.status === 201) {
-                        this.flashes.append('success', `Created new task '${apiTaskAssign.name}'`)
+                        this.flashes.appendWithLink('success', `Created new task`, res.data.url, res.data.name);
                     }
                     this.onAssignedToTask();
                 })
@@ -98,7 +98,7 @@ class TimeEntryTaskAssigner {
                 .then(() => {
                     this.autocomplete.clearInput();
                     this.onEditTask();
-                    this.flashes.append('success', 'Unassigned from task');
+                    this.flashes.append('success', 'Unassigned from task', true);
                 }).catch((errRes: ApiErrorResponse) => {
                     if (errRes.hasErrorCode(TimeEntryApiErrorCode.codeNoAssignedTask)) {
                         flashes.append('danger', 'Time entry has no assigned task');
