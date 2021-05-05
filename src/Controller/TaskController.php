@@ -34,7 +34,8 @@ class TaskController extends BaseController
         TaskListFilterFormType::class,
             new TaskListFilterModel(), [
             'csrf_protection' => false,
-            'method' => 'GET'
+            'method' => 'GET',
+            'allow_extra_fields' => true
         ]);
 
         $filterForm->handleRequest($request);
