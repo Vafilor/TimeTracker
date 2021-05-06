@@ -95,7 +95,7 @@ body {
                         padding: 10px 10px 10px 20px;
                         color: lighten($primary, 30%);
 
-                        &:hover {
+                        &:hover, &.active {
                             background-color: lighten($dark, 20%);
                         }
                     }
