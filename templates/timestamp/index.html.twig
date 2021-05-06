@@ -16,8 +16,8 @@
             <thead>
             <tr>
                 <th>Tags</th>
-                <th>Created</th>
-                <th>{{ knp_pagination_sortable(pagination, 'Created At', 'timestmap.createdAt') }}</th>
+                <th>{{ knp_pagination_sortable(pagination, 'Created', 'timestamp.createdAt') }}</th>
+                <th>Created at</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -26,9 +26,11 @@
                 <tr>
                     <td>...</td>
 {#                     // TODO#}
-                    <td>5 minutes ago</td>
+                    <td>{{ timestamp.createdAt | ago }}</td>
                     <td>{{ time.user_date(timestamp.createdAt, app.user) }}</td>
-                    <td>Edit</td>
+                    <td>
+                        <a href="{{ path('timestamp_view', { id: timestamp.idString }) }}" class="btn btn-primary">Edit</a>
+                    </td>
                 </tr>
             {% else %}
                 <tr>
@@ -39,7 +41,7 @@
         </table>
 
         <div>
-            <a href="{{ path('timestamp_create') }}" class="btn btn-primary" >Create</a>
+            <a href="{{ path('timestamp_create') }}" class="btn btn-primary">Create</a>
         </div>
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
