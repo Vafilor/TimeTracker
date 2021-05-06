@@ -1,0 +1,27 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block content_body %}
+    <div class="p-3 js-data"
+         data-duration-format="{{ app.user.durationFormat }}"
+         data-timestamp-id="{{ timestamp.idString }}">
+
+        {{ form(form) }}
+
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+{#    {{ encore_entry_link_tags('time_entry') }}#}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+{#    {{ encore_entry_script_tags('time_entry') }}#}
+{% endblock %}
+

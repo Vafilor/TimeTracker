@@ -1,0 +1,58 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+{% import 'tag/partials.html.twig' as tags %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}TimeTracker{% endblock %}
+
+{% block content_body %}
+    <div class="p-3">
+        <h1 class="text-center">Timestamps</h1>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+        <table class="table table-hover table-bordered">
+            <thead>
+            <tr>
+                <th>Tags</th>
+                <th>Created</th>
+                <th>{{ knp_pagination_sortable(pagination, 'Created At', 'timestmap.createdAt') }}</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for timestamp in pagination.items %}
+                <tr>
+                    <td>...</td>
+{#                     // TODO#}
+                    <td>5 minutes ago</td>
+                    <td>{{ time.user_date(timestamp.createdAt, app.user) }}</td>
+                    <td>Edit</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td class="text-center" colspan="4">No results found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div>
+            <a href="{{ path('timestamp_create') }}" class="btn btn-primary" >Create</a>
+        </div>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('time_entry_list') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('time_entry_list') }}
+{% endblock %}
