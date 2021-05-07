@@ -26,7 +26,7 @@ class TimestampTag
     private $tag;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Timestamp::class)
+     * @ORM\ManyToOne(targetEntity=Timestamp::class, inversedBy="timestampTags")
      * @ORM\JoinColumn(nullable=false)
      */
     private $timestamp;
@@ -53,12 +53,12 @@ class TimestampTag
         return $this;
     }
 
-    public function getTimestamp(): ?Timestamp
+    public function getTimestamp(): Timestamp
     {
         return $this->timestamp;
     }
 
-    public function setTimestamp(Timestamp $timestamp): self
+    public function setTimestamp(?Timestamp $timestamp): self
     {
         $this->timestamp = $timestamp;
 

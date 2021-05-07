@@ -8,7 +8,26 @@
          data-duration-format="{{ app.user.durationFormat }}"
          data-timestamp-id="{{ timestamp.idString }}">
 
-        {{ form(form) }}
+        <div class="js-autocomplete-tags d-flex align-items-center">
+            <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+
+            <div class="input-group unset-width flex-shrink-0 align-self-start">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">
+                        <div class="spinner-border spinner-border-sm text-primary js-loading opacity-invisible" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <input type="text" class="js-input" placeholder="tag name..." aria-label="loading indicator">
+                <button type="button" class="btn btn-secondary js-add ml-2">Add</button>
+            </div>
+        </div>
+
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button type="submit" class="btn btn-primary">Update</button>
+        {{ form_end(form) }}
 
     </div>
 {% endblock %}
@@ -16,12 +35,12 @@
 {% block stylesheets %}
     {{ parent() }}
 
-{#    {{ encore_entry_link_tags('time_entry') }}#}
+    {{ encore_entry_link_tags('timestamp') }}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
 
-{#    {{ encore_entry_script_tags('time_entry') }}#}
+    {{ encore_entry_script_tags('timestamp') }}
 {% endblock %}
 

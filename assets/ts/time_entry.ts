@@ -12,7 +12,7 @@ import AutocompleteTags from "./components/autocomplete_tags";
 import AutoMarkdown from "./components/automarkdown";
 import AutocompleteTaskCreate from "./components/autocomplete_tasks_create";
 import { ApiTask, ApiTaskAssign } from "./core/api/task_api";
-import { ApiErrorResponse, JsonResponse } from "./core/api/api";
+import { ApiErrorResponse } from "./core/api/api";
 
 class TimeEntryApiAdapter implements TagListDelegate {
     constructor(private timeEntryId: string, private flashes: Flashes) {
@@ -154,6 +154,7 @@ $(document).ready(() => {
 
     const tagList = new TagList('.js-tags', new TimeEntryApiAdapter(timeEntryId, flashes));
     const autoComplete = new AutocompleteTags('.js-autocomplete-tags');
+    autoComplete.setTags(tagList.getTagNames());
 
     autoComplete.valueEmitter.addObserver((apiTag: ApiTag) => {
         tagList.add(apiTag);
@@ -162,6 +163,4 @@ $(document).ready(() => {
     tagList.tagsChanged.addObserver(() => {
         autoComplete.setTags(tagList.getTagNames());
     });
-
-
 });

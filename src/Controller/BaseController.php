@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\User;
+use DateTime;
+use DateTimeZone;
 use Doctrine\ORM\QueryBuilder;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -62,5 +64,9 @@ class BaseController extends AbstractController
         }
 
         return $pagination;
+    }
+
+    public function now(): DateTime {
+        return new DateTime('now', new DateTimeZone('UTC'));
     }
 }

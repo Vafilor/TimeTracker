@@ -8,6 +8,8 @@ use App\Repository\TimestampRepository;
 use App\Traits\UUIDTrait;
 use DateTime;
 use DateTimeZone;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -30,11 +32,17 @@ class Timestamp
      */
     private $createdBy;
 
+    /**
+     * @ORM\OneToMany(targetEntity=TimestampTag::class, mappedBy="timestamp")
+     */
+    private $timestampTags;
+
     public function __construct(User $creator)
     {
         $this->id = Uuid::uuid4();
         $this->createdAt = new DateTime('now', new DateTimeZone('UTC'));
         $this->createdBy = $creator;
+        $this->timestampTags = new ArrayCollection();
     }
 
     public function getCreatedAt(): DateTime
@@ -56,6 +64,29 @@ class Timestamp
     public function setCreatedBy(User $createdBy): self
     {
         $this->createdBy = $createdBy;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|TimestampTag[]
+     */
+    public function getTimestampTags(): Collection
+    {
+        return $this->timestampTags;
+    }
+
+    /**
+     * Add a timestampTag to this Timestamp. This does not add it to the database,
+     * it is purely for this object in memory.
+     * To persist the TimestampTag it must be persisted outside of this method.
+     *
+     * @param TimestampTag $timestampTag
+     * @return $this
+     */
+    public function addTimestampTag(TimestampTag $timestampTag): self
+    {
+        $this->timestampTags->add($timestampTag);
 
         return $this;
     }
