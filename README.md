@@ -27,6 +27,7 @@ Web App for tracking your time. Currently only locally deployable.
 composer install
 yarn install
 yarn encore dev
+php bin/console lexik:jwt:generate-keypair
 ```
 
 6. Set up your database connection in `.env`. postgresql, mysql, mariadb, sqlite are supported.
@@ -69,6 +70,7 @@ symfony serve
 composer install
 yarn install
 yarn encore dev
+php bin/console lexik:jwt:generate-keypair
 ```
 
 7. Setup database with docker
@@ -106,4 +108,38 @@ This will create a new time entry with the same tags.
 This will remove the 'ended' part of the current time entry and resume the timer.
 This is mostly for "oops" moments when you accidentally stopped a time entry.
 
+## Rest API
 
+To get the Auth Token
+
+POST to /api/login_check
+With headers
+ * Content-Type: application/json (required)
+Body
+```json
+{
+    "username": "email@email.com",
+    "password": "password"
+}
+```
+
+Note: body says `username` but it is actually the `email`
+
+You get
+
+```json
+{
+  "token": "token..."
+}
+```
+
+in response.
+
+Then, provide the token as a header: 
+Authorization: Bearer <token>
+
+As an example, you can get the time entries with
+
+GET /api/time-entry
+With headers
+* Content-Type: application/json (required)

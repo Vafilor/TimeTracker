@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\TimeEntry;
 use App\Entity\User;
+use App\Form\Model\TimeEntryListFilterModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -69,5 +70,39 @@ class TimeEntryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult()
         ;
+    }
+
+    public function applyFilter(QueryBuilder $queryBuilder, TimeEntryListFilterModel $filter): QueryBuilder
+    {
+        if ($filter->hasStart()) {
+            $queryBuilder = $queryBuilder
+                ->andWhere('time_entry.startedAt >= :start')
+                ->setParameter('start', $filter->getStart())
+            ;
+        }
+
+        if ($filter->hasEnd()) {
+            $queryBuilder = $queryBuilder
+                ->andWhere('time_entry.endedAt <= :end')
+                ->setParameter('end', $filter->getEnd())
+            ;
+        }
+
+        if ($filter->hasTags()) {
+            $tags = $filter->getTagsArray();
+            $queryBuilder = $queryBuilder
+                ->andWhere('tag.name IN (:tags)')
+                ->setParameter('tags', $tags)
+            ;
+        }
+
+        if ($filter->hasTask()) {
+            $queryBuilder = $queryBuilder
+                ->andWhere('time_entry.task = :taskId')
+                ->setParameter('taskId', $filter->getTaskId())
+            ;
+        }
+
+        return $queryBuilder;
     }
 }
