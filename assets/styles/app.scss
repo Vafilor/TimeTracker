@@ -95,7 +95,7 @@ body {
                         padding: 10px 10px 10px 20px;
                         color: lighten($primary, 30%);
 
-                        &:hover {
+                        &:hover, &.active {
                             background-color: lighten($dark, 20%);
                         }
                     }
@@ -215,4 +215,21 @@ body {
 
 .unset-width {
     width: unset;
+}
+
+.pointer-hover {
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.help-button-title {
+    font-size: 20px;
+    vertical-align: middle;
+
+    svg {
+        &:focus {
+            outline: unset;
+        }
+    }
 }

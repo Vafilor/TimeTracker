@@ -41,6 +41,10 @@ export default class AutocompleteTags extends Autocomplete<ApiTag> {
         this.tags = tags;
     }
 
+    public getTags(): Array<string> {
+        return this.tags;
+    }
+
     private enterTag(name: string, color: string = '#5d5d5d') {
         if (name === '') {
             return;

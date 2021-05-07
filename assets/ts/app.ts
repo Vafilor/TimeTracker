@@ -19,6 +19,11 @@ import { formatTimeDifference } from "./components/time";
 $(document).ready(() => {
     // @ts-ignore
     $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="popover"]').popover();
+
+    $('.popover-dismiss').popover({
+        trigger: 'focus'
+    })
 
     $('.sidebar-visibility').on('click', () => {
         $('.sidebar').toggleClass('hide');

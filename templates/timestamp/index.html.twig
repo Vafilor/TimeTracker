@@ -1,0 +1,89 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+{% import 'tag/partials.html.twig' as tags %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}TimeTracker{% endblock %}
+
+{% block content_body %}
+    <div class="p-3 js-data"
+         data-timestamp-edit-url="{{ path('timestamp_view', { id: 'TIMESTAMP_ID' }) }}"
+         {% if pagination.sort == 'timestamp.createdAt' %}
+         data-created-at-sort="{{ pagination.direction }}"
+         {% else %}
+         data-created-at-sort="none"
+         {% endif %}
+    >
+
+        <h1 class="text-center">
+
+            Timestamps
+            <span class="pointer-hover help-button-title">
+                <i
+                        class="far fa-question-circle"
+                        tabindex="0"
+                        data-toggle="popover"
+                        title="What are timestamps?"
+                        data-trigger="focus"
+                        data-content="Timestamps keep track of when something happens. You can keep track of how often your server goes down, or the neighbor's dogs bark.">
+                </i>
+            </span>
+        </h1>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+        <table class="table table-hover table-bordered js-timestamp-list">
+            <thead>
+            <tr>
+                <th>Tags</th>
+                <th>{{ knp_pagination_sortable(pagination, 'Created', 'timestamp.createdAt') }}</th>
+                <th>Created at</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody class="js-timestamp-list-body">
+            {% for timestamp in pagination.items %}
+                <tr data-timestamp-id="{{ timestamp.idString }}">
+                    <td>
+                        {% for timestampTag in timestamp.timestampTags %}
+                            {% set tag = timestampTag.tag %}
+                            {{ tags.view(tag.name, tag.color) }}
+                        {% endfor %}
+                    </td>
+                    <td>{{ timestamp.createdAt | ago }}</td>
+                    <td>{{ time.user_date(timestamp.createdAt, app.user) }}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary js-timestamp-repeat">
+                            <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
+                            Mark again
+                        </button>
+                        <a href="{{ path('timestamp_view', { id: timestamp.idString }) }}" class="btn btn-primary">Edit</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td class="text-center" colspan="4">No results found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div>
+            <a href="{{ path('timestamp_create') }}" class="btn btn-primary">Create</a>
+        </div>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('timestamp_list') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('timestamp_list') }}
+{% endblock %}
