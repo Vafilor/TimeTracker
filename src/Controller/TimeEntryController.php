@@ -34,8 +34,8 @@ class TimeEntryController extends BaseController
     const codeRunningTimer = 'code_running_timer';
     const codeNoAssignedTask = 'code_no_assigned_task';
 
-    #[Route('/time-entry', name: 'time_entry_list')]
-    public function list(
+    #[Route('/time-entry', name: 'time_entry_index')]
+    public function index(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
         FormFactoryInterface $formFactory,
@@ -147,7 +147,7 @@ class TimeEntryController extends BaseController
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($runningTimeEntry)) {
             $this->addFlash('danger', 'You already have a running time entry');
-            return $this->redirectToRoute('time_entry_list');
+            return $this->redirectToRoute('time_entry_index');
         }
 
         $timeEntry = new TimeEntry($this->getUser());
@@ -206,7 +206,7 @@ class TimeEntryController extends BaseController
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($runningTimeEntry)) {
             $this->addFlash('danger', 'You already have a running time entry');
-            return $this->redirectToRoute('time_entry_list');
+            return $this->redirectToRoute('time_entry_index');
         }
 
         $existingTimeEntry = $timeEntryRepository->find($id);
@@ -298,7 +298,7 @@ class TimeEntryController extends BaseController
 
         if ($timeEntry->isOver()) {
             $this->addFlash('danger', 'Time Entry already finished');
-            return $this->redirectToRoute('time_entry_list');
+            return $this->redirectToRoute('time_entry_index');
         }
 
         $timeEntry->stop();
@@ -350,12 +350,12 @@ class TimeEntryController extends BaseController
         $activeTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($activeTimeEntry)) {
             $this->addFlash('danger', 'You already have a running time entry');
-            return $this->redirectToRoute('time_entry_list');
+            return $this->redirectToRoute('time_entry_index');
         }
 
         if (!$timeEntry->isOver()) {
             $this->addFlash('danger', 'Time Entry is still running');
-            return $this->redirectToRoute('time_entry_list');
+            return $this->redirectToRoute('time_entry_index');
         }
 
         $timeEntry->resume();
@@ -377,7 +377,7 @@ class TimeEntryController extends BaseController
 
         if (!$timeEntry->getOwner()->equalIds($this->getUser())) {
             $this->addFlash('danger', 'You do not have permission to delete this time entry');
-            return $this->redirectToRoute('time_entry_list');
+            return $this->redirectToRoute('time_entry_index');
         }
 
         if ($timeEntry->running()) {
@@ -390,7 +390,7 @@ class TimeEntryController extends BaseController
 
         $this->addFlash('success', 'Time entry deleted');
 
-        return $this->redirectToRoute('time_entry_list');
+        return $this->redirectToRoute('time_entry_index');
     }
 
     #[Route('/json/time-entry/{id}/tag', name: 'time_entry_json_tag_create', methods: ['POST'])]
