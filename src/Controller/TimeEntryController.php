@@ -67,35 +67,7 @@ class TimeEntryController extends BaseController
             /** @var TimeEntryListFilterModel $data */
             $data = $filterForm->getData();
 
-            if ($data->hasStart()) {
-                $queryBuilder = $queryBuilder
-                    ->andWhere('time_entry.startedAt >= :start')
-                    ->setParameter('start', $data->getStart())
-                ;
-            }
-
-            if ($data->hasEnd()) {
-                $queryBuilder = $queryBuilder
-                    ->andWhere('time_entry.endedAt <= :end')
-                    ->setParameter('end', $data->getEnd())
-                ;
-            }
-
-            if ($data->hasTags()) {
-                $tags = $data->getTagsArray();
-                $queryBuilder = $queryBuilder
-                    ->andWhere('tag.name IN (:tags)')
-                    ->setParameter('tags', $tags)
-                ;
-            }
-
-            if ($data->hasTask()) {
-                $queryBuilder = $queryBuilder
-                    ->andWhere('time_entry.task = :taskId')
-                    ->setParameter('taskId', $data->getTaskId())
-                ;
-                $task = $taskRepository->find($data->getTaskId());
-            }
+            $queryBuilder = $timeEntryRepository->applyFilter($queryBuilder, $data);
         }
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
