@@ -35,7 +35,7 @@
                     <span class="color-tile align-text-bottom mr-2" style="background-color: {{ tag.color }}"></span>
                     <span class="color-tile-text">{{ tag.color }}</span>
                 </td>
-                <td><a href="{{ path('time_entry_list', {tags: tag.name }) }}">Time entries</a> </td>
+                <td><a href="{{ path('time_entry_index', {tags: tag.name }) }}">Time entries</a> </td>
                 <td>
                     <a href="{{ path('tag_view', {name: tag.name}) }}" class="btn btn-primary">Edit</a>
                 </td>

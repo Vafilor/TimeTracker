@@ -10,7 +10,7 @@
             <div class="sidebar">
                 <ul class="list-unstyled">
                     <li><a href="{{ path('time_entry_today') }}" {% if path == '/time-entry/today' %} class="active" {% endif %}>Today</a></li>
-                    <li><a href="{{ path('time_entry_list') }}" {% if (path != '/time-entry/today') and (path starts with '/time-entry') %} class="active" {% endif %}>Time Entries</a></li>
+                    <li><a href="{{ path('time_entry_index') }}" {% if (path != '/time-entry/today') and (path starts with '/time-entry') %} class="active" {% endif %}>Time Entries</a></li>
                     <li><a href="{{ path('tag_list') }}" {% if path starts with '/tag' %} class="active" {% endif %}>Tags</a></li>
                     <li><a href="{{ path('task_list') }}" {% if path starts with '/task' %} class="active"{% endif %}>Tasks</a></li>
                     <li><a href="{{ path('timestamp_index') }}" {% if path starts with '/timestamp' %} class="active"{% endif %}>Timestamps</a></li>
