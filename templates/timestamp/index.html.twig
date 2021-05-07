@@ -16,7 +16,20 @@
          {% endif %}
     >
 
-        <h1 class="text-center">Timestamps</h1>
+        <h1 class="text-center">
+
+            Timestamps
+            <span class="pointer-hover help-button-title">
+                <i
+                        class="far fa-question-circle"
+                        tabindex="0"
+                        data-toggle="popover"
+                        title="What are timestamps?"
+                        data-trigger="focus"
+                        data-content="Timestamps keep track of when something happens. You can keep track of how often your server goes down, or the neighbor's dogs bark.">
+                </i>
+            </span>
+        </h1>
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
@@ -41,11 +54,11 @@
                     <td>{{ timestamp.createdAt | ago }}</td>
                     <td>{{ time.user_date(timestamp.createdAt, app.user) }}</td>
                     <td>
-                        <a href="{{ path('timestamp_view', { id: timestamp.idString }) }}" class="btn btn-primary">Edit</a>
                         <button type="button" class="btn btn-primary js-timestamp-repeat">
                             <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
                             Mark again
                         </button>
+                        <a href="{{ path('timestamp_view', { id: timestamp.idString }) }}" class="btn btn-primary">Edit</a>
                     </td>
                 </tr>
             {% else %}

@@ -28,11 +28,11 @@ class TimestampListPage {
                     <td>${timestamp.createdAgo}</td>
                     <td>${timestamp.createdAt}</td>
                     <td>
-                        <a href="${editUrl}" class="btn btn-primary">Edit</a>
                         <button type="button" class="btn btn-primary js-timestamp-repeat">
                             <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
                             Mark again
                         </button>
+                        <a href="${editUrl}" class="btn btn-primary">Edit</a>
                     </td>
                 </tr>
         `;
