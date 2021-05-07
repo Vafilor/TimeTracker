@@ -9,8 +9,10 @@ Web App for tracking your time. Currently only locally deployable.
 ## Features
 
 * Use tags on each time entry so you can track multiple records at once
-* Add descriptions in Markdown 
-* Working on more, see TODO.md for what's coming up
+* Add descriptions in Markdown for Time Entries 
+* Keep track of Tasks and their associated time entries
+* Keep track of how often events happen with Timestamps
+* Working on more, see [TimeTracker Project](https://github.com/Vafilor/TimeTracker/projects/1)
 
 ## Local Setup
 
