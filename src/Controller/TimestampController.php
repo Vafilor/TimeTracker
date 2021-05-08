@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiProblem;
+use App\Api\ApiProblemException;
 use App\Api\ApiTag;
 use App\Api\ApiTimestamp;
 use App\Entity\Tag;
@@ -16,18 +18,18 @@ use App\Repository\TimestampRepository;
 use App\Repository\TimestampTagRepository;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TimestampController extends BaseController
 {
+    const codeTagNotAssociated = 'tag_not_associated';
+
     #[Route('/timestamp', name: 'timestamp_index')]
     public function index(
         Request $request,
         TimestampRepository $timestampRepository,
-        FormFactoryInterface $formFactory,
         PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -150,14 +152,20 @@ class TimestampController extends BaseController
 
         $timestamp = $timestampRepository->find($id);
         if (is_null($timestamp)) {
-            // TODO test and update others for json endpoints
             throw $this->createNotFoundException();
         }
 
         $data = json_decode($request->getContent(), true);
         if (!array_key_exists('tagName', $data)) {
-            // TODO change to error object here and other places
-            return $this->json(['error' => 'missing tagName'], Response::HTTP_BAD_REQUEST);
+            $problem = new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR);
+            $problem->set('errors', [
+                'message' => 'Missing value',
+                'property' => 'tagName'
+            ]);
+
+            throw new ApiProblemException(
+                $problem
+            );
         }
 
         $tagName = $data['tagName'];
@@ -199,12 +207,12 @@ class TimestampController extends BaseController
 
         $tag = $tagRepository->findOneBy(['name' => $tagName]);
         if (is_null($tag)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+            throw $this->createNotFoundException("tag '$tagName'");
         }
 
         $timestamp = $timestampRepository->find($id);
         if (is_null($timestamp)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+            throw $this->createNotFoundException('Timestamp');
         }
 
         $exitingLink = $timestampTagRepository->findOneBy([
@@ -213,14 +221,18 @@ class TimestampController extends BaseController
                                                           ]);
 
         if (is_null($exitingLink)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+            throw new ApiProblemException(
+                ApiProblem::invalidAction(
+                    self::codeTagNotAssociated,
+                    "Tag '$tagName' is not associated to this timestamp")
+            );
         }
 
         $manager = $this->getDoctrine()->getManager();
         $manager->remove($exitingLink);
         $manager->flush();
 
-        return $this->json([], Response::HTTP_OK);
+        return $this->jsonOk();
     }
 
     #[Route('/json/timestamp/{id}/tags', name: 'timestamp_json_tags')]

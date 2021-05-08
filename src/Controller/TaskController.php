@@ -255,6 +255,8 @@ class TaskController extends BaseController
 
         $this->getDoctrine()->getManager()->flush();
 
-        return $this->json([]);
+        $apiTask = ApiTask::fromEntity($task, $this->getUser());
+
+        return $this->json($apiTask);
     }
 }
