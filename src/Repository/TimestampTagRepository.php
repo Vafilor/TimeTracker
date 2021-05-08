@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Timestamp;
 use App\Entity\TimestampTag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -21,32 +22,14 @@ class TimestampTagRepository extends ServiceEntityRepository
         parent::__construct($registry, TimestampTag::class);
     }
 
-    // /**
-    //  * @return TimestampTag[] Returns an array of TimestampTag objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function removeForTimestamp(Timestamp $timestamp)
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
+        $this->createQueryBuilder('timestamp_tag')
+             ->andWhere('timestamp_tag.timestamp = :timestamp')
+             ->setParameter('timestamp', $timestamp)
+             ->delete()
+             ->getQuery()
+             ->getResult()
         ;
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?TimestampTag
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

@@ -13,6 +13,7 @@ class ApiTimestamp
 {
     public string $id;
     public string $createdAt;
+    public int $createdAtEpoch;
     public ?string $createdAgo; // human friendly string of how long ago the timestamp was created. e.g. '5 seconds ago'
     public array $tags;
 
@@ -26,6 +27,7 @@ class ApiTimestamp
         $apiModel = new ApiTimestamp();
         $apiModel->id = $timestamp->getIdString();
         $apiModel->createdAt = ApiDateTime::formatUserDate($timestamp->getCreatedAt(), $user, $format);
+        $apiModel->createdAtEpoch = $timestamp->getCreatedAt()->getTimestamp();
         $apiModel->createdAgo = $dateTimeFormatter->formatDiff($now, $timestamp->getCreatedAt());
 
         $tags = array_map(
@@ -41,8 +43,5 @@ class ApiTimestamp
         $apiModel->tags = $apiTags;
 
         return $apiModel;
-    }
-
-    public function __construct() {
     }
 }

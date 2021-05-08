@@ -4,6 +4,7 @@ import { ApiTag } from "./tag_api";
 export interface ApiTimestamp {
     id: string;
     createdAt: string;
+    createdAtEpoch: number;
     createdAgo?: string;
     tags: ApiTag[];
 }

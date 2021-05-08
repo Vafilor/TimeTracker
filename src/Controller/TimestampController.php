@@ -68,6 +68,10 @@ class TimestampController extends BaseController
         /** @var Timestamp|null $timestamp */
         $timestamp = $timestampRepository->find($id);
 
+        if (is_null($timestamp)) {
+            throw $this->createNotFoundException();
+        }
+
         if (!$this->getUser()->equalIds($timestamp->getCreatedBy())) {
             throw $this->createAccessDeniedException();
         }
@@ -101,6 +105,35 @@ class TimestampController extends BaseController
         ]);
     }
 
+    #[Route('/timestamp/{id}/delete', name: 'timestamp_delete')]
+    public function remove(
+        Request $request,
+        TimestampRepository $timestampRepository,
+        TimestampTagRepository $timestampTagRepository,
+        string $id) {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        /** @var Timestamp|null $timestamp */
+        $timestamp = $timestampRepository->find($id);
+
+        if (is_null($timestamp)) {
+            throw $this->createNotFoundException();
+        }
+
+        if (!$this->getUser()->equalIds($timestamp->getCreatedBy())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $timestampTagRepository->removeForTimestamp($timestamp);
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($timestamp);
+        $manager->flush();
+
+        $this->addFlash('success', 'Timestamp was removed');
+
+        return $this->redirectToRoute('timestamp_index');
+    }
+
     #[Route('/json/timestamp/{id}/repeat', name: 'timestamp_json_repeat', methods: ['POST'])]
     public function jsonRepeat(
         Request $request,
@@ -112,7 +145,6 @@ class TimestampController extends BaseController
 
         $timestamp = $timestampRepository->find($id);
         if (is_null($timestamp)) {
-            // TODO test and update others for json endpoints
             throw $this->createNotFoundException();
         }
 
