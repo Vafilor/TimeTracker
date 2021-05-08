@@ -6,11 +6,10 @@ namespace App\Api;
 
 use App\Entity\TimeEntry;
 use App\Entity\User;
-use DateTime;
-use DateTimeZone;
 
 class ApiTimeEntry
 {
+    public string $id;
     public string $createdAt;
     public string $updatedAt;
     public string $startedAt;
@@ -19,7 +18,7 @@ class ApiTimeEntry
     public int $endedAtEpoch;
     public string $description;
     public string $duration;
-    public array $apiTags;
+    public array $tags;
 
     /**
      * @param TimeEntry $timeEntry
@@ -31,6 +30,7 @@ class ApiTimeEntry
     public static function fromEntity(TimeEntry $timeEntry, User $user, string $format = 'date'): ApiTimeEntry
     {
         $apiTimeEntry = new ApiTimeEntry();
+        $apiTimeEntry->id = $timeEntry->getIdString();
         $apiTimeEntry->createdAt = ApiDateTime::formatUserDate($timeEntry->getCreatedAt(), $user, $format);
         $apiTimeEntry->startedAt = ApiDateTime::formatUserDate($timeEntry->getStartedAt(), $user, $format);
         $apiTimeEntry->startedAtEpoch = $timeEntry->getStartedAt()->getTimestamp();
@@ -53,7 +53,7 @@ class ApiTimeEntry
             $tags
         );
 
-        $apiTimeEntry->apiTags = $apiTags;
+        $apiTimeEntry->tags = $apiTags;
 
         return $apiTimeEntry;
     }
