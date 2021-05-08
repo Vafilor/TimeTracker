@@ -44,14 +44,14 @@
             </thead>
             <tbody class="js-timestamp-list-body">
             {% for timestamp in pagination.items %}
-                <tr data-timestamp-id="{{ timestamp.idString }}">
+                <tr data-timestamp-id="{{ timestamp.idString }}" data-created-at="{{ timestamp.createdAt.timestamp}}">
                     <td>
                         {% for timestampTag in timestamp.timestampTags %}
                             {% set tag = timestampTag.tag %}
                             {{ tags.view(tag.name, tag.color) }}
                         {% endfor %}
                     </td>
-                    <td>{{ timestamp.createdAt | ago }}</td>
+                    <td class="js-timestamp-ago">{{ timestamp.createdAt | ago }}</td>
                     <td>{{ time.user_date(timestamp.createdAt, app.user) }}</td>
                     <td>
                         <button type="button" class="btn btn-primary js-timestamp-repeat">

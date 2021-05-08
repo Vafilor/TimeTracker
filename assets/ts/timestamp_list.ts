@@ -5,6 +5,7 @@ import { ApiTimestamp, TimestampApi } from "./core/api/timestamp_api";
 import { JsonResponse } from "./core/api/api";
 import { ApiTag } from "./core/api/tag_api";
 import LoadingButton from "./components/loading_button";
+import { timeAgo } from "./components/time";
 
 class TimestampListPage {
     public static createTag(tag: ApiTag): string {
@@ -17,7 +18,7 @@ class TimestampListPage {
         const editUrl = urlTemplate.replace('TIMESTAMP_ID', timestamp.id);
 
         let data = `
-                <tr data-timestamp-id="${timestamp.id}">
+                <tr data-timestamp-id="${timestamp.id}" data-created-at="${timestamp.createdAtEpoch}">
                     <td>`;
 
         for(const tag of timestamp.tags) {
@@ -25,7 +26,7 @@ class TimestampListPage {
         }
 
         data +=    `</td>
-                    <td>${timestamp.createdAgo}</td>
+                    <td class="js-timestamp-ago">${timestamp.createdAgo}</td>
                     <td>${timestamp.createdAt}</td>
                     <td>
                         <button type="button" class="btn btn-primary js-timestamp-repeat">
@@ -38,6 +39,19 @@ class TimestampListPage {
         `;
 
         return data;
+    }
+
+    static updateTimeAgo(when: Date) {
+        const endMillis = when.getTime();
+
+        $('.js-timestamp-ago').each((index: number, element: HTMLElement) => {
+            const $element = $(element);
+            const startSeconds = $element.parent().data('created-at');
+
+            const agoString = timeAgo(startSeconds * 1000, endMillis);
+
+            $element.html(agoString);
+        });
     }
 }
 
@@ -71,4 +85,9 @@ $(document).ready(() => {
                 loadingButton.stopLoading();
             });
     });
+
+    setInterval(() => {
+        const now = new Date();
+        TimestampListPage.updateTimeAgo(now);
+    }, 1000);
 });
