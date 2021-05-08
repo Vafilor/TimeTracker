@@ -46,8 +46,7 @@
             {% for timestamp in pagination.items %}
                 <tr data-timestamp-id="{{ timestamp.idString }}" data-created-at="{{ timestamp.createdAt.timestamp}}">
                     <td>
-                        {% for timestampTag in timestamp.timestampTags %}
-                            {% set tag = timestampTag.tag %}
+                        {% for tag in timestamp.tags %}
                             {{ tags.view(tag.name, tag.color) }}
                         {% endfor %}
                     </td>

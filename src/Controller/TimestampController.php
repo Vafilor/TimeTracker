@@ -34,8 +34,9 @@ class TimestampController extends BaseController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $queryBuilder = $timestampRepository->findByUserQueryBuilder($this->getUser());
         // TODO add filter
+        $queryBuilder = $timestampRepository->findByUserQueryBuilder($this->getUser());
+        $queryBuilder = $timestampRepository->preloadTags($queryBuilder);
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'timestamp.createdAt',
