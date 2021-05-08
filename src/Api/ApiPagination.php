@@ -23,7 +23,8 @@ class ApiPagination
         $result->count = $pagination->count();
         $result->page = $pagination->getCurrentPageNumber();
         $result->perPage = $pagination->getItemNumberPerPage();
-        $result->totalPages = max(floor($pagination->getTotalItemCount() / $pagination->getItemNumberPerPage()), 1);
+
+        $result->totalPages = intval(max(ceil($pagination->getTotalItemCount() / $pagination->getItemNumberPerPage()), 1));
         $result->data = $data;
 
         return $result;

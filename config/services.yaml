@@ -29,3 +29,7 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\EventListener\ApiExceptionSubscriber:
+        arguments: ['%env(bool:APP_DEV)%']
+        tags:
+            - { name: kernel.event_subscriber, event: kernel.exception }
