@@ -23,11 +23,14 @@ class TimeEntryFormType extends AbstractType
             ->add('startedAt', DateTimeType::class, [
                 'date_widget' => 'single_text',
                 'time_widget' => 'single_text',
-                'view_timezone' => $options['timezone']
+                'with_seconds' => true,
+                'view_timezone' => $options['timezone'],
+                'required' => false
             ])
             ->add('endedAt', DateTimeType::class, [
                 'date_widget' => 'single_text',
                 'time_widget' => 'single_text',
+                'with_seconds' => true,
                 'view_timezone' => $options['timezone'],
                 'required' => false,
             ])
