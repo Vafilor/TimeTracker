@@ -5,6 +5,7 @@ import { ApiTask } from "./task_api";
 export type DateFormat = 'date' | 'today';
 
 export interface ApiTimeEntry {
+    id: string;
     createdAt: string;
     updatedAt: string;
     startedAt: string;
@@ -13,7 +14,7 @@ export interface ApiTimeEntry {
     endedAtEpoch: number;
     description: string;
     duration: string;
-    apiTags: ApiTag[];
+    tags: ApiTag[];
 }
 
 export interface CreateTimeEntryResponse {
