@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Api\ApiError;
-use App\Api\ApiErrorResponseBody;
+use App\Api\ApiProblem;
+use App\Api\ApiProblemException;
 use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Api\ApiTimeEntry;
@@ -39,7 +39,6 @@ class TimeEntryController extends BaseController
         Request $request,
         TimeEntryRepository $timeEntryRepository,
         FormFactoryInterface $formFactory,
-        TaskRepository $taskRepository,
         PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -87,7 +86,6 @@ class TimeEntryController extends BaseController
     public function today(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        TimeEntryTagRepository $timeEntryTagRepository,
         PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -165,13 +163,13 @@ class TimeEntryController extends BaseController
 
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($runningTimeEntry)) {
-            $data = new ApiErrorResponseBody(
-                new ApiError(
-                    self::codeRunningTimer,
+            throw new ApiProblemException(
+                ApiProblem::invalidAction(
+                    TimeEntryController::codeRunningTimer,
                     'You have a running timer',
-                    $runningTimeEntry->getIdString())
+                    ['resource' => $runningTimeEntry->getIdString()]
+                )
             );
-            return $this->json($data, Response::HTTP_BAD_REQUEST);
         }
 
         $timeEntry = new TimeEntry($this->getUser());
@@ -242,7 +240,6 @@ class TimeEntryController extends BaseController
     public function view(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        TimeEntryTagRepository $timeEntryTagRepository,
         string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -261,8 +258,13 @@ class TimeEntryController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var TimeEntryModel $data */
             $data = $form->getData();
-            $timeEntry->setDescription($data->getDescription());
-            $timeEntry->setStartedAt($data->getStartedAt());
+
+            if ($data->hasDescription()) {
+                $timeEntry->setDescription($data->getDescription());
+            }
+            if ($data->hasStartedAt()) {
+                $timeEntry->setStartedAt($data->getStartedAt());
+            }
             if ($data->isEnded()) {
                 $timeEntry->setEndedAt($data->getEndedAt());
             }
@@ -272,10 +274,9 @@ class TimeEntryController extends BaseController
             $this->getDoctrine()->getManager()->flush();
         }
 
-        $timeEntryTags = $timeEntryTagRepository->findBy(['timeEntry' => $timeEntry]);
         $apiTags = array_map(
             fn($timeEntryTag) => ApiTag::fromEntity($timeEntryTag->getTag()),
-            $timeEntryTags
+            $timeEntry->getTimeEntryTags()->toArray()
         );
 
         return $this->render('time_entry/view.html.twig', [
@@ -472,7 +473,7 @@ class TimeEntryController extends BaseController
         $manager->remove($exitingLink);
         $manager->flush();
 
-        return $this->json([], Response::HTTP_OK);
+        return $this->jsonNoContent();
     }
 
     #[Route('/json/time-entry/{id}/tags', name: 'time_entry_json_tags')]
@@ -519,7 +520,9 @@ class TimeEntryController extends BaseController
 
         $this->getDoctrine()->getManager()->flush();
 
-        return $this->json([]);
+        $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
+
+        return $this->json($apiTimeEntry);
     }
 
     #[Route('/json/time-entry/{id}/task', name: 'time_entry_json_task_create', methods: ['POST'])]
@@ -579,17 +582,17 @@ class TimeEntryController extends BaseController
         $manager = $this->getDoctrine()->getManager();
 
         if (!$timeEntry->assignedToTask()) {
-            $data = new ApiErrorResponseBody(
-                new ApiError(
+            throw new ApiProblemException(
+                ApiProblem::invalidAction(
                     self::codeNoAssignedTask,
-                    'Time entry has no assigned task')
+                    'Time entry has no assigned task',
+                )
             );
-            return $this->json($data, Response::HTTP_BAD_REQUEST);
         }
 
         $timeEntry->removeTask();
         $manager->flush();
 
-        return $this->json([], Response::HTTP_OK);
+        return $this->jsonNoContent();
     }
 }

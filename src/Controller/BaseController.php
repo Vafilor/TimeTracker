@@ -11,7 +11,9 @@ use Doctrine\ORM\QueryBuilder;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class BaseController.
@@ -68,5 +70,15 @@ class BaseController extends AbstractController
 
     public function now(): DateTime {
         return new DateTime('now', new DateTimeZone('UTC'));
+    }
+
+    public function jsonOk(): JsonResponse
+    {
+        return $this->json([], Response::HTTP_OK);
+    }
+
+    public function jsonNoContent(): JsonResponse
+    {
+        return $this->json([], Response::HTTP_NO_CONTENT);
     }
 }
