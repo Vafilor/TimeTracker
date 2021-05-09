@@ -232,3 +232,8 @@ body {
         }
     }
 }
+
+// Hide text for JQuery UI autocomplete
+.ui-helper-hidden-accessible {
+    display: none;
+}
