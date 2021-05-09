@@ -10,10 +10,13 @@ use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTimeEntry;
 use App\Entity\TimeEntry;
+use App\Entity\TimeEntryTag;
 use App\Form\Model\TimeEntryListFilterModel;
 use App\Form\Model\TimeEntryModel;
 use App\Form\TimeEntryFormType;
 use App\Form\TimeEntryListFilterFormType;
+use App\Manager\TagManager;
+use App\Repository\TagRepository;
 use App\Repository\TimeEntryRepository;
 use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
@@ -74,10 +77,10 @@ class ApiTimeEntryController extends BaseController
     #[Route('/api/time-entry', name: 'api_time_entry_create', methods: ["POST"])]
     public function create(
         Request $request,
-        TimeEntryRepository $timeEntryRepository): Response
+        TimeEntryRepository $timeEntryRepository,
+        TagRepository $tagRepository,
+        TagManager $tagManager): Response
     {
-        // TODO allow tags in body. Want to be able to do
-        // --tags=cake,bake,shake
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
@@ -91,12 +94,27 @@ class ApiTimeEntryController extends BaseController
             );
         }
 
-        $timeEntry = new TimeEntry($this->getUser());
         $manager = $this->getDoctrine()->getManager();
+
+        $timeEntry = new TimeEntry($this->getUser());
+
+        $data = json_decode($request->getContent(), true);
+        if (is_null($data)) {
+            $data = [];
+        }
+
+        if (array_key_exists('tags', $data)) {
+            $tagNames = explode(',', $data['tags']);
+            $tagObjects = $tagManager->findOrCreateByNames($tagNames);
+            foreach ($tagObjects as $tag) {
+                $timeEntryTag = new TimeEntryTag($timeEntry, $tag);
+                $manager->persist($timeEntryTag);
+            }
+        }
+
         $manager->persist($timeEntry);
         $manager->flush();
 
-        $data = json_decode($request->getContent(), true);
         if (!array_key_exists('time_format', $data)) {
             $timeFormat = 'date';
         } else {
