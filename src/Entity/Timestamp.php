@@ -33,7 +33,7 @@ class Timestamp
     private $createdBy;
 
     /**
-     * @ORM\OneToMany(targetEntity=TimestampTag::class, mappedBy="timestamp")
+     * @ORM\OneToMany(targetEntity=TimestampTag::class, mappedBy="timestamp", orphanRemoval=true)
      */
     private $timestampTags;
 

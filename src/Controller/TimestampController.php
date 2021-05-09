@@ -127,7 +127,6 @@ class TimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $timestampTagRepository->removeForTimestamp($timestamp);
         $manager = $this->getDoctrine()->getManager();
         $manager->remove($timestamp);
         $manager->flush();
