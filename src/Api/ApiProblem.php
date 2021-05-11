@@ -26,18 +26,19 @@ class ApiProblem
 
     public static function invalidAction(string $code, string $message, array $extra = []): ApiProblem
     {
-        return self::withCode(Response::HTTP_BAD_REQUEST, self::TYPE_INVALID_ACTION, $code, $message, $extra);
+        return self::withErrors(
+            Response::HTTP_BAD_REQUEST,
+            self::TYPE_INVALID_ACTION,
+            new ApiError($code, $message, $extra)
+        );
     }
 
-    public static function withCode(int $statusCode, string $type, string $code, string $message, array $extra): ApiProblem
+    public static function withErrors(int $statusCode, string $type, ApiError ...$apiErrors): ApiProblem
     {
         $problem = new ApiProblem($statusCode, $type);
-        $problem->set('code', $code)
-                ->set('message', $message)
-        ;
 
-        foreach($extra as $key => $value) {
-            $problem->set($key, $value);
+        foreach ($apiErrors as $apiError) {
+            $problem->addError($apiError);
         }
 
         return $problem;
@@ -96,5 +97,16 @@ class ApiProblem
     public function getStatusCode(): int
     {
         return $this->statusCode;
+    }
+
+    public function addError(ApiError $apiError): self
+    {
+        if (!array_key_exists('errors', $this->extraData)) {
+            $this->extraData['errors'] = [];
+        }
+
+        $this->extraData['errors'][] = $apiError->toArray();
+
+        return $this;
     }
 }

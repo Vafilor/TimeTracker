@@ -32,6 +32,7 @@ class ApiFormError extends ApiProblem
             if ($cause instanceof ConstraintViolation) {
                 $property = ApiFormError::formatPropertyPath($cause->getPropertyPath());
                 $errors[] = [
+                    'code' => ApiProblem::TYPE_VALIDATION_ERROR,
                     'message' => $cause->getMessage(),
                     'property' => $property
                 ];

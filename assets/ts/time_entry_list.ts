@@ -49,7 +49,7 @@ $(document).ready( () => {
                 window.location.href = res.data.url;
                 createTimeEntryButton.stopLoading();
             }).catch(res => {
-                $('.js-stop-running').data('time-entry-id', res.errors[0].data);
+                $('.js-stop-running').data('time-entry-id', res.errors[0].resource);
                 $('#confirm-stop-modal').modal();
                 createTimeEntryButton.stopLoading();
             }
