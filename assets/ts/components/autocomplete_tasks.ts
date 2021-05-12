@@ -8,7 +8,11 @@ export default class AutocompleteTasks extends Autocomplete<ApiTask> {
     }
 
     protected createItemTemplate(item: ApiTask): string {
-        return `<div>${item.name}</div>`;
+        if (item.completedAt) {
+            return `<div><span class="task-complete"><i class="far fa-check-square"></i></span>${item.name}</div>`;
+        }
+
+        return `<div><span class="task-complete"><i class="far fa-square"></i></span>${item.name}</div>`;
     }
 
     protected onItemSelected(item: ApiTask) {

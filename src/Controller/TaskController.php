@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiPagination;
 use App\Api\ApiTask;
+use App\Api\ApiTimeEntry;
 use App\Entity\Task;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
@@ -89,13 +91,11 @@ class TaskController extends BaseController
     public function jsonList(
         Request $request,
         TaskRepository $taskRepository,
+        PaginatorInterface $paginator
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser())
-                                       ->setMaxResults(15)
-                                       ->orderBy('task.createdAt', 'DESC')
-        ;
+        $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
 
         $name = $request->query->get('name');
         if (!is_null($name)) {
@@ -104,15 +104,17 @@ class TaskController extends BaseController
             ;
         }
 
-        /** @var Task[] $results */
-        $tasks = $queryBuilder->getQuery()->getResult();
+        $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
+            'sort' => 'task.createdAt',
+            'direction' => 'desc'
+        ]);
 
-        $apiTasks = array_map(
-            fn ($task) => ApiTask::fromEntity($task, $this->getUser()),
-            $tasks
-        );
+        $items = [];
+        foreach ($pagination->getItems() as $task) {
+            $items[] = ApiTask::fromEntity($task, $this->getUser());
+        }
 
-        return $this->json($apiTasks);
+        return $this->json(ApiPagination::fromPagination($pagination, $items));
     }
 
     #[Route('/task/create', name: 'task_create')]

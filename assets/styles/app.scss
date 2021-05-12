@@ -237,3 +237,9 @@ body {
 .ui-helper-hidden-accessible {
     display: none;
 }
+
+.task-complete {
+    padding: 0 5px;
+    display: inline-block;
+    min-width: 30px;
+}
