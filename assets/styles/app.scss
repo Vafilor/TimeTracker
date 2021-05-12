@@ -20,7 +20,6 @@ $paddingFromHeader: 20px;
     @media (max-width: 768px) {
         width: 100%;
     }
-
 }
 
 .full-height-with-elements {
@@ -232,4 +231,15 @@ body {
             outline: unset;
         }
     }
+}
+
+// Hide text for JQuery UI autocomplete
+.ui-helper-hidden-accessible {
+    display: none;
+}
+
+.task-complete {
+    padding: 0 5px;
+    display: inline-block;
+    min-width: 30px;
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiPagination;
+use App\Api\ApiTag;
 use App\Entity\Tag;
 use App\Form\Model\TagEditModel;
 use App\Form\Model\TagListFilterModel;
@@ -25,17 +27,19 @@ class TagController extends BaseController
         Request $request,
         TagRepository $tagRepository,
         FormFactoryInterface $formFactory,
-        PaginatorInterface $paginator): Response
-    {
+        PaginatorInterface $paginator
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $tagRepository->createDefaultQueryBuilder();
 
-        $filterForm = $formFactory->createNamed('',
+        $filterForm = $formFactory->createNamed(
+            '',
             TagListFilterFormType::class,
             new TagListFilterModel(),
             ['csrf_protection' => false, 'method' => 'GET']
         );
+
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
             /** @var TagListFilterModel $data */
@@ -69,8 +73,8 @@ class TagController extends BaseController
     public function jsonList(
         Request $request,
         TagRepository $tagRepository,
-        PaginatorInterface $paginator): Response
-    {
+        PaginatorInterface $paginator
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $term = $request->query->get('searchTerm');
@@ -82,8 +86,8 @@ class TagController extends BaseController
         }
 
         $queryBuilder = $tagRepository->createDefaultQueryBuilder()
-            ->andWhere('tag.name LIKE :term')
-            ->setParameters(['term' => "%$term%"])
+                                      ->andWhere('tag.name LIKE :term')
+                                      ->setParameter('term', "%$term%")
         ;
 
         if (count($excludeItems) !== 0) {
@@ -92,15 +96,22 @@ class TagController extends BaseController
             ;
         }
 
-        $items = $queryBuilder->getQuery()
-                              ->getResult()
-        ;
+        $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
+            'sort' => 'tag.name',
+            'direction' => 'asc'
+        ]);
 
-        return $this->json($items);
+        $items = [];
+        foreach ($pagination->getItems() as $tag) {
+            $items[] = ApiTag::fromEntity($tag);
+        }
+
+        return $this->json(ApiPagination::fromPagination($pagination, $items));
     }
 
     #[Route('/tag/create', name: 'tag_create')]
-    public function create(Request $request, TagRepository $tagRepository): Response {
+    public function create(Request $request, TagRepository $tagRepository): Response
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $defaultTagModel = new TagModel();
@@ -131,13 +142,10 @@ class TagController extends BaseController
     }
 
     #[Route('/tag/{name}/view', name: 'tag_view')]
-    public function view(Request $request, TagRepository $tagRepository, string $name): Response {
+    public function view(Request $request, TagRepository $tagRepository, string $name): Response
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        $tag = $tagRepository->findOneBy(['name' => $name]);
-        if (is_null($tag)) {
-            $this->createNotFoundException();
-        }
+        $tag = $tagRepository->findOneByOrException(['name' => $name]);
 
         $tagEditModel = TagEditModel::fromEntity($tag);
 

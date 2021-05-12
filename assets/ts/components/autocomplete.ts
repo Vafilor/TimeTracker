@@ -46,7 +46,10 @@ export default abstract class Autocomplete<T> {
                 this.listItems(request.term, request)
                     .then(res => {
                         this.$loading.addClass('opacity-invisible');
-                        response(res.data);
+                        response(res.data.data);
+
+                        // Remove the autocomplete text that shows how many search results were present, etc.
+                        $('.ui-helper-hidden-accessible div').remove();
                     })
             },
             focus: function (event, ui) {

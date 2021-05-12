@@ -180,6 +180,11 @@ class TimeEntry
         return $this->owner;
     }
 
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->getOwner()->equalIds($user);
+    }
+
     public function setOwner(User $owner): self
     {
         $this->owner = $owner;
@@ -235,5 +240,21 @@ class TimeEntry
         $this->task = null;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Tag[]
+     */
+    public function getTags(): array|Collection
+    {
+        $tags = [];
+
+        foreach ($this->getTimeEntryTags() as $timeEntryTag) {
+            $tags[] = $timeEntryTag->getTag();
+        }
+
+        usort($tags, fn (Tag $a, Tag $b) => strcmp($a->getName(), $b->getName()));
+
+        return $tags;
     }
 }

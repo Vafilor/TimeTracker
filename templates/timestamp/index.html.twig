@@ -46,8 +46,7 @@
             {% for timestamp in pagination.items %}
                 <tr data-timestamp-id="{{ timestamp.idString }}" data-created-at="{{ timestamp.createdAt.timestamp}}">
                     <td>
-                        {% for timestampTag in timestamp.timestampTags %}
-                            {% set tag = timestampTag.tag %}
+                        {% for tag in timestamp.tags %}
                             {{ tags.view(tag.name, tag.color) }}
                         {% endfor %}
                     </td>
@@ -58,7 +57,7 @@
                             <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
                             Mark again
                         </button>
-                        <a href="{{ path('timestamp_view', { id: timestamp.idString }) }}" class="btn btn-primary">Edit</a>
+                        <a href="{{ path('timestamp_view', { id: timestamp.idString }) }}" class="btn btn-primary">View</a>
                     </td>
                 </tr>
             {% else %}

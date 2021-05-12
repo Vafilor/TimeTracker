@@ -27,4 +27,22 @@ class TimeEntryTagRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('time_entry_tag');
     }
+
+    /**
+     * Finds the TimeEntryTags for a TimeEntry with the tags fetched.
+     *
+     * @param TimeEntry $timeEntry
+     * @return TimeEntryTag[]
+     */
+    public function findForTimeEntry(TimeEntry $timeEntry): array
+    {
+        return $this->createDefaultQueryBuilder()
+                    ->addSelect('tag')
+                    ->join('time_entry_tag.tag', 'tag')
+                    ->andWhere('time_entry_tag.timeEntry = :timeEntry')
+                    ->setParameter('timeEntry', $timeEntry)
+                    ->getQuery()
+                    ->getResult()
+        ;
+    }
 }

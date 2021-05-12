@@ -35,4 +35,13 @@ class TimestampRepository extends ServiceEntityRepository
                     ->setParameter('user', $user)
         ;
     }
+
+    public function preloadTags(QueryBuilder $queryBuilder): QueryBuilder
+    {
+        return $queryBuilder->addSelect('timestampTag')
+                            ->addSelect('tag')
+                            ->leftJoin('timestamp.timestampTags', 'timestampTag')
+                            ->leftJoin('timestampTag.tag', 'tag')
+        ;
+    }
 }
