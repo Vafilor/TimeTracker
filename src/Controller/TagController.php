@@ -22,8 +22,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TagController extends BaseController
 {
-    #[Route('/tag/list', name: 'tag_list')]
-    public function list(
+    const CODE_NAME_TAKEN = 'code_name_taken';
+
+    #[Route('/tag', name: 'tag_index')]
+    public function index(
         Request $request,
         TagRepository $tagRepository,
         FormFactoryInterface $formFactory,
@@ -135,10 +137,10 @@ class TagController extends BaseController
 
             $this->addFlash('success', "Tag '$name' has been created");
 
-            return $this->redirectToRoute('tag_list');
+            return $this->redirectToRoute('tag_index');
         }
 
-        return $this->redirectToRoute('tag_list');
+        return $this->redirectToRoute('tag_index');
     }
 
     #[Route('/tag/{name}/view', name: 'tag_view')]
