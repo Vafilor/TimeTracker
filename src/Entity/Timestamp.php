@@ -94,14 +94,15 @@ class Timestamp
     /**
      * @return Collection|Tag[]
      */
-    public function getTags(): array {
+    public function getTags(): array|Collection
+    {
         $tags = [];
 
-        foreach($this->getTimestampTags() as $timestampTag) {
+        foreach ($this->getTimestampTags() as $timestampTag) {
             $tags[] = $timestampTag->getTag();
         }
 
-        usort($tags, fn(Tag $a, Tag $b) => strcmp($a->getName(), $b->getName()));
+        usort($tags, fn (Tag $a, Tag $b) => strcmp($a->getName(), $b->getName()));
 
         return $tags;
     }

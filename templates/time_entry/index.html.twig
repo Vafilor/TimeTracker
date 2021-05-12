@@ -109,10 +109,8 @@
             {% for timeEntry in pagination.items %}
                 <tr>
                     <td class="tag-list many-rows">
-                        {% for timeEntryTag in timeEntry.timeEntryTags %}
-                        {% set tag = timeEntryTag.tag %}
-
-                        {{ tags.view(tag.name, tag.color) }}
+                        {% for tag in timeEntry.tags %}
+                            {{ tags.view(tag.name, tag.color) }}
                         {% endfor %}
                     </td>
                     <td>

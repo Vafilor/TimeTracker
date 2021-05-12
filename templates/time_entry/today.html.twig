@@ -39,8 +39,7 @@
             {% for timeEntry in pagination.items %}
                 <tr>
                     <td>
-                        {% for timeEntryTag in timeEntry.timeEntryTags %}
-                        {% set tag = timeEntryTag.tag %}
+                        {% for tag in timeEntry.tags %}
                             {{ tags.view(tag.name, tag.color) }}
                         {% endfor %}
                     </td>
