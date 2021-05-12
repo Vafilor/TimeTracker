@@ -58,6 +58,20 @@ class ApiTimeEntry
         return $apiTimeEntry;
     }
 
-    public function __construct() {
+    /**
+     * @param TimeEntry[] $entities
+     * @param User $user
+     * @param string $format
+     * @return ApiTimeEntry[]
+     * @throws \Exception
+     */
+    public static function fromEntities(iterable $entities, User $user, string $format = 'date'): array
+    {
+        $items = [];
+        foreach ($entities as $entity) {
+            $items[] = self::fromEntity($entity, $user, $format);
+        }
+
+        return $items;
     }
 }

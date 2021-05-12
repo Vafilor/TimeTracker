@@ -15,7 +15,7 @@ class ApiTask
     public ?string $completedAt;
     public ?string $url;
 
-    public static function fromEntity(Task $task,  User $user, string $format = 'date'): ApiTask
+    public static function fromEntity(Task $task, User $user, string $format = 'date'): ApiTask
     {
         $apiTask = new ApiTask($task->getIdString(), $task->getName());
         $apiTask->setDescription($task->getDescription());
@@ -27,7 +27,24 @@ class ApiTask
         return $apiTask;
     }
 
-    public function __construct(string $id, string $name) {
+    /**
+     * @param Task[] $entities
+     * @param User $user
+     * @param string $format
+     * @return ApiTask[]
+     */
+    public static function fromEntities(iterable $entities, User $user, string $format = 'date'): array
+    {
+        $items = [];
+        foreach ($entities as $entity) {
+            $items[] = self::fromEntity($entity, $user, $format);
+        }
+
+        return $items;
+    }
+
+    public function __construct(string $id, string $name)
+    {
         $this->id = $id;
         $this->name = $name;
         $this->description = '';

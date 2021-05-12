@@ -1,4 +1,5 @@
 import '../styles/task.scss';
+
 import AutoMarkdown from "./components/automarkdown";
 import $ from "jquery";
 import { TaskApi } from "./core/api/task_api";

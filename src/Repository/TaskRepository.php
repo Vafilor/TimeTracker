@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Task;
 use App\Entity\User;
+use App\Form\Model\TaskListFilterModel;
 use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -39,5 +40,31 @@ class TaskRepository extends ServiceEntityRepository
             ->andWhere('task.createdBy = :user')
             ->setParameter('user', $user)
         ;
+    }
+
+    public function applyNotCompleted(QueryBuilder $queryBuilder): QueryBuilder
+    {
+        return $queryBuilder->andWhere('task.completedAt IS NULL');
+    }
+
+    public function applyFilter(QueryBuilder $queryBuilder, TaskListFilterModel $filter): QueryBuilder
+    {
+        if ($filter->hasName()) {
+            $queryBuilder->andWhere('task.name LIKE :name')
+                ->setParameter('name', "%{$filter->getName()}%")
+            ;
+        }
+
+        if ($filter->hasDescription()) {
+            $queryBuilder->andWhere('task.description LIKE :description')
+                ->setParameter('description', "%{$filter->getDescription()}%")
+            ;
+        }
+
+        if (!$filter->getShowCompleted()) {
+            $queryBuilder->andWhere('task.completedAt IS NULL');
+        }
+
+        return $queryBuilder;
     }
 }

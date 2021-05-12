@@ -4,12 +4,12 @@ import { ApiTag } from "../core/api/tag_api";
 import { createTagView } from "./tags";
 import Observable from "./observable";
 
-export interface TagListDelegate {
+export interface TagIndexDelegate {
     addTag(tag: ApiTag): Promise<ApiTag>;
     removeTag(tagName: string): Promise<void>;
 }
 
-class DefaultDelegate implements TagListDelegate{
+class DefaultDelegate implements TagIndexDelegate{
     addTag(tag: ApiTag): Promise<ApiTag> {
         return new Promise<ApiTag>((resolve, reject) => {
             resolve(tag);
@@ -23,15 +23,15 @@ class DefaultDelegate implements TagListDelegate{
     }
 }
 
-export default class TagList {
-    private delegate: TagListDelegate;
+export default class TagIndex {
+    private delegate: TagIndexDelegate;
     private tags = new Array<ApiTag>();
     private tagMap = new Map<string, JQuery>();
     private pendingTagMap = new Map<string, boolean>();
     private $container: JQuery;
-    public readonly tagsChanged = new Observable<TagList>();
+    public readonly tagsChanged = new Observable<TagIndex>();
 
-    public constructor(selector: string, delegate?: TagListDelegate) {
+    public constructor(selector: string, delegate?: TagIndexDelegate) {
         this.$container = $(selector);
 
         if (delegate) {

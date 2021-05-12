@@ -19,7 +19,24 @@ class TagManager
         $this->entityManager = $entityManager;
     }
 
-    public function findOrCreateByName($name): Tag
+    /**
+     * parseFromString will take a comma delimited string of tag names and return an array of them.
+     * Leading and trailing whitesapce from each name is removed.
+     *
+     * @param string $names
+     * @return string[]
+     */
+    public function parseFromString(string $names): array
+    {
+        $tagNames = explode(',', $names);
+
+        return array_map(
+            fn ($name) => trim($name),
+            $tagNames
+        );
+    }
+
+    public function findOrCreateByName(string $name): Tag
     {
         $tag = $this->tagRepository->findOneBy(['name' => $name]);
         if (is_null($tag)) {
@@ -41,18 +58,18 @@ class TagManager
     public function findOrCreateByNames(array $names): array
     {
         $nameMap = [];
-        foreach($names as $name) {
+        foreach ($names as $name) {
             $nameMap[$name] = true;
         }
 
         $tags = $this->tagRepository->findByKeys('name', $names);
-        foreach($tags as $existingTag) {
+        foreach ($tags as $existingTag) {
             if (array_key_exists($existingTag->getName(), $nameMap)) {
                 unset($nameMap[$existingTag->getName()]);
             }
         }
 
-        foreach($nameMap as $name => $value) {
+        foreach ($nameMap as $name => $value) {
             $newTag = new Tag($name);
             $tags[] = $newTag;
 
@@ -62,4 +79,3 @@ class TagManager
         return $tags;
     }
 }
-

@@ -1,15 +1,17 @@
+import '../styles/time_entry_index.scss';
+
 import $ from 'jquery';
 import 'jquery-ui/ui/widgets/autocomplete';
 import 'bootstrap'; // Adds functions to jQuery
-import '../styles/time_entry_list.scss';
+
 import { TimeEntryApi } from "./core/api/time_entry_api";
 import Flashes from "./components/flashes";
 import LoadingButton from "./components/loading_button";
 import AutocompleteTags from "./components/autocomplete_tags";
 import { ApiTag } from "./core/api/tag_api";
-import TagList from "./components/tag_list";
 import AutocompleteTasks from "./components/autocomplete_tasks";
 import { ApiTask } from "./core/api/task_api";
+import TagIndex from "./components/tag_index";
 
 
 $(document).ready( () => {
@@ -80,7 +82,7 @@ $(document).ready( () => {
             });
     })
 
-    const tagList = new TagList('.js-tags');
+    const tagList = new TagIndex('.js-tags');
     const $realInput = $('.js-real-input');
 
     const autoComplete = new AutocompleteTags('.js-autocomplete-tags');

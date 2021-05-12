@@ -6,18 +6,23 @@ namespace App\Repository;
 
 use App\Entity\Timestamp;
 use App\Entity\User;
+use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Timestamp|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Timestamp findOrException($id, $lockMode = null, $lockVersion = null)
  * @method Timestamp|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Timestamp findOneByOrException(array $criteria, array $orderBy = null)
  * @method Timestamp[]    findAll()
  * @method Timestamp[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class TimestampRepository extends ServiceEntityRepository
 {
+    use FindOrExceptionTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Timestamp::class);
@@ -28,6 +33,14 @@ class TimestampRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('timestamp');
     }
 
+    public function findCreateQueryBuilder($id): QueryBuilder
+    {
+        return $this->createDefaultQueryBuilder()
+            ->andWhere('timestamp.id = :id')
+            ->setParameter('id', $id)
+        ;
+    }
+
     public function findByUserQueryBuilder(User $user): QueryBuilder
     {
         return $this->createDefaultQueryBuilder()
@@ -36,8 +49,12 @@ class TimestampRepository extends ServiceEntityRepository
         ;
     }
 
-    public function preloadTags(QueryBuilder $queryBuilder): QueryBuilder
+    public function preloadTags(?QueryBuilder $queryBuilder = null): QueryBuilder
     {
+        if (is_null($queryBuilder)) {
+            $queryBuilder = $this->createDefaultQueryBuilder();
+        }
+
         return $queryBuilder->addSelect('timestampTag')
                             ->addSelect('tag')
                             ->leftJoin('timestamp.timestampTags', 'timestampTag')
