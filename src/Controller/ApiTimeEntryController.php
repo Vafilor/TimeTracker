@@ -58,11 +58,11 @@ class ApiTimeEntryController extends BaseController
             TimeEntryListFilterFormType::class,
             new TimeEntryListFilterModel(),
             [
-                                                    'timezone' => $this->getUser()->getTimezone(),
-                                                    'csrf_protection' => false,
-                                                    'method' => 'GET',
-                                                    'allow_extra_fields' => true
-                                                ]
+                'timezone' => $this->getUser()->getTimezone(),
+                'csrf_protection' => false,
+                'method' => 'GET',
+                'allow_extra_fields' => true
+            ]
         );
 
         $filterForm->handleRequest($request);

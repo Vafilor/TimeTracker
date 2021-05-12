@@ -21,7 +21,7 @@ class ApiError
         return new ApiError($code, $message, $extra);
     }
 
-    public function __construct(string $code, string $message, array $extraData)
+    public function __construct(string $code, string $message, array $extraData = [])
     {
         $this->code = $code;
         $this->message = $message;
