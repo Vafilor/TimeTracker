@@ -18,7 +18,6 @@ use App\Form\TagEditFormType;
 use App\Form\TagFormType;
 use App\Form\TagListFilterFormType;
 use App\Repository\TagRepository;
-use HttpException;
 use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -64,10 +63,7 @@ class ApiTagController extends BaseController
             ]
         );
 
-        $items = [];
-        foreach ($pagination->getItems() as $tag) {
-            $items[] = ApiTag::fromEntity($tag);
-        }
+        $items = ApiTag::fromEntities($pagination->getItems());
 
         return $this->json(ApiPagination::fromPagination($pagination, $items));
     }
@@ -84,8 +80,9 @@ class ApiTagController extends BaseController
             'csrf_protection' => false,
         ]);
 
+        $data = $this->getJsonBody($request);
+
         try {
-            $data = json_decode($request->getContent(), true);
             $form->submit($data);
         } catch (InvalidArgumentException $invalidArgumentException) {
             throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));

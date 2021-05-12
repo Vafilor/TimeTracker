@@ -103,10 +103,7 @@ class TagController extends BaseController
             'direction' => 'asc'
         ]);
 
-        $items = [];
-        foreach ($pagination->getItems() as $tag) {
-            $items[] = ApiTag::fromEntity($tag);
-        }
+        $items = ApiTag::fromEntities($pagination->getItems());
 
         return $this->json(ApiPagination::fromPagination($pagination, $items));
     }

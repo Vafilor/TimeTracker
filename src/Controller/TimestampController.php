@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiError;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTag;
@@ -13,11 +14,13 @@ use App\Entity\Timestamp;
 use App\Entity\TimestampTag;
 use App\Form\Model\TimestampEditModel;
 use App\Form\TimestampEditFormType;
+use App\Manager\TimestampManager;
 use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
 use App\Repository\TimestampTagRepository;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,8 +33,8 @@ class TimestampController extends BaseController
     public function index(
         Request $request,
         TimestampRepository $timestampRepository,
-        PaginatorInterface $paginator): Response
-    {
+        PaginatorInterface $paginator
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         // TODO add filter
@@ -49,7 +52,8 @@ class TimestampController extends BaseController
     }
 
     #[Route('/timestamp/create', name: 'timestamp_create')]
-    public function create(Request $request) {
+    public function create(Request $request): Response
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $timestamp = new Timestamp($this->getUser());
@@ -65,17 +69,11 @@ class TimestampController extends BaseController
         Request $request,
         TimestampRepository $timestampRepository,
         TimestampTagRepository $timestampTagRepository,
-        string $id) {
+        string $id
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        /** @var Timestamp|null $timestamp */
-        $timestamp = $timestampRepository->find($id);
-
-        if (is_null($timestamp)) {
-            throw $this->createNotFoundException();
-        }
-
-        if (!$this->getUser()->equalIds($timestamp->getCreatedBy())) {
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->wasCreatedBy($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -97,7 +95,7 @@ class TimestampController extends BaseController
 
         $timestampTags = $timestampTagRepository->findBy(['timestamp' => $timestamp]);
         $apiTags = array_map(
-            fn($timestampTag) => ApiTag::fromEntity($timestampTag->getTag()),
+            fn ($timestampTag) => ApiTag::fromEntity($timestampTag->getTag()),
             $timestampTags
         );
 
@@ -112,18 +110,11 @@ class TimestampController extends BaseController
     public function remove(
         Request $request,
         TimestampRepository $timestampRepository,
-        TimestampTagRepository $timestampTagRepository,
-        string $id) {
+        string $id
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        /** @var Timestamp|null $timestamp */
-        $timestamp = $timestampRepository->find($id);
-
-        if (is_null($timestamp)) {
-            throw $this->createNotFoundException();
-        }
-
-        if (!$this->getUser()->equalIds($timestamp->getCreatedBy())) {
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->wasCreatedBy($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -141,33 +132,26 @@ class TimestampController extends BaseController
         Request $request,
         DateTimeFormatter $dateTimeFormatter,
         TimestampRepository $timestampRepository,
-        string $id)
-    {
+        TimestampManager $timestampManager,
+        string $id
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        $timestamp = $timestampRepository->find($id);
-        if (is_null($timestamp)) {
-            throw $this->createNotFoundException();
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
-        $manager = $this->getDoctrine()->getManager();
-        // Get the tags and assign it to the new timestamp
-        $newTimestamp = new Timestamp($this->getUser());
-        $manager->persist($newTimestamp);
+        $now = $this->now();
 
-        foreach($timestamp->getTimestampTags() as $timestampTag) {
-            $newTimestampTag = new TimestampTag($newTimestamp, $timestampTag->getTag());
-            $newTimestamp->addTimestampTag($newTimestampTag);
-            $manager->persist($newTimestampTag);
-        }
+        $newTimestamp = $timestampManager->repeat($timestamp);
 
-        $manager->flush();
+        $this->getDoctrine()->getManager()->flush();
 
         $apiTimestamp = ApiTimestamp::fromEntity(
             $dateTimeFormatter,
             $newTimestamp,
             $this->getUser(),
-            $this->now()
+            $now
         );
 
         return $this->json($apiTimestamp, Response::HTTP_CREATED);
@@ -179,21 +163,21 @@ class TimestampController extends BaseController
         TimestampRepository $timestampRepository,
         TagRepository $tagRepository,
         TimestampTagRepository $timestampTagRepository,
-        string $id) {
+        string $id
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        $timestamp = $timestampRepository->find($id);
-        if (is_null($timestamp)) {
-            throw $this->createNotFoundException();
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
         if (!array_key_exists('tagName', $data)) {
-            $problem = new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR);
-            $problem->set('errors', [
-                'message' => 'Missing value',
-                'property' => 'tagName'
-            ]);
+            $problem = ApiProblem::withErrors(
+                Response::HTTP_BAD_REQUEST,
+                ApiProblem::TYPE_INVALID_REQUEST_BODY,
+                ApiError::missingProperty('tagName')
+            );
 
             throw new ApiProblemException(
                 $problem
@@ -234,18 +218,15 @@ class TimestampController extends BaseController
         TagRepository $tagRepository,
         TimestampTagRepository $timestampTagRepository,
         string $id,
-        string $tagName) {
+        string $tagName
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        $tag = $tagRepository->findOneBy(['name' => $tagName]);
-        if (is_null($tag)) {
-            throw $this->createNotFoundException("tag '$tagName'");
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
-        $timestamp = $timestampRepository->find($id);
-        if (is_null($timestamp)) {
-            throw $this->createNotFoundException('Timestamp');
-        }
+        $tag = $tagRepository->findOneByOrException(['name' => $tagName]);
 
         $exitingLink = $timestampTagRepository->findOneBy([
                                                               'timestamp' => $timestamp,
@@ -256,7 +237,8 @@ class TimestampController extends BaseController
             throw new ApiProblemException(
                 ApiProblem::invalidAction(
                     self::codeTagNotAssociated,
-                    "Tag '$tagName' is not associated to this timestamp")
+                    "Tag '$tagName' is not associated to this timestamp"
+                )
             );
         }
 
@@ -264,7 +246,7 @@ class TimestampController extends BaseController
         $manager->remove($exitingLink);
         $manager->flush();
 
-        return $this->jsonOk();
+        return $this->jsonNoContent();
     }
 
     #[Route('/json/timestamp/{id}/tags', name: 'timestamp_json_tags')]
@@ -272,20 +254,18 @@ class TimestampController extends BaseController
         Request $request,
         TimestampRepository $timestampRepository,
         TimestampTagRepository $timestampTagRepository,
-        string $id): Response
-    {
+        string $id
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        /** @var Timestamp|null $timestamp */
-        $timestamp = $timestampRepository->find($id);
-        if (is_null($timestamp)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $timestampTags = $timestampTagRepository->findBy(['timestamp' => $timestamp]);
 
         $apiTags = array_map(
-            fn($timestampTag) => ApiTag::fromEntity($timestampTag->getTag()),
+            fn ($timestampTag) => ApiTag::fromEntity($timestampTag->getTag()),
             $timestampTags
         );
 
