@@ -7,18 +7,24 @@ namespace App\Repository;
 use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Form\Model\TimeEntryListFilterModel;
+use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @method TimeEntry|null find($id, $lockMode = null, $lockVersion = null)
+ * @method TimeEntry findOrException($id, $lockMode = null, $lockVersion = null)
  * @method TimeEntry|null findOneBy(array $criteria, array $orderBy = null)
+ * @method TimeEntry findOneByOrException(array $criteria, array $orderBy = null)
  * @method TimeEntry[]    findAll()
  * @method TimeEntry[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class TimeEntryRepository extends ServiceEntityRepository
 {
+    use FindOrExceptionTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, TimeEntry::class);
@@ -26,7 +32,22 @@ class TimeEntryRepository extends ServiceEntityRepository
 
     public function createDefaultQueryBuilder(): QueryBuilder
     {
-        return $this->createQueryBuilder('time_entry');
+        return $this->createQueryBuilder('time_entry')
+                    ->andWhere('time_entry.deletedAt is NULL');
+    }
+
+    public function preloadTags(?QueryBuilder $queryBuilder)
+    {
+        if (is_null($queryBuilder)) {
+            $queryBuilder = $this->createDefaultQueryBuilder();
+        }
+
+        $queryBuilder = $queryBuilder->addSelect('time_entry_tag')
+                                     ->leftJoin('time_entry.timeEntryTags', 'time_entry_tag')
+                                     ->leftJoin('time_entry_tag.tag', 'tag')
+        ;
+
+        return $queryBuilder;
     }
 
     public function findWithTagFetch($id): TimeEntry|null {
@@ -39,6 +60,17 @@ class TimeEntryRepository extends ServiceEntityRepository
                              ->getQuery()
                              ->getOneOrNullResult()
         ;
+    }
+
+    public function findWithTagFetchOrException($id): TimeEntry
+    {
+        $result = $this->findWithTagFetch($id);
+
+        if (is_null($result)) {
+            throw new NotFoundHttpException();
+        }
+
+        return $result;
     }
 
     public function findByUserQueryBuilder(User $user): QueryBuilder

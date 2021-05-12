@@ -180,6 +180,11 @@ class TimeEntry
         return $this->owner;
     }
 
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->getOwner()->equalIds($user);
+    }
+
     public function setOwner(User $owner): self
     {
         $this->owner = $owner;

@@ -13,6 +13,7 @@ use App\Form\TaskListFilterFormType;
 use App\Repository\TaskRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,13 +31,16 @@ class TaskController extends BaseController
 
         $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
 
-        $filterForm = $formFactory->createNamed('',
-        TaskListFilterFormType::class,
-            new TaskListFilterModel(), [
+        $filterForm = $formFactory->createNamed(
+            '',
+            TaskListFilterFormType::class,
+            new TaskListFilterModel(),
+            [
             'csrf_protection' => false,
             'method' => 'GET',
             'allow_extra_fields' => true
-        ]);
+        ]
+        );
 
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
@@ -94,8 +98,7 @@ class TaskController extends BaseController
         ;
 
         $name = $request->query->get('name');
-        if (!is_null($name))
-        {
+        if (!is_null($name)) {
             $queryBuilder = $queryBuilder->andWhere('task.name LIKE :name')
                                          ->setParameter('name', "%$name%")
             ;
@@ -105,7 +108,7 @@ class TaskController extends BaseController
         $tasks = $queryBuilder->getQuery()->getResult();
 
         $apiTasks = array_map(
-            fn($task) => ApiTask::fromEntity($task, $this->getUser()),
+            fn ($task) => ApiTask::fromEntity($task, $this->getUser()),
             $tasks
         );
 
@@ -205,16 +208,12 @@ class TaskController extends BaseController
         Request $request,
         TaskRepository $taskRepository,
         string $id
-    ): Response {
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $task = $taskRepository->find($id);
-        if (is_null($task)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
-        }
-
-        if (!$task->getCreatedBy()->equalIds($this->getUser())) {
-            return $this->json([], Response::HTTP_FORBIDDEN);
+        $task = $taskRepository->findOrException($id);
+        if (!$task->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $completed = true;
@@ -237,14 +236,13 @@ class TaskController extends BaseController
     }
 
     #[Route('/json/task/{id}', name: 'task_json_update', methods: ['PUT'])]
-    public function jsonUpdate(Request $request, TaskRepository $taskRepository, string $id): Response
+    public function jsonUpdate(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        /** @var Task|null $task */
-        $task = $taskRepository->find($id);
-        if (is_null($task)) {
-            throw $this->createNotFoundException();
+        $task = $taskRepository->findOrException($id);
+        if (!$task->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $data = json_decode($request->getContent(), true);

@@ -19,7 +19,6 @@ class ReportController extends BaseController
     public function today(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        TimeEntryTagRepository $timeEntryTagRepository,
         PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');

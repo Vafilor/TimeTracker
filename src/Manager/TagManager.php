@@ -19,6 +19,17 @@ class TagManager
         $this->entityManager = $entityManager;
     }
 
+    public function findOrCreateByName($name): Tag
+    {
+        $tag = $this->tagRepository->findOneBy(['name' => $name]);
+        if (is_null($tag)) {
+            $tag = new Tag($name);
+            $this->entityManager->persist($tag);
+        }
+
+        return $tag;
+    }
+
     /**
      * Given an array of names, this will find all of the existing Tag entities in the database
      * with those names. If the names do not exist, they will be created and persisted (but not flushed)

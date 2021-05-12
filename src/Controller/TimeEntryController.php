@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiError;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTag;
@@ -25,33 +26,34 @@ use DateTime;
 use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TimeEntryController extends BaseController
 {
-    const codeRunningTimer = 'code_running_timer';
-    const codeNoAssignedTask = 'code_no_assigned_task';
+    const CODE_RUNNING_TIMER = 'code_running_timer';
+    const CODE_NO_ASSIGNED_TASK = 'code_no_assigned_task';
+    const CODE_TIME_ENTRY_OVER = 'code_time_entry_over';
 
     #[Route('/time-entry', name: 'time_entry_index')]
     public function index(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
         FormFactoryInterface $formFactory,
-        PaginatorInterface $paginator): Response
-    {
+        PaginatorInterface $paginator
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $queryBuilder = $timeEntryRepository->findByUserQueryBuilder($this->getUser())
-            ->addSelect('time_entry_tag')
-            ->leftJoin('time_entry.timeEntryTags', 'time_entry_tag')
-            ->leftJoin('time_entry_tag.tag', 'tag')
-            ->andWhere('time_entry.deletedAt IS NULL');
+        $queryBuilder = $timeEntryRepository->findByUserQueryBuilder($this->getUser());
+        $queryBuilder = $timeEntryRepository->preloadTags($queryBuilder);
 
-        $filterForm = $formFactory->createNamed('',
+        $filterForm = $formFactory->createNamed(
+            '',
             TimeEntryListFilterFormType::class,
-            new TimeEntryListFilterModel(), [
+            new TimeEntryListFilterModel(),
+            [
                 'timezone' => $this->getUser()->getTimezone(),
                 'csrf_protection' => false,
                 'method' => 'GET',
@@ -86,8 +88,8 @@ class TimeEntryController extends BaseController
     public function today(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        PaginatorInterface $paginator): Response
-    {
+        PaginatorInterface $paginator
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $userTimeZone = $this->getUser()->getTimezone();
@@ -165,7 +167,7 @@ class TimeEntryController extends BaseController
         if (!is_null($runningTimeEntry)) {
             throw new ApiProblemException(
                 ApiProblem::invalidAction(
-                    TimeEntryController::codeRunningTimer,
+                    TimeEntryController::CODE_RUNNING_TIMER,
                     'You have a running timer',
                     ['resource' => $runningTimeEntry->getIdString()]
                 )
@@ -193,13 +195,26 @@ class TimeEntryController extends BaseController
         return $this->json($data, Response::HTTP_CREATED);
     }
 
+    /**
+     * To continue a time-entry means to create a new time entry with the same tags.
+     * It's you "continuing" to do something again.
+     *
+     * @param TimeEntryRepository $timeEntryRepository
+     * @param TimeEntryTagRepository $timeEntryTagRepository
+     * @param string $id
+     * @return Response
+     */
     #[Route('/time-entry/{id}/continue', name: 'time_entry_continue')]
     public function continue(
         TimeEntryRepository $timeEntryRepository,
         TimeEntryTagRepository $timeEntryTagRepository,
-        string $id): Response
-    {
+        string $id
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $existingTimeEntry = $timeEntryRepository->findOrException($id);
+        if (!$existingTimeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
 
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($runningTimeEntry)) {
@@ -207,21 +222,7 @@ class TimeEntryController extends BaseController
             return $this->redirectToRoute('time_entry_index');
         }
 
-        $existingTimeEntry = $timeEntryRepository->find($id);
-        if (is_null($existingTimeEntry)) {
-            throw $this->createNotFoundException();
-        }
-
-        /** @var TimeEntryTag[] $timeEntryTags */
-        $timeEntryTags = $timeEntryTagRepository->createDefaultQueryBuilder()
-                                       ->addSelect('tag')
-                                       ->join('time_entry_tag.tag', 'tag')
-                                       ->andWhere('time_entry_tag.timeEntry = :timeEntry')
-                                       ->setParameter('timeEntry', $existingTimeEntry)
-                                       ->getQuery()
-                                       ->getResult()
-        ;
-
+        $timeEntryTags = $timeEntryTagRepository->findForTimeEntry($existingTimeEntry);
         $manager = $this->getDoctrine()->getManager();
 
         $timeEntry = new TimeEntry($this->getUser());
@@ -240,14 +241,12 @@ class TimeEntryController extends BaseController
     public function view(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        string $id): Response
-    {
+        string $id
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        /** @var TimeEntry|null $timeEntry */
-        $timeEntry = $timeEntryRepository->find($id);
-        if (is_null($timeEntry)) {
-            throw $this->createNotFoundException();
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $form = $this->createForm(TimeEntryFormType::class, TimeEntryModel::fromEntity($timeEntry), [
@@ -275,7 +274,7 @@ class TimeEntryController extends BaseController
         }
 
         $apiTags = array_map(
-            fn($timeEntryTag) => ApiTag::fromEntity($timeEntryTag->getTag()),
+            fn ($timeEntryTag) => ApiTag::fromEntity($timeEntryTag->getTag()),
             $timeEntry->getTimeEntryTags()->toArray()
         );
 
@@ -291,10 +290,9 @@ class TimeEntryController extends BaseController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        /** @var TimeEntry|null $timeEntry */
-        $timeEntry = $timeEntryRepository->find($id);
-        if (is_null($timeEntry)) {
-            throw $this->createNotFoundException();
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         if ($timeEntry->isOver()) {
@@ -309,18 +307,22 @@ class TimeEntryController extends BaseController
     }
 
     #[Route('/json/time-entry/{id}/stop', name: 'time_entry_json_stop', methods: ['PUT'])]
-    public function jsonStop(Request $request, TimeEntryRepository $timeEntryRepository, string $id): Response
+    public function jsonStop(Request $request, TimeEntryRepository $timeEntryRepository, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        /** @var TimeEntry|null $timeEntry */
-        $timeEntry = $timeEntryRepository->findWithTagFetch($id);
-        if (is_null($timeEntry)) {
-            return $this->json(['error' => 'Time entry not found'], Response::HTTP_NOT_FOUND);
+        $timeEntry = $timeEntryRepository->findWithTagFetchOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         if ($timeEntry->isOver()) {
-            return $this->json(['error' => 'Time entry is already over'], Response::HTTP_BAD_REQUEST);
+            throw new ApiProblemException(
+                ApiProblem::invalidAction(
+                    TimeEntryController::CODE_TIME_ENTRY_OVER,
+                    'Time entry is already over'
+                )
+            );
         }
 
         $timeEntry->stop();
@@ -342,10 +344,9 @@ class TimeEntryController extends BaseController
     public function resume(TimeEntryRepository $timeEntryRepository, string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        $timeEntry = $timeEntryRepository->find($id);
-        if (is_null($timeEntry)) {
-            throw $this->createNotFoundException();
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $activeTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
@@ -369,16 +370,9 @@ class TimeEntryController extends BaseController
     public function delete(TimeEntryRepository $timeEntryRepository, string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        /** @var TimeEntry|null $timeEntry */
-        $timeEntry = $timeEntryRepository->find($id);
-        if (is_null($timeEntry)) {
-            throw $this->createNotFoundException();
-        }
-
-        if (!$timeEntry->getOwner()->equalIds($this->getUser())) {
-            $this->addFlash('danger', 'You do not have permission to delete this time entry');
-            return $this->redirectToRoute('time_entry_index');
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         if ($timeEntry->running()) {
@@ -400,17 +394,24 @@ class TimeEntryController extends BaseController
         TimeEntryRepository $timeEntryRepository,
         TagRepository $tagRepository,
         TimeEntryTagRepository $timeEntryTagRepository,
-        string $id) {
+        string $id
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $timeEntry = $timeEntryRepository->find($id);
-        if (is_null($timeEntry)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $data = json_decode($request->getContent(), true);
         if (!array_key_exists('tagName', $data)) {
-            return $this->json(['error' => 'missing tagName'], Response::HTTP_BAD_REQUEST);
+            $problem = new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_REQUEST_BODY);
+            $problem->set('errors', [
+                'message' => 'Missing value',
+                'property' => 'tagName'
+            ]);
+
+            throw new ApiProblemException($problem);
         }
 
         $tagName = $data['tagName'];
@@ -419,15 +420,15 @@ class TimeEntryController extends BaseController
         if (is_null($tag)) {
             $tag = new Tag($tagName);
             $this->getDoctrine()->getManager()->persist($tag);
-        }
+        } else {
+            $exitingLink = $timeEntryTagRepository->findOneBy([
+                                                                  'timeEntry' => $timeEntry,
+                                                                  'tag' => $tag
+                                                              ]);
 
-        $exitingLink = $timeEntryTagRepository->findOneBy([
-            'timeEntry' => $timeEntry,
-            'tag' => $tag
-        ]);
-
-        if (!is_null($exitingLink)) {
-            return $this->json([], Response::HTTP_CONFLICT);
+            if (!is_null($exitingLink)) {
+                return $this->json([], Response::HTTP_CONFLICT);
+            }
         }
 
         $timeEntryTag = new TimeEntryTag($timeEntry, $tag);
@@ -447,27 +448,20 @@ class TimeEntryController extends BaseController
         TagRepository $tagRepository,
         TimeEntryTagRepository $timeEntryTagRepository,
         string $id,
-        string $tagName) {
+        string $tagName
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        $tag = $tagRepository->findOneBy(['name' => $tagName]);
-        if (is_null($tag)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
-        $timeEntry = $timeEntryRepository->find($id);
-        if (is_null($timeEntry)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
-        }
+        $tag = $tagRepository->findOneByOrException(['name' => $tagName]);
 
-        $exitingLink = $timeEntryTagRepository->findOneBy([
+        $exitingLink = $timeEntryTagRepository->findOneByOrException([
                                                               'timeEntry' => $timeEntry,
                                                               'tag' => $tag
                                                           ]);
-
-        if (is_null($exitingLink)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
-        }
 
         $manager = $this->getDoctrine()->getManager();
         $manager->remove($exitingLink);
@@ -481,20 +475,18 @@ class TimeEntryController extends BaseController
         Request $request,
         TimeEntryRepository $timeEntryRepository,
         TimeEntryTagRepository $timeEntryTagRepository,
-        string $id): Response
-    {
+        string $id
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        /** @var TimeEntry|null $timeEntry */
-        $timeEntry = $timeEntryRepository->find($id);
-        if (is_null($timeEntry)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $timeEntryTags = $timeEntryTagRepository->findBy(['timeEntry' => $timeEntry]);
 
         $apiTimeEntryTags = array_map(
-            fn($timeEntryTag) => ApiTag::fromEntity($timeEntryTag->getTag()),
+            fn ($timeEntryTag) => ApiTag::fromEntity($timeEntryTag->getTag()),
             $timeEntryTags
         );
 
@@ -502,18 +494,15 @@ class TimeEntryController extends BaseController
     }
 
     #[Route('/json/time-entry/{id}', name: 'time_entry_json_update', methods: ['PUT'])]
-    public function jsonUpdate(Request $request, TimeEntryRepository $timeEntryRepository, string $id): Response
+    public function jsonUpdate(Request $request, TimeEntryRepository $timeEntryRepository, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        /** @var TimeEntry|null $timeEntry */
-        $timeEntry = $timeEntryRepository->find($id);
-        if (is_null($timeEntry)) {
-            throw $this->createNotFoundException();
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $data = json_decode($request->getContent(), true);
-
         if (array_key_exists('description', $data)) {
             $timeEntry->setDescription($data['description']);
         }
@@ -530,17 +519,24 @@ class TimeEntryController extends BaseController
         Request $request,
         TaskRepository $taskRepository,
         TimeEntryRepository $timeEntryRepository,
-        string $id) {
+        string $id
+    ) : JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $timeEntry = $timeEntryRepository->find($id);
-        if (is_null($timeEntry)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $data = json_decode($request->getContent(), true);
         if (!array_key_exists('name', $data)) {
-            return $this->json(['error' => 'missing name'], Response::HTTP_BAD_REQUEST);
+            $problem = ApiProblem::withErrors(
+                Response::HTTP_BAD_REQUEST,
+                ApiProblem::TYPE_INVALID_REQUEST_BODY,
+                ApiError::missingProperty('tagName')
+            );
+
+            throw new ApiProblemException($problem);
         }
         $taskName = $data['name'];
 
@@ -571,12 +567,12 @@ class TimeEntryController extends BaseController
     public function jsonRemoveTask(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        string $id) {
+        string $id
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        $timeEntry = $timeEntryRepository->find($id);
-        if (is_null($timeEntry)) {
-            return $this->json([], Response::HTTP_NOT_FOUND);
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isOwnedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $manager = $this->getDoctrine()->getManager();
@@ -584,7 +580,7 @@ class TimeEntryController extends BaseController
         if (!$timeEntry->assignedToTask()) {
             throw new ApiProblemException(
                 ApiProblem::invalidAction(
-                    self::codeNoAssignedTask,
+                    self::CODE_NO_ASSIGNED_TASK,
                     'Time entry has no assigned task',
                 )
             );

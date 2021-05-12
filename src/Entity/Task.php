@@ -103,16 +103,21 @@ class Task
         return $this->timeEntries;
     }
 
-    public function getCreatedBy(): ?User
+    public function getCreatedBy(): User
     {
         return $this->createdBy;
     }
 
-    public function setCreatedBy(?User $createdBy): self
+    public function setCreatedBy(User $createdBy): self
     {
         $this->createdBy = $createdBy;
 
         return $this;
+    }
+
+    public function wasCreatedBy(User $user): bool
+    {
+        return $this->getCreatedBy()->equalIds($user);
     }
 
     public function getCompletedAt(): ?DateTime
