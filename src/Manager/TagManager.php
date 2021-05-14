@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Manager;
 
 use App\Entity\Tag;
+use App\Entity\User;
 use App\Repository\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -53,16 +54,23 @@ class TagManager
      * to the database.
      *
      * @param string[] $names
+     * @param User $user the creator of the tags
      * @return Tag[]
      */
-    public function findOrCreateByNames(array $names): array
+    public function findOrCreateByNames(array $names, User $user): array
     {
         $nameMap = [];
         foreach ($names as $name) {
             $nameMap[$name] = true;
         }
 
-        $tags = $this->tagRepository->findByKeys('name', $names);
+        $tags = $this->tagRepository->findByKeysQuery('name', $names, 'tag')
+                                    ->andWhere('tag.createdBy = :user')
+                                    ->setParameter('user', $user)
+                                    ->getQuery()
+                                    ->getResult()
+        ;
+
         foreach ($tags as $existingTag) {
             if (array_key_exists($existingTag->getName(), $nameMap)) {
                 unset($nameMap[$existingTag->getName()]);
@@ -70,7 +78,7 @@ class TagManager
         }
 
         foreach ($nameMap as $name => $value) {
-            $newTag = new Tag($name);
+            $newTag = new Tag($user, $name);
             $tags[] = $newTag;
 
             $this->entityManager->persist($newTag);

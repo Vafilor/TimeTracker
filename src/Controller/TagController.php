@@ -33,7 +33,7 @@ class TagController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $queryBuilder = $tagRepository->createDefaultQueryBuilder();
+        $queryBuilder = $tagRepository->findWithUser($this->getUser());
 
         $filterForm = $formFactory->createNamed(
             '',
@@ -71,7 +71,7 @@ class TagController extends BaseController
         ]);
     }
 
-    #[Route('/json/tag/list', name: 'tag_json_list')]
+    #[Route('/json/tag', name: 'tag_json_list', methods: ["GET"])]
     public function jsonList(
         Request $request,
         TagRepository $tagRepository,
@@ -87,7 +87,7 @@ class TagController extends BaseController
             $excludeItems = explode(',', $excludeString);
         }
 
-        $queryBuilder = $tagRepository->createDefaultQueryBuilder()
+        $queryBuilder = $tagRepository->findWithUser($this->getUser())
                                       ->andWhere('tag.name LIKE :term')
                                       ->setParameter('term', "%$term%")
         ;
@@ -122,13 +122,13 @@ class TagController extends BaseController
             $data = $form->getData();
             $name = $data->getName();
 
-            $tagExists = $tagRepository->exists($name);
+            $tagExists = $tagRepository->existsForUser($name, $this->getUser());
             if ($tagExists) {
-                $this->addFlash('danger', "Tag '$name' already exists");
+                $this->addFlash('danger', "Tag '$name' already exists for user '{$this->getUser()->getUsername()}'");
                 return $this->redirectToRoute('tag_view', ['name' => $name]);
             }
 
-            $tag = new Tag($name);
+            $tag = new Tag($this->getUser(), $name);
             $this->getDoctrine()->getManager()->persist($tag);
             $this->getDoctrine()->getManager()->flush();
 
@@ -140,11 +140,14 @@ class TagController extends BaseController
         return $this->redirectToRoute('tag_index');
     }
 
-    #[Route('/tag/{name}/view', name: 'tag_view')]
-    public function view(Request $request, TagRepository $tagRepository, string $name): Response
+    #[Route('/tag/{id}/view', name: 'tag_view')]
+    public function view(Request $request, TagRepository $tagRepository, string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-        $tag = $tagRepository->findOneByOrException(['name' => $name]);
+        $tag = $tagRepository->findOrException($id);
+        if (!$tag->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
 
         $tagEditModel = TagEditModel::fromEntity($tag);
 

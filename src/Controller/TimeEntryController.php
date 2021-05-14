@@ -416,9 +416,9 @@ class TimeEntryController extends BaseController
 
         $tagName = $data['tagName'];
 
-        $tag = $tagRepository->findOneBy(['name' => $tagName]);
+        $tag = $tagRepository->findOneBy(['name' => $tagName, 'createdBy' => $this->getUser()]);
         if (is_null($tag)) {
-            $tag = new Tag($tagName);
+            $tag = new Tag($this->getUser(), $tagName);
             $this->getDoctrine()->getManager()->persist($tag);
         } else {
             $exitingLink = $timeEntryTagRepository->findOneBy([

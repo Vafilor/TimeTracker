@@ -24,6 +24,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ApiTagController extends BaseController
@@ -104,7 +105,7 @@ class ApiTagController extends BaseController
                 throw new ApiProblemException($problem);
             }
 
-            $tag = new Tag($name);
+            $tag = new Tag($this->getUser(), $name);
             $this->getDoctrine()->getManager()->persist($tag);
             $this->getDoctrine()->getManager()->flush();
 
@@ -114,7 +115,7 @@ class ApiTagController extends BaseController
             throw new ApiProblemException($formError);
         }
 
-        throw new HttpException('Invalid state');
+        throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     #[Route('/api/tag/{name}', name: 'api_tag_view')]

@@ -105,11 +105,9 @@ class TaskController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $task = new TaskModel();
-
         $form = $this->createForm(
             TaskFormType::class,
-            $task,
+            new TaskModel(),
             [
                 'timezone' => $this->getUser()->getTimezone()
             ]
@@ -125,6 +123,10 @@ class TaskController extends BaseController
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($newTask);
             $manager->flush();
+
+            $this->addFlash('success', 'Task successfully created');
+
+            return $this->redirectToRoute('task_view', ['id' => $newTask->getIdString()]);
         }
 
         return $this->render(
@@ -167,6 +169,8 @@ class TaskController extends BaseController
             $task->setCompletedAt($data->getCompletedAt());
 
             $this->getDoctrine()->getManager()->flush();
+
+            $this->addFlash('success', 'Task successfully updated');
         }
 
         return $this->render(

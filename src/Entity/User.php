@@ -6,6 +6,8 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use App\Traits\UUIDTrait;
+use DateTime;
+use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,6 +19,12 @@ use Doctrine\ORM\Mapping as ORM;
 class User extends BaseUser
 {
     use UUIDTrait;
+
+    /**
+     * @ORM\Column(type="datetimetz")
+     * @var DateTime
+     */
+    protected $createdAt;
 
     /**
      * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="owner")
@@ -52,15 +60,26 @@ class User extends BaseUser
      */
     private $tasks;
 
-    public function __construct()
+    public function __construct(DateTime $createdAt = null)
     {
         parent::__construct();
+
         $this->timeEntries = new ArrayCollection();
         $this->timezone = "America/Los_Angeles";
         $this->dateFormat = 'm/d/Y h:i:s A';
         $this->todayDateFormat = 'h:i:s A';
         $this->durationFormat = '%hh %Im %Ss';
         $this->tasks = new ArrayCollection();
+
+        if (is_null($createdAt)) {
+            $createdAt = new DateTime('now', new DateTimeZone('UTC'));
+        }
+        $this->createdAt = $createdAt;
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
     }
 
     public function gravatarUrl(int $size = 30): string

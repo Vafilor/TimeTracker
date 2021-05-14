@@ -1,4 +1,5 @@
 {% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
 
 {% block content_class %}w-100{% endblock %}
 
@@ -23,6 +24,7 @@
             <tr>
                 <th>{{ knp_pagination_sortable(pagination, 'Name', 'tag.name') }}</th>
                 <th>Color</th>
+                <th>Created</th>
                 <th>Links</th>
                 <th>Actions</th>
             </tr>
@@ -30,14 +32,15 @@
         <tbody>
             {% for tag in pagination.items %}
             <tr>
-                <td><a href="{{ path('tag_view', {name: tag.name}) }}">{{ tag.name }}</a></td>
+                <td><a href="{{ path('tag_view', {id: tag.idString}) }}">{{ tag.name }}</a></td>
                 <td class="">
                     <span class="color-tile align-text-bottom mr-2" style="background-color: {{ tag.color }}"></span>
                     <span class="color-tile-text">{{ tag.color }}</span>
                 </td>
+                <td>{{ time.user_date(tag.createdAt, app.user) }}</td>
                 <td><a href="{{ path('time_entry_index', {tags: tag.name }) }}">Time entries</a> </td>
                 <td>
-                    <a href="{{ path('tag_view', {name: tag.name}) }}" class="btn btn-primary">View</a>
+                    <a href="{{ path('tag_view', {id: tag.idString}) }}" class="btn btn-primary">View</a>
                 </td>
             </tr>
             {% else %}
