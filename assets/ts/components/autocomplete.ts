@@ -50,7 +50,12 @@ export default abstract class Autocomplete<T> {
 
                         // Remove the autocomplete text that shows how many search results were present, etc.
                         $('.ui-helper-hidden-accessible div').remove();
-                    })
+                    }).catch(err => {
+                    this.$loading.addClass('opacity-invisible');
+                    response([]);
+                    // Remove the autocomplete text that shows how many search results were present, etc.
+                    $('.ui-helper-hidden-accessible div').remove();
+                });
             },
             focus: function (event, ui) {
                 $nameInput.val(ui.item.name);
