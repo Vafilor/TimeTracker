@@ -58,11 +58,11 @@ class ApiTimeEntryController extends BaseController
             TimeEntryListFilterFormType::class,
             new TimeEntryListFilterModel(),
             [
-                                                    'timezone' => $this->getUser()->getTimezone(),
-                                                    'csrf_protection' => false,
-                                                    'method' => 'GET',
-                                                    'allow_extra_fields' => true
-                                                ]
+                'timezone' => $this->getUser()->getTimezone(),
+                'csrf_protection' => false,
+                'method' => 'GET',
+                'allow_extra_fields' => true
+            ]
         );
 
         $filterForm->handleRequest($request);
@@ -78,10 +78,7 @@ class ApiTimeEntryController extends BaseController
             'direction' => 'desc'
         ]);
 
-        $items = [];
-        foreach ($pagination->getItems() as $timeEntry) {
-            $items[] = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
-        }
+        $items = ApiTimeEntry::fromEntities($pagination->getItems(), $this->getUser());
 
         return $this->json(ApiPagination::fromPagination($pagination, $items));
     }
@@ -123,10 +120,7 @@ class ApiTimeEntryController extends BaseController
             'direction' => 'desc',
         ]);
 
-        $items = [];
-        foreach ($pagination->getItems() as $timeEntry) {
-            $items[] = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
-        }
+        $items = ApiTimeEntry::fromEntities($pagination->getItems(), $this->getUser());
 
         return $this->json(ApiPagination::fromPagination($pagination, $items));
     }
@@ -154,13 +148,10 @@ class ApiTimeEntryController extends BaseController
 
         $timeEntry = new TimeEntry($this->getUser());
 
-        $data = json_decode($request->getContent(), true);
-        if (is_null($data)) {
-            $data = [];
-        }
+        $data = $this->getJsonBody($request, []);
 
         if (array_key_exists('tags', $data)) {
-            $tagNames = explode(',', $data['tags']);
+            $tagNames = $tagManager->parseFromString($data['tags']);
             $tagObjects = $tagManager->findOrCreateByNames($tagNames);
             foreach ($tagObjects as $tag) {
                 $timeEntryTag = new TimeEntryTag($timeEntry, $tag);
@@ -221,8 +212,9 @@ class ApiTimeEntryController extends BaseController
             'csrf_protection' => false,
         ]);
 
+        $data = $this->getJsonBody($request);
+
         try {
-            $data = json_decode($request->getContent(), true);
             $form->submit($data);
         } catch (InvalidArgumentException $invalidArgumentException) {
             throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
@@ -322,7 +314,7 @@ class ApiTimeEntryController extends BaseController
         $timeEntry->stop();
         $this->getDoctrine()->getManager()->flush();
 
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
         if (!array_key_exists('time_format', $data)) {
             $timeFormat = 'date';
         } else {
@@ -407,22 +399,22 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
         if (!array_key_exists('tagName', $data)) {
-            $problem = new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_REQUEST_BODY);
-            $problem->set('errors', [
-                'message' => 'Missing value',
-                'property' => 'tagName'
-            ]);
+            $problem = ApiProblem::withErrors(
+                Response::HTTP_BAD_REQUEST,
+                ApiProblem::TYPE_INVALID_REQUEST_BODY,
+                ApiError::missingProperty('tagName')
+            );
 
             throw new ApiProblemException($problem);
         }
 
         $tagName = $data['tagName'];
 
-        $tag = $tagRepository->findOneBy(['name' => $tagName]);
+        $tag = $tagRepository->findOneBy(['name' => $tagName, 'createdBy' => $this->getUser()]);
         if (is_null($tag)) {
-            $tag = new Tag($tagName);
+            $tag = new Tag($this->getUser(), $tagName);
             $this->getDoctrine()->getManager()->persist($tag);
         } else {
             $exitingLink = $timeEntryTagRepository->findOneBy([
@@ -511,7 +503,7 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
         if (!array_key_exists('name', $data)) {
             $problem = ApiProblem::withErrors(
                 Response::HTTP_BAD_REQUEST,

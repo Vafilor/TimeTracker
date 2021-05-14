@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiError;
+use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTag;
@@ -12,8 +13,7 @@ use App\Api\ApiTimestamp;
 use App\Entity\Tag;
 use App\Entity\Timestamp;
 use App\Entity\TimestampTag;
-use App\Form\Model\TimestampEditModel;
-use App\Form\TimestampEditFormType;
+use App\Manager\TagManager;
 use App\Manager\TimestampManager;
 use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
@@ -25,15 +25,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TimestampController extends BaseController
+class ApiTimestampController extends BaseController
 {
-    const codeTagNotAssociated = 'tag_not_associated';
+    private DateTimeFormatter $dateTimeFormatter;
 
-    #[Route('/timestamp', name: 'timestamp_index')]
+    public function __construct(DateTimeFormatter $dateTimeFormatter)
+    {
+        $this->dateTimeFormatter = $dateTimeFormatter;
+    }
+
+    #[Route('/api/timestamp', name: 'api_timestamp_index', methods: ["GET"])]
     public function index(
         Request $request,
         TimestampRepository $timestampRepository,
-        PaginatorInterface $paginator
+        PaginatorInterface $paginator,
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -46,67 +51,64 @@ class TimestampController extends BaseController
             'direction' => 'desc'
         ]);
 
-        return $this->render('timestamp/index.html.twig', [
-            'pagination' => $pagination
-        ]);
+        $items = ApiTimestamp::fromEntities($pagination->getItems(), $this->dateTimeFormatter, $this->getUser(), $this->now());
+
+        return $this->json(ApiPagination::fromPagination($pagination, $items));
     }
 
-    #[Route('/timestamp/create', name: 'timestamp_create')]
-    public function create(Request $request): Response
+    #[Route('/api/timestamp', name: 'api_timestamp_create', methods: ["POST"])]
+    public function create(Request $request, TagManager $tagManager): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
+        $now = $this->now();
         $timestamp = new Timestamp($this->getUser());
 
-        $this->getDoctrine()->getManager()->persist($timestamp);
-        $this->getDoctrine()->getManager()->flush();
+        $manager = $this->getDoctrine()->getManager();
 
-        return $this->redirectToRoute('timestamp_view', ['id' => $timestamp->getIdString()]);
+        $data = $this->getJsonBody($request, []);
+        if (array_key_exists('tags', $data)) {
+            $tagNames = $tagManager->parseFromString($data['tags']);
+            // Also add this to time entries
+            $tagObjects = $tagManager->findOrCreateByNames($tagNames);
+            foreach ($tagObjects as $tag) {
+                $tagLink = new TimestampTag($timestamp, $tag);
+                $timestamp->addTimestampTag($tagLink);
+                $manager->persist($tagLink);
+            }
+        }
+
+        $manager->persist($timestamp);
+        $manager->flush();
+
+        $apiTimestamp = ApiTimestamp::fromEntity($this->dateTimeFormatter, $timestamp, $this->getUser(), $now);
+
+        return $this->json($apiTimestamp, Response::HTTP_CREATED);
     }
 
-    #[Route('/timestamp/{id}/view', name: 'timestamp_view')]
+    #[Route('/api/timestamp/{id}', name: 'api_timestamp_view', methods: ["GET"])]
     public function view(
         Request $request,
         TimestampRepository $timestampRepository,
-        TimestampTagRepository $timestampTagRepository,
         string $id
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-        $timestamp = $timestampRepository->findOrException($id);
+
+        $queryBuilder = $timestampRepository->findCreateQueryBuilder($id);
+        $timestamp = $timestampRepository->preloadTags($queryBuilder)->getQuery()->getResult();
+        if (is_null($timestamp)) {
+            $this->createNotFoundException();
+        }
+
         if (!$timestamp->wasCreatedBy($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
-        $form = $this->createForm(TimestampEditFormType::class, TimestampEditModel::fromEntity($timestamp), [
-            'timezone' => $this->getUser()->getTimezone(),
-        ]);
+        $apiTimestamp = ApiTimestamp::fromEntity($this->dateTimeFormatter, $timestamp, $this->getUser(), $this->now());
 
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TimestampEditModel $data */
-            $data = $form->getData();
-
-            $timestamp->setCreatedAt($data->getCreatedAt());
-
-            $this->getDoctrine()->getManager()->flush();
-
-            $this->addFlash('success', 'Updated timestamp');
-        }
-
-        $timestampTags = $timestampTagRepository->findBy(['timestamp' => $timestamp]);
-        $apiTags = array_map(
-            fn ($timestampTag) => ApiTag::fromEntity($timestampTag->getTag()),
-            $timestampTags
-        );
-
-        return $this->render('timestamp/view.html.twig', [
-            'form' => $form->createView(),
-            'timestamp' => $timestamp,
-            'tags' => $apiTags
-        ]);
+        return $this->json($apiTimestamp);
     }
 
-    #[Route('/timestamp/{id}/delete', name: 'timestamp_delete')]
+    #[Route('/api/timestamp/{id}/delete', name: 'api_timestamp_delete', methods: ["DELETE"])]
     public function remove(
         Request $request,
         TimestampRepository $timestampRepository,
@@ -122,13 +124,11 @@ class TimestampController extends BaseController
         $manager->remove($timestamp);
         $manager->flush();
 
-        $this->addFlash('success', 'Timestamp was removed');
-
-        return $this->redirectToRoute('timestamp_index');
+        return $this->jsonNoContent();
     }
 
-    #[Route('/json/timestamp/{id}/repeat', name: 'timestamp_json_repeat', methods: ['POST'])]
-    public function jsonRepeat(
+    #[Route('/api/timestamp/{id}/repeat', name: 'api_timestamp_json_repeat', methods: ['POST'])]
+    public function repeat(
         Request $request,
         DateTimeFormatter $dateTimeFormatter,
         TimestampRepository $timestampRepository,
@@ -157,8 +157,8 @@ class TimestampController extends BaseController
         return $this->json($apiTimestamp, Response::HTTP_CREATED);
     }
 
-    #[Route('/json/timestamp/{id}/tag', name: 'timestamp_json_tag_create', methods: ['POST'])]
-    public function jsonAddTag(
+    #[Route('/api/timestamp/{id}/tag', name: 'api_timestamp_tag_create', methods: ['POST'])]
+    public function addTag(
         Request $request,
         TimestampRepository $timestampRepository,
         TagRepository $tagRepository,
@@ -211,8 +211,8 @@ class TimestampController extends BaseController
         return $this->json($apiTag, Response::HTTP_CREATED);
     }
 
-    #[Route('/json/timestamp/{id}/tag/{tagName}', name: 'timestamp_json_tag_delete', methods: ['DELETE'])]
-    public function jsonDeleteTag(
+    #[Route('/api/json/timestamp/{id}/tag/{tagName}', name: 'api_timestamp_tag_delete', methods: ['DELETE'])]
+    public function removeTag(
         Request $request,
         TimestampRepository $timestampRepository,
         TagRepository $tagRepository,
@@ -236,7 +236,7 @@ class TimestampController extends BaseController
         if (is_null($exitingLink)) {
             throw new ApiProblemException(
                 ApiProblem::invalidAction(
-                    self::codeTagNotAssociated,
+                    TimestampController::codeTagNotAssociated,
                     "Tag '$tagName' is not associated to this timestamp"
                 )
             );
@@ -249,8 +249,8 @@ class TimestampController extends BaseController
         return $this->jsonNoContent();
     }
 
-    #[Route('/json/timestamp/{id}/tags', name: 'timestamp_json_tags')]
-    public function jsonTags(
+    #[Route('/api/timestamp/{id}/tags', name: 'api_timestamp_tags', methods: ["GET"])]
+    public function indexTag(
         Request $request,
         TimestampRepository $timestampRepository,
         TimestampTagRepository $timestampTagRepository,
@@ -264,11 +264,6 @@ class TimestampController extends BaseController
 
         $timestampTags = $timestampTagRepository->findBy(['timestamp' => $timestamp]);
 
-        $apiTags = array_map(
-            fn ($timestampTag) => ApiTag::fromEntity($timestampTag->getTag()),
-            $timestampTags
-        );
-
-        return $this->json($apiTags);
+        return $this->json(ApiTag::fromEntities($timestampTags));
     }
 }

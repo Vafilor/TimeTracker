@@ -141,6 +141,13 @@ class Task
         return $this;
     }
 
+    public function clearCompleted(): self
+    {
+        $this->completedAt = null;
+
+        return $this;
+    }
+
     public function setCompletedAt(?DateTime $completedAt): self
     {
         $this->completedAt = $completedAt;

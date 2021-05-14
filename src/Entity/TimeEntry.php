@@ -74,7 +74,7 @@ class TimeEntry
      */
     private $task;
 
-    public function __construct(User $owner, DateTimeInterface $createdAt = null)
+    public function __construct(User $owner, DateTime $createdAt = null)
     {
         $this->id = Uuid::uuid4();
         $this->owner = $owner;

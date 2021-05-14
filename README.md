@@ -12,6 +12,7 @@ Web App for tracking your time. Currently only locally deployable.
 * Add descriptions in Markdown for Time Entries 
 * Keep track of Tasks and their associated time entries
 * Keep track of how often events happen with Timestamps
+* REST api
 * Working on more, see [TimeTracker Project](https://github.com/Vafilor/TimeTracker/projects/1)
 
 ## Local Setup

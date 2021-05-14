@@ -6,7 +6,6 @@ namespace App\Controller;
 
 use App\Api\ApiPagination;
 use App\Api\ApiTask;
-use App\Api\ApiTimeEntry;
 use App\Entity\Task;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
@@ -22,8 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TaskController extends BaseController
 {
-    #[Route('/task', name: 'task_list')]
-    public function list(
+    #[Route('/task', name: 'task_index')]
+    public function index(
         Request $request,
         TaskRepository $taskRepository,
         FormFactoryInterface $formFactory,
@@ -38,10 +37,10 @@ class TaskController extends BaseController
             TaskListFilterFormType::class,
             new TaskListFilterModel(),
             [
-            'csrf_protection' => false,
-            'method' => 'GET',
-            'allow_extra_fields' => true
-        ]
+                'csrf_protection' => false,
+                'method' => 'GET',
+                'allow_extra_fields' => true
+            ]
         );
 
         $filterForm->handleRequest($request);
@@ -49,23 +48,9 @@ class TaskController extends BaseController
             /** @var TaskListFilterModel $data */
             $data = $filterForm->getData();
 
-            if ($data->hasName()) {
-                $queryBuilder->andWhere('task.name LIKE :name')
-                             ->setParameter('name', "%{$data->getName()}%")
-                ;
-            }
-
-            if ($data->hasDescription()) {
-                $queryBuilder->andWhere('task.description LIKE :description')
-                             ->setParameter('description', "%{$data->getDescription()}%")
-                ;
-            }
-
-            if (!$data->getShowCompleted()) {
-                $queryBuilder->andWhere('task.completedAt IS NULL');
-            }
+            $taskRepository->applyFilter($queryBuilder, $data);
         } else {
-            $queryBuilder->andWhere('task.completedAt IS NULL');
+            $queryBuilder = $taskRepository->applyNotCompleted($queryBuilder);
         }
 
         $pagination = $this->populatePaginationData(
@@ -109,10 +94,7 @@ class TaskController extends BaseController
             'direction' => 'desc'
         ]);
 
-        $items = [];
-        foreach ($pagination->getItems() as $task) {
-            $items[] = ApiTask::fromEntity($task, $this->getUser());
-        }
+        $items = ApiTask::fromEntities($pagination->getItems(), $this->getUser());
 
         return $this->json(ApiPagination::fromPagination($pagination, $items));
     }
@@ -123,11 +105,9 @@ class TaskController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $task = new TaskModel();
-
         $form = $this->createForm(
             TaskFormType::class,
-            $task,
+            new TaskModel(),
             [
                 'timezone' => $this->getUser()->getTimezone()
             ]
@@ -143,6 +123,10 @@ class TaskController extends BaseController
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($newTask);
             $manager->flush();
+
+            $this->addFlash('success', 'Task successfully created');
+
+            return $this->redirectToRoute('task_view', ['id' => $newTask->getIdString()]);
         }
 
         return $this->render(
@@ -161,9 +145,9 @@ class TaskController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $task = $taskRepository->find($id);
-        if (is_null($task)) {
-            throw $this->createNotFoundException();
+        $task = $taskRepository->findOrException($id);
+        if (!$task->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
         }
 
         $taskModel = TaskModel::fromEntity($task);
@@ -185,6 +169,8 @@ class TaskController extends BaseController
             $task->setCompletedAt($data->getCompletedAt());
 
             $this->getDoctrine()->getManager()->flush();
+
+            $this->addFlash('success', 'Task successfully updated');
         }
 
         return $this->render(
@@ -219,7 +205,7 @@ class TaskController extends BaseController
         }
 
         $completed = true;
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
         if (array_key_exists('completed', $data)) {
             $completed = $data['completed'];
         }
@@ -247,7 +233,7 @@ class TaskController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
 
         if (array_key_exists('description', $data)) {
             $task->setDescription($data['description']);

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiProblem;
+use App\Api\ApiProblemException;
 use App\Entity\User;
 use DateTime;
 use DateTimeZone;
@@ -68,7 +70,33 @@ class BaseController extends AbstractController
         return $pagination;
     }
 
-    public function now(): DateTime {
+    /**
+     * getJsonBody attempts to decode the request content into an associative array via json_decode.
+     * If the result is null, and no default is provided, a 400 error is thrown with a code indicating an invalid body.
+     * If the result is null, and a non-null default is provided, the default is returned.
+     *
+     * @param Request $request
+     * @param array|null $default
+     * @return array
+     */
+    public function getJsonBody(Request $request, array $default = null): array
+    {
+        $data = json_decode($request->getContent(), true);
+        if (is_null($data)) {
+            if (!is_null($default)) {
+                return $default;
+            }
+
+            throw new ApiProblemException(
+                new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_REQUEST_BODY)
+            );
+        }
+
+        return $data;
+    }
+
+    public function now(): DateTime
+    {
         return new DateTime('now', new DateTimeZone('UTC'));
     }
 

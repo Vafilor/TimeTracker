@@ -22,13 +22,13 @@ Encore
      */
     .addEntry('app', './assets/ts/app.ts')
     .addEntry('login', './assets/ts/login.ts')
-    .addEntry('time_entry_list', './assets/ts/time_entry_list.ts')
+    .addEntry('time_entry_index', './assets/ts/time_entry_index.ts')
     .addEntry('time_entry', './assets/ts/time_entry.ts')
     .addEntry('tag', './assets/ts/tag.ts')
     .addEntry('task', './assets/ts/task.ts')
-    .addEntry('task_list', './assets/ts/task_list.ts')
+    .addEntry('task_index', './assets/ts/task_index.ts')
     .addEntry('timestamp', './assets/ts/timestamp.ts')
-    .addEntry('timestamp_list', './assets/ts/timestamp_list.ts')
+    .addEntry('timestamp_index', './assets/ts/timestamp_index.ts')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')

@@ -1,20 +1,21 @@
+import '../styles/time_entry.scss';
+
 import $ from 'jquery';
 import 'jquery-ui/ui/widgets/autocomplete';
 import 'bootstrap'; // Adds functions to jQuery
-import '../styles/time_entry.scss';
 
 import { TimeEntryApi, TimeEntryApiErrorCode } from "./core/api/time_entry_api";
 import { ApiTag } from "./core/api/tag_api";
 import Flashes from "./components/flashes";
 import TimerView from "./components/timer";
-import TagList, { TagListDelegate } from "./components/tag_list";
 import AutocompleteTags from "./components/autocomplete_tags";
 import AutoMarkdown from "./components/automarkdown";
 import AutocompleteTaskCreate from "./components/autocomplete_tasks_create";
 import { ApiTask, ApiTaskAssign } from "./core/api/task_api";
 import { ApiErrorResponse } from "./core/api/api";
+import TagIndex, { TagIndexDelegate } from "./components/tag_index";
 
-class TimeEntryApiAdapter implements TagListDelegate {
+class TimeEntryApiAdapter implements TagIndexDelegate {
     constructor(private timeEntryId: string, private flashes: Flashes) {
     }
 
@@ -152,15 +153,15 @@ $(document).ready(() => {
        document.title = durationString;
     });
 
-    const tagList = new TagList('.js-tags', new TimeEntryApiAdapter(timeEntryId, flashes));
+    const tagIndex = new TagIndex('.js-tags', new TimeEntryApiAdapter(timeEntryId, flashes));
     const autoComplete = new AutocompleteTags('.js-autocomplete-tags');
-    autoComplete.setTags(tagList.getTagNames());
+    autoComplete.setTags(tagIndex.getTagNames());
 
     autoComplete.valueEmitter.addObserver((apiTag: ApiTag) => {
-        tagList.add(apiTag);
+        tagIndex.add(apiTag);
     })
 
-    tagList.tagsChanged.addObserver(() => {
-        autoComplete.setTags(tagList.getTagNames());
+    tagIndex.tagsChanged.addObserver(() => {
+        autoComplete.setTags(tagIndex.getTagNames());
     });
 });

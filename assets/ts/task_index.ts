@@ -1,7 +1,6 @@
-import '../styles/task_list.scss';
+import '../styles/task_index.scss';
 
 import $ from 'jquery';
-import Flashes from "./components/flashes";
 import { ApiTask, TaskApi } from "./core/api/task_api";
 import { JsonResponse } from "./core/api/api";
 

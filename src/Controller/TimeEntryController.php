@@ -179,7 +179,7 @@ class TimeEntryController extends BaseController
         $manager->persist($timeEntry);
         $manager->flush();
 
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
         if (!array_key_exists('time_format', $data)) {
             $timeFormat = 'date';
         } else {
@@ -328,7 +328,7 @@ class TimeEntryController extends BaseController
         $timeEntry->stop();
         $this->getDoctrine()->getManager()->flush();
 
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
         if (!array_key_exists('time_format', $data)) {
             $timeFormat = 'date';
         } else {
@@ -403,7 +403,7 @@ class TimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
         if (!array_key_exists('tagName', $data)) {
             $problem = new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_REQUEST_BODY);
             $problem->set('errors', [
@@ -416,9 +416,9 @@ class TimeEntryController extends BaseController
 
         $tagName = $data['tagName'];
 
-        $tag = $tagRepository->findOneBy(['name' => $tagName]);
+        $tag = $tagRepository->findOneBy(['name' => $tagName, 'createdBy' => $this->getUser()]);
         if (is_null($tag)) {
-            $tag = new Tag($tagName);
+            $tag = new Tag($this->getUser(), $tagName);
             $this->getDoctrine()->getManager()->persist($tag);
         } else {
             $exitingLink = $timeEntryTagRepository->findOneBy([
@@ -502,7 +502,7 @@ class TimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
         if (array_key_exists('description', $data)) {
             $timeEntry->setDescription($data['description']);
         }
@@ -528,7 +528,7 @@ class TimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $data = json_decode($request->getContent(), true);
+        $data = $this->getJsonBody($request);
         if (!array_key_exists('name', $data)) {
             $problem = ApiProblem::withErrors(
                 Response::HTTP_BAD_REQUEST,

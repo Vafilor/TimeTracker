@@ -1,4 +1,4 @@
-import '../styles/timestamp_list.scss';
+import '../styles/timestamp_index.scss';
 
 import $ from 'jquery';
 import { ApiTimestamp, TimestampApi } from "./core/api/timestamp_api";

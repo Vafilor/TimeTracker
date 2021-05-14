@@ -7,7 +7,7 @@ export interface ApiTag {
 
 export class TagApi {
     public static listTags(searchTerm: string, excludeTags: Array<string> = [] ) {
-        let url = `/json/tag/list?searchTerm=${searchTerm}`;
+        let url = `/json/tag?searchTerm=${searchTerm}`;
         if (excludeTags.length !== 0) {
             const excludeTerms = excludeTags.join(",");
             url += '&exclude=' + excludeTerms;

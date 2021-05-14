@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Tag;
+use App\Entity\User;
 use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -34,9 +35,24 @@ class TagRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('tag');
     }
 
+    public function findWithUser(User $user): QueryBuilder
+    {
+        return $this->createDefaultQueryBuilder()
+                    ->andWhere('tag.createdBy = :user')
+                    ->setParameter('user', $user)
+        ;
+    }
+
     public function exists(string $name): bool
     {
         $existingTag = $this->findOneBy(['name' => $name]);
+
+        return !is_null($existingTag);
+    }
+
+    public function existsForUser(string $name, User $user): bool
+    {
+        $existingTag = $this->findOneBy(['name' => $name, 'createdBy' => $user]);
 
         return !is_null($existingTag);
     }

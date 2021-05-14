@@ -61,6 +61,11 @@ class Timestamp
         return $this->createdBy;
     }
 
+    public function wasCreatedBy(User $user): bool
+    {
+        return $this->getCreatedBy()->equalIds($user);
+    }
+
     public function setCreatedBy(User $createdBy): self
     {
         $this->createdBy = $createdBy;
