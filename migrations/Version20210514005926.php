@@ -84,7 +84,7 @@ final class Version20210514005926 extends AbstractMigration
 
     protected function upSqlite(Schema $schema) : void
     {
-        $this->addSql('DROP INDEX UNIQ_389B7835E237E06');
+        $this->addSql('DROP INDEX IF EXISTS UNIQ_389B7835E237E06');
         $this->addSql("CREATE TEMPORARY TABLE __temp__tag AS SELECT id, name, color, (SELECT id FROM users ORDER BY id DESC LIMIT 1) as created_by_id, strftime('%Y-%m-%d %H:%M:%S','now') as created_at FROM tag");
         $this->addSql('DROP TABLE tag');
         $this->addSql('CREATE TABLE tag (id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
