@@ -19,6 +19,7 @@ class ApiTimeEntry
     public string $description;
     public string $duration;
     public array $tags;
+    public string $taskId;
 
     /**
      * @param TimeEntry $timeEntry
@@ -36,6 +37,10 @@ class ApiTimeEntry
         $apiTimeEntry->startedAtEpoch = $timeEntry->getStartedAt()->getTimestamp();
         $apiTimeEntry->updatedAt = ApiDateTime::formatUserDate($timeEntry->getUpdatedAt(), $user, $format);
         $apiTimeEntry->description = $timeEntry->getDescription();
+        // TODO does this make another db call?
+        if ($timeEntry->assignedToTask()) {
+            $apiTimeEntry->taskId = $timeEntry->getTask()->getIdString();
+        }
 
         if ($timeEntry->isOver()) {
             $apiTimeEntry->endedAt = ApiDateTime::formatUserDate($timeEntry->getEndedAt(), $user, $format);
@@ -44,12 +49,12 @@ class ApiTimeEntry
         }
 
         $tags = array_map(
-            fn($timeEntryTag) => $timeEntryTag->getTag(),
+            fn ($timeEntryTag) => $timeEntryTag->getTag(),
             $timeEntry->getTimeEntryTags()->toArray()
         );
 
         $apiTags = array_map(
-            fn($tag) => ApiTag::fromEntity($tag),
+            fn ($tag) => ApiTag::fromEntity($tag),
             $tags
         );
 

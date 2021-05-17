@@ -14,15 +14,15 @@ export function formatTimeDifference(startMillis: number, endMillis: number, for
         seconds: 0,
     };
 
-    if (duration > secondsInDay) {
+    if (duration >= secondsInDay) {
         values.days = Math.floor(duration / secondsInDay);
         duration -= values.days * secondsInDay;
     }
-    if (duration > secondsInHour) {
+    if (duration >= secondsInHour) {
         values.hours = Math.floor(duration / secondsInHour);
         duration -= values.hours * secondsInHour;
     }
-    if (duration > secondsInMinute) {
+    if (duration >= secondsInMinute) {
         values.minutes = Math.floor(duration / secondsInMinute);
         duration -= values.minutes * secondsInMinute;
     }

@@ -21,9 +21,14 @@
 
         <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
             <li class="nav-item" role="presentation">
-                <a class="nav-link active markdown-link" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">
+                <a class="nav-link active activity-link" id="activity-tab" data-toggle="tab" href="#activity" role="tab" aria-controls="home" aria-selected="true">
+                    Activity
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link markdown-link" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">
                     <i class="fas fa-sync-alt fa-spin mr-1 d-none js-loading"></i>
-                    Markdown
+                    Description
                 </a>
             </li>
             <li class="nav-item" role="presentation">
@@ -34,7 +39,19 @@
             </li>
         </ul>
         <div class="tab-content" id="description-content">
-            <div class="tab-pane fade show active" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
+            <div class="tab-pane fade show active" id="activity" role="tabpanel" aria-labelledby="activity-tab">
+                <div class="js-task-time-entry">
+                    <div class="js-content d-flex align-items-center mt-2">
+                        <textarea rows="2" class="js-time-entry-description"></textarea>
+                        <div class="js-duration"></div>
+                        <button type="button" class="btn btn-primary ml-2">
+                            <span class="js-loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="js-loading sr-only">Loading...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
                 {{ form_widget(form.description, {attr: { rows: 10, class: 'js-description' }}) }}
             </div>
             <div class="tab-pane fade" id="preview" role="tabpanel" aria-labelledby="profile-tab">

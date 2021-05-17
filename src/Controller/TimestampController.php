@@ -72,7 +72,15 @@ class TimestampController extends BaseController
         string $id
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-        $timestamp = $timestampRepository->findOrException($id);
+        $queryBuilder = $timestampRepository->findCreateQueryBuilder($id);
+        $timestampRepository->preloadTags($queryBuilder);
+
+        /** @var Timestamp|null $timestamp */
+        $timestamp = $queryBuilder->getQuery()->getOneOrNullResult();
+        if (is_null($timestamp)) {
+            throw $this->createNotFoundException();
+        }
+
         if (!$timestamp->wasCreatedBy($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
@@ -93,16 +101,10 @@ class TimestampController extends BaseController
             $this->addFlash('success', 'Updated timestamp');
         }
 
-        $timestampTags = $timestampTagRepository->findBy(['timestamp' => $timestamp]);
-        $apiTags = array_map(
-            fn ($timestampTag) => ApiTag::fromEntity($timestampTag->getTag()),
-            $timestampTags
-        );
-
         return $this->render('timestamp/view.html.twig', [
             'form' => $form->createView(),
             'timestamp' => $timestamp,
-            'tags' => $apiTags
+            'tags' => ApiTag::fromEntities($timestamp->getTags()),
         ]);
     }
 

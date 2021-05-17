@@ -10,10 +10,11 @@ export interface ApiTimeEntry {
     updatedAt: string;
     startedAt: string;
     startedAtEpoch: number;
-    endedAt: string;
-    endedAtEpoch: number;
+    endedAt?: string;
+    endedAtEpoch?: number;
     description: string;
     duration: string;
+    taskId: string;
     tags: ApiTag[];
 }
 
@@ -28,13 +29,20 @@ export interface ApiUpdateTimeEntry {
 }
 
 export enum TimeEntryApiErrorCode {
-    codeNoAssignedTask = 'code_no_assigned_task'
+    codeNoAssignedTask = 'code_no_assigned_task',
+    codeRunningTime = 'code_running_timer',
+    codeTimeEntryOver = 'code_time_entry_over',
+}
+
+export interface CreateTimeEntryOptions {
+    taskId: string;
 }
 
 export class TimeEntryApi {
-    public static create(format: DateFormat = 'date') {
-        return CoreApi.post<CreateTimeEntryResponse>(`/json/time-entry/create`, {
-            'time_format': format
+    public static create(options: CreateTimeEntryOptions, format: DateFormat = 'date') {
+        return CoreApi.post<CreateTimeEntryResponse>(`/json/time-entry`, {
+            'time_format': format,
+            ...options
         });
     }
 
@@ -80,5 +88,10 @@ export class TimeEntryApi {
 
     public static update(timeEntryId: string, update: ApiUpdateTimeEntry) {
         return CoreApi.put(`/json/time-entry/${timeEntryId}`, update);
+    }
+
+    public static getActive() {
+        const url = '/json/time-entry/active';
+        return CoreApi.get<ApiTimeEntry|null>(url);
     }
 }

@@ -158,11 +158,10 @@ class TimeEntryController extends BaseController
         return $this->redirectToRoute('time_entry_view', ['id' => $timeEntry->getIdString()]);
     }
 
-    #[Route('/json/time-entry/create', name: 'time_entry_json_create', methods: ['POST'])]
-    public function jsonCreate(Request $request, TimeEntryRepository $timeEntryRepository): Response
+    #[Route('/json/time-entry', name: 'time_entry_json_create', methods: ['POST'])]
+    public function jsonCreate(Request $request, TimeEntryRepository $timeEntryRepository, TaskRepository $taskRepository): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($runningTimeEntry)) {
             throw new ApiProblemException(
@@ -174,12 +173,19 @@ class TimeEntryController extends BaseController
             );
         }
 
+
         $timeEntry = new TimeEntry($this->getUser());
+
+        $data = $this->getJsonBody($request);
+        if (array_key_exists('taskId', $data)) {
+            $task = $taskRepository->findOrException($data['taskId']);
+            $timeEntry->setTask($task);
+        }
+
         $manager = $this->getDoctrine()->getManager();
         $manager->persist($timeEntry);
         $manager->flush();
 
-        $data = $this->getJsonBody($request);
         if (!array_key_exists('time_format', $data)) {
             $timeFormat = 'date';
         } else {
@@ -590,5 +596,19 @@ class TimeEntryController extends BaseController
         $manager->flush();
 
         return $this->jsonNoContent();
+    }
+
+    #[Route('/json/time-entry/active', name: 'time_entry_json_active', methods: ['GET'])]
+    public function jsonGetActiveTimeEntry(Request $request, TimeEntryRepository $timeEntryRepository): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
+        if (is_null($timeEntry)) {
+            return $this->jsonNoContent();
+        }
+
+        $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
+
+        return $this->json($apiTimeEntry);
     }
 }

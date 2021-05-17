@@ -1,8 +1,10 @@
 import '../styles/task.scss';
+import '../styles/partials/task_time_entry.scss';
 
 import AutoMarkdown from "./components/automarkdown";
 import $ from "jquery";
 import { TaskApi } from "./core/api/task_api";
+import TaskTimeEntry from "./components/task_time_entry";
 
 class TaskEntryAutoMarkdown extends AutoMarkdown {
     private readonly taskId: string;
@@ -33,4 +35,12 @@ $(document).ready(() => {
         '.markdown-link',
         taskId
     );
+
+    const timeEntry = new TaskTimeEntry(taskId);
+    timeEntry.initialize();
+    //
+    // setTimeout(() => {
+    //     const dialog = new ConfirmDialog();
+    //     dialog.show();
+    // }, 2000)
 });
