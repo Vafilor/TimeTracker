@@ -28,6 +28,7 @@ class TaskEntryAutoMarkdown extends AutoMarkdown {
 $(document).ready(() => {
     const $data = $('.js-data');
     const taskId = $data.data('task-id');
+    const durationFormat = $data.data('duration-format');
 
     const autoMarkdown = new TaskEntryAutoMarkdown(
         '.js-description',
@@ -37,10 +38,7 @@ $(document).ready(() => {
     );
 
     const timeEntry = new TaskTimeEntry(taskId);
+    timeEntry.setDurationFormat(durationFormat);
     timeEntry.initialize();
-    //
-    // setTimeout(() => {
-    //     const dialog = new ConfirmDialog();
-    //     dialog.show();
-    // }, 2000)
+
 });

@@ -18,7 +18,9 @@ export enum TimeEntryState {
 }
 
 export default class TaskTimeEntry {
+    // todo auto update description
     private readonly taskId: string;
+    private durationFormat = '%Hh:%Im:%Ss';
 
     private $container: JQuery;
     private $description: JQuery;
@@ -27,6 +29,7 @@ export default class TaskTimeEntry {
 
     private durationTimer: StaticStartTimerView;
     private model?: ApiTimeEntry;
+    public readonly stopped = new Observable<ApiTimeEntry>();
     private _state: TimeEntryState;
     private get state(): TimeEntryState {
         return this._state;
@@ -49,12 +52,13 @@ export default class TaskTimeEntry {
             case TimeEntryState.notRunning:
                 this.stopLoading();
                 this.setButtonToStart();
-                this.durationTimer.stop(); // TODO clear?
+                this.durationTimer.stop();
+                this.clearDescription();
+                this.clearDuration();
                 break;
         }
     }
 
-    public readonly stopped = new Observable<ApiTimeEntry>();
 
     public constructor(taskId: string) {
         this.taskId = taskId;
@@ -73,8 +77,7 @@ export default class TaskTimeEntry {
 
         this.$loading = this.$container.find('.js-loading');
 
-        // TODO user duration format. or input
-        this.durationTimer = new StaticStartTimerView('.js-duration', '%Hh:%Im:%Ss');
+        this.durationTimer = new StaticStartTimerView('.js-duration', this.durationFormat);
     }
 
     public initialize() {
@@ -88,6 +91,10 @@ export default class TaskTimeEntry {
                     this.state = TimeEntryState.notRunning;
                 }
             });
+    }
+
+    public setDurationFormat(value: string) {
+        this.durationFormat = value;
     }
 
     private setData(model: ApiTimeEntry) {
@@ -127,6 +134,14 @@ export default class TaskTimeEntry {
 
     private setDescription(text: string) {
         this.$description.text(text);
+    }
+
+    private clearDescription() {
+        this.setDescription('');
+    }
+
+    private clearDuration() {
+        $('.js-duration').text('');
     }
 
     private confirmStopRunningTimeEntry(timeEntryId: string) {
