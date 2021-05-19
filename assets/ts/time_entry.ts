@@ -7,7 +7,7 @@ import 'bootstrap'; // Adds functions to jQuery
 import { TimeEntryApi, TimeEntryApiErrorCode } from "./core/api/time_entry_api";
 import { ApiTag } from "./core/api/tag_api";
 import Flashes from "./components/flashes";
-import TimerView from "./components/timer";
+import TimerView, { DataAttributeTimerView } from "./components/timer";
 import AutocompleteTags from "./components/autocomplete_tags";
 import AutoMarkdown from "./components/automarkdown";
 import AutocompleteTaskCreate from "./components/autocomplete_tasks_create";
@@ -149,9 +149,10 @@ $(document).ready(() => {
     const page = new TimeEntryPage(timeEntryId);
     const taskAssigned = new TimeEntryTaskAssigner(timeEntryId, assignedTask, flashes);
 
-    const timerView = new TimerView('.js-timer', durationFormat, (durationString) => {
+    const timerView = new DataAttributeTimerView('.js-timer', durationFormat, (durationString) => {
        document.title = durationString;
     });
+    timerView.start();
 
     const tagIndex = new TagIndex('.js-tags', new TimeEntryApiAdapter(timeEntryId, flashes));
     const autoComplete = new AutocompleteTags('.js-autocomplete-tags');

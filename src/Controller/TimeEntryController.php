@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiError;
+use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTag;
@@ -158,11 +159,55 @@ class TimeEntryController extends BaseController
         return $this->redirectToRoute('time_entry_view', ['id' => $timeEntry->getIdString()]);
     }
 
-    #[Route('/json/time-entry/create', name: 'time_entry_json_create', methods: ['POST'])]
-    public function jsonCreate(Request $request, TimeEntryRepository $timeEntryRepository): Response
-    {
+    #[Route('/json/time-entry', name: 'time_entry_json_index', methods: ["GET"])]
+    public function jsonIndex(
+        Request $request,
+        TimeEntryRepository $timeEntryRepository,
+        FormFactoryInterface $formFactory,
+        PaginatorInterface $paginator
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
+        $queryBuilder = $timeEntryRepository->findByUserQueryBuilder($this->getUser());
+        $queryBuilder = $timeEntryRepository->preloadTags($queryBuilder);
+
+        $filterForm = $formFactory->createNamed(
+            '',
+            TimeEntryListFilterFormType::class,
+            new TimeEntryListFilterModel(),
+            [
+                'timezone' => $this->getUser()->getTimezone(),
+                'csrf_protection' => false,
+                'method' => 'GET',
+                'allow_extra_fields' => true
+            ]
+        );
+
+        $filterForm->handleRequest($request);
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
+            /** @var TimeEntryListFilterModel $data */
+            $data = $filterForm->getData();
+
+            $queryBuilder = $timeEntryRepository->applyFilter($queryBuilder, $data);
+        }
+
+        $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
+            'sort' => 'time_entry.startedAt',
+            'direction' => 'desc'
+        ]);
+
+        $items = ApiTimeEntry::fromEntities($pagination->getItems(), $this->getUser());
+        foreach ($items as $item) {
+            $item->url = $this->generateUrl('time_entry_view', ['id' => $item->id]);
+        }
+
+        return $this->json(ApiPagination::fromPagination($pagination, $items));
+    }
+
+    #[Route('/json/time-entry', name: 'time_entry_json_create', methods: ['POST'])]
+    public function jsonCreate(Request $request, TimeEntryRepository $timeEntryRepository, TaskRepository $taskRepository): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($runningTimeEntry)) {
             throw new ApiProblemException(
@@ -174,12 +219,19 @@ class TimeEntryController extends BaseController
             );
         }
 
+
         $timeEntry = new TimeEntry($this->getUser());
+
+        $data = $this->getJsonBody($request);
+        if (array_key_exists('taskId', $data)) {
+            $task = $taskRepository->findOrException($data['taskId']);
+            $timeEntry->setTask($task);
+        }
+
         $manager = $this->getDoctrine()->getManager();
         $manager->persist($timeEntry);
         $manager->flush();
 
-        $data = $this->getJsonBody($request);
         if (!array_key_exists('time_format', $data)) {
             $timeFormat = 'date';
         } else {
@@ -196,7 +248,7 @@ class TimeEntryController extends BaseController
     }
 
     /**
-     * To continue a time-entry means to create a new time entry with the same tags.
+     * To continue a time-entry means to create a new time entry with the same tags and task (if applicable)
      * It's you "continuing" to do something again.
      *
      * @param TimeEntryRepository $timeEntryRepository
@@ -226,6 +278,7 @@ class TimeEntryController extends BaseController
         $manager = $this->getDoctrine()->getManager();
 
         $timeEntry = new TimeEntry($this->getUser());
+        $timeEntry->setTask($existingTimeEntry->getTask());
         foreach ($timeEntryTags as $timeEntryTag) {
             $copy = new TimeEntryTag($timeEntry, $timeEntryTag->getTag());
             $manager->persist($copy);
@@ -590,5 +643,19 @@ class TimeEntryController extends BaseController
         $manager->flush();
 
         return $this->jsonNoContent();
+    }
+
+    #[Route('/json/time-entry/active', name: 'time_entry_json_active', methods: ['GET'])]
+    public function jsonGetActiveTimeEntry(Request $request, TimeEntryRepository $timeEntryRepository): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
+        if (is_null($timeEntry)) {
+            return $this->jsonNoContent();
+        }
+
+        $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
+
+        return $this->json($apiTimeEntry);
     }
 }

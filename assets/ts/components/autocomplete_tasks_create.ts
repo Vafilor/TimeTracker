@@ -32,7 +32,7 @@ export default class AutocompleteTaskCreate extends Autocomplete<ApiTask> {
     }
 
     protected listItems(name: string, request: any): Promise<JsonResponse<any>> {
-        return TaskApi.list(name);
+        return TaskApi.index(name);
     }
 
     protected onItemSelected(item: ApiTask) {

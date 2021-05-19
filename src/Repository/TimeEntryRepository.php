@@ -36,6 +36,14 @@ class TimeEntryRepository extends ServiceEntityRepository
                     ->andWhere('time_entry.deletedAt is NULL');
     }
 
+    public function findForTaskQueryBuilder(string $taskId): QueryBuilder
+    {
+        return $this->createDefaultQueryBuilder()
+                    ->andWhere('time_entry.task = :task')
+                    ->setParameter('task', $taskId)
+        ;
+    }
+
     public function preloadTags(?QueryBuilder $queryBuilder)
     {
         if (is_null($queryBuilder)) {
@@ -50,7 +58,8 @@ class TimeEntryRepository extends ServiceEntityRepository
         return $queryBuilder;
     }
 
-    public function findWithTagFetch($id): TimeEntry|null {
+    public function findWithTagFetch($id): TimeEntry|null
+    {
         return $this->createDefaultQueryBuilder()
                              ->addSelect('time_entry_tag, tag')
                              ->leftJoin('time_entry.timeEntryTags', 'time_entry_tag')

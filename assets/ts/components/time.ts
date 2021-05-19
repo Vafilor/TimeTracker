@@ -14,15 +14,15 @@ export function formatTimeDifference(startMillis: number, endMillis: number, for
         seconds: 0,
     };
 
-    if (duration > secondsInDay) {
+    if (duration >= secondsInDay) {
         values.days = Math.floor(duration / secondsInDay);
         duration -= values.days * secondsInDay;
     }
-    if (duration > secondsInHour) {
+    if (duration >= secondsInHour) {
         values.hours = Math.floor(duration / secondsInHour);
         duration -= values.hours * secondsInHour;
     }
-    if (duration > secondsInMinute) {
+    if (duration >= secondsInMinute) {
         values.minutes = Math.floor(duration / secondsInMinute);
         duration -= values.minutes * secondsInMinute;
     }
@@ -46,6 +46,28 @@ export function formatTimeDifference(startMillis: number, endMillis: number, for
             result += c;
         }
     }
+
+    return result;
+}
+
+export function formatShortTimeDifference(startMillis: number, endMillis: number): string {
+    let duration = Math.floor((endMillis - startMillis) / 1000);
+
+    let result = ''
+
+    if (duration >= secondsInHour) {
+        const hours = Math.floor(duration / secondsInHour);
+        duration -= hours * secondsInHour;
+        result += hours + 'h ';
+    }
+    if (duration >= secondsInMinute) {
+        const minutes = Math.floor(duration / secondsInMinute);
+        duration -= minutes * secondsInMinute;
+
+        result += minutes  + 'm ';
+    }
+
+    result += duration  + 's';
 
     return result;
 }

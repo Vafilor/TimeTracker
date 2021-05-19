@@ -21,16 +21,22 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TaskController extends BaseController
 {
+    private TaskRepository $taskRepository;
+
+    public function __construct(TaskRepository $taskRepository)
+    {
+        $this->taskRepository = $taskRepository;
+    }
+
     #[Route('/task', name: 'task_index')]
     public function index(
         Request $request,
-        TaskRepository $taskRepository,
         FormFactoryInterface $formFactory,
         PaginatorInterface $paginator
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
+        $queryBuilder = $this->taskRepository->findByUserQueryBuilder($this->getUser());
 
         $filterForm = $formFactory->createNamed(
             '',
@@ -48,9 +54,9 @@ class TaskController extends BaseController
             /** @var TaskListFilterModel $data */
             $data = $filterForm->getData();
 
-            $taskRepository->applyFilter($queryBuilder, $data);
+            $this->taskRepository->applyFilter($queryBuilder, $data);
         } else {
-            $queryBuilder = $taskRepository->applyNotCompleted($queryBuilder);
+            $queryBuilder = $this->taskRepository->applyNotCompleted($queryBuilder);
         }
 
         $pagination = $this->populatePaginationData(
@@ -72,19 +78,20 @@ class TaskController extends BaseController
         );
     }
 
-    #[Route('/json/task', name: 'task_json_list')]
+    #[Route('/json/task', name: 'task_json_list', methods: ["GET"])]
     public function jsonList(
         Request $request,
-        TaskRepository $taskRepository,
         PaginatorInterface $paginator
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
+        $queryBuilder = $this->taskRepository->findByUserQueryBuilder($this->getUser());
 
         $name = $request->query->get('name');
         if (!is_null($name)) {
-            $queryBuilder = $queryBuilder->andWhere('task.name LIKE :name')
+            $name = strtolower($name);
+            // TODO separate column that's lowercase for name
+            $queryBuilder = $queryBuilder->andWhere('LOWER(task.name) LIKE :name')
                                          ->setParameter('name', "%$name%")
             ;
         }
@@ -140,12 +147,11 @@ class TaskController extends BaseController
     #[Route('/task/{id}/view', name: 'task_view')]
     public function view(
         Request $request,
-        TaskRepository $taskRepository,
         string $id
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $task = $taskRepository->findOrException($id);
+        $task = $this->taskRepository->findOrException($id);
         if (!$task->wasCreatedBy($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
@@ -194,12 +200,11 @@ class TaskController extends BaseController
     #[Route('/json/task/{id}/check', name: 'task_json_complete', methods: ['PUT'])]
     public function jsonComplete(
         Request $request,
-        TaskRepository $taskRepository,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $task = $taskRepository->findOrException($id);
+        $task = $this->taskRepository->findOrException($id);
         if (!$task->wasCreatedBy($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
@@ -224,11 +229,10 @@ class TaskController extends BaseController
     }
 
     #[Route('/json/task/{id}', name: 'task_json_update', methods: ['PUT'])]
-    public function jsonUpdate(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
+    public function jsonUpdate(Request $request, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        $task = $taskRepository->findOrException($id);
+        $task = $this->taskRepository->findOrException($id);
         if (!$task->wasCreatedBy($this->getUser())) {
             throw $this->createAccessDeniedException();
         }

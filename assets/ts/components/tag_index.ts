@@ -1,7 +1,7 @@
 import $ from 'jquery';
 
 import { ApiTag } from "../core/api/tag_api";
-import { createTagView } from "./tags";
+import { createTagViewRemovable } from "./tags";
 import Observable from "./observable";
 
 export interface TagIndexDelegate {
@@ -91,7 +91,7 @@ export default class TagIndex {
      * if it's successfully added.
      */
     private handleAddTagPending(tag: ApiTag) {
-        const $newTag = $(createTagView(tag.name, tag.color, 'pending'));
+        const $newTag = $(createTagViewRemovable(tag.name, tag.color, 'pending'));
         this.pendingTagMap.set(tag.name, true);
         this.tagMap.set(tag.name, $newTag);
         this.$container.append($newTag);
@@ -119,7 +119,7 @@ export default class TagIndex {
     }
 
     private addImmediate(tag: ApiTag) {
-        const $newTag = $(createTagView(tag.name, tag.color));
+        const $newTag = $(createTagViewRemovable(tag.name, tag.color));
         this.tags.push(tag);
         this.tagMap.set(tag.name, $newTag);
         this.$container.append($newTag);

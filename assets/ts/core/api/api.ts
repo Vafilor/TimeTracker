@@ -6,12 +6,15 @@ export interface JsonResponse<T> {
 export interface ApiError {
     code: string;
     message: string;
-    data: any;
+}
+
+export interface ApiResourceError extends ApiError {
+    resource: string;
 }
 
 export class ApiErrorResponse extends Error {
     public response: Response;
-    public errors: ApiError[];
+    public errors: ApiError[]; // TODO how I do I indicate the error might have additional fields like resource?
 
     public constructor(response: Response, body?: any) {
         super(response.statusText);
@@ -33,6 +36,16 @@ export class ApiErrorResponse extends Error {
         }
 
         return false;
+    }
+
+    public getErrorForCode(code: string): ApiError|null {
+        for(const error of this.errors) {
+            if (error.code === code) {
+                return error;
+            }
+        }
+
+        return null;
     }
 }
 
