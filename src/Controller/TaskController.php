@@ -227,26 +227,4 @@ class TaskController extends BaseController
 
         return $this->json($apiTask);
     }
-
-    #[Route('/json/task/{id}', name: 'task_json_update', methods: ['PUT'])]
-    public function jsonUpdate(Request $request, string $id): JsonResponse
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-        $task = $this->taskRepository->findOrException($id);
-        if (!$task->wasCreatedBy($this->getUser())) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $data = $this->getJsonBody($request);
-
-        if (array_key_exists('description', $data)) {
-            $task->setDescription($data['description']);
-        }
-
-        $this->getDoctrine()->getManager()->flush();
-
-        $apiTask = ApiTask::fromEntity($task, $this->getUser());
-
-        return $this->json($apiTask);
-    }
 }

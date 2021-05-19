@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiFormError;
 use App\Api\ApiPagination;
+use App\Api\ApiProblem;
+use App\Api\ApiProblemException;
 use App\Api\ApiTask;
+use App\Api\ApiTimeEntry;
 use App\Entity\Task;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
 use App\Form\TaskListFilterFormType;
 use App\Repository\TaskRepository;
+use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -69,20 +74,29 @@ class ApiTaskController extends BaseController
     }
 
     #[Route('/api/task', name: 'api_task_create', methods: ["POST"])]
+    #[Route('/json/task', name: 'task_json_create', methods: ["POST"])]
     public function create(
         Request $request
-    ): Response {
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $form = $this->createForm(
             TaskFormType::class,
             new TaskModel(),
             [
-                'timezone' => $this->getUser()->getTimezone()
-            ]
+                'timezone' => $this->getUser()->getTimezone(),
+                'csrf_protection' => false
+            ],
         );
 
-        $form->handleRequest($request);
+        $data = $this->getJsonBody($request);
+
+        try {
+            $form->submit($data);
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var TaskModel $data */
             $data = $form->getData();
@@ -93,14 +107,18 @@ class ApiTaskController extends BaseController
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($newTask);
             $manager->flush();
+
+            $apiTimeEntry = ApiTask::fromEntity($newTask, $this->getUser());
+
+            return $this->json($apiTimeEntry);
+        } elseif (!$form->isValid()) {
+            $formError = new ApiFormError($form->getErrors(true));
+            throw new ApiProblemException($formError);
         }
 
-        return $this->render(
-            'task/create.html.twig',
-            [
-                'form' => $form->createView()
-            ]
-        );
+
+        $error = new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_ACTION);
+        throw new ApiProblemException($error);
     }
 
     #[Route('/api/task/{id}', name: 'api_task_view', methods: ["GET"])]
@@ -108,7 +126,7 @@ class ApiTaskController extends BaseController
         Request $request,
         TaskRepository $taskRepository,
         string $id
-    ): Response {
+    ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $task = $taskRepository->findOrException($id);
