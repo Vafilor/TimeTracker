@@ -20,6 +20,7 @@ class ApiTimeEntry
     public string $duration;
     public array $tags;
     public string $taskId;
+    public ?string $url;
 
     /**
      * @param TimeEntry $timeEntry

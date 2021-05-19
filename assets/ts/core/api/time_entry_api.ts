@@ -1,4 +1,4 @@
-import { CoreApi } from "./api";
+import { CoreApi, JsonResponse } from "./api";
 import { ApiTag } from "./tag_api";
 import { ApiTask } from "./task_api";
 
@@ -15,7 +15,12 @@ export interface ApiTimeEntry {
     description: string;
     duration: string;
     taskId: string;
+    url?: string;
     tags: ApiTag[];
+}
+
+export interface IndexTimeEntryOptions {
+    taskId?: string;
 }
 
 export interface CreateTimeEntryResponse {
@@ -44,6 +49,20 @@ export class TimeEntryApi {
             'time_format': format,
             ...options
         });
+    }
+
+    public static index(options: IndexTimeEntryOptions) {
+        let url = `/json/time-entry`;
+
+        let params = new URLSearchParams();
+
+        if (options.taskId) {
+            params.append('taskId', options.taskId);
+        }
+
+        url = url + '?' + params.toString();
+
+        return CoreApi.get<JsonResponse<ApiTimeEntry[]>>(url);
     }
 
     public static stop(timeEntryId: string, format: DateFormat = 'date') {

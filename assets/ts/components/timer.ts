@@ -18,6 +18,10 @@ export default abstract class TimerView {
 
     protected abstract updateTimerElement(element: HTMLElement, now: number): string;
 
+    setDurationFormat(format: string) {
+        this.durationFormat = format;
+    }
+
     start() {
         if(this.$timers.length === 0) {
             return;
@@ -45,6 +49,10 @@ export default abstract class TimerView {
             clearInterval(this.interval);
             this.interval = null;
         }
+    }
+
+    getZeroDurationString(): string {
+        return formatTimeDifference(0, 0, this.durationFormat);
     }
 }
 

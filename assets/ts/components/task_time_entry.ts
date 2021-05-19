@@ -2,8 +2,37 @@ import $ from "jquery";
 import { ApiTimeEntry, TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 import Observable from "./observable";
 import { ConfirmClickEvent, ConfirmDialog } from "./confirm_dialog";
-import { ApiError, ApiErrorResponse, ApiResourceError } from "../core/api/api";
-import TimerView, { DataAttributeTimerView, StaticStartTimerView } from "./timer";
+import { ApiErrorResponse, ApiResourceError } from "../core/api/api";
+import { StaticStartTimerView } from "./timer";
+import { SyncInput } from "./sync_input";
+
+class SyncTaskTimeEntryDescription extends SyncInput {
+    private timeEntryId?: string;
+
+    public constructor(
+        inputSelector: string,
+        loadingSelector: string) {
+        super(inputSelector, loadingSelector);
+    }
+
+    protected update(text: string): Promise<any> {
+        if (!this.timeEntryId) {
+            return;
+        }
+
+        return TimeEntryApi.update(this.timeEntryId, {
+            description: text
+        });
+    }
+
+    setTimeEntryId(id: string) {
+        this.timeEntryId = id;
+    }
+
+    clearTimeEntry() {
+        this.timeEntryId = null;
+    }
+}
 
 export enum TimeEntryState {
     created,  // the object has been created, but nothing set yet.
@@ -18,14 +47,14 @@ export enum TimeEntryState {
 }
 
 export default class TaskTimeEntry {
-    // todo auto update description
     private readonly taskId: string;
     private durationFormat = '%Hh:%Im:%Ss';
-
     private $container: JQuery;
     private $description: JQuery;
     private $button: JQuery;
     private $loading: JQuery;
+
+    private descriptionUpdater: SyncTaskTimeEntryDescription;
 
     private durationTimer: StaticStartTimerView;
     private model?: ApiTimeEntry;
@@ -45,6 +74,10 @@ export default class TaskTimeEntry {
                 this.startLoading();
                 break;
             case TimeEntryState.running:
+                this.descriptionUpdater.setTimeEntryId(this.model.id);
+                this.descriptionUpdater.start();
+                this.descriptionUpdater.uploadIfHasText();
+
                 this.stopLoading();
                 this.setButtonToStop();
                 this.durationTimer.start(this.model.startedAtEpoch * 1000);
@@ -55,6 +88,12 @@ export default class TaskTimeEntry {
                 this.durationTimer.stop();
                 this.clearDescription();
                 this.clearDuration();
+                this.descriptionUpdater.stop();
+                this.descriptionUpdater.uploadIfHasText()
+                    .then(() => {
+                        this.descriptionUpdater.clearTimeEntry();
+                    });
+
                 break;
         }
     }
@@ -65,7 +104,8 @@ export default class TaskTimeEntry {
         this.state = TimeEntryState.created;
 
         this.$container = $('.js-task-time-entry');
-        this.$description = this.$container.find('.js-content .js-description');
+        this.$description = this.$container.find('.js-content .js-time-entry-description');
+
         this.$button = this.$container.find('.js-content button');
         this.$button.on('click', () => {
             if (this.state === TimeEntryState.running) {
@@ -75,9 +115,14 @@ export default class TaskTimeEntry {
             }
         });
 
-        this.$loading = this.$container.find('.js-loading');
+        this.$loading = this.$container.find('.js-task-time-entry-loading');
 
         this.durationTimer = new StaticStartTimerView('.js-duration', this.durationFormat);
+
+        this.descriptionUpdater = new SyncTaskTimeEntryDescription(
+            '.js-task-time-entry .js-time-entry-description',
+            '.js-task-time-entry',
+        );
     }
 
     public initialize() {
@@ -95,6 +140,7 @@ export default class TaskTimeEntry {
 
     public setDurationFormat(value: string) {
         this.durationFormat = value;
+        this.durationTimer.setDurationFormat(value);
     }
 
     private setData(model: ApiTimeEntry) {
@@ -123,17 +169,17 @@ export default class TaskTimeEntry {
     private setButtonToStart() {
         this.$button.removeClass('btn-danger');
         this.$button.addClass('btn-primary');
-        this.$button.text('Start');
+        this.$button.find('.js-text').text('Start');
     }
 
     private setButtonToStop() {
         this.$button.removeClass('btn-primary');
         this.$button.addClass('btn-danger');
-        this.$button.text('Stop');
+        this.$button.find('.js-text').text('Stop');
     }
 
     private setDescription(text: string) {
-        this.$description.text(text);
+        this.$description.val(text);
     }
 
     private clearDescription() {
@@ -141,7 +187,7 @@ export default class TaskTimeEntry {
     }
 
     private clearDuration() {
-        $('.js-duration').text('');
+        $('.js-duration').text(this.durationTimer.getZeroDurationString());
     }
 
     private confirmStopRunningTimeEntry(timeEntryId: string) {

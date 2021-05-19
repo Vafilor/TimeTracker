@@ -1,5 +1,28 @@
 .js-task-time-entry {
+  padding: 10px;
+
   .js-duration {
     min-width: 40px;
+  }
+
+  .js-time-entry-description {
+    padding: 5px;
+  }
+}
+
+.time-entry-activity {
+  margin-bottom: 15px;
+
+  .created-ago {
+    font-weight: bold;
+  }
+
+  .created-at {
+    color: gray;
+    font-size: 12px;
+  }
+
+  .description {
+
   }
 }

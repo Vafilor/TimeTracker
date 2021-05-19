@@ -4,7 +4,7 @@ import { ApiTask, TaskApi } from "../core/api/task_api";
 
 export default class AutocompleteTasks extends Autocomplete<ApiTask> {
     protected listItems(name: string, request: any): Promise<JsonResponse<any>> {
-        return TaskApi.list(name);
+        return TaskApi.index(name);
     }
 
     protected createItemTemplate(item: ApiTask): string {

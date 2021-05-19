@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiError;
+use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTag;
@@ -156,6 +157,51 @@ class TimeEntryController extends BaseController
         $manager->flush();
 
         return $this->redirectToRoute('time_entry_view', ['id' => $timeEntry->getIdString()]);
+    }
+
+    #[Route('/json/time-entry', name: 'time_entry_json_index', methods: ["GET"])]
+    public function jsonIndex(
+        Request $request,
+        TimeEntryRepository $timeEntryRepository,
+        FormFactoryInterface $formFactory,
+        PaginatorInterface $paginator
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $queryBuilder = $timeEntryRepository->findByUserQueryBuilder($this->getUser());
+        $queryBuilder = $timeEntryRepository->preloadTags($queryBuilder);
+
+        $filterForm = $formFactory->createNamed(
+            '',
+            TimeEntryListFilterFormType::class,
+            new TimeEntryListFilterModel(),
+            [
+                'timezone' => $this->getUser()->getTimezone(),
+                'csrf_protection' => false,
+                'method' => 'GET',
+                'allow_extra_fields' => true
+            ]
+        );
+
+        $filterForm->handleRequest($request);
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
+            /** @var TimeEntryListFilterModel $data */
+            $data = $filterForm->getData();
+
+            $queryBuilder = $timeEntryRepository->applyFilter($queryBuilder, $data);
+        }
+
+        $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
+            'sort' => 'time_entry.startedAt',
+            'direction' => 'desc'
+        ]);
+
+        $items = ApiTimeEntry::fromEntities($pagination->getItems(), $this->getUser());
+        foreach ($items as $item) {
+            $item->url = $this->generateUrl('time_entry_view', ['id' => $item->id]);
+        }
+
+        return $this->json(ApiPagination::fromPagination($pagination, $items));
     }
 
     #[Route('/json/time-entry', name: 'time_entry_json_create', methods: ['POST'])]

@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Api\ApiPagination;
 use App\Api\ApiTask;
+use App\Api\ApiTimeEntry;
 use App\Entity\Task;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;

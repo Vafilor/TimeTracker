@@ -20,7 +20,7 @@ export interface ApiUpdateTask {
 }
 
 export class TaskApi {
-    public static list(nameLike?: string) {
+    public static index(nameLike?: string) {
         let url = `/json/task`;
 
         if (nameLike) {

@@ -243,3 +243,34 @@ body {
     display: inline-block;
     min-width: 30px;
 }
+
+.no-resize {
+    resize: none;
+}
+
+
+.input-with-indicators {
+
+    .input-indicator {
+        min-width: 35px;
+        background-color: rgb(233, 236, 239);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .input-indicator-left {
+        border-left: solid 1px rgb(206, 212, 218);;
+        border-top: solid 1px rgb(206, 212, 218);;
+        border-bottom: solid 1px rgb(206, 212, 218);
+        border-top-left-radius: 0.25rem;
+        border-bottom-left-radius: 0.25rem;
+    }
+
+    input {
+        &.left {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+    }
+}
