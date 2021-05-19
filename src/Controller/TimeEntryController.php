@@ -248,7 +248,7 @@ class TimeEntryController extends BaseController
     }
 
     /**
-     * To continue a time-entry means to create a new time entry with the same tags.
+     * To continue a time-entry means to create a new time entry with the same tags and task (if applicable)
      * It's you "continuing" to do something again.
      *
      * @param TimeEntryRepository $timeEntryRepository
@@ -278,6 +278,7 @@ class TimeEntryController extends BaseController
         $manager = $this->getDoctrine()->getManager();
 
         $timeEntry = new TimeEntry($this->getUser());
+        $timeEntry->setTask($existingTimeEntry->getTask());
         foreach ($timeEntryTags as $timeEntryTag) {
             $copy = new TimeEntryTag($timeEntry, $timeEntryTag->getTag());
             $manager->persist($copy);
