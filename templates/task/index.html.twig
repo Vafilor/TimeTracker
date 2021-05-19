@@ -9,7 +9,15 @@
     <div class="p-3 js-data"
          data-duration-format="{{ app.user.durationFormat }}"
          data-date-format="today"
-         data-show-completed="{{ filterForm.showCompleted.vars.data }}">
+         data-show-completed="{{ filterForm.showCompleted.vars.data }}"
+         data-route-time-entry-index="time_entry_index;{{ path('time_entry_index') }}"
+         data-route-task-view="task_view;{{ path('task_view', {id: 'TASK_ID'}) }}"
+        {% if pagination.sort == 'task.name' %}
+            data-name-sort="{{ pagination.direction }}"
+        {% else %}
+            data-name-sort="none"
+        {% endif %}
+    >
 
         <h1 class="text-center">Tasks</h1>
 
@@ -23,7 +31,16 @@
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
-        <table class="table table-bordered table-hover">
+        <div class="js-task-create d-flex align-baseline">
+            <input class="js-form js-name flex-grow-1" placeholder="What do you want to achieve?" />
+            <button type="button" class="btn btn-primary js-button js-loading-button ml-1">
+                <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                <span class="js-loading sr-only">Loading...</span>
+                <span class="js-text">Create task</span>
+            </button>
+        </div>
+
+        <table class="table table-bordered table-hover mt-2 js-task-table">
             <thead>
                 <tr>
                     <th>{{ knp_pagination_sortable(pagination, 'Completed', 'task.completedAt') }}</th>
@@ -36,7 +53,7 @@
             </thead>
             <tbody>
                 {% for task in pagination %}
-                <tr>
+                <tr data-name="{{ task.name }}">
                     <td>
                         <input data-task-id="{{ task.idString }}" type="checkbox" class="js-task-completed" {% if task.completed %} checked="true" {% endif%} />
                         {% if task.completed %}
@@ -65,10 +82,6 @@
                 {% endfor %}
             </tbody>
         </table>
-
-        <div>
-            <a href="{{ path('task_create') }}" class="btn btn-primary">Create task</a>
-        </div>
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
     </div>
