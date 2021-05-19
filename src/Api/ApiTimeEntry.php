@@ -14,13 +14,13 @@ class ApiTimeEntry
     public string $updatedAt;
     public string $startedAt;
     public int $startedAtEpoch;
-    public string $endedAt;
-    public int $endedAtEpoch;
+    public ?string $endedAt = null;
+    public ?int $endedAtEpoch = null;
     public string $description;
-    public string $duration;
-    public array $tags;
+    public ?string $duration = null;
     public string $taskId;
-    public ?string $url;
+    public ?string $url = null;
+    public array $tags;
 
     /**
      * @param TimeEntry $timeEntry

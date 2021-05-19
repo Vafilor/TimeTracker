@@ -6,7 +6,8 @@ import $ from "jquery";
 import { TaskApi } from "./core/api/task_api";
 import TaskTimeEntry from "./components/task_time_entry";
 import { ApiTimeEntry, TimeEntryApi } from "./core/api/time_entry_api";
-import { timeAgo } from "./components/time";
+import { formatShortTimeDifference, formatTimeDifference, timeAgo } from "./components/time";
+import { createTagView, createTagViewRemovable } from "./components/tags";
 
 class TaskEntryAutoMarkdown extends AutoMarkdown {
     private readonly taskId: string;
@@ -38,25 +39,35 @@ class TimeEntryActivity {
         const now = new Date();
         const createdAgo = timeAgo(timeEntry.startedAtEpoch * 1000, now.getTime());
         const description = timeEntry.description && timeEntry.description.length > 0 ? timeEntry.description : 'No description';
+        const duration = formatShortTimeDifference(timeEntry.startedAtEpoch * 1000, timeEntry.endedAtEpoch * 1000);
 
+        let tags = '';
+        for(const tag of timeEntry.tags) {
+            tags += createTagView(tag.name, tag.color, 'tag-sm');
+        }
 
-        // // <div>${timeEntry.duration}</div>
         return `
             <div class="time-entry-activity">
-                <a href="${timeEntry.url}" class="created-ago">${createdAgo}</a>
-              
-                <div class="created-at">${timeEntry.createdAt}</div>
+                <a href="${timeEntry.url}" class="created-ago">${createdAgo} for ${duration}</a>
+                <div>${tags}</div>
+                <div class="created-at">${timeEntry.createdAt} - ${timeEntry.endedAt}</div>
                 <div class="description">${description}</div>
             </div>`;
     }
 
     prepend(timeEntry: ApiTimeEntry) {
+        if (!timeEntry.endedAt) {
+            return;
+        }
         const $element = $(this.createTemplate(timeEntry));
 
         this.$container.prepend($element);
     }
 
     append(timeEntry: ApiTimeEntry) {
+        if (!timeEntry.endedAt) {
+            return;
+        }
         const $element = $(this.createTemplate(timeEntry));
 
         this.$container.append($element);

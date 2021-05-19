@@ -50,6 +50,28 @@ export function formatTimeDifference(startMillis: number, endMillis: number, for
     return result;
 }
 
+export function formatShortTimeDifference(startMillis: number, endMillis: number): string {
+    let duration = Math.floor((endMillis - startMillis) / 1000);
+
+    let result = ''
+
+    if (duration >= secondsInHour) {
+        const hours = Math.floor(duration / secondsInHour);
+        duration -= hours * secondsInHour;
+        result += hours + 'h ';
+    }
+    if (duration >= secondsInMinute) {
+        const minutes = Math.floor(duration / secondsInMinute);
+        duration -= minutes * secondsInMinute;
+
+        result += minutes  + 'm ';
+    }
+
+    result += duration  + 's';
+
+    return result;
+}
+
 function leadingZeroize(value: number): string {
     if (value < 10) {
         return '0' + value;

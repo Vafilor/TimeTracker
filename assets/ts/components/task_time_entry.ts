@@ -147,11 +147,11 @@ export default class TaskTimeEntry {
         if (model && model.taskId === this.taskId) {
             this.model = model;
 
-            if (this.model.endedAt === undefined) {
+            if (this.model.endedAt) {
+                this.state = TimeEntryState.notRunning;
+            } else {
                 this.state = TimeEntryState.running;
                 this.setDescription(model.description);
-            } else {
-                this.state = TimeEntryState.notRunning;
             }
         } else {
             this.state = TimeEntryState.notRunning;

@@ -23,6 +23,10 @@ $lighterGray: lighten($darkGray, 20%);
   color: white;
   margin-bottom: 5px;
 
+  &.tag-sm {
+    font-size: 14px;
+  }
+
   &.pending {
     opacity: 0.5;
   }
