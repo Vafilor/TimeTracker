@@ -6,14 +6,12 @@ namespace App\Controller;
 
 use App\Api\ApiPagination;
 use App\Api\ApiTask;
-use App\Api\ApiTimeEntry;
 use App\Entity\Task;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
 use App\Form\TaskListFilterFormType;
 use App\Repository\TaskRepository;
-use App\Repository\TimeEntryRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -80,7 +78,7 @@ class TaskController extends BaseController
         );
     }
 
-    #[Route('/json/task', name: 'task_json_list')]
+    #[Route('/json/task', name: 'task_json_list', methods: ["GET"])]
     public function jsonList(
         Request $request,
         PaginatorInterface $paginator
@@ -91,7 +89,9 @@ class TaskController extends BaseController
 
         $name = $request->query->get('name');
         if (!is_null($name)) {
-            $queryBuilder = $queryBuilder->andWhere('task.name LIKE :name')
+            $name = strtolower($name);
+            // TODO separate column that's lowercase for name
+            $queryBuilder = $queryBuilder->andWhere('LOWER(task.name) LIKE :name')
                                          ->setParameter('name', "%$name%")
             ;
         }
