@@ -13,7 +13,7 @@ class TimestampListPage {
     }
 
     // Get template from twig.
-    // Make a macro out of it, one that takes all params and one that takes an aPI object and use {FIELD_NAME}.
+    // Make a macro out of it, one that takes all params and one that takes an API object and use {FIELD_NAME}.
     public static createTableRow(timestamp: ApiTimestamp, urlTemplate: string): string {
         const editUrl = urlTemplate.replace('TIMESTAMP_ID', timestamp.id);
 
