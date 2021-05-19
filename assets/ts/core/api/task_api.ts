@@ -4,6 +4,7 @@ export interface ApiTask {
     id: string;
     name: string;
     description: string;
+    createdAt: string;
     completedAt?: string;
     url?: string;
 }
