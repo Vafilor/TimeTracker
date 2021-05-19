@@ -52,7 +52,8 @@ class TimeEntryActivity {
                 <div>${tags}</div>
                 <div class="created-at">${timeEntry.createdAt} - ${timeEntry.endedAt}</div>
                 <div class="description">${description}</div>
-            </div>`;
+            </div>
+            <hr/>`;
     }
 
     prepend(timeEntry: ApiTimeEntry) {
