@@ -77,14 +77,26 @@ class CreateTaskForm {
         this.$container = $(selector);
 
         this.$input = this.$container.find('.js-name');
+        this.$input.on('keypress', (event) => {
+            if (event.key === 'Enter') {
+                // So form doesn't submit, if there is one.
+                event.preventDefault();
+                this.createTask(this.getInputValue());
+            }
+        });
+
         this.submitButton = new LoadingButton(this.$container.find('.js-loading-button'));
 
         this.submitButton.$container.on('click', (event) => {
-            const inputText = this.$input.val() as string;
+            const inputText = this.getInputValue();
             if (inputText && inputText.length > 0) {
                 this.createTask(inputText);
             }
         });
+    }
+
+    private getInputValue(): string {
+        return this.$input.val() as string;
     }
 
     createTask(text: string) {
