@@ -70,7 +70,7 @@ export default abstract class Autocomplete<T> {
             delay: 300,
         }).autocomplete("instance")._renderItem = (ul, item) => {
             const template = this.createItemTemplate(item);
-            return $("<li>")
+            return $(`<li class="border-bottom">`)
                 .append(template)
                 .append("</li>")
                 .appendTo(ul)
