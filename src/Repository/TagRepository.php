@@ -43,6 +43,14 @@ class TagRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findWithUserName(User $user, string $tagName): QueryBuilder
+    {
+        return $this->findWithUser($user)
+                    ->andWhere('tag.name = :name')
+                    ->setParameter('name', $tagName)
+        ;
+    }
+
     public function exists(string $name): bool
     {
         $existingTag = $this->findOneBy(['name' => $name]);

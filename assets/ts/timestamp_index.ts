@@ -33,7 +33,7 @@ class TimestampListPage {
                             <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
                             Mark again
                         </button>
-                        <a href="${editUrl}" class="btn btn-primary">Edit</a>
+                        <a href="${editUrl}" class="btn btn-primary">View</a>
                     </td>
                 </tr>
         `;
