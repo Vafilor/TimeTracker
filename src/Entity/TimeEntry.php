@@ -142,7 +142,7 @@ class TimeEntry
             return $now->diff($this->createdAt);
         }
 
-        return $this->endedAt->diff($this->createdAt);
+        return $this->endedAt->diff($this->startedAt);
     }
 
     public function stop(DateTimeInterface $endedAt = null): self
