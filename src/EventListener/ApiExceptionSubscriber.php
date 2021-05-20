@@ -24,8 +24,8 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event)
     {
         // only reply to /api URLs
-        if (0 !== strpos($event->getRequest()->getPathInfo(), '/api') &&
-            0 !== strpos($event->getRequest()->getPathInfo(), '/json')) {
+        if (!str_starts_with($event->getRequest()->getPathInfo(), '/api') &&
+            !str_starts_with($event->getRequest()->getPathInfo(), '/json')) {
             return;
         }
 
