@@ -274,3 +274,9 @@ body {
         }
     }
 }
+
+input {
+    &.js-form {
+        padding: 5px;
+    }
+}

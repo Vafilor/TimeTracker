@@ -12,12 +12,14 @@ class ApiTask
     public string $id;
     public string $name;
     public string $description;
+    public string $createdAt;
     public ?string $completedAt;
     public ?string $url;
 
     public static function fromEntity(Task $task, User $user, string $format = 'date'): ApiTask
     {
         $apiTask = new ApiTask($task->getIdString(), $task->getName());
+        $apiTask->createdAt = ApiDateTime::formatUserDate($task->getCreatedAt(), $user, $format);
         $apiTask->setDescription($task->getDescription());
         if ($task->completed()) {
             $completedAtString = ApiDateTime::formatUserDate($task->getCompletedAt(), $user, $format);

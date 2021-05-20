@@ -4,6 +4,7 @@ export interface ApiTask {
     id: string;
     name: string;
     description: string;
+    createdAt: string;
     completedAt?: string;
     url?: string;
 }
@@ -19,6 +20,10 @@ export interface ApiUpdateTask {
     description?: string;
 }
 
+export interface CreateTaskOptions {
+    name: string;
+}
+
 export class TaskApi {
     public static index(nameLike?: string) {
         let url = `/json/task`;
@@ -31,6 +36,10 @@ export class TaskApi {
         }
 
         return CoreApi.get<Array<ApiTask>>(url);
+    }
+
+    public static create(options: CreateTaskOptions) {
+        return CoreApi.post<ApiTask>(`/json/task`, options);
     }
 
     public static check(taskId: string, completed: boolean = true) {
