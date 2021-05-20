@@ -127,7 +127,8 @@ class ApiTimestampController extends BaseController
         return $this->jsonNoContent();
     }
 
-    #[Route('/api/timestamp/{id}/repeat', name: 'api_timestamp_json_repeat', methods: ['POST'])]
+    #[Route('/api/timestamp/{id}/repeat', name: 'api_timestamp_repeat', methods: ['POST'])]
+    #[Route('/json/timestamp/{id}/repeat', name: 'json_timestamp_repeat', methods: ['POST'])]
     public function repeat(
         Request $request,
         DateTimeFormatter $dateTimeFormatter,
@@ -158,6 +159,7 @@ class ApiTimestampController extends BaseController
     }
 
     #[Route('/api/timestamp/{id}/tag', name: 'api_timestamp_tag_create', methods: ['POST'])]
+    #[Route('/json/timestamp/{id}/tag', name: 'json_timestamp_tag_create', methods: ['POST'])]
     public function addTag(
         Request $request,
         TimestampRepository $timestampRepository,
@@ -211,7 +213,8 @@ class ApiTimestampController extends BaseController
         return $this->json($apiTag, Response::HTTP_CREATED);
     }
 
-    #[Route('/api/json/timestamp/{id}/tag/{tagName}', name: 'api_timestamp_tag_delete', methods: ['DELETE'])]
+    #[Route('/api/timestamp/{id}/tag/{tagName}', name: 'api_timestamp_tag_delete', methods: ['DELETE'])]
+    #[Route('/json/timestamp/{id}/tag/{tagName}', name: 'json_timestamp_tag_delete', methods: ['DELETE'])]
     public function removeTag(
         Request $request,
         TimestampRepository $timestampRepository,
@@ -250,6 +253,7 @@ class ApiTimestampController extends BaseController
     }
 
     #[Route('/api/timestamp/{id}/tags', name: 'api_timestamp_tags', methods: ["GET"])]
+    #[Route('/json/timestamp/{id}/tags', name: 'json_timestamp_tags', methods: ["GET"])]
     public function indexTag(
         Request $request,
         TimestampRepository $timestampRepository,

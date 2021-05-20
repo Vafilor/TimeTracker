@@ -9,7 +9,6 @@ use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTask;
-use App\Api\ApiTimeEntry;
 use App\Entity\Task;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
@@ -27,6 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTaskController extends BaseController
 {
     #[Route('/api/task', name: 'api_task_index', methods: ["GET"])]
+    #[Route('/json/task', name: 'json_task_list', methods: ["GET"])]
     public function index(
         Request $request,
         TaskRepository $taskRepository,
@@ -149,6 +149,7 @@ class ApiTaskController extends BaseController
      * then that value is used. Otherwise, it defaults to "true".
      */
     #[Route('/api/task/{id}/check', name: 'api_task_complete', methods: ['PUT'])]
+    #[Route('/json/task/{id}/check', name: 'json_task_complete', methods: ['PUT'])]
     public function jsonComplete(
         Request $request,
         TaskRepository $taskRepository,

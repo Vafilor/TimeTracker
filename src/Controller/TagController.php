@@ -48,7 +48,7 @@ class TagController extends BaseController
             $data = $filterForm->getData();
             $nameLike = $data->getName();
             if ($nameLike !== '') {
-                $queryBuilder = $queryBuilder->andWhere('tag.name LIKE :name')
+                $queryBuilder = $queryBuilder->andWhere('LOWER(tag.name) LIKE :name')
                     ->setParameter('name', "%$nameLike%")
                 ;
             }
@@ -69,43 +69,6 @@ class TagController extends BaseController
             'form' => $createForm->createView(),
             'filterForm' => $filterForm->createView()
         ]);
-    }
-
-    #[Route('/json/tag', name: 'tag_json_list', methods: ["GET"])]
-    public function jsonList(
-        Request $request,
-        TagRepository $tagRepository,
-        PaginatorInterface $paginator
-    ): Response {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-
-        $term = $request->query->get('searchTerm');
-        $excludeString = $request->query->get('exclude', '');
-        $excludeItems = [];
-
-        if ($excludeString !== '') {
-            $excludeItems = explode(',', $excludeString);
-        }
-
-        $queryBuilder = $tagRepository->findWithUser($this->getUser())
-                                      ->andWhere('tag.name LIKE :term')
-                                      ->setParameter('term', "%$term%")
-        ;
-
-        if (count($excludeItems) !== 0) {
-            $queryBuilder = $queryBuilder->andWhere('tag.name NOT IN (:exclude)')
-                                         ->setParameter('exclude', $excludeItems)
-            ;
-        }
-
-        $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
-            'sort' => 'tag.name',
-            'direction' => 'asc'
-        ]);
-
-        $items = ApiTag::fromEntities($pagination->getItems());
-
-        return $this->json(ApiPagination::fromPagination($pagination, $items));
     }
 
     #[Route('/tag/create', name: 'tag_create')]

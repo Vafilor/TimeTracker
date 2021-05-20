@@ -30,6 +30,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTagController extends BaseController
 {
     #[Route('/api/tag', name: 'api_tag_index', methods: ["GET"])]
+    #[Route('/json/tag', name: 'json_tag_index', methods: ["GET"])]
     public function index(
         Request $request,
         TagRepository $tagRepository,
@@ -37,7 +38,7 @@ class ApiTagController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $term = $request->query->get('searchTerm');
+        $term = strtolower($request->query->get('searchTerm'));
         $excludeString = $request->query->get('exclude', '');
         $excludeItems = [];
 
@@ -45,8 +46,8 @@ class ApiTagController extends BaseController
             $excludeItems = explode(',', $excludeString);
         }
 
-        $queryBuilder = $tagRepository->createDefaultQueryBuilder()
-            ->andWhere('tag.name LIKE :term')
+        $queryBuilder = $tagRepository->findWithUser($this->getUser())
+            ->andWhere('LOWER(tag.name) LIKE :term')
             ->setParameter('term', "%$term%");
 
         if (count($excludeItems) !== 0) {
