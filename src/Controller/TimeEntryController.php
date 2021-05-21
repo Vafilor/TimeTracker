@@ -12,6 +12,7 @@ use App\Form\Model\TimeEntryListFilterModel;
 use App\Form\Model\TimeEntryModel;
 use App\Form\TimeEntryFormType;
 use App\Form\TimeEntryListFilterFormType;
+use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\TimeEntryTagRepository;
 use DateTime;
@@ -32,6 +33,7 @@ class TimeEntryController extends BaseController
     public function index(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
+        TaskRepository $taskRepository,
         FormFactoryInterface $formFactory,
         PaginatorInterface $paginator
     ): Response {
@@ -54,12 +56,17 @@ class TimeEntryController extends BaseController
 
         /** @var Task|null $task */
         $task = null;
+
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
             /** @var TimeEntryListFilterModel $data */
             $data = $filterForm->getData();
 
             $queryBuilder = $timeEntryRepository->applyFilter($queryBuilder, $data);
+
+            if ($data->hasTask()) {
+                $task = $taskRepository->find($data->getTaskId());
+            }
         }
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
