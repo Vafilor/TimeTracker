@@ -21,7 +21,7 @@ export class TimestampApi {
     }
 
     public static removeTag(timestampId: string, tagName: string) {
-        return CoreApi.delete(`/json/time-entry/${timestampId}/tag/${tagName}`);
+        return CoreApi.delete(`/json/timestamp/${timestampId}/tag/${tagName}`);
     }
 
     public static repeat(timestampId: string) {
