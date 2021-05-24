@@ -235,7 +235,7 @@ class TimeEntryController extends BaseController
             $this->getDoctrine()->getManager()->flush();
         }
 
-        $apiTags = ApiTag::fromTagLinks($timeEntry->getTagLinks());
+        $apiTags = ApiTag::fromEntities($timeEntry->getTags());
 
         return $this->render('time_entry/view.html.twig', [
             'timeEntry' => $timeEntry,
