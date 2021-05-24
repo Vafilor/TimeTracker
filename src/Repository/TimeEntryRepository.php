@@ -50,9 +50,9 @@ class TimeEntryRepository extends ServiceEntityRepository
             $queryBuilder = $this->createDefaultQueryBuilder();
         }
 
-        $queryBuilder = $queryBuilder->addSelect('time_entry_tag')
-                                     ->leftJoin('time_entry.timeEntryTags', 'time_entry_tag')
-                                     ->leftJoin('time_entry_tag.tag', 'tag')
+        $queryBuilder = $queryBuilder->addSelect('tag_link')
+                                     ->leftJoin('time_entry.tagLinks', 'tag_link')
+                                     ->leftJoin('tag_link.tag', 'tag')
         ;
 
         return $queryBuilder;
@@ -61,9 +61,9 @@ class TimeEntryRepository extends ServiceEntityRepository
     public function findWithTagFetch($id): TimeEntry|null
     {
         return $this->createDefaultQueryBuilder()
-                             ->addSelect('time_entry_tag, tag')
-                             ->leftJoin('time_entry.timeEntryTags', 'time_entry_tag')
-                             ->leftJoin('time_entry_tag.tag', 'tag')
+                             ->addSelect('tag_link, tag')
+                             ->leftJoin('time_entry.tagLinks', 'tag_link')
+                             ->leftJoin('tag_link.tag', 'tag')
                              ->andWhere('time_entry.id = :id')
                              ->setParameter('id', $id)
                              ->getQuery()

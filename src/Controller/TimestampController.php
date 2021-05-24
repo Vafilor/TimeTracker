@@ -4,23 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Api\ApiError;
-use App\Api\ApiProblem;
-use App\Api\ApiProblemException;
 use App\Api\ApiTag;
-use App\Api\ApiTimestamp;
-use App\Entity\Tag;
 use App\Entity\Timestamp;
-use App\Entity\TimestampTag;
 use App\Form\Model\TimestampEditModel;
 use App\Form\TimestampEditFormType;
-use App\Manager\TimestampManager;
-use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
-use App\Repository\TimestampTagRepository;
-use Knp\Bundle\TimeBundle\DateTimeFormatter;
+use Doctrine\ORM\NonUniqueResultException;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -64,11 +54,13 @@ class TimestampController extends BaseController
         return $this->redirectToRoute('timestamp_view', ['id' => $timestamp->getIdString()]);
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     #[Route('/timestamp/{id}/view', name: 'timestamp_view')]
     public function view(
         Request $request,
         TimestampRepository $timestampRepository,
-        TimestampTagRepository $timestampTagRepository,
         string $id
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');

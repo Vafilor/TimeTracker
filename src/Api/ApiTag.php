@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api;
 
 use App\Entity\Tag;
+use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Entity\User;
 
@@ -19,7 +20,7 @@ class ApiTag
     }
 
     /**
-     * @param Tag[] $entities
+     * @param Tag[]|iterable $entities
      * @return ApiTag[]
      */
     public static function fromEntities(iterable $entities): array
@@ -27,6 +28,20 @@ class ApiTag
         $items = [];
         foreach ($entities as $entity) {
             $items[] = self::fromEntity($entity);
+        }
+
+        return $items;
+    }
+
+    /**
+     * @param TagLink[]|iterable $entities
+     * @return ApiTag[]
+     */
+    public static function fromTagLinks(iterable $entities): array
+    {
+        $items = [];
+        foreach ($entities as $entity) {
+            $items[] = self::fromEntity($entity->getTag());
         }
 
         return $items;

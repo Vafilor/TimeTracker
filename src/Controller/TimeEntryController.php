@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiTag;
+use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Entity\TimeEntry;
-use App\Entity\TimeEntryTag;
 use App\Form\Model\TimeEntryListFilterModel;
 use App\Form\Model\TimeEntryModel;
 use App\Form\TimeEntryFormType;
 use App\Form\TimeEntryListFilterFormType;
+use App\Repository\TagLinkRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
-use App\Repository\TimeEntryTagRepository;
 use DateTime;
 use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
@@ -101,9 +101,9 @@ class TimeEntryController extends BaseController
         $todayEnd->setTimezone(new DateTimeZone('UTC'));
 
         $queryBuilder = $timeEntryRepository->findByUserQueryBuilder($this->getUser())
-            ->addSelect('time_entry_tag')
-            ->leftJoin('time_entry.timeEntryTags', 'time_entry_tag')
-            ->leftJoin('time_entry_tag.tag', 'tag')
+            ->addSelect('tag_link')
+            ->leftJoin('time_entry.tagLinks', 'tag_link')
+            ->leftJoin('tag_link.tag', 'tag')
             ->andWhere('time_entry.deletedAt IS NULL')
             ->andWhere('time_entry.startedAt > :start')
             ->andWhere('time_entry.startedAt < :end')
@@ -149,6 +149,7 @@ class TimeEntryController extends BaseController
         }
 
         $timeEntry = new TimeEntry($this->getUser());
+
         $manager = $this->getDoctrine()->getManager();
         $manager->persist($timeEntry);
         $manager->flush();
@@ -161,14 +162,13 @@ class TimeEntryController extends BaseController
      * It's you "continuing" to do something again.
      *
      * @param TimeEntryRepository $timeEntryRepository
-     * @param TimeEntryTagRepository $timeEntryTagRepository
      * @param string $id
      * @return Response
      */
     #[Route('/time-entry/{id}/continue', name: 'time_entry_continue')]
     public function continue(
         TimeEntryRepository $timeEntryRepository,
-        TimeEntryTagRepository $timeEntryTagRepository,
+        TagLinkRepository $tagLinkRepository,
         string $id
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -183,13 +183,13 @@ class TimeEntryController extends BaseController
             return $this->redirectToRoute('time_entry_index');
         }
 
-        $timeEntryTags = $timeEntryTagRepository->findForTimeEntry($existingTimeEntry);
+        $tagLinks = $tagLinkRepository->findForTimeEntry($existingTimeEntry);
         $manager = $this->getDoctrine()->getManager();
 
         $timeEntry = new TimeEntry($this->getUser());
         $timeEntry->setTask($existingTimeEntry->getTask());
-        foreach ($timeEntryTags as $timeEntryTag) {
-            $copy = new TimeEntryTag($timeEntry, $timeEntryTag->getTag());
+        foreach ($tagLinks as $tagLink) {
+            $copy = new TagLink($timeEntry, $tagLink->getTag());
             $manager->persist($copy);
         }
 
@@ -235,10 +235,7 @@ class TimeEntryController extends BaseController
             $this->getDoctrine()->getManager()->flush();
         }
 
-        $apiTags = array_map(
-            fn ($timeEntryTag) => ApiTag::fromEntity($timeEntryTag->getTag()),
-            $timeEntry->getTimeEntryTags()->toArray()
-        );
+        $apiTags = ApiTag::fromTagLinks($timeEntry->getTagLinks());
 
         return $this->render('time_entry/view.html.twig', [
             'timeEntry' => $timeEntry,
