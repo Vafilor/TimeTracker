@@ -153,7 +153,8 @@ When a field is a DateTime, use the following format in requests
 "endedAt": {
     "date": "yyyy-mm-dd",
     "time": "hh:mm:ss"
-}```
+}
+```
 
 Where hh is 24 hour time.
 
@@ -163,6 +164,7 @@ For example,
 "endedAt": {
     "date": "2021-04-16",
     "time": "13:33:01"
-}```
+}
+```
 
 Will result in: `04/16/2021 01:33:01 PM`
