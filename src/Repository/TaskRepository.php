@@ -50,8 +50,9 @@ class TaskRepository extends ServiceEntityRepository
     public function applyFilter(QueryBuilder $queryBuilder, TaskListFilterModel $filter): QueryBuilder
     {
         if ($filter->hasName()) {
+            $name = strtolower($filter->getName());
             $queryBuilder->andWhere('LOWER(task.name) LIKE :name')
-                ->setParameter('name', "%{$filter->getName()}%")
+                ->setParameter('name', "%{$name}%")
             ;
         }
 
