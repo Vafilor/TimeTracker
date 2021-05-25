@@ -140,7 +140,7 @@ class TimeEntry
     {
         if (!$this->isOver()) {
             $now = new DateTime('now', new DateTimeZone('UTC'));
-            return $now->diff($this->createdAt);
+            return $now->diff($this->startedAt);
         }
 
         return $this->endedAt->diff($this->startedAt);
