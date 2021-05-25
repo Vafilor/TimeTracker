@@ -11,10 +11,8 @@ use App\Traits\UUIDTrait;
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
-use DateTimeInterface;
 use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
@@ -94,6 +92,11 @@ class TimeEntry
     public function getDescription(): string
     {
         return $this->description;
+    }
+
+    public function isDescriptionEmpty(): bool
+    {
+        return $this->description === '';
     }
 
     public function setDescription(string $description): self
