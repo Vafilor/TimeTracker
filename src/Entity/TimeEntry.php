@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\TimeEntryRepository;
+use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
-use DateTimeInterface;
 use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
@@ -27,6 +25,7 @@ class TimeEntry
 {
     use UUIDTrait;
     use UpdateTimestampableTrait;
+    use TaggableTrait;
 
     /**
      * @ORM\Column(type="datetimetz")
@@ -42,13 +41,13 @@ class TimeEntry
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
-     * @var DateTime
+     * @var DateTime|null
      */
     protected $endedAt;
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
-     * @var DateTime
+     * @var DateTime|null
      */
     protected $deletedAt;
 
@@ -65,9 +64,9 @@ class TimeEntry
     private $owner;
 
     /**
-     * @ORM\OneToMany(targetEntity=TimeEntryTag::class, mappedBy="timeEntry")
+     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timeEntry")
      */
-    private $timeEntryTags;
+    private $tagLinks;
 
     /**
      * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="timeEntries")
@@ -79,7 +78,7 @@ class TimeEntry
         $this->id = Uuid::uuid4();
         $this->owner = $owner;
         $this->description = '';
-        $this->timeEntryTags = new ArrayCollection();
+        $this->tagLinks = new ArrayCollection();
 
         if (is_null($createdAt)) {
             $createdAt = new DateTime('now', new DateTimeZone('UTC'));
@@ -93,6 +92,11 @@ class TimeEntry
     public function getDescription(): string
     {
         return $this->description;
+    }
+
+    public function isDescriptionEmpty(): bool
+    {
+        return $this->description === '';
     }
 
     public function setDescription(string $description): self
@@ -139,16 +143,17 @@ class TimeEntry
     {
         if (!$this->isOver()) {
             $now = new DateTime('now', new DateTimeZone('UTC'));
-            return $now->diff($this->createdAt);
+            return $now->diff($this->startedAt);
         }
 
         return $this->endedAt->diff($this->startedAt);
     }
 
-    public function stop(DateTimeInterface $endedAt = null): self
+    public function stop(DateTime $endedAt = null): self
     {
         if (is_null($endedAt)) {
-            $endedAt = new DateTime('now', new DateTimeZone('UTC'));;
+            $endedAt = new DateTime('now', new DateTimeZone('UTC'));
+            ;
         }
 
         if ($endedAt < $this->createdAt) {
@@ -167,11 +172,13 @@ class TimeEntry
         return $this;
     }
 
-    public function isOver(): bool {
+    public function isOver(): bool
+    {
         return !is_null($this->endedAt);
     }
 
-    public function running(): bool {
+    public function running(): bool
+    {
         return !$this->isOver();
     }
 
@@ -192,23 +199,15 @@ class TimeEntry
         return $this;
     }
 
-    public function softDelete(DateTimeInterface $when = null): self
+    public function softDelete(DateTime $when = null): self
     {
         if (is_null($when)) {
-            $when = new DateTimeImmutable('now', new DateTimeZone('UTC'));;
+            $when = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         }
 
         $this->deletedAt = $when;
 
         return $this;
-    }
-
-    /**
-     * @return Collection|TimeEntryTag[]
-     */
-    public function getTimeEntryTags(): Collection
-    {
-        return $this->timeEntryTags;
     }
 
     public function setEndedAt(DateTime $endedAt): static
@@ -240,21 +239,5 @@ class TimeEntry
         $this->task = null;
 
         return $this;
-    }
-
-    /**
-     * @return Collection|Tag[]
-     */
-    public function getTags(): array|Collection
-    {
-        $tags = [];
-
-        foreach ($this->getTimeEntryTags() as $timeEntryTag) {
-            $tags[] = $timeEntryTag->getTag();
-        }
-
-        usort($tags, fn (Tag $a, Tag $b) => strcmp($a->getName(), $b->getName()));
-
-        return $tags;
     }
 }

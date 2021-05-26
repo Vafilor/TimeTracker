@@ -49,17 +49,7 @@ class ApiTimeEntry
             $apiTimeEntry->duration = $timeEntry->duration()->format($user->getDurationFormat());
         }
 
-        $tags = array_map(
-            fn ($timeEntryTag) => $timeEntryTag->getTag(),
-            $timeEntry->getTimeEntryTags()->toArray()
-        );
-
-        $apiTags = array_map(
-            fn ($tag) => ApiTag::fromEntity($tag),
-            $tags
-        );
-
-        $apiTimeEntry->tags = $apiTags;
+        $apiTimeEntry->tags = ApiTag::fromEntities($timeEntry->getTags());
 
         return $apiTimeEntry;
     }

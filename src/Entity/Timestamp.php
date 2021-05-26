@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\TimestampRepository;
+use App\Traits\TaggableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
 use DateTimeZone;
@@ -19,12 +20,14 @@ use Ramsey\Uuid\Uuid;
 class Timestamp
 {
     use UUIDTrait;
+    use TaggableTrait;
 
     /**
      * @ORM\Column(type="datetimetz")
      * @var DateTime
      */
     protected $createdAt;
+
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
@@ -33,16 +36,16 @@ class Timestamp
     private $createdBy;
 
     /**
-     * @ORM\OneToMany(targetEntity=TimestampTag::class, mappedBy="timestamp", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timestamp", orphanRemoval=true)
      */
-    private $timestampTags;
+    private $tagLinks;
 
     public function __construct(User $creator)
     {
         $this->id = Uuid::uuid4();
         $this->createdAt = new DateTime('now', new DateTimeZone('UTC'));
         $this->createdBy = $creator;
-        $this->timestampTags = new ArrayCollection();
+        $this->tagLinks = new ArrayCollection();
     }
 
     public function getCreatedAt(): DateTime
@@ -74,41 +77,17 @@ class Timestamp
     }
 
     /**
-     * @return Collection|TimestampTag[]
-     */
-    public function getTimestampTags(): Collection
-    {
-        return $this->timestampTags;
-    }
-
-    /**
-     * Add a timestampTag to this Timestamp. This does not add it to the database,
+     * Add a TagLink to this Timestamp. This does not add it to the database,
      * it is purely for this object in memory.
-     * To persist the TimestampTag it must be persisted outside of this method.
+     * To persist the TagLink it must be persisted outside of this method.
      *
-     * @param TimestampTag $timestampTag
+     * @param TagLink $tagLink
      * @return $this
      */
-    public function addTimestampTag(TimestampTag $timestampTag): self
+    public function addTagLink(TagLink $tagLink): self
     {
-        $this->timestampTags->add($timestampTag);
+        $this->tagLinks->add($tagLink);
 
         return $this;
-    }
-
-    /**
-     * @return Collection|Tag[]
-     */
-    public function getTags(): array|Collection
-    {
-        $tags = [];
-
-        foreach ($this->getTimestampTags() as $timestampTag) {
-            $tags[] = $timestampTag->getTag();
-        }
-
-        usort($tags, fn (Tag $a, Tag $b) => strcmp($a->getName(), $b->getName()));
-
-        return $tags;
     }
 }

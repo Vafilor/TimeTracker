@@ -13,18 +13,18 @@ use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Api\ApiTimeEntry;
 use App\Entity\Tag;
+use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Entity\TimeEntry;
-use App\Entity\TimeEntryTag;
 use App\Form\Model\TimeEntryListFilterModel;
 use App\Form\Model\TimeEntryModel;
 use App\Form\TimeEntryFormType;
 use App\Form\TimeEntryListFilterFormType;
 use App\Manager\TagManager;
+use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
-use App\Repository\TimeEntryTagRepository;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -114,8 +114,8 @@ class ApiTimeEntryController extends BaseController
 
         $queryBuilder = $timeEntryRepository->findByUserQueryBuilder($this->getUser())
             ->addSelect('time_entry_tag')
-            ->leftJoin('time_entry.timeEntryTags', 'time_entry_tag')
-            ->leftJoin('time_entry_tag.tag', 'tag')
+            ->leftJoin('time_entry.tagLinks', 'tagLink')
+            ->leftJoin('tagLink.tag', 'tag')
             ->andWhere('time_entry.deletedAt IS NULL')
             ->andWhere('time_entry.startedAt > :start')
             ->andWhere('time_entry.startedAt < :end')
@@ -164,8 +164,8 @@ class ApiTimeEntryController extends BaseController
             $tagNames = $tagManager->parseFromString($data['tags']);
             $tagObjects = $tagManager->findOrCreateByNames($tagNames, $this->getUser());
             foreach ($tagObjects as $tag) {
-                $timeEntryTag = new TimeEntryTag($timeEntry, $tag);
-                $manager->persist($timeEntryTag);
+                $tagLink = new TagLink($timeEntry, $tag);
+                $manager->persist($tagLink);
             }
         }
         if (array_key_exists('taskId', $data)) {
@@ -270,7 +270,6 @@ class ApiTimeEntryController extends BaseController
      * It's you "continuing" to do something again.
      *
      * @param TimeEntryRepository $timeEntryRepository
-     * @param TimeEntryTagRepository $timeEntryTagRepository
      * @param string $id
      * @return Response
      * @throws Exception
@@ -278,7 +277,7 @@ class ApiTimeEntryController extends BaseController
     #[Route('/api/time-entry/{id}/continue', name: 'api_time_entry_continue')]
     public function continue(
         TimeEntryRepository $timeEntryRepository,
-        TimeEntryTagRepository $timeEntryTagRepository,
+        TagLinkRepository $tagLinkRepository,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -297,12 +296,12 @@ class ApiTimeEntryController extends BaseController
             );
         }
 
-        $timeEntryTags = $timeEntryTagRepository->findForTimeEntry($existingTimeEntry);
+        $tagLinks = $tagLinkRepository->findForTimeEntry($existingTimeEntry);
         $manager = $this->getDoctrine()->getManager();
 
         $timeEntry = new TimeEntry($this->getUser());
-        foreach ($timeEntryTags as $timeEntryTag) {
-            $copy = new TimeEntryTag($timeEntry, $timeEntryTag->getTag());
+        foreach ($tagLinks as $tagLink) {
+            $copy = new TagLink($timeEntry, $tagLink->getTag());
             $manager->persist($copy);
         }
 
@@ -344,6 +343,12 @@ class ApiTimeEntryController extends BaseController
         }
 
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser(), $timeFormat);
+
+        if (str_starts_with($request->getPathInfo(), '/api')) {
+            $apiTimeEntry->url = $this->generateUrl('api_time_entry_view', ['id' => $apiTimeEntry->id]);
+        } else {
+            $apiTimeEntry->url = $this->generateUrl('time_entry_view', ['id' => $apiTimeEntry->id]);
+        }
 
         return $this->json($apiTimeEntry);
     }
@@ -412,7 +417,7 @@ class ApiTimeEntryController extends BaseController
         Request $request,
         TimeEntryRepository $timeEntryRepository,
         TagRepository $tagRepository,
-        TimeEntryTagRepository $timeEntryTagRepository,
+        TagLinkRepository $tagLinkRepository,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -440,7 +445,7 @@ class ApiTimeEntryController extends BaseController
             $tag = new Tag($this->getUser(), $tagName);
             $this->getDoctrine()->getManager()->persist($tag);
         } else {
-            $exitingLink = $timeEntryTagRepository->findOneBy([
+            $exitingLink = $tagLinkRepository->findOneBy([
                                                                   'timeEntry' => $timeEntry,
                                                                   'tag' => $tag
                                                               ]);
@@ -450,9 +455,9 @@ class ApiTimeEntryController extends BaseController
             }
         }
 
-        $timeEntryTag = new TimeEntryTag($timeEntry, $tag);
+        $tagLink = new TagLink($timeEntry, $tag);
         $manager = $this->getDoctrine()->getManager();
-        $manager->persist($timeEntryTag);
+        $manager->persist($tagLink);
         $manager->flush();
 
         $apiTag = ApiTag::fromEntity($tag);
@@ -466,7 +471,7 @@ class ApiTimeEntryController extends BaseController
         Request $request,
         TimeEntryRepository $timeEntryRepository,
         TagRepository $tagRepository,
-        TimeEntryTagRepository $timeEntryTagRepository,
+        TagLinkRepository $tagLinkRepository,
         string $id,
         string $tagName
     ): JsonResponse {
@@ -481,7 +486,7 @@ class ApiTimeEntryController extends BaseController
             throw $this->createNotFoundException();
         }
 
-        $exitingLink = $timeEntryTagRepository->findOneByOrException([
+        $exitingLink = $tagLinkRepository->findOneByOrException([
                                                                          'timeEntry' => $timeEntry,
                                                                          'tag' => $tag
                                                                      ]);
@@ -498,7 +503,7 @@ class ApiTimeEntryController extends BaseController
     public function tags(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        TimeEntryTagRepository $timeEntryTagRepository,
+        TagLinkRepository $tagLinkRepository,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -507,14 +512,9 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $timeEntryTags = $timeEntryTagRepository->findBy(['timeEntry' => $timeEntry]);
+        $apiTags = ApiTag::fromEntities($timeEntry->getTags());
 
-        $apiTimeEntryTags = array_map(
-            fn ($timeEntryTag) => ApiTag::fromEntity($timeEntryTag->getTag()),
-            $timeEntryTags
-        );
-
-        return $this->json($apiTimeEntryTags);
+        return $this->json($apiTags);
     }
 
     #[Route('/api/time-entry/{id}/task', name: 'api_time_entry_task_create', methods: ['POST'])]

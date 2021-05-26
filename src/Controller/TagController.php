@@ -85,10 +85,10 @@ class TagController extends BaseController
             $data = $form->getData();
             $name = $data->getName();
 
-            $tagExists = $tagRepository->existsForUser($name, $this->getUser());
-            if ($tagExists) {
+            $existingTag = $tagRepository->findWithUserName($this->getUser(), $name);
+            if (!is_null($existingTag)) {
                 $this->addFlash('danger', "Tag '$name' already exists for user '{$this->getUser()->getUsername()}'");
-                return $this->redirectToRoute('tag_view', ['name' => $name]);
+                return $this->redirectToRoute('tag_view', ['id' => $existingTag->getIdString()]);
             }
 
             $tag = new Tag($this->getUser(), $name);

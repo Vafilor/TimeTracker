@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Manager;
 
+use App\Entity\TagLink;
 use App\Entity\Timestamp;
-use App\Entity\TimestampTag;
 use Doctrine\ORM\EntityManagerInterface;
 
 class TimestampManager
@@ -31,10 +31,10 @@ class TimestampManager
         $newTimestamp = new Timestamp($timestamp->getCreatedBy());
         $this->entityManager->persist($newTimestamp);
 
-        foreach ($timestamp->getTimestampTags() as $timestampTag) {
-            $newTimestampTag = new TimestampTag($newTimestamp, $timestampTag->getTag());
-            $newTimestamp->addTimestampTag($newTimestampTag);
-            $this->entityManager->persist($newTimestampTag);
+        foreach ($timestamp->getTagLinks() as $tagLink) {
+            $newTagLink = new TagLink($newTimestamp, $tagLink->getTag());
+            $newTimestamp->addTagLink($newTagLink);
+            $this->entityManager->persist($newTagLink);
         }
 
         return $newTimestamp;

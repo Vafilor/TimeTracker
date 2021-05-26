@@ -55,10 +55,10 @@ class TimestampRepository extends ServiceEntityRepository
             $queryBuilder = $this->createDefaultQueryBuilder();
         }
 
-        return $queryBuilder->addSelect('timestampTag')
+        return $queryBuilder->addSelect('tag_link')
                             ->addSelect('tag')
-                            ->leftJoin('timestamp.timestampTags', 'timestampTag')
-                            ->leftJoin('timestampTag.tag', 'tag')
+                            ->leftJoin('timestamp.tagLinks', 'tag_link')
+                            ->leftJoin('tag_link.tag', 'tag')
         ;
     }
 }

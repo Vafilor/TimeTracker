@@ -11,13 +11,13 @@ use App\Api\ApiProblemException;
 use App\Api\ApiTag;
 use App\Api\ApiTimestamp;
 use App\Entity\Tag;
+use App\Entity\TagLink;
 use App\Entity\Timestamp;
-use App\Entity\TimestampTag;
 use App\Manager\TagManager;
 use App\Manager\TimestampManager;
+use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
-use App\Repository\TimestampTagRepository;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -68,11 +68,11 @@ class ApiTimestampController extends BaseController
         $data = $this->getJsonBody($request, []);
         if (array_key_exists('tags', $data)) {
             $tagNames = $tagManager->parseFromString($data['tags']);
-            // Also add this to time entries
-            $tagObjects = $tagManager->findOrCreateByNames($tagNames);
+            // TODO Also add this to time entries
+            $tagObjects = $tagManager->findOrCreateByNames($tagNames, $this->getUser());
             foreach ($tagObjects as $tag) {
-                $tagLink = new TimestampTag($timestamp, $tag);
-                $timestamp->addTimestampTag($tagLink);
+                $tagLink = new TagLink($timestamp, $tag);
+                $timestamp->addTagLink($tagLink);
                 $manager->persist($tagLink);
             }
         }
@@ -164,7 +164,7 @@ class ApiTimestampController extends BaseController
         Request $request,
         TimestampRepository $timestampRepository,
         TagRepository $tagRepository,
-        TimestampTagRepository $timestampTagRepository,
+        TagLinkRepository $tagLinkRepository,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -194,7 +194,7 @@ class ApiTimestampController extends BaseController
             $this->getDoctrine()->getManager()->persist($tag);
         }
 
-        $exitingLink = $timestampTagRepository->findOneBy([
+        $exitingLink = $tagLinkRepository->findOneBy([
                                                               'timestamp' => $timestamp,
                                                               'tag' => $tag
                                                           ]);
@@ -203,9 +203,9 @@ class ApiTimestampController extends BaseController
             return $this->json([], Response::HTTP_CONFLICT);
         }
 
-        $timestampTag = new TimestampTag($timestamp, $tag);
+        $tagLink = new TagLink($timestamp, $tag);
         $manager = $this->getDoctrine()->getManager();
-        $manager->persist($timestampTag);
+        $manager->persist($tagLink);
         $manager->flush();
 
         $apiTag = ApiTag::fromEntity($tag);
@@ -219,7 +219,7 @@ class ApiTimestampController extends BaseController
         Request $request,
         TimestampRepository $timestampRepository,
         TagRepository $tagRepository,
-        TimestampTagRepository $timestampTagRepository,
+        TagLinkRepository $tagLinkRepository,
         string $id,
         string $tagName
     ): JsonResponse {
@@ -231,7 +231,7 @@ class ApiTimestampController extends BaseController
 
         $tag = $tagRepository->findOneByOrException(['name' => $tagName]);
 
-        $exitingLink = $timestampTagRepository->findOneBy([
+        $exitingLink = $tagLinkRepository->findOneBy([
                                                               'timestamp' => $timestamp,
                                                               'tag' => $tag
                                                           ]);
@@ -257,7 +257,6 @@ class ApiTimestampController extends BaseController
     public function indexTag(
         Request $request,
         TimestampRepository $timestampRepository,
-        TimestampTagRepository $timestampTagRepository,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -266,8 +265,6 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $timestampTags = $timestampTagRepository->findBy(['timestamp' => $timestamp]);
-
-        return $this->json(ApiTag::fromEntities($timestampTags));
+        return $this->json(ApiTag::fromEntities($timestamp->getTags()));
     }
 }
