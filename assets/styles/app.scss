@@ -48,7 +48,7 @@ body {
     background-color: $light;
 
     header {
-        z-index: 10000;
+        z-index: 900;
 
         .sidebar-visibility {
             margin-right: 20px;
@@ -78,7 +78,7 @@ body {
             border-right: 1px darken($light, 10%) solid;
             background-color: $dark;
             left: 0;
-            z-index: 9999;
+            z-index: 800;
             overflow-y: scroll;
 
             &.hide {
@@ -324,7 +324,7 @@ input {
     }
 
     .search-results {
-        z-index: 1000;
+        z-index: 700;
         background-color: white;
         border-radius: 6px;
         border: 1px solid #dee2e6;
@@ -374,7 +374,7 @@ input {
 #fixed-flash-messages {
     position: fixed;
     top: $headerHeight;
-    z-index: 9000;
+    z-index: 500;
 
     .hide-top {
         top: -1000px;

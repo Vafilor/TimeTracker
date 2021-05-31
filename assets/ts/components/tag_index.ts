@@ -225,4 +225,8 @@ export default class TagList {
     public getTagNamesCommaSeparated(): string {
         return this.getTagNames().join(',');
     }
+
+    public getTags(): ApiTag[] {
+        return this.tags;
+    }
 }

@@ -32,6 +32,7 @@ export interface IndexTimeEntryOptions {
 export interface CreateTimeEntryResponse {
     timeEntry: ApiTimeEntry;
     url: string;
+    template?: string;
 }
 
 export interface ApiUpdateTimeEntry {
@@ -47,12 +48,19 @@ export enum TimeEntryApiErrorCode {
 }
 
 export interface CreateTimeEntryOptions {
-    taskId: string;
+    taskId?: string;
+    withHtmlTemplate?: boolean;
 }
 
 export class TimeEntryApi {
     public static create(options: CreateTimeEntryOptions, format: DateFormat = 'date') {
-        return CoreApi.post<CreateTimeEntryResponse>(`/json/time-entry`, {
+        let url = '/json/time-entry';
+        if (options.withHtmlTemplate) {
+            url += '?template=true';
+            options.withHtmlTemplate = undefined;
+        }
+
+        return CoreApi.post<CreateTimeEntryResponse>(url, {
             'time_format': format,
             ...options
         });

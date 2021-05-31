@@ -194,6 +194,12 @@ class ApiTimeEntryController extends BaseController
             'url' => $url
         ];
 
+        if ( boolval($request->query->get('template', 'false')) ) {
+            $data['template'] = $this->renderView('time_entry/partials/_time-entry.html.twig', [
+                'timeEntry' => $timeEntry
+            ]);
+        }
+
         return $this->json($data, Response::HTTP_CREATED);
     }
 

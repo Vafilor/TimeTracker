@@ -163,7 +163,7 @@ class TimeEntryIndexItem {
     private $activityIndicator: JQuery;
     private readonly $description: JQuery;
     private stopButton?: LoadingButton;
-    private readonly durationTimer?: DataAttributeTimerView;
+    private durationTimer?: DataAttributeTimerView;
 
     private editableContent: EditableContent;
     private tagEdit?: TimeEntryTagAssignerV2;
@@ -301,13 +301,19 @@ class TimeEntryIndexItem {
         $tagList.append($template);
 
         this.tagEdit = new TimeEntryTagAssignerV2($template, tagList, this.flashes);
-
     }
 
     private finishTagEdit() {
         const $tagList = this.$element.find('.js-tag-list');
+        const $tagView = $tagList.find('.js-tag-list-view');
 
         if (this.tagEdit) {
+            $tagView.html('');
+            for(const tag of this.tagEdit.getTagList().getTags()) {
+                const tagHtml = `<div class="tag" data-name="${tag.name}" style="background-color: ${tag.color};">${tag.name}</div> `;
+                $tagView.append(tagHtml);
+            }
+
             const tagNames = this.tagEdit.getTagList().getTagNamesCommaSeparated();
             $tagList.data(TagList.initialDataKey, tagNames);
             $tagList.find('.js-tag-edit-list').remove();
@@ -315,7 +321,7 @@ class TimeEntryIndexItem {
             this.tagEdit = undefined;
         }
 
-        $tagList.find('.js-tag-list-view').removeClass('d-none');
+        $tagView.removeClass('d-none');
     }
 
     private startTimestampEdit() {
@@ -408,6 +414,19 @@ class TimeEntryIndexItem {
         $ended.removeClass('d-none');
     }
 
+    stopUI(timeEntry: ApiTimeEntry) {
+        // TODO clean up other resources?
+
+        this.$element.find('.js-ended-at').text('- ' + timeEntry.endedAt);
+        this.$element.find('.js-duration').text(timeEntry.duration);
+
+        if (this.durationTimer) {
+            this.durationTimer.stop();
+        }
+
+        this.$activityIndicator.remove();
+    }
+
     async stop() {
         if (!this.stopButton) {
             return;
@@ -458,6 +477,7 @@ class TimeEntryIndexItem {
                 const $ended = $timestamps.find('.js-ended-at');
                 if (jsonRes.data.endedAt) {
                     this.durationTimer?.stop();
+                    this.durationTimer = undefined;
                     this.$element.find('.js-duration.active').text(jsonRes.data.duration);
                     this.$element.find('.js-time-entry-activity').remove();
                     $ended.text('- ' + jsonRes.data.endedAt);
@@ -480,50 +500,33 @@ class TimeEntryIndexItem {
 
 $(document).ready( () => {
     const $data = $('.js-data');
-    const dateFormat = $data.data('date-format');
+    const dateFormat = $data.data('date-format') as DateFormat;
     const durationFormat = $data.data('duration-format');
     const flashes = new Flashes($('#fixed-flash-messages'));
 
-    //--- new
+    let timeEntries = new Map<string, TimeEntryIndexItem>();
+
     $('.js-time-entry').each((index, element) => {
-        const timeEntry = new TimeEntryIndexItem($(element), durationFormat, dateFormat, flashes);
+        // TODO make a list of these and then on stop - make sure to stop them all.
+        const $element = $(element);
+
+        timeEntries.set($element.data('id'), new TimeEntryIndexItem($element, durationFormat, dateFormat, flashes));
     });
 
-    //--- end new
-
-
-
-    // const stopButton = new LoadingButton($('.js-stop'));
-    //
-    // stopButton.$container.on('click', (event) => {
-    //     const $target = $(event.currentTarget);
-    //     const $row = $target.parent().parent();
-    //
-    //     const timeEntryId = $target.data('time-entry-id') as string;
-    //
-    //     stopButton.stopLoading();
-    //
-    //     TimeEntryApi.stop(timeEntryId, dateFormat)
-    //         .then(res => {
-    //             $row.find('.js-ended-at').text(res.data.endedAt);
-    //             $row.find('.js-duration').text(res.data.duration);
-    //             stopButton.stopLoading();
-    //             $target.remove();
-    //         }).catch(res => {
-    //             flashes.append('danger', 'Unable to stop time entry');
-    //             stopButton.stopLoading();
-    //         }
-    //     );
-    // })
 
     const createTimeEntryButton = new LoadingButton($('.js-create-time-entry'));
 
     createTimeEntryButton.$container.on('click', (event) => {
         createTimeEntryButton.startLoading();
 
-        TimeEntryApi.create(dateFormat)
+        TimeEntryApi.create({ withHtmlTemplate: true }, dateFormat)
             .then(res => {
-                window.location.href = res.data.url;
+                if (res.data.template) {
+                    const $element = $(res.data.template);
+                    timeEntries.set(res.data.timeEntry.id, new TimeEntryIndexItem($element, durationFormat, dateFormat, flashes));
+                    $('.js-time-entry-list').prepend($element);
+                }
+
                 createTimeEntryButton.stopLoading();
             }).catch(res => {
                 $('.js-stop-running').data('time-entry-id', res.errors[0].resource);
@@ -541,11 +544,25 @@ $(document).ready( () => {
         stopRunningButton.startLoading();
 
         TimeEntryApi.stop(timeEntryId, dateFormat)
-            .then(() => {
-                TimeEntryApi.create(dateFormat)
+            .then((res) => {
+                // TODO bad name for timeEntries - need index item somehow or view
+                const timeEntryIndexItem = timeEntries.get(timeEntryId);
+                if (timeEntryIndexItem) {
+                    timeEntryIndexItem.stopUI(res.data);
+                }
+
+                TimeEntryApi.create({ withHtmlTemplate: true }, dateFormat)
                     .then(res => {
-                        window.location.href = res.data.url;
+                        // TODO on create (and other call) add it to the map
+                        if (res.data.template) {
+                            const $element = $(res.data.template);
+                            timeEntries.set(res.data.timeEntry.id, new TimeEntryIndexItem($element, durationFormat, dateFormat, flashes));
+                            $('.js-time-entry-list').prepend($element);
+                        }
+
                         stopRunningButton.stopLoading();
+
+                        $('#confirm-stop-modal').modal('hide');
                     }).catch(res => {
                         $('#confirm-stop-modal').modal('hide');
                         stopRunningButton.stopLoading();
@@ -583,14 +600,6 @@ $(document).ready( () => {
             $realTaskInput.val('');
         });
     }
-
-
-    // debug
-    const autoComplete2 = new TaskAutocomplete($('.js-autocomplete-task'));
-    autoComplete2.itemSelected.addObserver((item: ApiTask) => {
-        console.log(item);
-    })
-
 });
 
 
@@ -1123,7 +1132,6 @@ class EditDateTime {
     }
 
     getDateTime(): DateTimeParts|undefined {
-        console.log(this.$container.find('.js-date').val());
         const dateValue = this.$container.find('.js-date').val() as string;
         if (!dateValue) {
             return undefined;
