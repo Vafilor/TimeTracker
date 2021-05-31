@@ -29,7 +29,7 @@ import { createResolvePromise } from "./components/empty_promise";
 import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 import { EditDateTime } from "./components/EditDateTime";
-import { TimeEntryTagAssignerV2 } from "./components/time_entry_task_assigner";
+import { TimeEntryTagAssignerV2 } from "./components/time_entry_tag_assigner";
 import { DateTimeParts } from "./core/datetime";
 
 
@@ -996,7 +996,8 @@ class TimeEntryTaskAssignerV2 {
                             type="text"
                             class="js-input"
                             placeholder="task name..."
-                            name="task">
+                            name="task"
+                            autocomplete="off">
                     <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
                 </div>
                 <button type="button" class="btn js-clear btn-outline-danger rounded-left-0">
