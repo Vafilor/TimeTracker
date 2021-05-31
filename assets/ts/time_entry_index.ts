@@ -4,26 +4,33 @@ import $ from 'jquery';
 import 'jquery-ui/ui/widgets/autocomplete';
 import 'bootstrap'; // Adds functions to jQuery
 
-import { ApiTimeEntry, DateFormat, TimeEntryApi, TimeEntryApiErrorCode } from "./core/api/time_entry_api";
+import {
+    ApiTimeEntry,
+    CreateTimeEntryResponse,
+    DateFormat,
+    TimeEntryApi,
+    TimeEntryApiErrorCode
+} from "./core/api/time_entry_api";
 import Flashes from "./components/flashes";
 import LoadingButton from "./components/loading_button";
 import AutocompleteTags from "./components/autocomplete_tags";
 import { ApiTag, TagApi } from "./core/api/tag_api";
 import AutocompleteTasks from "./components/autocomplete_tasks";
-import { ApiTask, ApiTaskAssign, TaskApi } from "./core/api/task_api";
+import { ApiTask, TaskApi } from "./core/api/task_api";
 import TagList from "./components/tag_index";
-import TimerView, { DataAttributeTimerView } from "./components/timer";
-import { TimeEntryApiAdapter, TimeEntryTaskAssigner } from "./time_entry";
-import { SyncTaskTimeEntryDescription } from "./components/task_time_entry";
+import { DataAttributeTimerView } from "./components/timer";
 import { SyncInputV2, SyncStatus, SyncUploadEvent } from "./components/sync_input";
-import { ApiErrorResponse, JsonResponse, PaginatedResponse } from "./core/api/api";
-import { timeAgo } from "./components/time";
+import { ApiErrorResponse, ApiResourceError, JsonResponse, PaginatedResponse } from "./core/api/api";
 import Observable from "./components/observable";
 
 
 import { createPopper } from '@popperjs/core';
-import AutocompleteTaskCreate from "./components/autocomplete_tasks_create";
 import { createResolvePromise } from "./components/empty_promise";
+import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
+import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
+import { EditDateTime } from "./components/EditDateTime";
+import { TimeEntryTagAssignerV2 } from "./components/time_entry_task_assigner";
+import { DateTimeParts } from "./core/datetime";
 
 
 class EditableContent {
@@ -498,108 +505,171 @@ class TimeEntryIndexItem {
     }
 }
 
-$(document).ready( () => {
-    const $data = $('.js-data');
-    const dateFormat = $data.data('date-format') as DateFormat;
-    const durationFormat = $data.data('duration-format');
-    const flashes = new Flashes($('#fixed-flash-messages'));
+class TimeEntryList {
+    private $container: JQuery;
+    /**
+     * key is the id of a TimeEntry.
+     */
+    private timeEntries = new Map<string, TimeEntryIndexItem>();
+    private dateFormat: DateFormat;
+    private durationFormat: string;
+    private flashes: Flashes;
 
-    let timeEntries = new Map<string, TimeEntryIndexItem>();
-
-    $('.js-time-entry').each((index, element) => {
-        // TODO make a list of these and then on stop - make sure to stop them all.
-        const $element = $(element);
-
-        timeEntries.set($element.data('id'), new TimeEntryIndexItem($element, durationFormat, dateFormat, flashes));
-    });
+    constructor($container: JQuery, durationFormat: string, dateFormat: DateFormat, flashes: Flashes) {
+        this.$container = $container;
+        this.durationFormat = durationFormat;
+        this.dateFormat = dateFormat;
+        this.flashes = flashes;
+    }
 
 
-    const createTimeEntryButton = new LoadingButton($('.js-create-time-entry'));
+    addExisting(id: string, $element: JQuery) {
+        this.timeEntries.set(id, new TimeEntryIndexItem($element, this.durationFormat, this.dateFormat, this.flashes));
+    }
 
-    createTimeEntryButton.$container.on('click', (event) => {
-        createTimeEntryButton.startLoading();
+    /**
+     * Adds a new TimeEntry to the list. The entry is added to the top of the list, regardless of sort order
+     * so you can always see it.
+     */
+    add(id: string, $element: JQuery) {
+        this.timeEntries.set(id, new TimeEntryIndexItem($element, this.durationFormat, this.dateFormat, this.flashes));
+        this.$container.prepend($element);
+    }
 
-        TimeEntryApi.create({ withHtmlTemplate: true }, dateFormat)
-            .then(res => {
-                if (res.data.template) {
-                    const $element = $(res.data.template);
-                    timeEntries.set(res.data.timeEntry.id, new TimeEntryIndexItem($element, durationFormat, dateFormat, flashes));
-                    $('.js-time-entry-list').prepend($element);
-                }
+    /**
+     * Stop a timeEntry immediately by providing the data it should have when stopped.
+     * If the timeEntry is not in the list, nothing happens.
+     */
+    stopTimeEntryUI(timeEntry: ApiTimeEntry) {
+        const timeEntryIndexItem = this.timeEntries.get(timeEntry.id);
+        timeEntryIndexItem?.stopUI(timeEntry);
+    }
+}
 
-                createTimeEntryButton.stopLoading();
-            }).catch(res => {
-                $('.js-stop-running').data('time-entry-id', res.errors[0].resource);
-                $('#confirm-stop-modal').modal();
-                createTimeEntryButton.stopLoading();
-            }
-        );
-    })
+class TimeEntryListFilter {
+    private $element: JQuery;
+    private tagList: TagList;
+    private autocompleteTags: AutocompleteTags;
 
-    const stopRunningButton = new LoadingButton($('.js-stop-running'));
-    stopRunningButton.$container.on('click', (event)=> {
-        const $target = $(event.currentTarget);
-        const timeEntryId = $target.data('time-entry-id');
+    constructor($element: JQuery) {
+        this.$element = $element;
 
-        stopRunningButton.startLoading();
+        this.tagList = new TagList($element.find('.js-tags'));
+        const $realInput = $element.find('.js-real-input');
 
-        TimeEntryApi.stop(timeEntryId, dateFormat)
-            .then((res) => {
-                // TODO bad name for timeEntries - need index item somehow or view
-                const timeEntryIndexItem = timeEntries.get(timeEntryId);
-                if (timeEntryIndexItem) {
-                    timeEntryIndexItem.stopUI(res.data);
-                }
-
-                TimeEntryApi.create({ withHtmlTemplate: true }, dateFormat)
-                    .then(res => {
-                        // TODO on create (and other call) add it to the map
-                        if (res.data.template) {
-                            const $element = $(res.data.template);
-                            timeEntries.set(res.data.timeEntry.id, new TimeEntryIndexItem($element, durationFormat, dateFormat, flashes));
-                            $('.js-time-entry-list').prepend($element);
-                        }
-
-                        stopRunningButton.stopLoading();
-
-                        $('#confirm-stop-modal').modal('hide');
-                    }).catch(res => {
-                        $('#confirm-stop-modal').modal('hide');
-                        stopRunningButton.stopLoading();
-                    }
-                );
+        this.autocompleteTags = new AutocompleteTags($element.find('.js-autocomplete-tags'));
+        if (this.autocompleteTags.live()) {
+            this.autocompleteTags.valueEmitter.addObserver((apiTag: ApiTag) => {
+                this.tagList.add(apiTag);
             })
-            .catch(() => {
-                flashes.append('danger', 'Unable to stop time entry');
+        }
+
+        this.tagList.tagsChanged.addObserver(() => {
+            this.autocompleteTags.setTags(this.tagList.getTagNames());
+            $realInput.val(this.tagList.getTagNamesCommaSeparated());
+        });
+
+        const $realTaskInput = $('.js-real-task-input');
+        const autoCompleteTask = new AutocompleteTasks($element.find('.js-autocomplete-tasks'));
+        if (autoCompleteTask.live()) {
+            autoCompleteTask.valueEmitter.addObserver((task: ApiTask) => {
+                $realTaskInput.val(task.id);
             });
-    })
 
-    const tagList = new TagList($('.js-tags'));
-    const $realInput = $('.js-real-input');
-
-    const autoComplete = new AutocompleteTags($('.js-autocomplete-tags'));
-    if (autoComplete.live()) {
-        autoComplete.valueEmitter.addObserver((apiTag: ApiTag) => {
-            tagList.add(apiTag);
-        })
+            autoCompleteTask.$nameInput.on('input', () => {
+                $realTaskInput.val('');
+            });
+        }
     }
+}
 
-    tagList.tagsChanged.addObserver(() => {
-        autoComplete.setTags(tagList.getTagNames());
-        $realInput.val(tagList.getTagNamesCommaSeparated());
-    });
+class TimeEntryIndexPage {
+    private readonly dateFormat: DateFormat;
+    private readonly durationFormat: string;
+    private readonly flashes: Flashes;
+    private timeEntryList: TimeEntryList;
+    private createTimeEntryButton: LoadingButton;
+    private confirmDialog?: ConfirmDialog;
+    private filter: TimeEntryListFilter;
 
-    const $realTaskInput = $('.js-real-task-input');
-    const autoCompleteTask = new AutocompleteTasks($('.js-autocomplete-tasks'));
-    if (autoCompleteTask.live()) {
-        autoCompleteTask.valueEmitter.addObserver((task: ApiTask) => {
-            $realTaskInput.val(task.id);
+    constructor() {
+        const $data = $('.js-data');
+        this.dateFormat = $data.data('date-format') as DateFormat;
+        this.durationFormat = $data.data('duration-format');
+        this.flashes = new Flashes($('#fixed-flash-messages'));
+        this.timeEntryList = new TimeEntryList($('.js-time-entry-list'), this.durationFormat, this.dateFormat, this.flashes);
+        this.createTimeEntryButton = new LoadingButton($('.js-create-time-entry'));
+        this.createTimeEntryButton.$container.on('click', () => this.requestToCreateTimeEntry());
+
+        $('.js-time-entry').each((index, element) => {
+            const $element = $(element);
+            this.timeEntryList.addExisting($element.data('id'), $element);
         });
 
-        autoCompleteTask.$nameInput.on('input', () => {
-            $realTaskInput.val('');
+        this.filter = new TimeEntryListFilter($('.filter'));
+    }
+
+    private createTimeEntry(response: CreateTimeEntryResponse) {
+        if (!response.template) {
+            throw new Error('Response does not have a template');
+        }
+
+        const $element = $(response.template);
+        this.timeEntryList.add(response.timeEntry.id, $element);
+    }
+
+    private async stopTimeEntryAndCreate(timeEntryId: string) {
+        this.confirmDialog?.startLoading();
+
+        const res = await TimeEntryApi.stop(timeEntryId, this.dateFormat);
+        this.timeEntryList.stopTimeEntryUI(res.data);
+
+        const createResponse = await TimeEntryApi.create({withHtmlTemplate: true}, this.dateFormat);
+        this.createTimeEntry(createResponse.data);
+
+        this.confirmDialog?.remove();
+        this.confirmDialog = undefined;
+
+    }
+
+    private confirmStopExistingTimer(timeEntryId: string) {
+        this.confirmDialog = new ConfirmDialog('btn-danger');
+        this.confirmDialog.clicked.addObserver((event: ConfirmClickEvent) => {
+            if (event.buttonClicked === 'confirm') {
+                this.stopTimeEntryAndCreate(timeEntryId);
+            }
+        });
+
+        this.confirmDialog.show({
+            title: 'Stop running time entry?',
+            body: 'You have a running time entry, stop it and start a new one?',
+            confirmText: 'Stop'
         });
     }
+
+    async requestToCreateTimeEntry() {
+        this.createTimeEntryButton.startLoading();
+
+        try {
+            const res = await TimeEntryApi.create({withHtmlTemplate: true}, this.dateFormat);
+            this.createTimeEntry(res.data);
+        } catch (e) {
+            if (e instanceof ApiErrorResponse) {
+                const runningTimerError = e.getErrorForCode(TimeEntryApiErrorCode.codeRunningTimer) as ApiResourceError;
+                if (runningTimerError) {
+                    this.confirmStopExistingTimer(runningTimerError.resource);
+                }
+            }
+        }
+
+        this.createTimeEntryButton.stopLoading();
+    }
+}
+
+$(document).ready( () => {
+    const page = new TimeEntryIndexPage();
+
+
 });
 
 
@@ -1022,129 +1092,5 @@ export class TagsAutocompleteV2 extends PaginatedAutocomplete<ApiTag> {
 
     protected queryApi(query: string): Promise<JsonResponse<PaginatedResponse<ApiTag>>> {
         return TagApi.index(query, this.tagNames);
-    }
-}
-
-// TODO name
-class TimeEntryTagAssignerV2 {
-    private readonly _$container: JQuery;
-    get $container(): JQuery {
-        return this._$container;
-    }
-
-    private readonly flashes: Flashes;
-    private readonly tagList: TagList;
-    private autocomplete: TagsAutocompleteV2;
-
-    static template(): string {
-        return `
-        <div class="autocomplete js-autocomplete js-autocomplete-tags">
-            <div class="d-flex">
-                <div class="search border-right-0 rounded-right-0">
-                    <input
-                            type="text"
-                            class="js-input"
-                            placeholder="tag name..."
-                            name="tag">
-                    <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                </div>
-                <button type="button" class="btn js-add btn-outline-primary rounded-left-0">
-                    Add
-                </button>   
-            </div>
-            <div class="search-results js-search-results d-none"></div>
-        </div>`
-    }
-
-    constructor($container: JQuery, tagList: TagList, flashes: Flashes) {
-        this._$container = $container;
-        this.tagList = tagList;
-        this.flashes = flashes;
-        this.autocomplete = new TagsAutocompleteV2($container);
-
-        this.autocomplete.itemSelected.addObserver((tag: ApiTag) => this.onTagSelected(tag));
-        this.autocomplete.enterPressed.addObserver((name: string) => this.onAddTag(name));
-        $container.find('.js-add').on('click', (event) => {
-            this.onAddTag(this.autocomplete.getQuery());
-        });
-
-        this.autocomplete.setTagNames(tagList.getTagNames());
-        this.tagList.tagsChanged.addObserver(() => {
-            this.autocomplete.setTagNames(tagList.getTagNames());
-        });
-    }
-
-    getTagList(): TagList {
-        return this.tagList;
-    }
-
-    onTagSelected(tag: ApiTag) {
-        this.tagList.add(tag);
-        this.autocomplete.clear();
-    }
-
-    onAddTag(name: string) {
-        this.onTagSelected({
-            name,
-            color: '#5d5d5d'
-        });
-    }
-}
-
-interface DateTimeParts {
-    date: string;
-    time: string;
-}
-
-class EditDateTime {
-    private readonly _$container: JQuery;
-    get $container(): JQuery {
-        return this._$container;
-    }
-
-    public static template(extraClass: string = ''): string {
-        return `
-        <div class="js-edit-date-time form-inline ${extraClass}">
-            <input class="form-control js-date" type="date" />
-            <input class="form-control js-time" type="time" />
-        </div>`;
-    }
-
-    public static templateWithLabel(label: string, extraClass: string = ''): string {
-        return `
-        <div class="${extraClass}">
-            <div>${label}</div>
-            <div class="js-edit-date-time form-inline">
-                <input class="form-control js-date" type="date" />
-                <input class="form-control js-time" step="1" type="time" />
-            </div>
-        </div>`;
-    }
-    constructor($container: JQuery, timestamp?: string) {
-        this._$container = $container;
-
-        if (timestamp) {
-            const parts = timestamp.split(' ');
-
-            $container.find('.js-date').val(parts[0]);
-            $container.find('.js-time').val(parts[1]);
-        }
-    }
-
-    getDateTime(): DateTimeParts|undefined {
-        const dateValue = this.$container.find('.js-date').val() as string;
-        if (!dateValue) {
-            return undefined;
-        }
-
-        const timeValue = this.$container.find('.js-time').val() as string;
-        if (!timeValue) {
-            return undefined;
-        }
-
-        return {
-            date: this.$container.find('.js-date').val() as string,
-            time: this.$container.find('.js-time').val() as string
-        };
     }
 }

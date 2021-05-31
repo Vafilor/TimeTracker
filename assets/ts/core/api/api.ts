@@ -15,6 +15,7 @@ export interface PaginatedResponse<T> {
 export interface ApiError {
     code: string;
     message: string;
+
 }
 
 export interface ApiResourceError extends ApiError {

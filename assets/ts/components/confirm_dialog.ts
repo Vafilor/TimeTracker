@@ -1,5 +1,6 @@
 import $ from "jquery";
 import Observable from "./observable";
+import LoadingButton from "./loading_button";
 
 export type ConfirmButtonClicked = 'confirm' | 'cancel';
 
@@ -16,10 +17,11 @@ export interface ConfirmDialogShowOptions {
 }
 
 export class ConfirmDialog {
-    private readonly confirmClass: string = '';
     private readonly id: string;
-    private $modal?: JQuery;
     public readonly clicked = new Observable<ConfirmClickEvent>();
+    private confirmButton?: LoadingButton;
+    private readonly confirmClass: string = '';
+    private $modal?: JQuery;
 
     constructor(confirmClass: string = 'btn-primary') {
         this.id = Math.floor(Math.random() * 100000).toString();
@@ -44,8 +46,18 @@ export class ConfirmDialog {
             });
         })
 
+        this.confirmButton = new LoadingButton(this.$modal.find('.js-confirm'));
+
         $('body').append(this.$modal);
         this.$modal.modal('show');
+    }
+
+    startLoading() {
+        this.confirmButton?.startLoading();
+    }
+
+    stopLoading() {
+        this.confirmButton?.startLoading();
     }
 
     remove() {
@@ -81,7 +93,10 @@ export class ConfirmDialog {
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" data-button-id="cancel">${cancelText}</button>
-                <button type="button" class="btn ${this.confirmClass}" data-button="confirm" data-button-id="confirm">${confirmText}</button>
+                <button type="button" class="btn js-confirm ${this.confirmClass}" data-button="confirm" data-button-id="confirm">
+                    <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
+                    ${confirmText}
+                </button>
               </div>
             </div>
           </div>

@@ -224,8 +224,8 @@ export default class TaskTimeEntry {
                 this.model = res.data.timeEntry;
                 this.state = TimeEntryState.running;
             }).catch( (res: ApiErrorResponse) => {
-                if (res.hasErrorCode(TimeEntryApiErrorCode.codeRunningTime)) {
-                    const error = res.getErrorForCode(TimeEntryApiErrorCode.codeRunningTime) as ApiResourceError;
+                if (res.hasErrorCode(TimeEntryApiErrorCode.codeRunningTimer)) {
+                    const error = res.getErrorForCode(TimeEntryApiErrorCode.codeRunningTimer) as ApiResourceError;
                     const timeEntryId = error.resource;
                     this.confirmStopRunningTimeEntry(timeEntryId);
                 }

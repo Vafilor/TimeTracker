@@ -4,41 +4,17 @@ import $ from 'jquery';
 import 'jquery-ui/ui/widgets/autocomplete';
 import 'bootstrap'; // Adds functions to jQuery
 
-import { TimeEntryApi, TimeEntryApiErrorCode } from "./core/api/time_entry_api";
+import { TimeEntryApi } from "./core/api/time_entry_api";
 import { ApiTag } from "./core/api/tag_api";
 import Flashes from "./components/flashes";
-import TimerView, { DataAttributeTimerView } from "./components/timer";
+import { DataAttributeTimerView } from "./components/timer";
 import AutocompleteTags from "./components/autocomplete_tags";
 import AutoMarkdown from "./components/automarkdown";
-import AutocompleteTaskCreate from "./components/autocomplete_tasks_create";
-import { ApiTask, ApiTaskAssign } from "./core/api/task_api";
-import { ApiErrorResponse } from "./core/api/api";
-import TagList, { TagListDelegate } from "./components/tag_index";
+import TagList from "./components/tag_index";
+import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
+import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 
-export class TimeEntryApiAdapter implements TagListDelegate {
-    constructor(private timeEntryId: string, private flashes: Flashes) {
-    }
-
-    addTag(tag: ApiTag): Promise<ApiTag> {
-        return TimeEntryApi.addTag(this.timeEntryId, tag.name)
-            .then(res => {
-                return res.data;
-            })
-            .catch(res => {
-                this.flashes.append('danger', `Unable to add tag '${tag.name}'`)
-                return res;
-            });
-    }
-
-    removeTag(tagName: string): Promise<void> {
-        return TimeEntryApi.removeTag(this.timeEntryId, tagName)
-            .catch(res => {
-                this.flashes.append('danger', `Unable to add remove tag '${tagName}'`)
-                throw res;
-            });
-    }
-}
-
+// TODO redo this class, can I just add an event? Why do I need to subclass?
 class TimeEntryAutoMarkdown extends AutoMarkdown {
     private readonly timeEntryId: string;
 
@@ -58,122 +34,7 @@ class TimeEntryAutoMarkdown extends AutoMarkdown {
     }
 }
 
-export class TimeEntryTaskAssigner {
-    private timeEntryId: string;
-    private flashes: Flashes;
-    private autocomplete: AutocompleteTaskCreate;
-    private $container: JQuery;
 
-    static template(taskName?: string): string {
-        `<div class="autocomplete js-autocomplete js-autocomplete-task">
-            <div class="search">
-                <input
-                        type="text"
-                        class="js-input"
-                        placeholder="task name..."
-                        name="task">
-                <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="search-results js-search-results d-none"></div>
-        </div>`
-
-        let inputValue = `
-        <div class="border autocomplete js-autocomplete">
-            <input
-                type="text"
-                class="js-input"
-                placeholder="task name..."
-                aria-label="loading indicator"
-                name="task"`
-
-        // if (taskName) {
-        //     inputValue += `value = "${taskName}" disabled`;
-        // }
-
-        inputValue += `>
-            <div class="js-clear clear d-inline-block"><i class="fas fa-times"></i></div>
-        </div>`;
-
-        return `
-        <div class="autocomplete js-autocomplete js-autocomplete-task">
-            <div class="search">
-                <input
-                        type="text"
-                        class="js-input"
-                        placeholder="task name..."
-                        name="task">
-                <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="search-results js-search-results d-none"></div>
-        </div>`
-    }
-
-    constructor($container: JQuery, timeEntryId: string, assignedToTask = false, flashes: Flashes) {
-        this.timeEntryId = timeEntryId;
-        this.flashes = flashes;
-
-        this.$container = $container;
-
-        if (assignedToTask) {
-            this.onAssignedToTask();
-        } else {
-            this.onEditTask();
-        }
-
-        this.autocomplete = new AutocompleteTaskCreate($container);
-        this.autocomplete.valueEmitter.addObserver((apiTask: ApiTask) => {
-            TimeEntryApi.assignToTask(timeEntryId, apiTask.name, apiTask.id)
-                .then((res) => {
-                    this.onAssignedToTask();
-                });
-        });
-
-        this.autocomplete.enterValueEmitter.addObserver((apiTaskAssign: ApiTaskAssign) => {
-            TimeEntryApi.assignToTask(timeEntryId, apiTaskAssign.name, apiTaskAssign.id)
-                .then((res) => {
-                    if (res.source.status === 201) {
-                        if (res.data.url) {
-                            this.flashes.appendWithLink('success', `Created new task`, res.data.url, res.data.name);
-                        }
-                    }
-                    this.onAssignedToTask();
-                })
-        });
-
-        $('.js-clear-task').on('click', (event) => {
-            TimeEntryApi.unassignTask(timeEntryId)
-                .then(() => {
-                    this.autocomplete.clearInput();
-                    this.onEditTask();
-                    this.flashes.append('success', 'Unassigned from task', true);
-                }).catch((errRes: ApiErrorResponse) => {
-                    if (errRes.hasErrorCode(TimeEntryApiErrorCode.codeNoAssignedTask)) {
-                        flashes.append('danger', 'Time entry has no assigned task');
-                    }
-            });
-        });
-
-        this.$container.find('.js-edit').on('click', () => {
-            this.onEditTask();
-        });
-    }
-
-    private onAssignedToTask() {
-        this.$container.find('.js-edit').removeClass('d-none');
-        this.$container.find('.js-set').addClass('d-none');
-        this.$container.find('.js-input').attr('disabled', 'true');
-    }
-
-    private onEditTask() {
-        this.$container.find('.js-edit').addClass('d-none');
-        this.$container.find('.js-set').removeClass('d-none');
-        this.$container.find('.js-input').removeAttr('disabled');
-    }
-
-    getContainer(): JQuery {
-        return this.$container;
-    }
-}
 
 class TimeEntryPage {
     private autoMarkdown: TimeEntryAutoMarkdown;
