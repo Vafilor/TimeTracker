@@ -54,8 +54,12 @@ export class ConfirmDialog {
         }
 
         this.$modal.on('hidden.bs.modal', () => {
+            if (!this.$modal) {
+                return;
+            }
+
             this.$modal.remove();
-            this.$modal = null;
+            this.$modal = undefined;
         })
 
         this.$modal.modal('hide');

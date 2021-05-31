@@ -6,8 +6,8 @@ import { JsonResponse } from "../core/api/api";
 export default class AutocompleteTags extends Autocomplete<ApiTag> {
     private tags = new Array<string>();
 
-    constructor(selector: string) {
-        super(selector);
+    constructor($container: JQuery) {
+        super($container);
 
         if (this.live()) {
             this.$nameInput.on('keypress', (event) => {
@@ -29,7 +29,7 @@ export default class AutocompleteTags extends Autocomplete<ApiTag> {
     }
 
     protected listItems(name: string, request: any): Promise<JsonResponse<any>> {
-        return TagApi.listTags(name, this.tags);
+        return TagApi.index(name, this.tags);
     }
 
     protected onItemSelected(item: ApiTag) {

@@ -4,10 +4,16 @@ import { ApiTask } from "./task_api";
 
 export type DateFormat = 'date' | 'today';
 
+export interface ApiDateTimeUpdate {
+    date: string;
+    time: string;
+}
+
 export interface ApiTimeEntry {
     id: string;
     createdAt: string;
     updatedAt: string;
+    updatedAtEpoch: number;
     startedAt: string;
     startedAtEpoch: number;
     endedAt?: string;
@@ -30,7 +36,8 @@ export interface CreateTimeEntryResponse {
 
 export interface ApiUpdateTimeEntry {
     description?: string;
-    endedAt?: boolean;
+    startedAt?: ApiDateTimeUpdate;
+    endedAt?: ApiDateTimeUpdate;
 }
 
 export enum TimeEntryApiErrorCode {
@@ -106,7 +113,7 @@ export class TimeEntryApi {
     }
 
     public static update(timeEntryId: string, update: ApiUpdateTimeEntry) {
-        return CoreApi.put(`/json/time-entry/${timeEntryId}`, update);
+        return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}`, update);
     }
 
     public static getActive() {

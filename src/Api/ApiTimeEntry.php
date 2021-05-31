@@ -12,6 +12,7 @@ class ApiTimeEntry
     public string $id;
     public string $createdAt;
     public string $updatedAt;
+    public int $updatedAtEpoch;
     public string $startedAt;
     public int $startedAtEpoch;
     public ?string $endedAt = null;
@@ -37,6 +38,7 @@ class ApiTimeEntry
         $apiTimeEntry->startedAt = ApiDateTime::formatUserDate($timeEntry->getStartedAt(), $user, $format);
         $apiTimeEntry->startedAtEpoch = $timeEntry->getStartedAt()->getTimestamp();
         $apiTimeEntry->updatedAt = ApiDateTime::formatUserDate($timeEntry->getUpdatedAt(), $user, $format);
+        $apiTimeEntry->updatedAtEpoch = $timeEntry->getUpdatedAt()->getTimestamp();
         $apiTimeEntry->description = $timeEntry->getDescription();
         // TODO does this make another db call?
         if ($timeEntry->assignedToTask()) {

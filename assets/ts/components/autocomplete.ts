@@ -8,13 +8,12 @@ export default abstract class Autocomplete<T> {
     public readonly $nameInput: any;
     public readonly valueEmitter = new Observable<T>()
 
-    constructor(selector: string) {
-        this.$container = $(selector);
-        if (this.$container.length === 0) {
-            this.$container = undefined;
+    constructor($container: JQuery) {
+        if ($container.length === 0) {
             return;
         }
 
+        this.$container = $container;
         this.$nameInput = this.$container.find('.js-input');
         this.$loading = this.$container.find('.js-loading');
 

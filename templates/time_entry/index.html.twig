@@ -7,7 +7,8 @@
 {% block title %}TimeTracker{% endblock %}
 
 {% block content_body %}
-    <div class="p-3">
+    <div class="p-3 js-data"
+         data-duration-format="{{ app.user.durationFormat }}">
         <h1 class="text-center">Time Entries</h1>
 
         <div class="filter table-filter mb-3">
@@ -92,61 +93,111 @@
             {{ form_end(filterForm) }}
         </div>
 
+        <div class="dropdown">
+            <label>Sort</label>
+            <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {% if pagination.isSorted('time_entry.startedAt') and pagination.direction == 'asc' %}
+                    Oldest
+                {% else %}
+                    Newest
+                {% endif %}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+                {{ knp_pagination_sortable(pagination, 'Newest', 'time_entry.startedAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                {{ knp_pagination_sortable(pagination, 'Oldest', 'time_entry.startedAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+            </div>
+        </div>
+
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
-        <table class="table table-hover table-bordered">
-            <thead>
-            <tr>
-                <th>Tags</th>
-                <th>Task</th>
-                <th>{{ knp_pagination_sortable(pagination, 'Start', 'time_entry.startedAt') }}</th>
-                <th>{{ knp_pagination_sortable(pagination, 'End', 'time_entry.endedAt') }}</th>
-                <th>Duration</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for timeEntry in pagination.items %}
-                <tr>
-                    <td class="tag-list many-rows">
+        <div class="time-entry-list">
+        {% for timeEntry in pagination.items %}
+            <div
+                class="time-entry js-time-entry"
+                data-id="{{ timeEntry.idString }}"
+                {% if timeEntry.assignedToTask %}
+                data-task-id="{{ timeEntry.task.idString }}"
+                data-task-name="{{ timeEntry.task.name }}"
+                {% endif %}
+            >
+                <div class="d-flex justify-content-between">
+                    <div>
+                        {% if not timeEntry.over %}
+                        <div class="ml-2 spinner spinner-border spinner-border-sm text-primary js-time-entry-activity js-loading" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        {% endif %}
+                        <div class="task js-task">
+                            {% if timeEntry.assignedToTask %}
+                                <a class="js-task-content" href="{{ path('task_view', {id: timeEntry.task.id}) }}">{{ timeEntry.task.name }}</a>
+                            {% else %}
+                                <div class="js-task-content d-inline-block">No Task</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                {% if timeEntry.over %}
+                    <div
+                        class="duration js-duration"
+                        data-start="{{ timeEntry.startedAt.timestamp }}">
+                        {{ time.user_duration(timeEntry.duration, app.user) }}
+                    </div>
+                {% else %}
+                    <div
+                        class="duration js-duration active"
+                        data-start="{{ timeEntry.startedAt.timestamp }}">
+                        {{ time.user_duration(timeEntry.duration, app.user) }}
+                    </div>
+                {% endif %}
+                </div>
+                <div class="tag-list js-tag-list many-rows mt-1" data-initial-tags-name="{{ timeEntry.tagNames() }}">
+                    <div class="js-tag-list-view">
                         {% for tag in timeEntry.tags %}
                             {{ tags.view(tag.name, tag.color) }}
                         {% endfor %}
-                    </td>
-                    <td>
-                        {% if timeEntry.task.id is defined %}
-                        <a href="{{ path('task_view', {id: timeEntry.task.id}) }}">{{ timeEntry.task.name }}</a>
-                        {% endif %}
-                    </td>
-                    <td>{{ time.user_date(timeEntry.startedAt, app.user) }}</td>
-                    <td class="js-ended-at">
+                    </div>
+                </div>
+                <div class="d-flex js-timestamps">
+                    <div class="timestamp js-started-at" data-timestamp="{{ timeEntry.startedAt|date("Y-m-d H:i:s", app.user.timezone) }}">{{ time.user_date(timeEntry.startedAt, app.user) }}</div>
+
+                    <div
+                        class="ml-2 timestamp js-ended-at"
                         {% if timeEntry.over %}
-                        {{ time.user_date(timeEntry.endedAt, app.user) }}
-                        {% endif %}
-                    </td>
-                    <td class="js-duration">
+                        data-timestamp="{{ timeEntry.endedAt|date("Y-m-d H:i:s", app.user.timezone) }}"
+                        {% endif %}>
+
                         {% if timeEntry.over %}
-                        {{ time.user_duration(timeEntry.duration, app.user) }}
+                        - {{ time.user_date(timeEntry.endedAt, app.user) }}
                         {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ path('time_entry_view', {id: timeEntry.idString}) }}" class="btn btn-primary">View</a>
-                        <a href="{{ path('time_entry_continue', {id: timeEntry.idString}) }}" class="btn btn-secondary">Continue</a>
-                        {% if timeEntry.running %}
-                        <button data-time-entry-id="{{ timeEntry.idString }}" class="btn btn-secondary js-stop">
+                    </div>
+                </div>
+                <div
+                    class="js-description mt-2"
+                    data-description="{{ timeEntry.description }}">
+                    {% if timeEntry.descriptionEmpty %}
+                        No description
+                    {% else %}
+{#                       js markdown #}
+                        {{ timeEntry.description|markdown_to_html }}
+                    {% endif %}
+                </div>
+                <hr/>
+                <div class="d-flex justify-content-end js-actions">
+                    <a href="{{ path('time_entry_view', {id: timeEntry.idString}) }}" class="btn btn-primary js-view">View</a>
+                    <button type="button" class="btn btn-primary js-edit ml-2">Edit</button>
+                    <a href="{{ path('time_entry_continue', {id: timeEntry.idString}) }}" class="btn btn-secondary js-continue ml-2">Continue</a>
+                    {% if timeEntry.running %}
+                        <button data-time-entry-id="{{ timeEntry.idString }}" class="btn btn-danger js-stop ml-2">
                             <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
                             Stop
                         </button>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td class="text-center" colspan="6">No results found</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center">No results found</div>
+        {% endfor %}
+        </div>
 
         <div>
             <button class="btn btn-primary js-create-time-entry">

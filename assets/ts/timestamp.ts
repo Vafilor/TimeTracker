@@ -1,6 +1,6 @@
 import '../styles/timestamp.scss';
 
-import TagIndex, { TagIndexDelegate } from "./components/tag_index";
+import TagList, { TagListDelegate } from "./components/tag_index";
 import Flashes from "./components/flashes";
 import { ApiTag } from "./core/api/tag_api";
 import { TimestampApi } from "./core/api/timestamp_api";
@@ -8,7 +8,7 @@ import $ from "jquery";
 import 'jquery-ui/ui/widgets/autocomplete';
 import AutocompleteTags from "./components/autocomplete_tags";
 
-class TimestampApiAdapter implements TagIndexDelegate {
+class TimestampApiAdapter implements TagListDelegate {
     constructor(private timestampId: string, private flashes: Flashes) {
     }
 
@@ -39,8 +39,8 @@ $(document).ready(() => {
 
     const flashes = new Flashes($('#flash-messages'));
 
-    const tagIndex = new TagIndex('.js-tags', new TimestampApiAdapter(timestampId, flashes));
-    const autoComplete = new AutocompleteTags('.js-autocomplete-tags');
+    const tagIndex = new TagList($('.js-tags'), new TimestampApiAdapter(timestampId, flashes));
+    const autoComplete = new AutocompleteTags($('.js-autocomplete-tags'));
     autoComplete.setTags(tagIndex.getTagNames());
 
     autoComplete.valueEmitter.addObserver((apiTag: ApiTag) => {

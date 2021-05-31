@@ -4,12 +4,12 @@ import { ApiTag } from "../core/api/tag_api";
 import { createTagViewRemovable } from "./tags";
 import Observable from "./observable";
 
-export interface TagIndexDelegate {
+export interface TagListDelegate {
     addTag(tag: ApiTag): Promise<ApiTag>;
     removeTag(tagName: string): Promise<void>;
 }
 
-class DefaultDelegate implements TagIndexDelegate{
+class DefaultDelegate implements TagListDelegate{
     addTag(tag: ApiTag): Promise<ApiTag> {
         return new Promise<ApiTag>((resolve, reject) => {
             resolve(tag);
@@ -23,16 +23,18 @@ class DefaultDelegate implements TagIndexDelegate{
     }
 }
 
-export default class TagIndex {
-    private delegate: TagIndexDelegate;
+export default class TagList {
+    public static readonly initialDataKey = 'initial-tags-name';
+
+    private delegate: TagListDelegate;
     private tags = new Array<ApiTag>();
     private tagMap = new Map<string, JQuery>();
     private pendingTagMap = new Map<string, boolean>();
     private $container: JQuery;
-    public readonly tagsChanged = new Observable<TagIndex>();
+    public readonly tagsChanged = new Observable<TagList>();
 
-    public constructor(selector: string, delegate?: TagIndexDelegate) {
-        this.$container = $(selector);
+    public constructor($container: JQuery, delegate?: TagListDelegate) {
+        this.$container = $container;
 
         if (delegate) {
             this.delegate = delegate;
@@ -40,7 +42,7 @@ export default class TagIndex {
             this.delegate = new DefaultDelegate();
         }
 
-        const tagsString = this.$container.data('initial-tags-name') as string;
+        const tagsString = this.$container.data(TagList.initialDataKey) as string;
         if (tagsString) {
             for (const tagName of tagsString.split(',')) {
                 if (tagName === '') {
@@ -78,6 +80,9 @@ export default class TagIndex {
      */
     private handleAddExistingTag(tag: ApiTag) {
         const element = this.tagMap.get(tag.name);
+        if (!element) {
+            return;
+        }
 
         const originalColor = element.css('background-color');
         element.css('background-color', 'red');
@@ -101,9 +106,14 @@ export default class TagIndex {
      * handleAddTagSuccess is called when we successfully add a tag.
      */
     private handleAddTagSuccess(tag: ApiTag) {
+        const $view = this.tagMap.get(tag.name);
+        if (!$view) {
+            return;
+        }
+
         this.tags.push(tag);
         this.pendingTagMap.delete(tag.name);
-        const $view = this.tagMap.get(tag.name);
+
         $view.removeClass('pending');
         $view.css('background-color', tag.color);
         this.tagsChanged.emit(this);
@@ -113,8 +123,13 @@ export default class TagIndex {
      * handleAddTagFailure is called when we fail to add a tag.
      */
     private handleAddTagFailure(tag: ApiTag) {
+        const $element = this.tagMap.get(tag.name);
+        if (!$element) {
+            return;
+        }
+
+        $element.remove();
         this.pendingTagMap.delete(tag.name);
-        this.tagMap.get(tag.name).remove();
         this.tagMap.delete(tag.name);
     }
 
@@ -151,15 +166,25 @@ export default class TagIndex {
     }
 
     private handleRemoveTagPending(tagName: string) {
-        this.pendingTagMap.set(tagName, true);
         const $tagView = this.tagMap.get(tagName);
+        if (!$tagView) {
+            return;
+        }
+
+        this.pendingTagMap.set(tagName, true);
+
         $tagView.addClass('pending');
     }
 
     private handleRemoveTagSuccess(tagName: string) {
+        const $element = this.tagMap.get(tagName);
+        if (!$element) {
+            return;
+        }
+
+        $element.remove();
         const tagIndex = this.tags.findIndex(value => value.name === tagName);
         this.tags.splice(tagIndex, 1);
-        this.tagMap.get(tagName).remove();
         this.tagMap.delete(tagName);
         this.pendingTagMap.delete(tagName);
         this.tagsChanged.emit(this);
@@ -167,7 +192,12 @@ export default class TagIndex {
 
     private handleRemoveTagFailure(tagName: string) {
         this.pendingTagMap.delete(tagName);
-        this.tagMap.get(tagName).removeClass('pending');
+
+        const $element = this.tagMap.get(tagName);
+        if ($element) {
+            $element.removeClass('pending');
+        }
+
     }
 
     public removeTag(tagName: string) {

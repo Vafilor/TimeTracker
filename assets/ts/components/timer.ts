@@ -7,23 +7,21 @@ import { formatTimeDifference } from "./time";
  */
 export default abstract class TimerView {
     private interval: any = null;
-    private $timers: JQuery;
 
     constructor(
-        private timerSelector: string,
+        private $element: JQuery,
         protected durationFormat: string,
         protected callback?: any) {
-        this.$timers = $(timerSelector);
     }
 
-    protected abstract updateTimerElement(element: HTMLElement, now: number): string;
+    protected abstract updateTimerElement($element: JQuery, now: number): string;
 
     setDurationFormat(format: string) {
         this.durationFormat = format;
     }
 
     start() {
-        if(this.$timers.length === 0) {
+        if(this.$element.length === 0) {
             return;
         }
 
@@ -34,13 +32,11 @@ export default abstract class TimerView {
         this.interval = setInterval(() => {
             const now = Math.floor((new Date()).getTime());
 
-            this.$timers.each(((index, element) => {
-                const durationAsString = this.updateTimerElement(element, now);
+            const durationAsString = this.updateTimerElement(this.$element, now);
 
-                if(this.callback) {
-                    this.callback(durationAsString);
-                }
-            }));
+            if(this.callback) {
+                this.callback(durationAsString);
+            }
         }, 1000);
     }
 
@@ -61,8 +57,7 @@ export default abstract class TimerView {
  * the total duration.
  */
 export class DataAttributeTimerView extends TimerView {
-    protected updateTimerElement(element: HTMLElement, now: number): string {
-        const $element = $(element);
+    protected updateTimerElement($element: JQuery, now: number): string {
         const milliSecondsSinceEpoch = $element.data('start') * 1000;
 
         const durationAsString = formatTimeDifference(milliSecondsSinceEpoch, now, this.durationFormat);
@@ -83,7 +78,7 @@ export class StaticStartTimerView extends TimerView {
      * start starts the timer using the input time, in milliseconds since epoch, as the starting point
      * @param startTime
      */
-    start(startTime: number = null) {
+    start(startTime: number|null = null) {
         if (startTime === null) {
             startTime = Math.floor((new Date()).getTime());
         }
@@ -91,9 +86,7 @@ export class StaticStartTimerView extends TimerView {
         super.start();
     }
 
-    protected updateTimerElement(element: HTMLElement, now: number): string {
-        const $element = $(element);
-
+    protected updateTimerElement($element: JQuery, now: number): string {
         const durationAsString = formatTimeDifference(this.startTime, now, this.durationFormat);
 
         $element.text(durationAsString);

@@ -31,6 +31,8 @@ $(document).ready(() => {
         $('.content').toggleClass('full-width-with-sidebar')
             .toggleClass('ml-sidebar')
         ;
+
+        $('.sidebar-width-dependent').toggleClass('full-width-with-sidebar');
     });
 
     $('.js-clear-datetime').on('click', (event) => {

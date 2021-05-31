@@ -36,6 +36,10 @@ class TimeEntryActivity {
     }
 
     private createTemplate(timeEntry: ApiTimeEntry): string {
+        if (!timeEntry.endedAtEpoch) {
+            throw new Error('timeEntry.endedAtEpoch is undefined');
+        }
+
         const now = new Date();
         const createdAgo = timeAgo(timeEntry.startedAtEpoch * 1000, now.getTime());
         const description = timeEntry.description && timeEntry.description.length > 0 ? timeEntry.description : 'No description';

@@ -6,8 +6,8 @@ import Observable from "./observable";
 export default class AutocompleteTaskCreate extends Autocomplete<ApiTask> {
     public readonly enterValueEmitter = new Observable<ApiTaskAssign>()
 
-    constructor(selector: string) {
-        super(selector);
+    constructor($container: JQuery) {
+        super($container);
         if (this.live()) {
             this.$nameInput.on('keypress', (event) => {
                 if (event.key === 'Enter') {

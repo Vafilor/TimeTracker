@@ -5,19 +5,20 @@ import { ConfirmClickEvent, ConfirmDialog } from "./confirm_dialog";
 import { ApiErrorResponse, ApiResourceError } from "../core/api/api";
 import { StaticStartTimerView } from "./timer";
 import { SyncInput } from "./sync_input";
+import { createResolvePromise } from "./empty_promise";
 
-class SyncTaskTimeEntryDescription extends SyncInput {
+export class SyncTaskTimeEntryDescription extends SyncInput {
     private timeEntryId?: string;
 
     public constructor(
-        inputSelector: string,
-        loadingSelector: string) {
-        super(inputSelector, loadingSelector);
+        $inputElement: JQuery,
+        $loadingElement: JQuery) {
+        super($inputElement, $loadingElement);
     }
 
     protected update(text: string): Promise<any> {
         if (!this.timeEntryId) {
-            return;
+            return createResolvePromise();
         }
 
         return TimeEntryApi.update(this.timeEntryId, {
@@ -30,7 +31,7 @@ class SyncTaskTimeEntryDescription extends SyncInput {
     }
 
     clearTimeEntry() {
-        this.timeEntryId = null;
+        this.timeEntryId = undefined;
     }
 }
 
@@ -74,6 +75,10 @@ export default class TaskTimeEntry {
                 this.startLoading();
                 break;
             case TimeEntryState.running:
+                if (!this.model) {
+                    throw new Error('Model is not defined');
+                }
+
                 this.descriptionUpdater.setTimeEntryId(this.model.id);
                 this.descriptionUpdater.start();
                 this.descriptionUpdater.uploadIfHasText();
@@ -117,11 +122,11 @@ export default class TaskTimeEntry {
 
         this.$loading = this.$container.find('.js-task-time-entry-loading');
 
-        this.durationTimer = new StaticStartTimerView('.js-duration', this.durationFormat);
+        this.durationTimer = new StaticStartTimerView($('.js-duration'), this.durationFormat);
 
         this.descriptionUpdater = new SyncTaskTimeEntryDescription(
-            '.js-task-time-entry .js-time-entry-description',
-            '.js-task-time-entry',
+            $('.js-task-time-entry .js-time-entry-description'),
+            $('.js-task-time-entry'),
         );
     }
 
@@ -244,6 +249,10 @@ export default class TaskTimeEntry {
         }
 
         this.state = TimeEntryState.stopping;
+
+        if (!this.model) {
+            throw new Error('Model is not defined');
+        }
 
         TimeEntryApi.stop(this.model.id)
             .then(res => {
