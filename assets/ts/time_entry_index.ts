@@ -31,6 +31,7 @@ import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 import { EditDateTime } from "./components/EditDateTime";
 import { TimeEntryTagAssignerV2 } from "./components/time_entry_tag_assigner";
 import { DateTimeParts } from "./core/datetime";
+import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
 
 
 class EditableContent {
@@ -160,7 +161,7 @@ class TimeEntryIndexItem {
     private taskId?: string;
     private taskName?: string;
     private readonly dateFormat: DateFormat;
-    private taskEdit?: TimeEntryTaskAssignerV2;
+    private taskEdit?: TimeEntryTaskAssigner;
     private readonly flashes: Flashes;
 
     private $element: JQuery;
@@ -254,10 +255,10 @@ class TimeEntryIndexItem {
         const $task = this.$element.find('.js-task');
         $task.addClass('d-none');
 
-        const $newElement = $(TimeEntryTaskAssignerV2.template());
+        const $newElement = $(TimeEntryTaskAssigner.template());
         $newElement.insertAfter($task);
 
-        this.taskEdit = new TimeEntryTaskAssignerV2($newElement, this.id,  this.flashes);
+        this.taskEdit = new TimeEntryTaskAssigner($newElement, this.id,  this.flashes);
         if (this.taskId && this.taskName) {
             this.taskEdit.setTaskSimple(this.taskId, this.taskName);
         }
@@ -977,105 +978,6 @@ export class TaskAutocomplete extends PaginatedAutocomplete<ApiTask> {
 
     protected queryApi(query: string): Promise<JsonResponse<PaginatedResponse<ApiTask>>> {
         return TaskApi.index(query);
-    }
-}
-
-class TimeEntryTaskAssignerV2 {
-    private readonly timeEntryId: string;
-    private readonly $container: JQuery;
-    private readonly flashes: Flashes;
-    private autocomplete: TaskAutocomplete;
-    private task?: ApiTask;
-
-    static template(): string {
-        return `
-        <div class="autocomplete js-autocomplete js-autocomplete-task">
-            <div class="d-flex">
-                <div class="search border-right-0 rounded-right-0">
-                    <input
-                            type="text"
-                            class="js-input"
-                            placeholder="task name..."
-                            name="task"
-                            autocomplete="off">
-                    <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                </div>
-                <button type="button" class="btn js-clear btn-outline-danger rounded-left-0">
-                    <i class="fas fa-trash"></i>
-                </button>   
-            </div>
-            <div class="search-results js-search-results d-none"></div>
-        </div>`
-    }
-
-    constructor($container: JQuery, timeEntryId: string, flashes: Flashes) {
-        this.timeEntryId = timeEntryId;
-        this.flashes = flashes;
-
-        this.$container = $container;
-
-        this.autocomplete = new TaskAutocomplete($container);
-        this.autocomplete.itemSelected.addObserver((item: ApiTask) => this.onItemSelected(item));
-
-        this.$container.find('.js-clear').on('click', () => this.clearTask());
-
-        this.autocomplete.enterPressed.addObserver((query: string) => this.assignToTask(query));
-    }
-
-    setTaskSimple(id: string, name: string) {
-        this.task = {
-            id,
-            name,
-            description: '',
-            createdAt: '',
-        };
-
-        this.autocomplete.setQuery(name);
-    }
-
-    private async assignToTask(taskName: string) {
-        this.autocomplete.clearSearchContent();
-
-        const res = await TimeEntryApi.assignToTask(this.timeEntryId, taskName);
-        this.task = res.data;
-
-        if (res.source.status === 201 && res.data.url) {
-            this.flashes.appendWithLink('success', `Created new task`, res.data.url, res.data.name);
-        }
-    }
-
-    private async onItemSelected(item: ApiTask) {
-        this.autocomplete.setQuery(item.name);
-        this.autocomplete.clearSearchContent();
-
-        const res = await TimeEntryApi.assignToTask(this.timeEntryId, item.name, item.id);
-        this.task = res.data;
-
-        this.flashes.append('success', `Assigned to task '${this.task.name}'`, true);
-    }
-
-    private async clearTask() {
-        try {
-            await TimeEntryApi.unassignTask(this.timeEntryId);
-            this.task = undefined;
-            this.autocomplete.clear();
-            this.flashes.append('success', 'Removed task', true);
-        } catch (e) {
-            if (e instanceof ApiErrorResponse) {
-                const errRes = e as ApiErrorResponse;
-                if (errRes.hasErrorCode(TimeEntryApiErrorCode.codeNoAssignedTask)) {
-                    this.flashes.append('danger', 'Time entry has no assigned task');
-                }
-            }
-        }
-    }
-
-    getTask(): ApiTask|undefined {
-        return this.task;
-    }
-
-    getContainer(): JQuery {
-        return this.$container;
     }
 }
 

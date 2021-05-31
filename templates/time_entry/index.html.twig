@@ -116,7 +116,7 @@
                 Create time entry
             </button>
         </div>
-        <div class="time-entry-list js-time-entry-list">
+        <div class="time-entry-list js-time-entry-list mb-2">
         {% for timeEntry in pagination.items %}
             {{ include('time_entry/partials/_time-entry.html.twig', {timeEntry: timeEntry}) }}
         {% else %}
@@ -124,28 +124,7 @@
         {% endfor %}
         </div>
 
-        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
-
-        {# Confirm create and stop modal #}
-        <div class="modal fade" id="confirm-stop-modal" tabindex="-1" aria-labelledby="confirm-stop-modal-label" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="confirm-stop-modal-label">Stop running time entry?</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        You have a running time entry, stop it and start a new one?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button class="btn btn-danger js-stop-running">Stop</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ knp_pagination_render(pagination, null, {}, {align: 'center'}) }}
     </div>
 {% endblock %}
 

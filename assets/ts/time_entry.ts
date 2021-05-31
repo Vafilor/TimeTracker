@@ -38,13 +38,19 @@ class TimeEntryAutoMarkdown extends AutoMarkdown {
 
 class TimeEntryPage {
     private autoMarkdown: TimeEntryAutoMarkdown;
-    constructor(private timeEntryId: string) {
+    private autocompleteTask: TimeEntryTaskAssigner;
+    private readonly flashes: Flashes;
+
+    constructor(private timeEntryId: string, flashes: Flashes) {
+        this.flashes = flashes;
         this.autoMarkdown = new TimeEntryAutoMarkdown(
             '.js-description',
             '#preview-content',
             '.markdown-link',
             timeEntryId
         );
+
+        this.autocompleteTask = new TimeEntryTaskAssigner($('.js-autocomplete-task'), this.timeEntryId, this.flashes);
     }
 }
 
@@ -52,13 +58,10 @@ $(document).ready(() => {
     const $data = $('.js-data');
     const timeEntryId = $data.data('time-entry-id');
     const durationFormat = $data.data('duration-format');
-    const assignedTask = $data.data('assigned-task');
 
     const flashes = new Flashes($('#flash-messages'));
 
-    const page = new TimeEntryPage(timeEntryId);
-    const taskAssigned = new TimeEntryTaskAssigner($('.js-autocomplete-task-create'), timeEntryId, assignedTask, flashes);
-
+    const page = new TimeEntryPage(timeEntryId, flashes);
     const timerView = new DataAttributeTimerView($('.js-timer'), durationFormat, (durationString) => {
        document.title = durationString;
     });
