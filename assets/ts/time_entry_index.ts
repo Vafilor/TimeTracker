@@ -327,8 +327,8 @@ class TimeEntryIndexItem {
         const $ended = $timestamps.find('.js-ended-at');
         $ended.addClass('d-none');
 
-        const $startedEdit = $(EditDateTime.template('js-started-at'));
-        const $endedEdit = $(EditDateTime.template('js-ended-at'));
+        const $startedEdit = $(EditDateTime.templateWithLabel('Started', 'js-edit-started-at'));
+        const $endedEdit = $(EditDateTime.templateWithLabel('Ended', 'js-edit-ended-at ml-2'));
 
         $timestamps.append($startedEdit);
         $timestamps.append($endedEdit);
@@ -337,7 +337,7 @@ class TimeEntryIndexItem {
         this.endedEdit = new EditDateTime($endedEdit, $ended.data('timestamp'));
     }
 
-    private finishTimestampEdit(): Promise<JsonResponse<ApiTimeEntry>>|Promise<void> {
+    private getTimestampEditUpdate(): Promise<JsonResponse<ApiTimeEntry>>|Promise<void> {
         let updateStarted: DateTimeParts|undefined = undefined;
         let updateEnded: DateTimeParts|undefined = undefined;
 
@@ -349,21 +349,11 @@ class TimeEntryIndexItem {
             const dateTime = this.startedEdit.getDateTime();
             if (dateTime) {
                 const dateTimeString = dateTime.date + ' ' + dateTime.time;
-                $started.text(dateTimeString);
-
                 if ($started.data('timestamp') != dateTimeString) {
                     updateStarted = dateTime;
                 }
-
-                $started.data('timestamp', dateTimeString);
             }
-
-            this.startedEdit.$container.remove();
-            this.startedEdit = undefined;
         }
-
-        $started.removeClass('d-none');
-
 
         if (this.endedEdit) {
             const dateTime = this.endedEdit.getDateTime();
@@ -372,15 +362,8 @@ class TimeEntryIndexItem {
                 if ($ended.data('timestamp') != dateTimeString) {
                     updateEnded = dateTime;
                 }
-
-                $ended.data('timestamp', dateTimeString);
             }
-
-            this.endedEdit.$container.remove();
-            this.endedEdit = undefined;
         }
-
-        $ended.removeClass('d-none');
 
         if (updateStarted || updateEnded) {
             return TimeEntryApi.update(this.id, {
@@ -390,6 +373,39 @@ class TimeEntryIndexItem {
         }
 
         return createResolvePromise();
+    }
+
+    private finishTimestampEdit() {
+        const $timestamps = this.$element.find('.js-timestamps');
+        const $started = $timestamps.find('.js-started-at');
+        const $ended = $timestamps.find('.js-ended-at');
+
+        if (this.startedEdit) {
+            const dateTime = this.startedEdit.getDateTime();
+            if (dateTime) {
+                const dateTimeString = dateTime.date + ' ' + dateTime.time;
+                $started.text(dateTimeString);
+                $started.data('timestamp', dateTimeString);
+            }
+
+            this.startedEdit.$container.remove();
+            this.startedEdit = undefined;
+        }
+
+
+        if (this.endedEdit) {
+            const dateTime = this.endedEdit.getDateTime();
+            if (dateTime) {
+                const dateTimeString = dateTime.date + ' ' + dateTime.time;
+                $ended.data('timestamp', dateTimeString);
+            }
+
+            this.endedEdit.$container.remove();
+            this.endedEdit = undefined;
+        }
+
+        $started.removeClass('d-none');
+        $ended.removeClass('d-none');
     }
 
     async stop() {
@@ -432,7 +448,7 @@ class TimeEntryIndexItem {
     async onFinishEdit() {
         this.updateButton?.startLoading();
         try {
-            const res = await this.finishTimestampEdit();
+            const res = await this.getTimestampEditUpdate();
             const jsonRes = res as JsonResponse<ApiTimeEntry>;
             if (jsonRes) {
                 const $timestamps = this.$element.find('.js-timestamps');
@@ -451,6 +467,7 @@ class TimeEntryIndexItem {
             this.flashes.append('danger', 'Unable to update timestamps');
         }
 
+        this.finishTimestampEdit();
         this.finishTagEdit();
         this.showViewButtons();
         this.finishTaskEdit();
@@ -1078,12 +1095,22 @@ class EditDateTime {
 
     public static template(extraClass: string = ''): string {
         return `
-        <div class="js-edit-date-time ${extraClass}">
-            <input class="js-date" type="date" />
-            <input class="js-time" type="time" />
+        <div class="js-edit-date-time form-inline ${extraClass}">
+            <input class="form-control js-date" type="date" />
+            <input class="form-control js-time" type="time" />
         </div>`;
     }
 
+    public static templateWithLabel(label: string, extraClass: string = ''): string {
+        return `
+        <div class="${extraClass}">
+            <div>${label}</div>
+            <div class="js-edit-date-time form-inline">
+                <input class="form-control js-date" type="date" />
+                <input class="form-control js-time" step="1" type="time" />
+            </div>
+        </div>`;
+    }
     constructor($container: JQuery, timestamp?: string) {
         this._$container = $container;
 
@@ -1096,6 +1123,7 @@ class EditDateTime {
     }
 
     getDateTime(): DateTimeParts|undefined {
+        console.log(this.$container.find('.js-date').val());
         const dateValue = this.$container.find('.js-date').val() as string;
         if (!dateValue) {
             return undefined;
