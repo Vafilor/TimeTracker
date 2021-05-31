@@ -14,8 +14,8 @@
         <div class="filter table-filter mb-3">
             <div class="filter-title">Filter</div>
             {{ form_start(filterForm) }}
-            <div class="d-flex mb-2">
-                <div>
+            <div class="d-flex flex-wrap mb-2">
+                <div class="mr-3">
                     <div>
                     {{ form_label(filterForm.start) }}
                     {% if filterForm.end.vars.errors|length != 0 %}
@@ -30,7 +30,7 @@
                     </div>
                 </div>
 
-                <div class="ml-3">
+                <div>
                     <div>
                     {{ form_label(filterForm.end) }}
                     {% if filterForm.start.vars.errors|length != 0 %}
@@ -110,6 +110,12 @@
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
+        <div class="mb-3">
+            <button class="btn btn-primary js-create-time-entry">
+                <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
+                Create time entry
+            </button>
+        </div>
         <div class="time-entry-list">
         {% for timeEntry in pagination.items %}
             <div
@@ -177,7 +183,6 @@
                     {% if timeEntry.descriptionEmpty %}
                         No description
                     {% else %}
-{#                       js markdown #}
                         {{ timeEntry.description|markdown_to_html }}
                     {% endif %}
                 </div>
@@ -197,13 +202,6 @@
         {% else %}
             <div class="text-center">No results found</div>
         {% endfor %}
-        </div>
-
-        <div>
-            <button class="btn btn-primary js-create-time-entry">
-                <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
-                Create time entry
-            </button>
         </div>
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
