@@ -1,6 +1,5 @@
 import $ from "jquery";
 import Observable from "./observable";
-import { createResolvePromise } from "./empty_promise";
 
 export abstract class SyncInput {
     private $input: JQuery;

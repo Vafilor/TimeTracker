@@ -280,8 +280,10 @@ class ApiTimeEntryController extends BaseController
      * @return Response
      * @throws Exception
      */
-    #[Route('/api/time-entry/{id}/continue', name: 'api_time_entry_continue')]
+    #[Route('/api/time-entry/{id}/continue', name: 'api_time_entry_continue', methods: ['POST'])]
+    #[Route('/json/time-entry/{id}/continue', name: 'json_time_entry_continue', methods: ['POST'])]
     public function continue(
+        Request $request,
         TimeEntryRepository $timeEntryRepository,
         TagLinkRepository $tagLinkRepository,
         string $id
@@ -297,7 +299,8 @@ class ApiTimeEntryController extends BaseController
             throw new ApiProblemException(
                 ApiProblem::invalidAction(
                     TimeEntryController::CODE_RUNNING_TIMER,
-                    'You already have a running time entry'
+                    'You have a running timer',
+                    ['resource' => $runningTimeEntry->getIdString()]
                 )
             );
         }
@@ -308,6 +311,7 @@ class ApiTimeEntryController extends BaseController
         $timeEntry = new TimeEntry($this->getUser());
         foreach ($tagLinks as $tagLink) {
             $copy = new TagLink($timeEntry, $tagLink->getTag());
+            $timeEntry->addTagLink($copy);
             $manager->persist($copy);
         }
 
@@ -316,7 +320,24 @@ class ApiTimeEntryController extends BaseController
 
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
 
-        return $this->json($apiTimeEntry);
+        if (str_starts_with($request->getPathInfo(), '/api')) {
+            $url = $this->generateUrl('api_time_entry_view', ['id' => $timeEntry->getIdString()]);
+        } else {
+            $url = $this->generateUrl('time_entry_view', ['id' => $timeEntry->getIdString()]);
+        }
+
+        $data = [
+            'timeEntry' => $apiTimeEntry,
+            'url' => $url
+        ];
+
+        if ( boolval($request->query->get('template', 'false')) ) {
+            $data['template'] = $this->renderView('time_entry/partials/_time-entry.html.twig', [
+                'timeEntry' => $timeEntry
+            ]);
+        }
+
+        return $this->json($data);
     }
 
     #[Route('/api/time-entry/{id}/stop', name: 'api_time_entry_stop', methods: ['PUT'])]

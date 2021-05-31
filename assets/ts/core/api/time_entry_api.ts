@@ -52,6 +52,10 @@ export interface CreateTimeEntryOptions {
     withHtmlTemplate?: boolean;
 }
 
+export interface ContinueTimeEntryOptions {
+    withHtmlTemplate?: boolean;
+}
+
 export class TimeEntryApi {
     public static create(options: CreateTimeEntryOptions, format: DateFormat = 'date') {
         let url = '/json/time-entry';
@@ -84,6 +88,15 @@ export class TimeEntryApi {
         return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}/stop`, {
             'time_format': format
         });
+    }
+
+    public static continue(timeEntryId: string, options: ContinueTimeEntryOptions) {
+        let url = `/json/time-entry/${timeEntryId}/continue`;
+        if (options.withHtmlTemplate) {
+            url += '?template=true';
+        }
+
+        return CoreApi.post<CreateTimeEntryResponse>(url, {});
     }
 
     public static addTag(timeEntryId: string, tagName: string) {

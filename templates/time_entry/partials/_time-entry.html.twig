@@ -73,7 +73,7 @@
     <div class="d-flex justify-content-end js-actions">
         <a href="{{ path('time_entry_view', {id: timeEntry.idString}) }}" class="btn btn-primary js-view">View</a>
         <button type="button" class="btn btn-primary js-edit ml-2">Edit</button>
-        <a href="{{ path('time_entry_continue', {id: timeEntry.idString}) }}" class="btn btn-secondary js-continue ml-2">Continue</a>
+        <button type="button" class="btn btn-secondary js-continue ml-2">Continue</button>
         {% if timeEntry.running %}
         <button data-time-entry-id="{{ timeEntry.idString }}" class="btn btn-danger js-stop ml-2">
             <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>

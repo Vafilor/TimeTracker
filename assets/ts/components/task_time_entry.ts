@@ -5,7 +5,6 @@ import { ConfirmClickEvent, ConfirmDialog } from "./confirm_dialog";
 import { ApiErrorResponse, ApiResourceError } from "../core/api/api";
 import { StaticStartTimerView } from "./timer";
 import { SyncInput } from "./sync_input";
-import { createResolvePromise } from "./empty_promise";
 
 export class SyncTaskTimeEntryDescription extends SyncInput {
     private timeEntryId?: string;
@@ -18,7 +17,7 @@ export class SyncTaskTimeEntryDescription extends SyncInput {
 
     protected update(text: string): Promise<any> {
         if (!this.timeEntryId) {
-            return createResolvePromise();
+            return Promise.resolve();
         }
 
         return TimeEntryApi.update(this.timeEntryId, {

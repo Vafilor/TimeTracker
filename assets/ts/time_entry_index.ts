@@ -25,7 +25,6 @@ import Observable from "./components/observable";
 
 
 import { createPopper } from '@popperjs/core';
-import { createResolvePromise } from "./components/empty_promise";
 import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 import { EditDateTime } from "./components/EditDateTime";
@@ -33,6 +32,9 @@ import { TimeEntryTagAssignerV2 } from "./components/time_entry_tag_assigner";
 import { DateTimeParts } from "./core/datetime";
 import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
 
+interface TimeEntryActionDelegate {
+    continue(timeEntryId: string): Promise<any>;
+}
 
 class EditableContent {
     private status: SyncStatus = 'up-to-date';
@@ -178,24 +180,27 @@ class TimeEntryIndexItem {
     private startedEdit?: EditDateTime;
     private endedEdit?: EditDateTime;
     private updateButton?: LoadingButton;
+    private delegate: TimeEntryActionDelegate;
 
     get assignedToTask(): boolean {
         return this.taskId !== undefined;
     }
 
-    constructor($element: JQuery, durationFormat: string, dateFormat: DateFormat, flashes: Flashes) {
+    constructor($element: JQuery, delegate: TimeEntryActionDelegate, durationFormat: string, dateFormat: DateFormat, flashes: Flashes) {
         this.$element = $element;
+        this.delegate = delegate;
+        this.id = $element.data('id');
         this.dateFormat = dateFormat;
         this.$viewButton = $element.find('.js-view');
         this.$editButton = $element.find('.js-edit');
-        this.$continueButton = $element.find('.js-continue');
         this.$activityIndicator = $element.find('.js-time-entry-activity');
         this.flashes = flashes;
-        this.id = $element.data('id');
         this.taskId = $element.data('task-id');
         this.taskName = $element.data('task-name');
         this.$description = $element.find('.js-description');
         this.editableContent = new MarkdownEditableContent(this.$description, this.id);
+        this.$continueButton = $element.find('.js-continue');
+        this.$continueButton.on('click', () => this.delegate.continue(this.id));
 
         const $stop = $element.find('.js-stop');
         if ($stop.length !== 0) {
@@ -386,7 +391,7 @@ class TimeEntryIndexItem {
             })
         }
 
-        return createResolvePromise();
+        return Promise.resolve();
     }
 
     private finishTimestampEdit() {
@@ -507,25 +512,26 @@ class TimeEntryIndexItem {
 }
 
 class TimeEntryList {
-    private $container: JQuery;
+    private readonly $container: JQuery;
     /**
      * key is the id of a TimeEntry.
      */
     private timeEntries = new Map<string, TimeEntryIndexItem>();
-    private dateFormat: DateFormat;
-    private durationFormat: string;
-    private flashes: Flashes;
+    private readonly dateFormat: DateFormat;
+    private readonly durationFormat: string;
+    private readonly flashes: Flashes;
+    private delegate: TimeEntryActionDelegate;
 
-    constructor($container: JQuery, durationFormat: string, dateFormat: DateFormat, flashes: Flashes) {
+    constructor($container: JQuery, delegate: TimeEntryActionDelegate, durationFormat: string, dateFormat: DateFormat, flashes: Flashes) {
         this.$container = $container;
+        this.delegate = delegate;
         this.durationFormat = durationFormat;
         this.dateFormat = dateFormat;
         this.flashes = flashes;
     }
 
-
     addExisting(id: string, $element: JQuery) {
-        this.timeEntries.set(id, new TimeEntryIndexItem($element, this.durationFormat, this.dateFormat, this.flashes));
+        this.timeEntries.set(id, new TimeEntryIndexItem($element, this.delegate, this.durationFormat, this.dateFormat, this.flashes));
     }
 
     /**
@@ -533,7 +539,7 @@ class TimeEntryList {
      * so you can always see it.
      */
     add(id: string, $element: JQuery) {
-        this.timeEntries.set(id, new TimeEntryIndexItem($element, this.durationFormat, this.dateFormat, this.flashes));
+        this.timeEntries.set(id, new TimeEntryIndexItem($element, this.delegate, this.durationFormat, this.dateFormat, this.flashes));
         this.$container.prepend($element);
     }
 
@@ -584,7 +590,7 @@ class TimeEntryListFilter {
     }
 }
 
-class TimeEntryIndexPage {
+class TimeEntryIndexPage implements TimeEntryActionDelegate{
     private readonly dateFormat: DateFormat;
     private readonly durationFormat: string;
     private readonly flashes: Flashes;
@@ -598,7 +604,7 @@ class TimeEntryIndexPage {
         this.dateFormat = $data.data('date-format') as DateFormat;
         this.durationFormat = $data.data('duration-format');
         this.flashes = new Flashes($('#fixed-flash-messages'));
-        this.timeEntryList = new TimeEntryList($('.js-time-entry-list'), this.durationFormat, this.dateFormat, this.flashes);
+        this.timeEntryList = new TimeEntryList($('.js-time-entry-list'), this, this.durationFormat, this.dateFormat, this.flashes);
         this.createTimeEntryButton = new LoadingButton($('.js-create-time-entry'));
         this.createTimeEntryButton.$container.on('click', () => this.requestToCreateTimeEntry());
 
@@ -633,11 +639,24 @@ class TimeEntryIndexPage {
 
     }
 
-    private confirmStopExistingTimer(timeEntryId: string) {
+    private async stopTimeEntryAndContinue(stopTimeEntryId: string, continueTimeEntryId) {
+        this.confirmDialog?.startLoading();
+
+        const res = await TimeEntryApi.stop(stopTimeEntryId, this.dateFormat);
+        this.timeEntryList.stopTimeEntryUI(res.data);
+
+        const createResponse = await TimeEntryApi.continue(continueTimeEntryId, {withHtmlTemplate: true});
+        this.createTimeEntry(createResponse.data);
+
+        this.confirmDialog?.remove();
+        this.confirmDialog = undefined;
+    }
+
+    private confirmStopExistingTimer(onConfirm: (arg: void) => void) {
         this.confirmDialog = new ConfirmDialog('btn-danger');
         this.confirmDialog.clicked.addObserver((event: ConfirmClickEvent) => {
             if (event.buttonClicked === 'confirm') {
-                this.stopTimeEntryAndCreate(timeEntryId);
+                onConfirm();
             }
         });
 
@@ -658,12 +677,30 @@ class TimeEntryIndexPage {
             if (e instanceof ApiErrorResponse) {
                 const runningTimerError = e.getErrorForCode(TimeEntryApiErrorCode.codeRunningTimer) as ApiResourceError;
                 if (runningTimerError) {
-                    this.confirmStopExistingTimer(runningTimerError.resource);
+                    this.confirmStopExistingTimer(() => {
+                        this.stopTimeEntryAndCreate(runningTimerError.resource);
+                    });
                 }
             }
         }
 
         this.createTimeEntryButton.stopLoading();
+    }
+
+    async continue(timeEntryId: string): Promise<any> {
+        try {
+            const res = await TimeEntryApi.continue(timeEntryId, {withHtmlTemplate: true});
+            this.createTimeEntry(res.data);
+        } catch (e) {
+            if (e instanceof ApiErrorResponse) {
+                const runningTimerError = e.getErrorForCode(TimeEntryApiErrorCode.codeRunningTimer) as ApiResourceError;
+                if (runningTimerError) {
+                    this.confirmStopExistingTimer(() => {
+                        this.stopTimeEntryAndContinue(runningTimerError.resource, timeEntryId);
+                    });
+                }
+            }
+        }
     }
 }
 
