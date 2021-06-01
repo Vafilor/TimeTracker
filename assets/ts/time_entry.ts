@@ -1,7 +1,6 @@
 import '../styles/time_entry.scss';
 
 import $ from 'jquery';
-import 'jquery-ui/ui/widgets/autocomplete';
 import 'bootstrap'; // Adds functions to jQuery
 
 import { TimeEntryApi } from "./core/api/time_entry_api";

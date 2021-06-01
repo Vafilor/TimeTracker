@@ -1,11 +1,10 @@
 import '../styles/timestamp.scss';
 
+import $ from "jquery";
 import TagList, { TagListDelegate } from "./components/tag_index";
 import Flashes from "./components/flashes";
 import { ApiTag } from "./core/api/tag_api";
 import { TimestampApi } from "./core/api/timestamp_api";
-import $ from "jquery";
-import 'jquery-ui/ui/widgets/autocomplete';
 import AutocompleteTags from "./components/autocomplete_tags";
 
 class TimestampApiAdapter implements TagListDelegate {
