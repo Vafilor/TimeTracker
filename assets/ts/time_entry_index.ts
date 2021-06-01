@@ -133,6 +133,82 @@ class TimeEntryMarkdownDescriptionSync{
     // }
 }
 
+interface TimeEntryModel {
+    id: string;
+    taskName: string;
+    description: string;
+    startedAt: string;
+    endedAt?: string;
+    tags: Array<string>;
+}
+
+class TimeEntryView {
+    private readonly id: string;
+    private readonly $container: JQuery;
+    private readonly _descriptionView: MarkdownView;
+    public get descriptionView(): MarkdownView {
+        return this._descriptionView;
+    }
+
+    constructor($container: JQuery, id: string) {
+        this.id = id;
+        this.$container = $container;
+
+        this._descriptionView = new MarkdownView($container.find('.js-description'));
+    }
+
+    set data(model: TimeEntryModel) {
+        this._descriptionView.data = model.description;
+    }
+
+    get data(): TimeEntryModel {
+        return {
+            id: this.id,
+            taskName: 'debug',
+            description: this._descriptionView.data,
+            startedAt: '0000000',
+            endedAt: '000000',
+            tags: []
+        };
+    }
+
+    hide() {
+        this._descriptionView.hide();
+    }
+
+    show() {
+        this._descriptionView.show();
+    }
+}
+
+class TimeEntryEditView {
+    private readonly model: TimeEntryModel;
+    private readonly $container: JQuery;
+    private description: TimeEntryDescriptionSync;
+
+    constructor($container: JQuery, model: TimeEntryModel) {
+        this.$container = $container;
+        this.model = model;
+
+        this.description = new TimeEntryDescriptionSync($container.find('.js-time-entry-description-sync'), model.id);
+    }
+
+    get data(): TimeEntryModel {
+        return {
+            id: this.model.id,
+            taskName: 'debug',
+            description: this.description.data,
+            startedAt: '0000000',
+            endedAt: '000000',
+            tags: []
+        };
+    }
+
+    dispose() {
+        this.description.dispose();
+    }
+}
+
 class TimeEntryIndexItem {
     // TODO it might be a good idea to split this up into a view and edit mode or something
     // That way you can get rid of all the optionals? So this class becomes a manager?
@@ -143,7 +219,7 @@ class TimeEntryIndexItem {
     private taskEdit?: TimeEntryTaskAssigner;
     private readonly flashes: Flashes;
 
-    private $element: JQuery;
+    private $container: JQuery;
     private $viewButton: JQuery;
     private $editButton: JQuery;
     private $continueButton: JQuery;
@@ -151,46 +227,50 @@ class TimeEntryIndexItem {
     private stopButton?: LoadingButton;
     private durationTimer?: TimerView;
 
-    private descriptionView: MarkdownView;
-    private descriptionEditView?: TimeEntryDescriptionSync;
+
     private tagEdit?: TimeEntryTagAssigner;
     private startedEdit?: EditDateTime;
     private endedEdit?: EditDateTime;
     private updateButton?: LoadingButton;
     private delegate: TimeEntryActionDelegate;
 
+    private view: TimeEntryView;
+    private editView?: TimeEntryEditView;
+
     get assignedToTask(): boolean {
         return this.taskId !== undefined;
     }
 
-    constructor($element: JQuery, delegate: TimeEntryActionDelegate, durationFormat: string, dateFormat: DateFormat, flashes: Flashes) {
-        this.$element = $element;
+    constructor($container: JQuery, delegate: TimeEntryActionDelegate, durationFormat: string, dateFormat: DateFormat, flashes: Flashes) {
+        this.$container = $container;
         this.delegate = delegate;
-        this.id = $element.data('id');
+        this.id = $container.data('id');
+
+        this.view = new TimeEntryView($container, this.id);
+
         this.dateFormat = dateFormat;
-        this.$viewButton = $element.find('.js-view');
-        this.$editButton = $element.find('.js-edit');
-        this.$activityIndicator = $element.find('.js-time-entry-activity');
+        this.$viewButton = $container.find('.js-view');
+        this.$editButton = $container.find('.js-edit');
+        this.$activityIndicator = $container.find('.js-time-entry-activity');
         this.flashes = flashes;
-        this.taskId = $element.data('task-id');
-        this.taskName = $element.data('task-name');
-        this.descriptionView = new MarkdownView($element.find('.js-description'));
-        this.$continueButton = $element.find('.js-continue');
+        this.taskId = $container.data('task-id');
+        this.taskName = $container.data('task-name');
+        this.$continueButton = $container.find('.js-continue');
         this.$continueButton.on('click', () => this.delegate.continue(this.id));
 
-        const $stop = $element.find('.js-stop');
+        const $stop = $container.find('.js-stop');
         if ($stop.length !== 0) {
-            this.stopButton = new LoadingButton($element.find('.js-stop'));
+            this.stopButton = new LoadingButton($container.find('.js-stop'));
             this.stopButton.$container.on('click', () => this.stop());
         }
 
-        const $durationTimer = $element.find('.js-duration.active');
+        const $durationTimer = $container.find('.js-duration.active');
         if ($durationTimer.length !== 0) {
             this.durationTimer = new TimerView($durationTimer, durationFormat);
             this.durationTimer.start($durationTimer.data('start') * 1000);
         }
 
-        $element.find('.js-edit').on('click', () => this.onEdit());
+        $container.find('.js-edit').on('click', () => this.onEdit());
     }
 
     private hideViewButtons() {
@@ -213,11 +293,11 @@ class TimeEntryIndexItem {
         $element.on('click', () => this.onFinishEdit());
         this.updateButton = new LoadingButton($element);
 
-        this.$element.find('.js-actions').append($element);
+        this.$container.find('.js-actions').append($element);
     }
 
     private removeDoneEditButtons() {
-        const $element = this.$element.find('.js-actions .js-update');
+        const $element = this.$container.find('.js-actions .js-update');
         $element.remove();
         this.updateButton = undefined;
     }
@@ -233,7 +313,7 @@ class TimeEntryIndexItem {
     }
 
     private startTaskEdit() {
-        const $task = this.$element.find('.js-task');
+        const $task = this.$container.find('.js-task');
         $task.addClass('d-none');
 
         const $newElement = $(TimeEntryTaskAssigner.template());
@@ -246,7 +326,7 @@ class TimeEntryIndexItem {
     }
 
     private finishTaskEdit() {
-        const $task = this.$element.find('.js-task');
+        const $task = this.$container.find('.js-task');
 
         if (this.taskEdit) {
             const task = this.taskEdit.getTask();
@@ -269,25 +349,8 @@ class TimeEntryIndexItem {
         $task.removeClass('d-none');
     }
 
-    private startContentEdit() {
-        this.descriptionView.hide();
-
-        const $html = $(TimeEntryDescriptionSync.template(this.descriptionView.data, 'mt-2'));
-
-        $html.insertAfter(this.descriptionView.$container);
-
-        this.descriptionEditView = new TimeEntryDescriptionSync($html, this.id)
-    }
-
-    private finishContentEdit() {
-        this.descriptionView.data = this.descriptionEditView!.data;
-        this.descriptionEditView?.dispose();
-        this.descriptionEditView = undefined;
-        this.descriptionView.show();
-    }
-
     private startTagEdit() {
-        const $tagList = this.$element.find('.js-tag-list');
+        const $tagList = this.$container.find('.js-tag-list');
         $tagList.find('.js-tag-list-view').addClass('d-none');
 
         const $tagEditList = $('<div class="js-tag-edit-list d-inline-block"></div>');
@@ -302,7 +365,7 @@ class TimeEntryIndexItem {
     }
 
     private finishTagEdit() {
-        const $tagList = this.$element.find('.js-tag-list');
+        const $tagList = this.$container.find('.js-tag-list');
         const $tagView = $tagList.find('.js-tag-list-view');
 
         if (this.tagEdit) {
@@ -323,7 +386,7 @@ class TimeEntryIndexItem {
     }
 
     private startTimestampEdit() {
-        const $timestamps = this.$element.find('.js-timestamps');
+        const $timestamps = this.$container.find('.js-timestamps');
 
         const $started = $timestamps.find('.js-started-at');
         $started.addClass('d-none');
@@ -345,7 +408,7 @@ class TimeEntryIndexItem {
         let updateStarted: DateTimeParts|undefined = undefined;
         let updateEnded: DateTimeParts|undefined = undefined;
 
-        const $timestamps = this.$element.find('.js-timestamps');
+        const $timestamps = this.$container.find('.js-timestamps');
         const $started = $timestamps.find('.js-started-at');
         const $ended = $timestamps.find('.js-ended-at');
 
@@ -380,7 +443,7 @@ class TimeEntryIndexItem {
     }
 
     private finishTimestampEdit() {
-        const $timestamps = this.$element.find('.js-timestamps');
+        const $timestamps = this.$container.find('.js-timestamps');
         const $started = $timestamps.find('.js-started-at');
         const $ended = $timestamps.find('.js-ended-at');
 
@@ -413,8 +476,8 @@ class TimeEntryIndexItem {
     }
 
     stopUI(timeEntry: ApiTimeEntry) {
-        this.$element.find('.js-ended-at').text('- ' + timeEntry.endedAt);
-        this.$element.find('.js-duration').text(timeEntry.duration);
+        this.$container.find('.js-ended-at').text('- ' + timeEntry.endedAt);
+        this.$container.find('.js-duration').text(timeEntry.duration);
 
         this.durationTimer?.stop();
         this.$activityIndicator.remove();
@@ -425,8 +488,8 @@ class TimeEntryIndexItem {
 
         try {
             const res = await TimeEntryApi.stop(this.id, this.dateFormat)
-            this.$element.find('.js-ended-at').text('- ' + res.data.endedAt);
-            this.$element.find('.js-duration').text(res.data.duration);
+            this.$container.find('.js-ended-at').text('- ' + res.data.endedAt);
+            this.$container.find('.js-duration').text(res.data.duration);
 
             if (this.durationTimer) {
                 this.durationTimer.stop();
@@ -438,10 +501,10 @@ class TimeEntryIndexItem {
 
             this.$activityIndicator.remove();
 
-            if (this.$element.find('.js-continue').length === 0) {
+            if (this.$container.find('.js-continue').length === 0) {
                 this.$continueButton = $(`<button type="button" class="btn btn-secondary js-continue ml-2">Continue</button>`);
                 this.$continueButton.on('click', () => this.delegate.continue(this.id));
-                this.$element.find('.js-actions').append(this.$continueButton);
+                this.$container.find('.js-actions').append(this.$continueButton);
             }
 
         } catch (e) {
@@ -451,13 +514,22 @@ class TimeEntryIndexItem {
     }
 
     onEdit() {
-        this.$element.find('.js-time-entry-activity').addClass('d-none');
+        this.$container.find('.js-time-entry-activity').addClass('d-none');
         this.hideViewButtons();
         this.showDoneEditButtons();
         this.startTaskEdit();
         this.startTagEdit();
-        this.startContentEdit();
         this.startTimestampEdit();
+
+        const data = this.view.data;
+        this.view.hide();
+
+        const $html = $(TimeEntryDescriptionSync.template(data.description, 'mt-2'));
+
+        $html.insertAfter(this.view.descriptionView.$container);
+
+        // TODO create edit view
+        this.editView = new TimeEntryEditView(this.$container, data);
     }
 
     async onFinishEdit() {
@@ -466,7 +538,7 @@ class TimeEntryIndexItem {
             const res = await this.getTimestampEditUpdate();
             const jsonRes = res as JsonResponse<ApiTimeEntry>;
             if (jsonRes) {
-                const $timestamps = this.$element.find('.js-timestamps');
+                const $timestamps = this.$container.find('.js-timestamps');
                 const $started = $timestamps.find('.js-started-at');
                 $started.text(jsonRes.data.startedAt);
 
@@ -474,8 +546,8 @@ class TimeEntryIndexItem {
                 if (jsonRes.data.endedAt) {
                     this.durationTimer?.stop();
                     this.durationTimer = undefined;
-                    this.$element.find('.js-duration.active').text(jsonRes.data.duration);
-                    this.$element.find('.js-time-entry-activity').remove();
+                    this.$container.find('.js-duration.active').text(jsonRes.data.duration);
+                    this.$container.find('.js-time-entry-activity').remove();
                     $ended.text('- ' + jsonRes.data.endedAt);
                 }
             }
@@ -487,10 +559,20 @@ class TimeEntryIndexItem {
         this.finishTagEdit();
         this.showViewButtons();
         this.finishTaskEdit();
-        this.finishContentEdit();
         this.updateButton?.stopLoading();
         this.removeDoneEditButtons();
-        this.$element.find('.js-time-entry-activity').removeClass('d-none');
+        this.$container.find('.js-time-entry-activity').removeClass('d-none');
+
+        if (!this.editView) {
+            throw new Error('EditView not set');
+        }
+
+        this.view.data = this.editView.data;
+
+        this.editView.dispose();
+        this.editView = undefined;
+
+        this.view.show();
     }
 }
 
