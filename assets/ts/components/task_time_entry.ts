@@ -3,8 +3,8 @@ import { ApiTimeEntry, TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/t
 import Observable from "./observable";
 import { ConfirmClickEvent, ConfirmDialog } from "./confirm_dialog";
 import { ApiErrorResponse, ApiResourceError } from "../core/api/api";
-import { StaticStartTimerView } from "./timer";
 import { SyncInput } from "./sync_input";
+import TimerView from "./timer";
 
 export class SyncTaskTimeEntryDescription extends SyncInput {
     private timeEntryId?: string;
@@ -56,7 +56,7 @@ export default class TaskTimeEntry {
 
     private descriptionUpdater: SyncTaskTimeEntryDescription;
 
-    private durationTimer: StaticStartTimerView;
+    private durationTimer: TimerView;
     private model?: ApiTimeEntry;
     public readonly stopped = new Observable<ApiTimeEntry>();
     private _state: TimeEntryState;
@@ -121,7 +121,7 @@ export default class TaskTimeEntry {
 
         this.$loading = this.$container.find('.js-task-time-entry-loading');
 
-        this.durationTimer = new StaticStartTimerView($('.js-duration'), this.durationFormat);
+        this.durationTimer = new TimerView($('.js-duration'), this.durationFormat);
 
         this.descriptionUpdater = new SyncTaskTimeEntryDescription(
             $('.js-task-time-entry .js-time-entry-description'),

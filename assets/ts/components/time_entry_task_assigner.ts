@@ -3,7 +3,7 @@ import Flashes from "./flashes";
 import { ApiTask, ApiTaskAssign } from "../core/api/task_api";
 import { TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 import { ApiErrorResponse } from "../core/api/api";
-import { TaskAutocomplete } from "../time_entry_index";
+import { TaskAutocomplete } from "./autocomplete";
 
 export class TimeEntryTaskAssigner {
     private readonly timeEntryId: string;

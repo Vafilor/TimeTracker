@@ -43,7 +43,7 @@
             {% endif %}
 
             Duration
-            <span class="ml-1 {% if timeEntry.running %}js-timer{% endif %}"
+            <span class="ml-1 js-timer {% if timeEntry.running %}js-running-timer{% endif %}"
                   data-start="{{ timeEntry.startedAt.timestamp }}">
             {{ time.user_duration(timeEntry.duration, app.user) }}
         </span>
@@ -53,16 +53,22 @@
     <div class="js-autocomplete-tags d-flex align-items-center mt-2">
         <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
 
-        <div class="input-group unset-width flex-shrink-0 align-self-start">
-            <div class="input-group-prepend">
-                <div class="input-group-text">
-                    <div class="spinner-border spinner-border-sm text-primary js-loading opacity-invisible" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
+        <div class="autocomplete js-autocomplete js-autocomplete-tags">
+            <div class="d-flex bg-white">
+                <div class="search border-right-0 rounded-right-0">
+                    <input
+                            type="text"
+                            class="js-input"
+                            placeholder="tag name..."
+                            name="tag"
+                            autocomplete="off">
+                    <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
                 </div>
+                <button type="button" class="btn js-add btn-outline-primary rounded-left-0">
+                    Add
+                </button>
             </div>
-            <input type="text" class="js-input" placeholder="tag name..." aria-label="loading indicator">
-            <button type="button" class="btn btn-secondary js-add ml-2">Add</button>
+            <div class="search-results js-search-results d-none"></div>
         </div>
     </div>
 

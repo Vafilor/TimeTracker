@@ -1,10 +1,10 @@
 // TODO rename
 import Flashes from "./flashes";
 import TagList from "./tag_index";
-import { TagsAutocompleteV2 } from "../time_entry_index";
 import { ApiTag } from "../core/api/tag_api";
+import { TagsAutocompleteV2 } from "./autocomplete";
 
-export class TimeEntryTagAssignerV2 {
+export class TimeEntryTagAssigner {
     private readonly _$container: JQuery;
     get $container(): JQuery {
         return this._$container;

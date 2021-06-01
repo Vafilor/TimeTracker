@@ -2,12 +2,12 @@
 {% import 'tag/partials.html.twig' as tags %}
 
 <div
-        class="time-entry js-time-entry"
-        data-id="{{ timeEntry.idString }}"
-        {% if timeEntry.assignedToTask %}
-        data-task-id="{{ timeEntry.task.idString }}"
-        data-task-name="{{ timeEntry.task.name }}"
-        {% endif %}
+    class="time-entry js-time-entry"
+    data-id="{{ timeEntry.idString }}"
+    {% if timeEntry.assignedToTask %}
+    data-task-id="{{ timeEntry.task.idString }}"
+    data-task-name="{{ timeEntry.task.name }}"
+    {% endif %}
 >
     <div class="d-flex justify-content-between">
         <div>
