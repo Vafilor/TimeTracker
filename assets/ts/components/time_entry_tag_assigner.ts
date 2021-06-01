@@ -1,4 +1,3 @@
-// TODO rename
 import Flashes from "./flashes";
 import TagList from "./tag_index";
 import { ApiTag } from "../core/api/tag_api";

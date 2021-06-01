@@ -304,7 +304,7 @@ class TimeEntryIndexItem {
         const $tagEditList = $('<div class="js-tag-edit-list d-inline-block"></div>');
         $tagEditList.data(TagList.initialDataKey, $tagList.data(TagList.initialDataKey));
         $tagList.append($tagEditList);
-        // TODO pass initial data...or get it via a source.
+
         const tagList = new TagList($tagEditList, new TimeEntryApiAdapter(this.id, this.flashes));
         const $template = $(TimeEntryTagAssigner.template());
         $tagList.append($template);
@@ -424,24 +424,15 @@ class TimeEntryIndexItem {
     }
 
     stopUI(timeEntry: ApiTimeEntry) {
-        // TODO clean up other resources?
-
         this.$element.find('.js-ended-at').text('- ' + timeEntry.endedAt);
         this.$element.find('.js-duration').text(timeEntry.duration);
 
-        if (this.durationTimer) {
-            this.durationTimer.stop();
-        }
-
+        this.durationTimer?.stop();
         this.$activityIndicator.remove();
     }
 
     async stop() {
-        if (!this.stopButton) {
-            return;
-        }
-
-        this.stopButton.startLoading();
+        this.stopButton?.startLoading();
 
         try {
             const res = await TimeEntryApi.stop(this.id, this.dateFormat)
@@ -452,14 +443,21 @@ class TimeEntryIndexItem {
                 this.durationTimer.stop();
             }
 
-            this.stopButton.stopLoading();
-            this.stopButton.$container.remove();
+            this.stopButton?.stopLoading();
+            this.stopButton?.$container.remove();
             this.stopButton = undefined;
 
             this.$activityIndicator.remove();
+
+            if (this.$element.find('.js-continue').length === 0) {
+                this.$continueButton = $(`<button type="button" class="btn btn-secondary js-continue ml-2">Continue</button>`);
+                this.$continueButton.on('click', () => this.delegate.continue(this.id));
+                this.$element.find('.js-actions').append(this.$continueButton);
+            }
+
         } catch (e) {
             this.flashes.append('danger', 'Unable to stop time entry');
-            this.stopButton!.stopLoading();
+            this.stopButton?.stopLoading();
         }
     }
 

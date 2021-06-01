@@ -21,6 +21,7 @@ class DefaultDelegate implements TagListDelegate{
 
 export default class TagList {
     public static readonly initialDataKey = 'initial-tags-name';
+    public static readonly initialDataObjectsKey = 'initial-tags';
 
     private delegate: TagListDelegate;
     private tags = new Array<ApiTag>();
@@ -52,7 +53,7 @@ export default class TagList {
             }
         }
 
-        const initialTags = this.$container.data('initial-tags') as Array<ApiTag>;
+        const initialTags = this.$container.data(TagList.initialDataObjectsKey) as Array<ApiTag>;
         if (initialTags) {
             for (const tag of initialTags) {
                 this.addImmediate(tag);

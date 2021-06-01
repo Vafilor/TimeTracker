@@ -13,7 +13,6 @@ import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 import { TimeEntryTagAssigner } from "./components/time_entry_tag_assigner";
 import TimerView from "./components/timer";
 
-// TODO redo this class, can I just add an event? Why do I need to subclass?
 class TimeEntryAutoMarkdown extends AutoMarkdown {
     private readonly timeEntryId: string;
 
@@ -58,7 +57,6 @@ class TimeEntryPage {
         this.autocompleteTask = new TimeEntryTaskAssigner($('.js-autocomplete-task'), this.timeEntryId, this.flashes);
 
         const $tagList = $('.js-tags');
-        // TODO pass initial data...or get it via a source.
         const tagList = new TagList($tagList, new TimeEntryApiAdapter(this.timeEntryId, this.flashes));
         const $template = $('.js-autocomplete-tags');
 
