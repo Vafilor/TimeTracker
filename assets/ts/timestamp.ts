@@ -39,15 +39,16 @@ $(document).ready(() => {
 
     const flashes = new Flashes($('#flash-messages'));
 
-    const tagIndex = new TagList($('.js-tags'), new TimestampApiAdapter(timestampId, flashes));
-    const autoComplete = new AutocompleteTags($('.js-autocomplete-tags'));
-    autoComplete.setTags(tagIndex.getTagNames());
+    const tagList = new TagList($('.js-tags'), new TimestampApiAdapter(timestampId, flashes));
+    const autocomplete = new AutocompleteTags($('.js-autocomplete-tags'));
+    autocomplete.setTagNames(tagList.getTagNames());
 
-    autoComplete.valueEmitter.addObserver((apiTag: ApiTag) => {
-        tagIndex.add(apiTag);
+    autocomplete.itemSelected.addObserver((tag: ApiTag) => {
+        tagList.add(tag);
+        autocomplete.clear();
     })
 
-    tagIndex.tagsChanged.addObserver(() => {
-        autoComplete.setTags(tagIndex.getTagNames());
+    tagList.tagsChanged.addObserver(() => {
+        autocomplete.setTagNames(tagList.getTagNames());
     });
 });

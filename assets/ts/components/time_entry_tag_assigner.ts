@@ -2,7 +2,7 @@
 import Flashes from "./flashes";
 import TagList from "./tag_index";
 import { ApiTag } from "../core/api/tag_api";
-import { TagsAutocompleteV2 } from "./autocomplete";
+import AutocompleteTags from "./autocomplete_tags";
 
 export class TimeEntryTagAssigner {
     private readonly _$container: JQuery;
@@ -12,7 +12,7 @@ export class TimeEntryTagAssigner {
 
     private readonly flashes: Flashes;
     private readonly tagList: TagList;
-    private autocomplete: TagsAutocompleteV2;
+    private autocomplete: AutocompleteTags;
 
     static template(): string {
         return `
@@ -32,14 +32,14 @@ export class TimeEntryTagAssigner {
                 </button>   
             </div>
             <div class="search-results js-search-results d-none"></div>
-        </div>`
+        </div>`;
     }
 
     constructor($container: JQuery, tagList: TagList, flashes: Flashes) {
         this._$container = $container;
         this.tagList = tagList;
         this.flashes = flashes;
-        this.autocomplete = new TagsAutocompleteV2($container);
+        this.autocomplete = new AutocompleteTags($container);
 
         this.autocomplete.itemSelected.addObserver((tag: ApiTag) => this.onTagSelected(tag));
         this.autocomplete.enterPressed.addObserver((name: string) => this.onAddTag(name));

@@ -13,20 +13,20 @@ import {
 } from "./core/api/time_entry_api";
 import Flashes from "./components/flashes";
 import LoadingButton from "./components/loading_button";
-import AutocompleteTags from "./components/autocomplete_tags";
 import { ApiTag } from "./core/api/tag_api";
-import AutocompleteTasks from "./components/autocomplete_tasks";
 import { ApiTask } from "./core/api/task_api";
 import TagList from "./components/tag_index";
 import { SyncInputV2, SyncStatus } from "./components/sync_input";
 import { ApiErrorResponse, ApiResourceError, JsonResponse } from "./core/api/api";
 import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
-import { EditDateTime } from "./components/EditDateTime";
+import { EditDateTime } from "./components/edit_date_time";
 import { DateTimeParts } from "./core/datetime";
 import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
 import { TimeEntryTagAssigner } from "./components/time_entry_tag_assigner";
 import TimerView from "./components/timer";
+import AutocompleteTags from "./components/autocomplete_tags";
+import AutocompleteTask from "./components/autocomplete_task";
 
 interface TimeEntryActionDelegate {
     continue(timeEntryId: string): Promise<any>;
@@ -516,7 +516,7 @@ class TimeEntryList {
     private readonly dateFormat: DateFormat;
     private readonly durationFormat: string;
     private readonly flashes: Flashes;
-    private delegate: TimeEntryActionDelegate;
+    private readonly delegate: TimeEntryActionDelegate;
 
     constructor($container: JQuery, delegate: TimeEntryActionDelegate, durationFormat: string, dateFormat: DateFormat, flashes: Flashes) {
         this.$container = $container;
@@ -551,38 +551,54 @@ class TimeEntryList {
 
 class TimeEntryListFilter {
     private $element: JQuery;
-    private tagList: TagList;
+    private flashes: Flashes;
     private autocompleteTags: AutocompleteTags;
 
-    constructor($element: JQuery) {
+    constructor($element: JQuery, flashes: Flashes) {
         this.$element = $element;
+        this.flashes = flashes;
 
-        this.tagList = new TagList($element.find('.js-tags'));
-        const $realInput = $element.find('.js-real-input');
+        this.setUpTaskFilter();
+        this.setUpTagFilter();
+    }
 
-        this.autocompleteTags = new AutocompleteTags($element.find('.js-autocomplete-tags'));
-        if (this.autocompleteTags.live()) {
-            this.autocompleteTags.valueEmitter.addObserver((apiTag: ApiTag) => {
-                this.tagList.add(apiTag);
-            })
-        }
-
-        this.tagList.tagsChanged.addObserver(() => {
-            this.autocompleteTags.setTags(this.tagList.getTagNames());
-            $realInput.val(this.tagList.getTagNamesCommaSeparated());
-        });
-
+    private setUpTaskFilter() {
+        // The actual, hidden, form element
         const $realTaskInput = $('.js-real-task-input');
-        const autoCompleteTask = new AutocompleteTasks($element.find('.js-autocomplete-tasks'));
-        if (autoCompleteTask.live()) {
-            autoCompleteTask.valueEmitter.addObserver((task: ApiTask) => {
-                $realTaskInput.val(task.id);
-            });
 
-            autoCompleteTask.$nameInput.on('input', () => {
-                $realTaskInput.val('');
-            });
-        }
+        const autocompleteTask = new AutocompleteTask($('.js-autocomplete-task'));
+        autocompleteTask.itemSelected.addObserver((task: ApiTask) => {
+            autocompleteTask.setQuery(task.name);
+            autocompleteTask.clearSearchContent();
+            $realTaskInput.val(task.id);
+        })
+
+        autocompleteTask.inputChange.addObserver(() => {
+            $realTaskInput.val('');
+        })
+
+        autocompleteTask.inputClear.addObserver(() => {
+            $realTaskInput.val('');
+        })
+    }
+
+    private setUpTagFilter() {
+        const $tagListFilter = this.$element.find('.js-tags-filter');
+        const tagList = new TagList($tagListFilter.find('.js-tag-list'));
+        this.autocompleteTags = new AutocompleteTags($tagListFilter.find('.js-autocomplete-tags'));
+
+        this.autocompleteTags.itemSelected.addObserver((apiTag: ApiTag) => {
+            tagList.add(apiTag);
+            setTimeout(() => {
+                this.autocompleteTags.positionSearchContent();
+            }, 10);
+        })
+
+        const $realTagInput = this.$element.find('.js-real-tag-input');
+        tagList.tagsChanged.addObserver(() => {
+            this.autocompleteTags.setTagNames(tagList.getTagNames());
+            $realTagInput.val(tagList.getTagNamesCommaSeparated());
+        });
     }
 }
 
@@ -609,7 +625,7 @@ class TimeEntryIndexPage implements TimeEntryActionDelegate{
             this.timeEntryList.addExisting($element.data('id'), $element);
         });
 
-        this.filter = new TimeEntryListFilter($('.filter'));
+        this.filter = new TimeEntryListFilter($('.filter'), this.flashes);
     }
 
     private createTimeEntry(response: CreateTimeEntryResponse) {

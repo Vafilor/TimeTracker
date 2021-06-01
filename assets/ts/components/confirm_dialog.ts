@@ -103,4 +103,3 @@ export class ConfirmDialog {
         </div>`;
     }
 }
-// TODO Modal needs optional loading buttons.

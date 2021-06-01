@@ -11,15 +11,11 @@ export interface TagListDelegate {
 
 class DefaultDelegate implements TagListDelegate{
     addTag(tag: ApiTag): Promise<ApiTag> {
-        return new Promise<ApiTag>((resolve, reject) => {
-            resolve(tag);
-        });
+        return Promise.resolve(tag);
     }
 
     removeTag(tagName: string): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            resolve();
-        });
+        return Promise.resolve();
     }
 }
 

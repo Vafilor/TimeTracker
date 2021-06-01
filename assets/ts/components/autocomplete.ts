@@ -5,90 +5,6 @@ import { createPopper } from "@popperjs/core";
 import { ApiTask, TaskApi } from "../core/api/task_api";
 import { ApiTag, TagApi } from "../core/api/tag_api";
 
-export default abstract class AutocompleteV1<T> {
-    protected $container: JQuery;
-    protected $loading: JQuery;
-    public readonly $nameInput: any;
-    public readonly valueEmitter = new Observable<T>()
-
-    constructor($container: JQuery) {
-        if ($container.length === 0) {
-            return;
-        }
-
-        this.$container = $container;
-        this.$nameInput = this.$container.find('.js-input');
-        this.$loading = this.$container.find('.js-loading');
-
-        this.setupAutoComplete();
-    }
-
-    public live() {
-        return this.$container !== undefined;
-    }
-
-    protected getInputValue(): string {
-        return this.$nameInput.val() as string;
-    }
-
-    protected abstract listItems(name: string, request: any): Promise<JsonResponse<any>>;
-
-    protected abstract createItemTemplate(item: T): string;
-
-    protected abstract onItemSelected(item: T);
-
-    private setupAutoComplete() {
-        const $nameInput = this.$nameInput;
-
-        $nameInput.autocomplete({
-            minLength: 0,
-            source: (request, response) => {
-                this.$loading.removeClass('opacity-invisible');
-
-                this.listItems(request.term, request)
-                    .then(res => {
-                        this.$loading.addClass('opacity-invisible');
-                        response(res.data.data);
-
-                        // Remove the autocomplete text that shows how many search results were present, etc.
-                        $('.ui-helper-hidden-accessible div').remove();
-                    }).catch(err => {
-                    this.$loading.addClass('opacity-invisible');
-                    response([]);
-                    // Remove the autocomplete text that shows how many search results were present, etc.
-                    $('.ui-helper-hidden-accessible div').remove();
-                });
-            },
-            focus: function (event, ui) {
-                $nameInput.val(ui.item.name);
-                return false;
-            },
-            select: (event, ui) => {
-                $nameInput.val(ui.item.name);
-                this.onItemSelected(ui.item);
-
-                return false;
-            },
-            delay: 300,
-        }).autocomplete("instance")._renderItem = (ul, item) => {
-            const template = this.createItemTemplate(item);
-            return $(`<li class="border-bottom">`)
-                .append(template)
-                .append("</li>")
-                .appendTo(ul)
-            ;
-        };
-    }
-
-    public clearInput() {
-        if (this.live()) {
-            this.$nameInput.val('');
-        }
-    }
-}
-
-
-
 /**
  * Autocomplete provides a basic autocomplete for an input/search results set of elements.
  * It sets up a debounce so queries are not immediately made.
@@ -148,6 +64,13 @@ abstract class Autocomplete {
     protected readonly $searchContent: JQuery;
 
     /**
+     * This is fired whenever the input value changes.
+     */
+    public readonly inputChange = new Observable<string>();
+
+    public readonly inputClear = new Observable<void>();
+
+    /**
      * @param $element the element containing the autocomplete content.
      */
     constructor(private $element: JQuery) {
@@ -158,6 +81,7 @@ abstract class Autocomplete {
 
         $(document).on('click', () => this.onClickOutside());
         $element.on('click', (event) => {
+            // Don't propagate event to document so we don't close search results - which happens when document is clicked.
             event.stopPropagation();
         })
 
@@ -194,10 +118,11 @@ abstract class Autocomplete {
             this.cancelled = false;
         }
 
+        const text = $(event.currentTarget).val() as string;
+        this.inputChange.emit(text);
+
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
-            const text = $(event.currentTarget).val() as string;
-
             this.search(text);
         }, this.debounceTime);
     }
@@ -219,7 +144,7 @@ abstract class Autocomplete {
      *
      * Popper is used to achieve this by default.
      */
-    protected positionSearchContent() {
+    positionSearchContent() {
         createPopper(this.$search[0], this.$searchContent[0], {
             placement: 'bottom-start',
             modifiers: [
@@ -285,6 +210,7 @@ abstract class Autocomplete {
         this.clearSearchContent();
         this.$input.val('');
         this.cancelled = true;
+        this.inputClear.emit();
     }
 }
 
@@ -295,7 +221,7 @@ abstract class Autocomplete {
  * * queryApi
  *
  */
-abstract class PaginatedAutocomplete<T> extends Autocomplete {
+export abstract class PaginatedAutocomplete<T> extends Autocomplete {
     /**
      * itemSelected is fired whenever a search result is clicked on.
      * The pagination response item is the data emitted.
@@ -379,36 +305,5 @@ abstract class PaginatedAutocomplete<T> extends Autocomplete {
 
         this.$searchContent.append(this.$searchContent);
         this.$searchContent.removeClass('d-none');
-    }
-}
-
-export class TaskAutocomplete extends PaginatedAutocomplete<ApiTask> {
-    protected template(item: ApiTask): string {
-        if (item.completedAt) {
-            return `<div><span class="task-complete"><i class="far fa-check-square"></i></span>${item.name}</div>`;
-        }
-
-        return `<div><span class="task-complete"><i class="far fa-square"></i></span>${item.name}</div>`;
-    }
-
-    protected queryApi(query: string): Promise<JsonResponse<PaginatedResponse<ApiTask>>> {
-        return TaskApi.index(query);
-    }
-}
-
-// TODO rename
-export class TagsAutocompleteV2 extends PaginatedAutocomplete<ApiTag> {
-    private tagNames = new Array<string>();
-
-    public setTagNames(tagNames: string[]) {
-        this.tagNames = tagNames;
-    }
-
-    protected template(item: ApiTag): string {
-        return `<div>${item.name}</div>`;
-    }
-
-    protected queryApi(query: string): Promise<JsonResponse<PaginatedResponse<ApiTag>>> {
-        return TagApi.index(query, this.tagNames);
     }
 }

@@ -1,15 +1,15 @@
 import $ from "jquery";
 import Flashes from "./flashes";
-import { ApiTask, ApiTaskAssign } from "../core/api/task_api";
+import { ApiTask } from "../core/api/task_api";
 import { TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 import { ApiErrorResponse } from "../core/api/api";
-import { TaskAutocomplete } from "./autocomplete";
+import AutocompleteTask from "./autocomplete_task";
 
 export class TimeEntryTaskAssigner {
     private readonly timeEntryId: string;
     private readonly $container: JQuery;
     private readonly flashes: Flashes;
-    private autocomplete: TaskAutocomplete;
+    private autocomplete: AutocompleteTask;
     private task?: ApiTask;
 
     static template(): string {
@@ -39,7 +39,7 @@ export class TimeEntryTaskAssigner {
 
         this.$container = $container;
 
-        this.autocomplete = new TaskAutocomplete($container);
+        this.autocomplete = new AutocompleteTask($container);
         this.autocomplete.itemSelected.addObserver((item: ApiTask) => this.onItemSelected(item));
 
         this.$container.find('.js-delete').on('click', () => this.clearTask());
