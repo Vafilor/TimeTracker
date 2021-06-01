@@ -3,10 +3,93 @@ import { ApiTimeEntry, TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/t
 import Observable from "./observable";
 import { ConfirmClickEvent, ConfirmDialog } from "./confirm_dialog";
 import { ApiErrorResponse, ApiResourceError } from "../core/api/api";
-import { SyncInput } from "./sync_input";
 import TimerView from "./timer";
 
-export class SyncTaskTimeEntryDescription extends SyncInput {
+abstract class SyncInputInternal {
+    private $input: JQuery;
+    private $loadingContainer: JQuery;
+    private debounceTime = 500;
+    private timeout: any;
+
+    /**
+     * textChanged is triggered whenever the text has been changed in the input, after the debounce time.
+     */
+    public readonly textChanged = new Observable<string>();
+
+    /**
+     * textUplaoded is triggered whenever the text change has been successfully uploaded the the server.
+     */
+    public readonly textUploaded = new Observable<string>();
+
+    constructor(
+        $inputElement: JQuery,
+        $loadingElement: JQuery) {
+        this.$input = $inputElement;
+        this.$loadingContainer = $loadingElement
+    }
+
+    protected abstract update(text: string): Promise<any>;
+
+    private startLoading() {
+        this.$loadingContainer.find('.js-loading').removeClass('d-none');
+    }
+
+    private stopLoading() {
+        this.$loadingContainer.find('.js-loading').addClass('d-none');
+    }
+
+    protected onTextChange(text: string): Promise<any> {
+        this.textChanged.emit(text);
+
+        return this.update(text)
+            .then(() => {
+                this.stopLoading();
+                this.textUploaded.emit(text);
+            });
+    }
+
+    start() {
+        this.$input.on('input propertychange', () => {
+            clearTimeout(this.timeout);
+            this.startLoading();
+
+            this.timeout = setTimeout(() => {
+                const text = this.$input.val() as string;
+
+                this.onTextChange(text);
+            }, this.debounceTime);
+        })
+
+    }
+
+    stop() {
+        clearTimeout()
+        this.$input.off('input propertychange');
+    }
+
+    setDebounceTime(value: number) {
+        this.debounceTime = value;
+    }
+
+    upload() {
+        this.startLoading();
+        const text = this.$input.val() as string;
+        return this.onTextChange(text);
+    }
+
+    uploadIfHasText(): Promise<any> {
+        const descriptionText = this.$input.val() as string;
+        if (descriptionText && descriptionText.length > 0) {
+            return this.upload();
+        }
+
+        return new Promise<void>(function (resolve, reject) {
+            resolve();
+        });
+    }
+}
+
+export class SyncTaskTimeEntryDescription extends SyncInputInternal {
     private timeEntryId?: string;
 
     public constructor(

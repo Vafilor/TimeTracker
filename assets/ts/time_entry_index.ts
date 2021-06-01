@@ -15,7 +15,7 @@ import LoadingButton from "./components/loading_button";
 import { ApiTag } from "./core/api/tag_api";
 import { ApiTask } from "./core/api/task_api";
 import TagList from "./components/tag_index";
-import { SyncInputV2, SyncStatus } from "./components/sync_input";
+import { SyncInput, SyncStatus } from "./components/sync_input";
 import { ApiErrorResponse, ApiResourceError, JsonResponse } from "./core/api/api";
 import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
@@ -26,36 +26,44 @@ import { TimeEntryTagAssigner } from "./components/time_entry_tag_assigner";
 import TimerView from "./components/timer";
 import AutocompleteTags from "./components/autocomplete_tags";
 import AutocompleteTask from "./components/autocomplete_task";
+import MarkdownView from "./components/markdown_view";
 
 interface TimeEntryActionDelegate {
     continue(timeEntryId: string): Promise<any>;
 }
 
-class EditableContent {
+/**
+ * TimeEntryDescriptionSync connects to an editable content area and updates a
+ * TimeEntry's description with it via API calls.
+ *
+ * The status/progress of the updates is reported as the events occur.
+ */
+class TimeEntryDescriptionSync {
+    private readonly $container: JQuery;
+    private readonly timeEntryId: string;
+    private readonly $status: JQuery;
+    private readonly $editable: JQuery;
     private status: SyncStatus = 'up-to-date';
-    private $status?: JQuery;
-    private $editContainer?: JQuery;
-    private $editable?: JQuery;
-    private syncDescription?: SyncInputV2;
+    private syncDescription: SyncInput;
 
-    constructor(protected $view: JQuery, private timeEntryId: string) {
+    public static template(content: string, extraClass: string): string {
+        return `
+            <div class="js-time-entry-description-sync ${extraClass}">
+                <textarea class="js-content-edit w-100" rows="2">${content}</textarea>
+                <div class="timestamp js-status">Up to date</div>
+            </div>
+        `;
 
     }
 
-    edit() {
-        const content = this.$view.data('description');
-        this.$view.addClass('d-none');
+    constructor($container: JQuery, timeEntryId: string) {
+        this.$container = $container;
+        this.timeEntryId = timeEntryId;
 
-        this.$editable = $(`<textarea class="js-content-edit w-100" rows="2">${content}</textarea>`);
-        this.$status = $(`<div class="timestamp status">Up to date</div>`);
+        this.$editable = this.$container.find('.js-content-edit');
+        this.$status = this.$container.find('.js-status');
 
-        this.$editContainer = $(`<div class="mt-2"></div>`);
-        this.$editContainer.append(this.$editable);
-        this.$editContainer.append(this.$status);
-
-        this.$editContainer.insertAfter(this.$view);
-
-        this.syncDescription = new SyncInputV2(
+        this.syncDescription = new SyncInput(
             this.$editable,
             (content: string) => this.onContentFinishChange(content),
             () => this.onContentChange()
@@ -65,10 +73,6 @@ class EditableContent {
     }
 
     async onContentFinishChange(content: string) {
-        if (!this.$status) {
-            throw new Error('$status not set');
-        }
-
         this.status = 'updating';
 
         this.$status.html(`
@@ -85,10 +89,6 @@ class EditableContent {
     }
 
     onContentChange() {
-        if (!this.$status) {
-            throw new Error('$status not set');
-        }
-
         if (this.status === 'modified') {
             return;
         }
@@ -97,58 +97,40 @@ class EditableContent {
         this.$status.text('Modified');
     }
 
-    protected updateViewContent(content: string) {
-        this.$view.text(content);
-        this.$view.data('description', content);
+    get data(): string {
+        return this.$editable.val() as string;
     }
 
-    finishEdit() {
-        if (!this.$editable) {
-            throw new Error('editable not set');
-        }
-
-        if (!this.$editContainer) {
-            throw new Error('editContainer not set');
-        }
-
-        const content = this.$editable.val() as string;
-
-        this.$editContainer.remove();
-
-        this.updateViewContent(content);
-
-        this.$view.removeClass('d-none');
-
-        this.syncDescription?.stop();
-        this.syncDescription = undefined;
+    dispose() {
+        this.syncDescription.stop();
+        this.$container.remove();
     }
 }
 
-class MarkdownEditableContent extends EditableContent {
+class TimeEntryMarkdownDescriptionSync{
     static markdownConverter?: any;
     static gettingMarkdownConverter = false;
 
-    constructor($view: JQuery, timeEntryId: string) {
-        super($view, timeEntryId);
+    constructor() {
 
-        if (!MarkdownEditableContent.markdownConverter && !MarkdownEditableContent.gettingMarkdownConverter) {
-            MarkdownEditableContent.gettingMarkdownConverter = true;
+        if (!TimeEntryMarkdownDescriptionSync.markdownConverter && !TimeEntryMarkdownDescriptionSync.gettingMarkdownConverter) {
+            TimeEntryMarkdownDescriptionSync.gettingMarkdownConverter = true;
             import('showdown').then(res => {
-                MarkdownEditableContent.markdownConverter = new res.Converter();
-                MarkdownEditableContent.gettingMarkdownConverter = false;
+                TimeEntryMarkdownDescriptionSync.markdownConverter = new res.Converter();
+                TimeEntryMarkdownDescriptionSync.gettingMarkdownConverter = false;
             });
         }
     }
-
-    protected updateViewContent(content: string) {
-        this.$view.data('description', content);
-
-        if (MarkdownEditableContent.markdownConverter) {
-            content = MarkdownEditableContent.markdownConverter.makeHtml(content);
-        }
-
-        this.$view.html(content);
-    }
+    //
+    // protected updateViewContent(content: string) {
+    //     this.$view.data('description', content);
+    //
+    //     if (MarkdownEditableContent.markdownConverter) {
+    //         content = MarkdownEditableContent.markdownConverter.makeHtml(content);
+    //     }
+    //
+    //     this.$view.html(content);
+    // }
 }
 
 class TimeEntryIndexItem {
@@ -166,11 +148,11 @@ class TimeEntryIndexItem {
     private $editButton: JQuery;
     private $continueButton: JQuery;
     private $activityIndicator: JQuery;
-    private readonly $description: JQuery;
     private stopButton?: LoadingButton;
     private durationTimer?: TimerView;
 
-    private editableContent: EditableContent;
+    private descriptionView: MarkdownView;
+    private descriptionEditView?: TimeEntryDescriptionSync;
     private tagEdit?: TimeEntryTagAssigner;
     private startedEdit?: EditDateTime;
     private endedEdit?: EditDateTime;
@@ -192,8 +174,7 @@ class TimeEntryIndexItem {
         this.flashes = flashes;
         this.taskId = $element.data('task-id');
         this.taskName = $element.data('task-name');
-        this.$description = $element.find('.js-description');
-        this.editableContent = new MarkdownEditableContent(this.$description, this.id);
+        this.descriptionView = new MarkdownView($element.find('.js-description'));
         this.$continueButton = $element.find('.js-continue');
         this.$continueButton.on('click', () => this.delegate.continue(this.id));
 
@@ -289,11 +270,20 @@ class TimeEntryIndexItem {
     }
 
     private startContentEdit() {
-        this.editableContent.edit();
+        this.descriptionView.hide();
+
+        const $html = $(TimeEntryDescriptionSync.template(this.descriptionView.data, 'mt-2'));
+
+        $html.insertAfter(this.descriptionView.$container);
+
+        this.descriptionEditView = new TimeEntryDescriptionSync($html, this.id)
     }
 
     private finishContentEdit() {
-        this.editableContent.finishEdit();
+        this.descriptionView.data = this.descriptionEditView!.data;
+        this.descriptionEditView?.dispose();
+        this.descriptionEditView = undefined;
+        this.descriptionView.show();
     }
 
     private startTagEdit() {
