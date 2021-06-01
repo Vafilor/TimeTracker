@@ -150,11 +150,14 @@ class TimeEntryView {
         return this._descriptionView;
     }
 
+    private $activityIndicator: JQuery;
+
     constructor($container: JQuery, id: string) {
         this.id = id;
         this.$container = $container;
 
         this._descriptionView = new MarkdownView($container.find('.js-description'));
+        this.$activityIndicator = $container.find('.js-time-entry-activity');
     }
 
     set data(model: TimeEntryModel) {
@@ -174,10 +177,16 @@ class TimeEntryView {
 
     hide() {
         this._descriptionView.hide();
+        this.$activityIndicator.addClass('d-none');
     }
 
     show() {
         this._descriptionView.show();
+        this.$activityIndicator.removeClass('d-none');
+    }
+
+    removeActivityIndicator() {
+        this.$activityIndicator.remove();
     }
 }
 
@@ -223,7 +232,6 @@ class TimeEntryIndexItem {
     private $viewButton: JQuery;
     private $editButton: JQuery;
     private $continueButton: JQuery;
-    private $activityIndicator: JQuery;
     private stopButton?: LoadingButton;
     private durationTimer?: TimerView;
 
@@ -251,7 +259,6 @@ class TimeEntryIndexItem {
         this.dateFormat = dateFormat;
         this.$viewButton = $container.find('.js-view');
         this.$editButton = $container.find('.js-edit');
-        this.$activityIndicator = $container.find('.js-time-entry-activity');
         this.flashes = flashes;
         this.taskId = $container.data('task-id');
         this.taskName = $container.data('task-name');
@@ -499,7 +506,7 @@ class TimeEntryIndexItem {
             this.stopButton?.$container.remove();
             this.stopButton = undefined;
 
-            this.$activityIndicator.remove();
+            this.view.removeActivityIndicator();
 
             if (this.$container.find('.js-continue').length === 0) {
                 this.$continueButton = $(`<button type="button" class="btn btn-secondary js-continue ml-2">Continue</button>`);
@@ -528,7 +535,6 @@ class TimeEntryIndexItem {
 
         $html.insertAfter(this.view.descriptionView.$container);
 
-        // TODO create edit view
         this.editView = new TimeEntryEditView(this.$container, data);
     }
 
