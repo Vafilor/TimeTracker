@@ -21,19 +21,13 @@
             </div>
         </div>
 
-        {% if timeEntry.over %}
         <div
             class="duration js-duration"
-            data-start="{{ timeEntry.startedAt.timestamp }}">
+            data-start="{{ timeEntry.startedAt.timestamp * 1000 }}"
+            data-duration-format="{{ app.user.durationFormat }}"
+            data-active="{{ timeEntry.running }}">
             {{ time.user_duration(timeEntry.duration, app.user) }}
         </div>
-        {% else %}
-        <div
-            class="duration js-duration active"
-            data-start="{{ timeEntry.startedAt.timestamp }}">
-            {{ time.user_duration(timeEntry.duration, app.user) }}
-        </div>
-        {% endif %}
     </div>
     <div class="tag-list js-tag-list many-rows mt-1" data-initial-tags-name="{{ timeEntry.tagNames() }}">
         <div class="js-tag-list-view">

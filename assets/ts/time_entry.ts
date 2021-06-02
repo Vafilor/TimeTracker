@@ -63,11 +63,11 @@ class TimeEntryPage {
 
         const $timer = $('.js-timer.js-running-timer');
         if ($timer.length !== 0) {
-            this.timerView = new TimerView($timer, this.durationFormat, (durationString) => {
+            this.timerView = new TimerView($timer, (durationString) => {
                 document.title = durationString;
             });
 
-            this.timerView.start($timer.data('start') * 1000);
+            this.timerView.start();
         }
     }
 }

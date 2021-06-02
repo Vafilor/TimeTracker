@@ -29,7 +29,7 @@ export class TimeEntryTaskAssigner {
                             autocomplete="off">
                     <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
                 </div>
-                <button type="button" class="btn js-clear btn-outline-danger rounded-left-0">
+                <button type="button" class="btn js-delete btn-outline-danger rounded-left-0">
                     <i class="fas fa-trash"></i>
                 </button>   
             </div>

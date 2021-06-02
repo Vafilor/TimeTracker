@@ -5,19 +5,41 @@ import { formatTimeDifference } from "./time";
  * TimerView sets up a 1 second timer interval and updates the UI with the duration
  * from the starting time to now.
  */
+
 export default class TimerView {
     private interval: any = null;
+    private durationFormat?: string;
     // in milliseconds
-    private startedAt: number;
+    private _startedAt: number;
+    get startedAt(): number {
+        return this._startedAt;
+    }
+    set startedAt(value: number) {
+        this._startedAt = value;
+        this.$container.data('start', value);
+    }
 
     constructor(
-        private $element: JQuery,
-        protected durationFormat: string,
+        private $container: JQuery,
         protected callback?: any) {
+
+        const start = $container.data('start');
+        if (start) {
+            this._startedAt = start;
+        }
+
+        const durationFormat = $container.data('duration-format');
+        if (durationFormat) {
+            this.setDurationFormat(durationFormat);
+        }
+
+        if ($container.data('active')) {
+            this.start();
+        }
     }
 
     protected updateTimerElement($element: JQuery, now: number): string {
-        const durationAsString = formatTimeDifference(this.startedAt, now, this.durationFormat);
+        const durationAsString = formatTimeDifference(this.startedAt, now, this.durationFormat!);
 
         $element.text(durationAsString);
 
@@ -29,10 +51,14 @@ export default class TimerView {
     }
 
     /**
-     * @param startedAt in milliseconds
+     * Sets the text to display.
      */
-    start(startedAt?: number) {
-        if(this.$element.length === 0) {
+    setText(value: string) {
+       this.$container.text(value);
+    }
+
+    start() {
+        if(this.$container.length === 0) {
             return;
         }
 
@@ -40,18 +66,18 @@ export default class TimerView {
             return;
         }
 
-        if (startedAt) {
-            this.startedAt = startedAt;
+        if (!this._startedAt) {
+            throw new Error('startedAt is not set');
         }
 
-        if (!this.startedAt) {
-            throw new Error('startedAt is not set');
+        if (!this.durationFormat) {
+            throw new Error('No duration format');
         }
 
         this.interval = setInterval(() => {
             const now = Math.floor((new Date()).getTime());
 
-            const durationAsString = this.updateTimerElement(this.$element, now);
+            const durationAsString = this.updateTimerElement(this.$container, now);
 
             if(this.callback) {
                 this.callback(durationAsString);
@@ -67,6 +93,10 @@ export default class TimerView {
     }
 
     getZeroDurationString(): string {
+        if (!this.durationFormat) {
+            throw new Error('No duration format');
+        }
+
         return formatTimeDifference(0, 0, this.durationFormat);
     }
 }

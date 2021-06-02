@@ -169,20 +169,37 @@ class TimeEntryView {
         this.$container.find('.js-task').append(this.$taskName);
     }
 
-    private setStartedAtData(startedAt: string) {
+    private setStartedAtData(startedAt: string, parts?: DateTimeParts) {
         const $element = this.$container.find('.js-started-at');
+
+        if (startedAt === $element.data('timestamp')) {
+            return;
+        }
+
+        if (!parts) {
+            throw new Error('no parts for setting started at');
+        }
+
         $element.text(startedAt);
-        $element.data('timestamp', startedAt);
+        $element.data('timestamp', parts.date + ' ' + parts.time);
     }
 
-    private setEndedAtData(endedAt?: string) {
+    setEndedAtData(endedAt?: string, parts?: DateTimeParts) {
         if (!endedAt) {
             return;
         }
 
+        if (!parts) {
+            throw new Error('no parts for setting ended at');
+        }
+
         const $element = this.$container.find('.js-ended-at');
+        if (endedAt === $element.data('timestamp')) {
+            return;
+        }
+
         $element.text('- ' + endedAt);
-        $element.data('timestamp', endedAt);
+        $element.data('timestamp', parts.date + ' ' + parts.time);
     }
 
     set data(model: TimeEntryModel) {
@@ -190,8 +207,8 @@ class TimeEntryView {
 
         this.setTagData(model.tags);
         this.setTaskData(model.task);
-        this.setStartedAtData(model.startedAt);
-        this.setEndedAtData(model.endedAt);
+        this.setStartedAtData(model.startedAt, model.startedAtParts);
+        this.setEndedAtData(model.endedAt, model.endedAtParts);
     }
 
     private getTags(): ApiTag[] {
@@ -323,7 +340,7 @@ class TimeEntryIndexItem {
     private $editButton: JQuery;
     private $continueButton: JQuery;
     private stopButton?: LoadingButton;
-    private durationTimer?: TimerView;
+    private durationTimer: TimerView;
 
     private updateButton?: LoadingButton;
     private delegate: TimeEntryActionDelegate;
@@ -352,11 +369,7 @@ class TimeEntryIndexItem {
             this.stopButton.$container.on('click', () => this.stop());
         }
 
-        const $durationTimer = $container.find('.js-duration.active');
-        if ($durationTimer.length !== 0) {
-            this.durationTimer = new TimerView($durationTimer, durationFormat);
-            this.durationTimer.start($durationTimer.data('start') * 1000);
-        }
+        this.durationTimer = new TimerView($container.find('.js-duration'));
 
         $container.find('.js-edit').on('click', () => this.onEdit());
     }
@@ -404,7 +417,7 @@ class TimeEntryIndexItem {
         this.$container.find('.js-ended-at').text('- ' + timeEntry.endedAt);
         this.$container.find('.js-duration').text(timeEntry.duration);
 
-        this.durationTimer?.stop();
+        this.durationTimer.stop();
         this.view.removeActivityIndicator();
     }
 
@@ -413,12 +426,10 @@ class TimeEntryIndexItem {
 
         try {
             const res = await TimeEntryApi.stop(this.id, this.dateFormat)
-            this.$container.find('.js-ended-at').text('- ' + res.data.endedAt);
-            this.$container.find('.js-duration').text(res.data.duration);
+            this.view.setEndedAtData(res.data.endedAt);
 
-            if (this.durationTimer) {
-                this.durationTimer.stop();
-            }
+            this.durationTimer.stop();
+            this.durationTimer.setText(res.data.duration)
 
             this.stopButton?.stopLoading();
             this.stopButton?.$container.remove();
@@ -487,6 +498,7 @@ class TimeEntryIndexItem {
 
         this.updateButton?.startLoading();
 
+
         const newData = this.editView.data;
 
         if ( (this.data.startedAt !== newData.startedAt) || (this.data.endedAt !== newData.endedAt) ) {
@@ -497,16 +509,17 @@ class TimeEntryIndexItem {
                 })
 
                 const jsonRes = res as JsonResponse<ApiTimeEntry>;
+                newData.startedAt = jsonRes.data.startedAt;
+                newData.endedAt = jsonRes.data.endedAt;
+
                 if (jsonRes && jsonRes.data.endedAt && !this.data.endedAt) {
-                    this.durationTimer?.stop();
-                    this.durationTimer = undefined;
+                    this.durationTimer.stop();
                     this.view.removeActivityIndicator();
                 }
             } catch (e) {
                 this.flashes.append('danger', 'Unable to update timestamps');
             }
         }
-
 
         this.showViewButtons();
         this.updateButton?.stopLoading();

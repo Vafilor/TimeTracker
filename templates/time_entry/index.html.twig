@@ -123,7 +123,7 @@
         </div>
         <div class="time-entry-list js-time-entry-list mb-2">
         {% for timeEntry in pagination.items %}
-            {{ include('time_entry/partials/_time-entry.html.twig', {timeEntry: timeEntry}) }}
+            {{ include('time_entry/partials/_time-entry.html.twig', {timeEntry: timeEntry }) }}
         {% else %}
             <div class="text-center">No results found</div>
         {% endfor %}

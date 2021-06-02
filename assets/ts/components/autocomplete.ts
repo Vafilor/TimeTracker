@@ -2,8 +2,6 @@ import $ from "jquery";
 import Observable from "./observable";
 import { JsonResponse, PaginatedResponse } from "../core/api/api";
 import { createPopper } from "@popperjs/core";
-import { ApiTask, TaskApi } from "../core/api/task_api";
-import { ApiTag, TagApi } from "../core/api/tag_api";
 
 /**
  * Autocomplete provides a basic autocomplete for an input/search results set of elements.

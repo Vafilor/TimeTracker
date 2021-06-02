@@ -83,9 +83,7 @@ abstract class SyncInputInternal {
             return this.upload();
         }
 
-        return new Promise<void>(function (resolve, reject) {
-            resolve();
-        });
+        return Promise.resolve();
     }
 }
 
@@ -167,7 +165,8 @@ export default class TaskTimeEntry {
 
                 this.stopLoading();
                 this.setButtonToStop();
-                this.durationTimer.start(this.model.startedAtEpoch * 1000);
+                this.durationTimer.startedAt = this.model.startedAtEpoch * 1000;
+                this.durationTimer.start();
                 break
             case TimeEntryState.notRunning:
                 this.stopLoading();

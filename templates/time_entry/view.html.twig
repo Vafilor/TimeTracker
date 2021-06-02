@@ -44,7 +44,8 @@
 
             Duration
             <span class="ml-1 js-timer {% if timeEntry.running %}js-running-timer{% endif %}"
-                  data-start="{{ timeEntry.startedAt.timestamp }}">
+                  data-start="{{ timeEntry.startedAt.timestamp * 1000 }}"
+                  data-duration-format="{{ app.user.durationFormat }}">
             {{ time.user_duration(timeEntry.duration, app.user) }}
         </span>
         </div>
