@@ -12,9 +12,13 @@ export class TimeEntryTaskAssigner {
     private autocomplete: AutocompleteTask;
     private task?: ApiTask;
 
-    static template(): string {
+    static template(taskId: string = '', taskName: string = '', taskUrl: string = ''): string {
         return `
-        <div class="autocomplete js-autocomplete js-autocomplete-task">
+        <div 
+            class="autocomplete js-autocomplete js-autocomplete-task js-time-entry-task-assigner"
+            data-task-id="${taskId}"
+            data-task-name="${taskName}"
+            data-task-url="${taskUrl}">
             <div class="d-flex">
                 <div class="search border-right-0 rounded-right-0">
                     <input
@@ -34,23 +38,31 @@ export class TimeEntryTaskAssigner {
     }
 
     constructor($container: JQuery, timeEntryId: string, flashes: Flashes) {
+        this.$container = $container;
         this.timeEntryId = timeEntryId;
         this.flashes = flashes;
 
-        this.$container = $container;
-
         this.autocomplete = new AutocompleteTask($container);
+
         this.autocomplete.itemSelected.addObserver((item: ApiTask) => this.onItemSelected(item));
 
         this.$container.find('.js-delete').on('click', () => this.clearTask());
 
         this.autocomplete.enterPressed.addObserver((query: string) => this.assignToTask(query));
+
+        const taskId = $container.data('task-id') as string;
+        const taskName = $container.data('task-name') as string;
+        const taskUrl = $container.data('task-url') as string;
+        if (taskId && taskName && taskUrl) {
+            this.setTaskSimple(taskId, taskName, taskUrl);
+        }
     }
 
-    setTaskSimple(id: string, name: string) {
+    setTaskSimple(id: string, name: string, taskUrl = '') {
         this.task = {
             id,
             name,
+            url: taskUrl,
             description: '',
             createdAt: '',
         };
@@ -101,5 +113,9 @@ export class TimeEntryTaskAssigner {
 
     getContainer(): JQuery {
         return this.$container;
+    }
+
+    dispose() {
+        this.$container.remove();
     }
 }

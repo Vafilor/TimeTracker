@@ -67,7 +67,6 @@ export default class TagList {
                 const $target = $(event.currentTarget);
                 const $parent = $target.parent();
                 const tagName = $parent.data('name');
-
                 this.removeTag(tagName);
             });
     }

@@ -107,39 +107,19 @@ class TimeEntryDescriptionSync {
     }
 }
 
-class TimeEntryMarkdownDescriptionSync{
-    static markdownConverter?: any;
-    static gettingMarkdownConverter = false;
-
-    constructor() {
-
-        if (!TimeEntryMarkdownDescriptionSync.markdownConverter && !TimeEntryMarkdownDescriptionSync.gettingMarkdownConverter) {
-            TimeEntryMarkdownDescriptionSync.gettingMarkdownConverter = true;
-            import('showdown').then(res => {
-                TimeEntryMarkdownDescriptionSync.markdownConverter = new res.Converter();
-                TimeEntryMarkdownDescriptionSync.gettingMarkdownConverter = false;
-            });
-        }
-    }
-    //
-    // protected updateViewContent(content: string) {
-    //     this.$view.data('description', content);
-    //
-    //     if (MarkdownEditableContent.markdownConverter) {
-    //         content = MarkdownEditableContent.markdownConverter.makeHtml(content);
-    //     }
-    //
-    //     this.$view.html(content);
-    // }
+interface TaskModel {
+    id: string;
+    name: string;
+    url?: string;
 }
 
 interface TimeEntryModel {
     id: string;
-    taskName: string;
+    task?: TaskModel,
     description: string;
     startedAt: string;
     endedAt?: string;
-    tags: Array<string>;
+    tags: Array<ApiTag>;
 }
 
 class TimeEntryView {
@@ -151,6 +131,7 @@ class TimeEntryView {
     }
 
     private $activityIndicator: JQuery;
+    private $taskName: JQuery;
 
     constructor($container: JQuery, id: string) {
         this.id = id;
@@ -158,31 +139,84 @@ class TimeEntryView {
 
         this._descriptionView = new MarkdownView($container.find('.js-description'));
         this.$activityIndicator = $container.find('.js-time-entry-activity');
+        this.$taskName = $container.find('.js-task-content');
     }
 
     set data(model: TimeEntryModel) {
         this._descriptionView.data = model.description;
+
+        const $tagList = this.$container.find('.js-tag-list');
+        const $tagView = $tagList.find('.js-tag-list-view');
+        $tagView.html('');
+
+        for(const tag of model.tags) {
+            const tagHtml = `<div class="tag" data-name="${tag.name}" style="background-color: ${tag.color};">${tag.name}</div> `;
+            $tagView.append(tagHtml);
+        }
+
+        $tagList.data(TagList.initialDataObjectsKey, model.tags);
+        $tagList.data(TagList.initialDataKey, '');
+
+        this.$taskName.remove();
+        if (model.task && model.task.url) {
+            this.$taskName = $(`<a data-task-name="${model.task.name}" data-task-id="${model.task.id}" class="js-task-content" href="${model.task.url}">${model.task.name}</a>`);
+        } else {
+            this.$taskName = $(`<div data-task-name="" data-task-id="" class="js-task-content d-inline-block">No Task</div>`);
+        }
+
+        this.$container.find('.js-task').append(this.$taskName);
+    }
+
+    private getTags(): ApiTag[] {
+        const $tagList = this.$container.find('.js-tag-list');
+        const tags = $tagList.data(TagList.initialDataObjectsKey) as ApiTag[];
+        if (tags) {
+            return tags;
+        }
+
+        const tagNames = $tagList.data(TagList.initialDataKey) as string;
+        let tagsFromName = new Array<ApiTag>();
+        for(const tagName of tagNames.split(',')) {
+            if (tagName !== '') {
+                tagsFromName.push({
+                    name: tagName,
+                    color: '#5d5d5d'
+                });
+            }
+        }
+
+        return tagsFromName;
     }
 
     get data(): TimeEntryModel {
         return {
             id: this.id,
-            taskName: 'debug',
+            task: {
+                id: this.$taskName.data('task-id'),
+                name: this.$taskName.data('task-name'),
+                url: this.$taskName.attr('href')
+            },
             description: this._descriptionView.data,
             startedAt: '0000000',
             endedAt: '000000',
-            tags: []
+            tags: this.getTags()
         };
     }
 
     hide() {
         this._descriptionView.hide();
         this.$activityIndicator.addClass('d-none');
+        this.$container.find('.js-tag-list .js-tag-list-view').addClass('d-none');
+        this.$taskName.removeClass('d-inline-block');
+        this.$taskName.addClass('d-none');
     }
 
     show() {
+        this.$taskName.addClass('d-inline-block');
+        this.$taskName.removeClass('d-none');
         this._descriptionView.show();
         this.$activityIndicator.removeClass('d-none');
+        this.$container.find('.js-tag-list .js-tag-list-view').removeClass('d-none');
     }
 
     removeActivityIndicator() {
@@ -191,41 +225,51 @@ class TimeEntryView {
 }
 
 class TimeEntryEditView {
-    private readonly model: TimeEntryModel;
+    private readonly timeEntryId: string;
     private readonly $container: JQuery;
     private description: TimeEntryDescriptionSync;
+    private tagEdit: TimeEntryTagAssigner;
+    private taskEdit: TimeEntryTaskAssigner;
 
-    constructor($container: JQuery, model: TimeEntryModel) {
+    constructor($container: JQuery, timeEntryId: string, flashes: Flashes) {
         this.$container = $container;
-        this.model = model;
+        this.timeEntryId = timeEntryId;
+        this.description = new TimeEntryDescriptionSync($container.find('.js-time-entry-description-sync'), timeEntryId);
 
-        this.description = new TimeEntryDescriptionSync($container.find('.js-time-entry-description-sync'), model.id);
+        const tagList = new TagList($container.find('.js-tag-edit-list'), new TimeEntryApiAdapter(timeEntryId, flashes));
+        this.tagEdit = new TimeEntryTagAssigner($container.find('.js-autocomplete-tags'), tagList, flashes);
+
+        this.taskEdit = new TimeEntryTaskAssigner($container.find('.js-time-entry-task-assigner'), this.timeEntryId, flashes);
     }
 
     get data(): TimeEntryModel {
+        const task = this.taskEdit.getTask();
+
         return {
-            id: this.model.id,
-            taskName: 'debug',
+            id: this.timeEntryId,
+            task: {
+                id: task ? task.id: '',
+                name: task ? task.name: '',
+                url: task ? task.url: undefined
+            },
             description: this.description.data,
             startedAt: '0000000',
             endedAt: '000000',
-            tags: []
+            tags: this.tagEdit.getTagList().getTags()
         };
     }
 
     dispose() {
         this.description.dispose();
+        this.tagEdit.$container.remove();
+        this.$container.find('.js-tag-edit-list').remove();
+        this.taskEdit.dispose();
     }
 }
 
 class TimeEntryIndexItem {
-    // TODO it might be a good idea to split this up into a view and edit mode or something
-    // That way you can get rid of all the optionals? So this class becomes a manager?
     private readonly id: string;
-    private taskId?: string;
-    private taskName?: string;
     private readonly dateFormat: DateFormat;
-    private taskEdit?: TimeEntryTaskAssigner;
     private readonly flashes: Flashes;
 
     private $container: JQuery;
@@ -235,8 +279,6 @@ class TimeEntryIndexItem {
     private stopButton?: LoadingButton;
     private durationTimer?: TimerView;
 
-
-    private tagEdit?: TimeEntryTagAssigner;
     private startedEdit?: EditDateTime;
     private endedEdit?: EditDateTime;
     private updateButton?: LoadingButton;
@@ -244,10 +286,6 @@ class TimeEntryIndexItem {
 
     private view: TimeEntryView;
     private editView?: TimeEntryEditView;
-
-    get assignedToTask(): boolean {
-        return this.taskId !== undefined;
-    }
 
     constructor($container: JQuery, delegate: TimeEntryActionDelegate, durationFormat: string, dateFormat: DateFormat, flashes: Flashes) {
         this.$container = $container;
@@ -260,8 +298,6 @@ class TimeEntryIndexItem {
         this.$viewButton = $container.find('.js-view');
         this.$editButton = $container.find('.js-edit');
         this.flashes = flashes;
-        this.taskId = $container.data('task-id');
-        this.taskName = $container.data('task-name');
         this.$continueButton = $container.find('.js-continue');
         this.$continueButton.on('click', () => this.delegate.continue(this.id));
 
@@ -317,79 +353,6 @@ class TimeEntryIndexItem {
         if (this.stopButton) {
             this.stopButton.$container.removeClass('d-none');
         }
-    }
-
-    private startTaskEdit() {
-        const $task = this.$container.find('.js-task');
-        $task.addClass('d-none');
-
-        const $newElement = $(TimeEntryTaskAssigner.template());
-        $newElement.insertAfter($task);
-
-        this.taskEdit = new TimeEntryTaskAssigner($newElement, this.id,  this.flashes);
-        if (this.taskId && this.taskName) {
-            this.taskEdit.setTaskSimple(this.taskId, this.taskName);
-        }
-    }
-
-    private finishTaskEdit() {
-        const $task = this.$container.find('.js-task');
-
-        if (this.taskEdit) {
-            const task = this.taskEdit.getTask();
-            if (task) {
-                this.taskId = task.id;
-                this.taskName = task.name;
-                $task.find('.js-task-content').remove();
-                $task.append($(`<a class="js-task-content" href="${task.url}">${task.name}</a>`));
-            } else {
-                $task.find('.js-task-content').remove();
-                $task.append(`<div class="js-task-content">No task</div>`);
-                this.taskId = undefined;
-                this.taskName = undefined;
-            }
-
-            this.taskEdit.getContainer().remove();
-            this.taskEdit = undefined;
-        }
-
-        $task.removeClass('d-none');
-    }
-
-    private startTagEdit() {
-        const $tagList = this.$container.find('.js-tag-list');
-        $tagList.find('.js-tag-list-view').addClass('d-none');
-
-        const $tagEditList = $('<div class="js-tag-edit-list d-inline-block"></div>');
-        $tagEditList.data(TagList.initialDataKey, $tagList.data(TagList.initialDataKey));
-        $tagList.append($tagEditList);
-
-        const tagList = new TagList($tagEditList, new TimeEntryApiAdapter(this.id, this.flashes));
-        const $template = $(TimeEntryTagAssigner.template());
-        $tagList.append($template);
-
-        this.tagEdit = new TimeEntryTagAssigner($template, tagList, this.flashes);
-    }
-
-    private finishTagEdit() {
-        const $tagList = this.$container.find('.js-tag-list');
-        const $tagView = $tagList.find('.js-tag-list-view');
-
-        if (this.tagEdit) {
-            $tagView.html('');
-            for(const tag of this.tagEdit.getTagList().getTags()) {
-                const tagHtml = `<div class="tag" data-name="${tag.name}" style="background-color: ${tag.color};">${tag.name}</div> `;
-                $tagView.append(tagHtml);
-            }
-
-            const tagNames = this.tagEdit.getTagList().getTagNamesCommaSeparated();
-            $tagList.data(TagList.initialDataKey, tagNames);
-            $tagList.find('.js-tag-edit-list').remove();
-            this.tagEdit.$container.remove();
-            this.tagEdit = undefined;
-        }
-
-        $tagView.removeClass('d-none');
     }
 
     private startTimestampEdit() {
@@ -487,7 +450,7 @@ class TimeEntryIndexItem {
         this.$container.find('.js-duration').text(timeEntry.duration);
 
         this.durationTimer?.stop();
-        this.$activityIndicator.remove();
+        this.view.removeActivityIndicator();
     }
 
     async stop() {
@@ -521,21 +484,29 @@ class TimeEntryIndexItem {
     }
 
     onEdit() {
-        this.$container.find('.js-time-entry-activity').addClass('d-none');
         this.hideViewButtons();
         this.showDoneEditButtons();
-        this.startTaskEdit();
-        this.startTagEdit();
         this.startTimestampEdit();
 
         const data = this.view.data;
         this.view.hide();
 
-        const $html = $(TimeEntryDescriptionSync.template(data.description, 'mt-2'));
+        // Task
+        const $newElement = $(TimeEntryTaskAssigner.template(data.task?.id, data.task?.name, data.task?.url));
+        this.$container.find('.js-task').append($newElement);
 
-        $html.insertAfter(this.view.descriptionView.$container);
+        // Tag List
+        const $tagList = this.$container.find('.js-tag-list');
+        const $tagEditList = $('<div class="js-tag-edit-list d-inline-block"></div>');
+        $tagEditList.data(TagList.initialDataObjectsKey, data.tags);
+        $tagList.append($tagEditList);
+        $tagList.append($(TimeEntryTagAssigner.template()));
 
-        this.editView = new TimeEntryEditView(this.$container, data);
+        // Time Entry Description
+        const $timeEntryDescriptionHtml = $(TimeEntryDescriptionSync.template(data.description, 'mt-2'));
+        $timeEntryDescriptionHtml.insertAfter(this.view.descriptionView.$container);
+
+        this.editView = new TimeEntryEditView(this.$container, this.id, this.flashes);
     }
 
     async onFinishEdit() {
@@ -562,9 +533,7 @@ class TimeEntryIndexItem {
         }
 
         this.finishTimestampEdit();
-        this.finishTagEdit();
         this.showViewButtons();
-        this.finishTaskEdit();
         this.updateButton?.stopLoading();
         this.removeDoneEditButtons();
         this.$container.find('.js-time-entry-activity').removeClass('d-none');

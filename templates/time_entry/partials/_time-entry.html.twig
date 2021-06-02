@@ -4,10 +4,6 @@
 <div
     class="time-entry js-time-entry"
     data-id="{{ timeEntry.idString }}"
-    {% if timeEntry.assignedToTask %}
-    data-task-id="{{ timeEntry.task.idString }}"
-    data-task-name="{{ timeEntry.task.name }}"
-    {% endif %}
 >
     <div class="d-flex justify-content-between">
         <div>
@@ -18,9 +14,9 @@
             {% endif %}
             <div class="task js-task">
                 {% if timeEntry.assignedToTask %}
-                    <a class="js-task-content" href="{{ path('task_view', {id: timeEntry.task.id}) }}">{{ timeEntry.task.name }}</a>
+                    <a class="js-task-content" data-task-name="{{ timeEntry.task.name }}" data-task-id="{{ timeEntry.task.idString }}" href="{{ path('task_view', {id: timeEntry.task.id}) }}">{{ timeEntry.task.name }}</a>
                 {% else %}
-                    <div class="js-task-content d-inline-block">No Task</div>
+                    <div data-task-name="" data-task-id="" class="js-task-content d-inline-block">No Task</div>
                 {% endif %}
             </div>
         </div>
