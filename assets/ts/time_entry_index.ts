@@ -118,7 +118,9 @@ interface TimeEntryModel {
     task?: TaskModel,
     description: string;
     startedAt: string;
+    startedAtParts?: DateTimeParts,
     endedAt?: string;
+    endedAtParts?: DateTimeParts,
     tags: Array<ApiTag>;
 }
 
@@ -142,29 +144,54 @@ class TimeEntryView {
         this.$taskName = $container.find('.js-task-content');
     }
 
-    set data(model: TimeEntryModel) {
-        this._descriptionView.data = model.description;
-
+    private setTagData(tags: ApiTag[]) {
         const $tagList = this.$container.find('.js-tag-list');
         const $tagView = $tagList.find('.js-tag-list-view');
         $tagView.html('');
 
-        for(const tag of model.tags) {
+        for(const tag of tags) {
             const tagHtml = `<div class="tag" data-name="${tag.name}" style="background-color: ${tag.color};">${tag.name}</div> `;
             $tagView.append(tagHtml);
         }
 
-        $tagList.data(TagList.initialDataObjectsKey, model.tags);
+        $tagList.data(TagList.initialDataObjectsKey, tags);
         $tagList.data(TagList.initialDataKey, '');
+    }
 
+    private setTaskData(task?: TaskModel) {
         this.$taskName.remove();
-        if (model.task && model.task.url) {
-            this.$taskName = $(`<a data-task-name="${model.task.name}" data-task-id="${model.task.id}" class="js-task-content" href="${model.task.url}">${model.task.name}</a>`);
+        if (task && task.url) {
+            this.$taskName = $(`<a data-task-name="${task.name}" data-task-id="${task.id}" class="js-task-content" href="${task.url}">${task.name}</a>`);
         } else {
             this.$taskName = $(`<div data-task-name="" data-task-id="" class="js-task-content d-inline-block">No Task</div>`);
         }
 
         this.$container.find('.js-task').append(this.$taskName);
+    }
+
+    private setStartedAtData(startedAt: string) {
+        const $element = this.$container.find('.js-started-at');
+        $element.text(startedAt);
+        $element.data('timestamp', startedAt);
+    }
+
+    private setEndedAtData(endedAt?: string) {
+        if (!endedAt) {
+            return;
+        }
+
+        const $element = this.$container.find('.js-ended-at');
+        $element.text('- ' + endedAt);
+        $element.data('timestamp', endedAt);
+    }
+
+    set data(model: TimeEntryModel) {
+        this._descriptionView.data = model.description;
+
+        this.setTagData(model.tags);
+        this.setTaskData(model.task);
+        this.setStartedAtData(model.startedAt);
+        this.setEndedAtData(model.endedAt);
     }
 
     private getTags(): ApiTag[] {
@@ -197,8 +224,8 @@ class TimeEntryView {
                 url: this.$taskName.attr('href')
             },
             description: this._descriptionView.data,
-            startedAt: '0000000',
-            endedAt: '000000',
+            startedAt: this.$container.find('.js-started-at').data('timestamp'),
+            endedAt: this.$container.find('.js-ended-at').data('timestamp'),
             tags: this.getTags()
         };
     }
@@ -209,9 +236,15 @@ class TimeEntryView {
         this.$container.find('.js-tag-list .js-tag-list-view').addClass('d-none');
         this.$taskName.removeClass('d-inline-block');
         this.$taskName.addClass('d-none');
+
+        this.$container.find('.js-started-at').addClass('d-none');
+        this.$container.find('.js-ended-at').addClass('d-none');
     }
 
     show() {
+        this.$container.find('.js-started-at').removeClass('d-none');
+        this.$container.find('.js-ended-at').removeClass('d-none');
+
         this.$taskName.addClass('d-inline-block');
         this.$taskName.removeClass('d-none');
         this._descriptionView.show();
@@ -230,6 +263,8 @@ class TimeEntryEditView {
     private description: TimeEntryDescriptionSync;
     private tagEdit: TimeEntryTagAssigner;
     private taskEdit: TimeEntryTaskAssigner;
+    private startedAt: EditDateTime;
+    private endedAt: EditDateTime;
 
     constructor($container: JQuery, timeEntryId: string, flashes: Flashes) {
         this.$container = $container;
@@ -240,10 +275,17 @@ class TimeEntryEditView {
         this.tagEdit = new TimeEntryTagAssigner($container.find('.js-autocomplete-tags'), tagList, flashes);
 
         this.taskEdit = new TimeEntryTaskAssigner($container.find('.js-time-entry-task-assigner'), this.timeEntryId, flashes);
+
+        this.startedAt = new EditDateTime($container.find('.js-edit-started-at'));
+        this.endedAt = new EditDateTime($container.find('.js-edit-ended-at'));
     }
 
     get data(): TimeEntryModel {
         const task = this.taskEdit.getTask();
+        const startedAtString = this.startedAt.getDateTimeString();
+        if (!startedAtString) {
+            throw new Error('No started at');
+        }
 
         return {
             id: this.timeEntryId,
@@ -253,8 +295,10 @@ class TimeEntryEditView {
                 url: task ? task.url: undefined
             },
             description: this.description.data,
-            startedAt: '0000000',
-            endedAt: '000000',
+            startedAt: startedAtString,
+            startedAtParts: this.startedAt.getDateTime(),
+            endedAt: this.endedAt.getDateTimeString(),
+            endedAtParts: this.endedAt.getDateTime(),
             tags: this.tagEdit.getTagList().getTags()
         };
     }
@@ -264,6 +308,8 @@ class TimeEntryEditView {
         this.tagEdit.$container.remove();
         this.$container.find('.js-tag-edit-list').remove();
         this.taskEdit.dispose();
+        this.startedAt.dispose();
+        this.endedAt.dispose();
     }
 }
 
@@ -272,18 +318,17 @@ class TimeEntryIndexItem {
     private readonly dateFormat: DateFormat;
     private readonly flashes: Flashes;
 
-    private $container: JQuery;
+    private readonly $container: JQuery;
     private $viewButton: JQuery;
     private $editButton: JQuery;
     private $continueButton: JQuery;
     private stopButton?: LoadingButton;
     private durationTimer?: TimerView;
 
-    private startedEdit?: EditDateTime;
-    private endedEdit?: EditDateTime;
     private updateButton?: LoadingButton;
     private delegate: TimeEntryActionDelegate;
 
+    private data?: TimeEntryModel;
     private view: TimeEntryView;
     private editView?: TimeEntryEditView;
 
@@ -355,96 +400,6 @@ class TimeEntryIndexItem {
         }
     }
 
-    private startTimestampEdit() {
-        const $timestamps = this.$container.find('.js-timestamps');
-
-        const $started = $timestamps.find('.js-started-at');
-        $started.addClass('d-none');
-
-        const $ended = $timestamps.find('.js-ended-at');
-        $ended.addClass('d-none');
-
-        const $startedEdit = $(EditDateTime.templateWithLabel('Started', 'js-edit-started-at'));
-        const $endedEdit = $(EditDateTime.templateWithLabel('Ended', 'js-edit-ended-at ml-2'));
-
-        $timestamps.append($startedEdit);
-        $timestamps.append($endedEdit);
-
-        this.startedEdit = new EditDateTime($startedEdit, $started.data('timestamp'));
-        this.endedEdit = new EditDateTime($endedEdit, $ended.data('timestamp'));
-    }
-
-    private getTimestampEditUpdate(): Promise<JsonResponse<ApiTimeEntry>>|Promise<void> {
-        let updateStarted: DateTimeParts|undefined = undefined;
-        let updateEnded: DateTimeParts|undefined = undefined;
-
-        const $timestamps = this.$container.find('.js-timestamps');
-        const $started = $timestamps.find('.js-started-at');
-        const $ended = $timestamps.find('.js-ended-at');
-
-        if (this.startedEdit) {
-            const dateTime = this.startedEdit.getDateTime();
-            if (dateTime) {
-                const dateTimeString = dateTime.date + ' ' + dateTime.time;
-                if ($started.data('timestamp') != dateTimeString) {
-                    updateStarted = dateTime;
-                }
-            }
-        }
-
-        if (this.endedEdit) {
-            const dateTime = this.endedEdit.getDateTime();
-            if (dateTime) {
-                const dateTimeString = dateTime.date + ' ' + dateTime.time;
-                if ($ended.data('timestamp') != dateTimeString) {
-                    updateEnded = dateTime;
-                }
-            }
-        }
-
-        if (updateStarted || updateEnded) {
-            return TimeEntryApi.update(this.id, {
-                startedAt: updateStarted,
-                endedAt: updateEnded
-            })
-        }
-
-        return Promise.resolve();
-    }
-
-    private finishTimestampEdit() {
-        const $timestamps = this.$container.find('.js-timestamps');
-        const $started = $timestamps.find('.js-started-at');
-        const $ended = $timestamps.find('.js-ended-at');
-
-        if (this.startedEdit) {
-            const dateTime = this.startedEdit.getDateTime();
-            if (dateTime) {
-                const dateTimeString = dateTime.date + ' ' + dateTime.time;
-                $started.text(dateTimeString);
-                $started.data('timestamp', dateTimeString);
-            }
-
-            this.startedEdit.$container.remove();
-            this.startedEdit = undefined;
-        }
-
-
-        if (this.endedEdit) {
-            const dateTime = this.endedEdit.getDateTime();
-            if (dateTime) {
-                const dateTimeString = dateTime.date + ' ' + dateTime.time;
-                $ended.data('timestamp', dateTimeString);
-            }
-
-            this.endedEdit.$container.remove();
-            this.endedEdit = undefined;
-        }
-
-        $started.removeClass('d-none');
-        $ended.removeClass('d-none');
-    }
-
     stopUI(timeEntry: ApiTimeEntry) {
         this.$container.find('.js-ended-at').text('- ' + timeEntry.endedAt);
         this.$container.find('.js-duration').text(timeEntry.duration);
@@ -486,9 +441,9 @@ class TimeEntryIndexItem {
     onEdit() {
         this.hideViewButtons();
         this.showDoneEditButtons();
-        this.startTimestampEdit();
 
         const data = this.view.data;
+        this.data = data;
         this.view.hide();
 
         // Task
@@ -506,48 +461,66 @@ class TimeEntryIndexItem {
         const $timeEntryDescriptionHtml = $(TimeEntryDescriptionSync.template(data.description, 'mt-2'));
         $timeEntryDescriptionHtml.insertAfter(this.view.descriptionView.$container);
 
+        // Timestamps
+        const $timestamps = this.$container.find('.js-timestamps');
+        const $startedEdit = $(EditDateTime.templateWithLabel('Started', 'js-edit-started-at'));
+        $startedEdit.data('timestamp', data.startedAt);
+        const $endedEdit = $(EditDateTime.templateWithLabel('Ended', 'js-edit-ended-at ml-2'));
+        if (data.endedAt) {
+            $endedEdit.data('timestamp', data.endedAt);
+        }
+
+        $timestamps.append($startedEdit);
+        $timestamps.append($endedEdit);
+
         this.editView = new TimeEntryEditView(this.$container, this.id, this.flashes);
     }
 
     async onFinishEdit() {
-        this.updateButton?.startLoading();
-        try {
-            const res = await this.getTimestampEditUpdate();
-            const jsonRes = res as JsonResponse<ApiTimeEntry>;
-            if (jsonRes) {
-                const $timestamps = this.$container.find('.js-timestamps');
-                const $started = $timestamps.find('.js-started-at');
-                $started.text(jsonRes.data.startedAt);
-
-                const $ended = $timestamps.find('.js-ended-at');
-                if (jsonRes.data.endedAt) {
-                    this.durationTimer?.stop();
-                    this.durationTimer = undefined;
-                    this.$container.find('.js-duration.active').text(jsonRes.data.duration);
-                    this.$container.find('.js-time-entry-activity').remove();
-                    $ended.text('- ' + jsonRes.data.endedAt);
-                }
-            }
-        } catch (e) {
-            this.flashes.append('danger', 'Unable to update timestamps');
+        if (!this.data) {
+            throw new Error("data is not set");
         }
-
-        this.finishTimestampEdit();
-        this.showViewButtons();
-        this.updateButton?.stopLoading();
-        this.removeDoneEditButtons();
-        this.$container.find('.js-time-entry-activity').removeClass('d-none');
 
         if (!this.editView) {
             throw new Error('EditView not set');
         }
 
-        this.view.data = this.editView.data;
+        this.updateButton?.startLoading();
+
+        const newData = this.editView.data;
+
+        if ( (this.data.startedAt !== newData.startedAt) || (this.data.endedAt !== newData.endedAt) ) {
+            try {
+                const res = await TimeEntryApi.update(this.id, {
+                    startedAt: newData.startedAtParts,
+                    endedAt: newData.endedAtParts
+                })
+
+                const jsonRes = res as JsonResponse<ApiTimeEntry>;
+                if (jsonRes && jsonRes.data.endedAt && !this.data.endedAt) {
+                    this.durationTimer?.stop();
+                    this.durationTimer = undefined;
+                    this.view.removeActivityIndicator();
+                }
+            } catch (e) {
+                this.flashes.append('danger', 'Unable to update timestamps');
+            }
+        }
+
+
+        this.showViewButtons();
+        this.updateButton?.stopLoading();
+        this.removeDoneEditButtons();
+        this.$container.find('.js-time-entry-activity').removeClass('d-none');
+
+        this.view.data = newData;
 
         this.editView.dispose();
         this.editView = undefined;
 
         this.view.show();
+
+        this.data = newData;
     }
 }
 

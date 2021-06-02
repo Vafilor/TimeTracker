@@ -24,9 +24,10 @@ export class EditDateTime {
             </div>
         </div>`;
     }
-    constructor($container: JQuery, timestamp?: string) {
+    constructor($container: JQuery) {
         this._$container = $container;
 
+        const timestamp = $container.data('timestamp');
         if (timestamp) {
             const parts = timestamp.split(' ');
 
@@ -50,5 +51,18 @@ export class EditDateTime {
             date: this.$container.find('.js-date').val() as string,
             time: this.$container.find('.js-time').val() as string
         };
+    }
+
+    getDateTimeString(): string|undefined {
+        const dateTime = this.getDateTime();
+        if (!dateTime) {
+            return undefined;
+        }
+
+        return dateTime.date + ' ' + dateTime.time;
+    }
+
+    dispose() {
+        this._$container.remove();
     }
 }
