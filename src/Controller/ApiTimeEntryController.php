@@ -315,6 +315,8 @@ class ApiTimeEntryController extends BaseController
             $manager->persist($copy);
         }
 
+        $timeEntry->setTask($existingTimeEntry->getTask());
+
         $manager->persist($timeEntry);
         $manager->flush();
 
