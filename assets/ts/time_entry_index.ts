@@ -489,6 +489,8 @@ class TimeEntryIndexItem {
         $timestamps.append($endedEdit);
 
         this.editView = new TimeEntryEditView(this.$container, this.id, this.flashes);
+
+        this.$container.addClass('edit');
     }
 
     async onFinishEdit() {
@@ -551,6 +553,10 @@ class TimeEntryIndexItem {
         this.view.show();
 
         this.data = newData;
+
+        setTimeout(() => {
+            this.$container.removeClass('edit');
+        }, 500);
     }
 }
 

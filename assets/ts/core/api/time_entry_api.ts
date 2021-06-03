@@ -131,7 +131,7 @@ export class TimeEntryApi {
 
     public static removeTag(timeEntryId: string, tagName: string) {
         tagName = encodeURIComponent(tagName);
-        
+
         return CoreApi.delete(`/json/time-entry/${timeEntryId}/tag/${tagName}`);
     }
 
