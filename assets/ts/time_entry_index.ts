@@ -20,7 +20,6 @@ import { ApiErrorResponse, ApiResourceError, JsonResponse } from "./core/api/api
 import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 import { EditDateTime } from "./components/edit_date_time";
-import { DateTimeParts } from "./core/datetime";
 import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
 import { TimeEntryTagAssigner } from "./components/time_entry_tag_assigner";
 import TimerView from "./components/timer";
@@ -53,7 +52,6 @@ class TimeEntryDescriptionSync {
                 <div class="timestamp js-status">Up to date</div>
             </div>
         `;
-
     }
 
     constructor($container: JQuery, timeEntryId: string) {
@@ -767,6 +765,4 @@ class TimeEntryIndexPage implements TimeEntryActionDelegate{
 
 $(document).ready( () => {
     const page = new TimeEntryIndexPage();
-
-
 });
