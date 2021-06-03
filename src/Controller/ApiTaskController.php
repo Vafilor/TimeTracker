@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTaskController extends BaseController
 {
     #[Route('/api/task', name: 'api_task_index', methods: ["GET"])]
-    #[Route('/json/task', name: 'json_task_list', methods: ["GET"])]
+    #[Route('/json/task', name: 'json_task_index', methods: ["GET"])]
     public function index(
         Request $request,
         TaskRepository $taskRepository,
