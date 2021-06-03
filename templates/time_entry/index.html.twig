@@ -7,14 +7,15 @@
 {% block title %}TimeTracker{% endblock %}
 
 {% block content_body %}
-    <div class="p-3">
+    <div class="p-3 js-data"
+         data-duration-format="{{ app.user.durationFormat }}">
         <h1 class="text-center">Time Entries</h1>
 
         <div class="filter table-filter mb-3">
             <div class="filter-title">Filter</div>
             {{ form_start(filterForm) }}
-            <div class="d-flex mb-2">
-                <div>
+            <div class="d-flex flex-wrap mb-2">
+                <div class="mr-3">
                     <div>
                     {{ form_label(filterForm.start) }}
                     {% if filterForm.end.vars.errors|length != 0 %}
@@ -29,7 +30,7 @@
                     </div>
                 </div>
 
-                <div class="ml-3">
+                <div>
                     <div>
                     {{ form_label(filterForm.end) }}
                     {% if filterForm.start.vars.errors|length != 0 %}
@@ -46,137 +47,89 @@
             </div>
 
             {{ form_label(filterForm.tags) }}
-            <div class="js-autocomplete-tags d-flex align-items-center mb-1">
-                {{ form_widget(filterForm.tags, {attr: {class: 'js-real-input d-none'}}) }}
-                <div class="js-tags tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
+            <div class="js-tags-filter d-flex align-items-center mb-1">
+                {{ form_widget(filterForm.tags, {attr: {class: 'js-real-tag-input d-none'}}) }}
+                <div class="js-tags tag-list js-tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
 
-                <div class="input-group unset-width flex-shrink-0 align-self-start">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">
-                            <div class="spinner-border spinner-border-sm text-primary js-loading opacity-invisible" role="status">
-                              <span class="sr-only">Loading...</span>
-                            </div>
+                <div class="autocomplete js-autocomplete js-autocomplete-tags">
+                    <div class="d-flex bg-white">
+                        <div class="search border-right-0 rounded-right-0">
+                            <input
+                                    type="text"
+                                    class="js-input"
+                                    placeholder="tag name..."
+                                    name="tag"
+                                    autocomplete="off">
+                            <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
                         </div>
+                        <button type="button" class="btn js-add btn-outline-primary rounded-left-0">
+                            Add
+                        </button>
                     </div>
-                    <input type="text" class="js-input" placeholder="tag name..." aria-label="loading indicator">
-                    <button type="button" class="btn btn-secondary js-add-tag ml-2">Add</button>
+                    <div class="search-results js-search-results d-none"></div>
                 </div>
             </div>
 
             {{ form_label(filterForm.taskId) }}
-            <div class="js-autocomplete-tasks">
-                <div class="input-group unset-width flex-shrink-0 align-self-start">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">
-                            <div class="spinner-border spinner-border-sm text-primary js-loading opacity-invisible" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
+            <div>
+                <div class="autocomplete js-autocomplete js-autocomplete-task">
+                    <div class="d-flex bg-white">
+                        <div class="search">
+                            <input
+                                    type="text"
+                                    class="js-input"
+                                    placeholder="task name..."
+                                    name="task"
+                                    autocomplete="off"
+                                    {% if task %}
+                                    value="{{ task.name }}"
+                                    {% endif %}
+                            >
+                            <button type="button" class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
                         </div>
                     </div>
+                    <div class="search-results js-search-results d-none"></div>
 
-                    <input
-                            type="text"
-                            class="js-input"
-                            placeholder="task name..."
-                            aria-label="loading indicator"
-                            {% if task %}
-                            value="{{ task.name }}"
-                            {% endif %}
-                    />
+                    {{ form_widget(filterForm.taskId, {attr: {class: 'd-none js-real-task-input'}}) }}
                 </div>
-
-                {{ form_widget(filterForm.taskId, {attr: {class: 'd-none js-real-task-input'}}) }}
             </div>
 
             <button type="submit" class="btn btn-primary mt-2">Search</button>
             {{ form_end(filterForm) }}
         </div>
 
+        <div class="dropdown">
+            <label>Sort</label>
+            <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {% if pagination.isSorted('time_entry.startedAt') and pagination.direction == 'asc' %}
+                    Oldest
+                {% else %}
+                    Newest
+                {% endif %}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+                {{ knp_pagination_sortable(pagination, 'Newest', 'time_entry.startedAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                {{ knp_pagination_sortable(pagination, 'Oldest', 'time_entry.startedAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+            </div>
+        </div>
+
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
-        <table class="table table-hover table-bordered">
-            <thead>
-            <tr>
-                <th>Tags</th>
-                <th>Task</th>
-                <th>{{ knp_pagination_sortable(pagination, 'Start', 'time_entry.startedAt') }}</th>
-                <th>{{ knp_pagination_sortable(pagination, 'End', 'time_entry.endedAt') }}</th>
-                <th>Duration</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for timeEntry in pagination.items %}
-                <tr>
-                    <td class="tag-list many-rows">
-                        {% for tag in timeEntry.tags %}
-                            {{ tags.view(tag.name, tag.color) }}
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {% if timeEntry.task.id is defined %}
-                        <a href="{{ path('task_view', {id: timeEntry.task.id}) }}">{{ timeEntry.task.name }}</a>
-                        {% endif %}
-                    </td>
-                    <td>{{ time.user_date(timeEntry.startedAt, app.user) }}</td>
-                    <td class="js-ended-at">
-                        {% if timeEntry.over %}
-                        {{ time.user_date(timeEntry.endedAt, app.user) }}
-                        {% endif %}
-                    </td>
-                    <td class="js-duration">
-                        {% if timeEntry.over %}
-                        {{ time.user_duration(timeEntry.duration, app.user) }}
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ path('time_entry_view', {id: timeEntry.idString}) }}" class="btn btn-primary">View</a>
-                        <a href="{{ path('time_entry_continue', {id: timeEntry.idString}) }}" class="btn btn-secondary">Continue</a>
-                        {% if timeEntry.running %}
-                        <button data-time-entry-id="{{ timeEntry.idString }}" class="btn btn-secondary js-stop">
-                            <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
-                            Stop
-                        </button>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td class="text-center" colspan="6">No results found</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
-        <div>
+        <div class="mt-2 mb-3">
             <button class="btn btn-primary js-create-time-entry">
                 <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
                 Create time entry
             </button>
         </div>
-
-        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
-
-        {# Confirm create and stop modal #}
-        <div class="modal fade" id="confirm-stop-modal" tabindex="-1" aria-labelledby="confirm-stop-modal-label" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="confirm-stop-modal-label">Stop running time entry?</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        You have a running time entry, stop it and start a new one?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button class="btn btn-danger js-stop-running">Stop</button>
-                    </div>
-                </div>
-            </div>
+        <div class="time-entry-list js-time-entry-list mb-2">
+        {% for timeEntry in pagination.items %}
+            {{ include('time_entry/partials/_time-entry.html.twig', {timeEntry: timeEntry }) }}
+        {% else %}
+            <div class="text-center">No results found</div>
+        {% endfor %}
         </div>
+
+        {{ knp_pagination_render(pagination, null, {}, {align: 'center'}) }}
     </div>
 {% endblock %}
 

@@ -12,6 +12,7 @@
         "doctrine/doctrine-bundle": "^2.3",
         "doctrine/doctrine-migrations-bundle": "^3.1",
         "doctrine/orm": "^2.8",
+        "erusev/parsedown": "^1.7",
         "knplabs/knp-paginator-bundle": "^5.4",
         "knplabs/knp-time-bundle": "^1.16",
         "lexik/jwt-authentication-bundle": "^2.11",
@@ -45,6 +46,7 @@
         "symfony/webpack-encore-bundle": "^1.11",
         "symfony/yaml": "5.2.*",
         "twig/extra-bundle": "^2.12|^3.0",
+        "twig/markdown-extra": "^3.3",
         "twig/twig": "^2.12|^3.0"
     },
     "require-dev": {

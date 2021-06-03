@@ -40,4 +40,14 @@ trait TaggableTrait
 
         return $tags;
     }
+
+    /**
+     * @return string the tag names separated by commas
+     */
+    public function getTagNames(): string
+    {
+        $tagNames = array_map(fn (Tag $tag) => $tag->getName(), $this->getTags());
+
+        return implode(',', $tagNames);
+    }
 }

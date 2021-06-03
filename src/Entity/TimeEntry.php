@@ -240,4 +240,19 @@ class TimeEntry
 
         return $this;
     }
+
+    /**
+     * Add a TagLink to this TimeEntry. This does not add it to the database,
+     * it is purely for this object in memory.
+     * To persist the TagLink it must be persisted outside of this method.
+     *
+     * @param TagLink $tagLink
+     * @return $this
+     */
+    public function addTagLink(TagLink $tagLink): self
+    {
+        $this->tagLinks->add($tagLink);
+
+        return $this;
+    }
 }

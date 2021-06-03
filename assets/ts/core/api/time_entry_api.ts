@@ -4,10 +4,16 @@ import { ApiTask } from "./task_api";
 
 export type DateFormat = 'date' | 'today';
 
+export interface ApiDateTimeUpdate {
+    date: string;
+    time: string;
+}
+
 export interface ApiTimeEntry {
     id: string;
     createdAt: string;
     updatedAt: string;
+    updatedAtEpoch: number;
     startedAt: string;
     startedAtEpoch: number;
     endedAt?: string;
@@ -26,26 +32,39 @@ export interface IndexTimeEntryOptions {
 export interface CreateTimeEntryResponse {
     timeEntry: ApiTimeEntry;
     url: string;
+    template?: string;
 }
 
 export interface ApiUpdateTimeEntry {
     description?: string;
-    endedAt?: boolean;
+    startedAt?: ApiDateTimeUpdate;
+    endedAt?: ApiDateTimeUpdate;
 }
 
 export enum TimeEntryApiErrorCode {
     codeNoAssignedTask = 'code_no_assigned_task',
-    codeRunningTime = 'code_running_timer',
+    codeRunningTimer = 'code_running_timer',
     codeTimeEntryOver = 'code_time_entry_over',
 }
 
 export interface CreateTimeEntryOptions {
-    taskId: string;
+    taskId?: string;
+    withHtmlTemplate?: boolean;
+}
+
+export interface ContinueTimeEntryOptions {
+    withHtmlTemplate?: boolean;
 }
 
 export class TimeEntryApi {
     public static create(options: CreateTimeEntryOptions, format: DateFormat = 'date') {
-        return CoreApi.post<CreateTimeEntryResponse>(`/json/time-entry`, {
+        let url = '/json/time-entry';
+        if (options.withHtmlTemplate) {
+            url += '?template=true';
+            options.withHtmlTemplate = undefined;
+        }
+
+        return CoreApi.post<CreateTimeEntryResponse>(url, {
             'time_format': format,
             ...options
         });
@@ -69,6 +88,15 @@ export class TimeEntryApi {
         return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}/stop`, {
             'time_format': format
         });
+    }
+
+    public static continue(timeEntryId: string, options: ContinueTimeEntryOptions) {
+        let url = `/json/time-entry/${timeEntryId}/continue`;
+        if (options.withHtmlTemplate) {
+            url += '?template=true';
+        }
+
+        return CoreApi.post<CreateTimeEntryResponse>(url, {});
     }
 
     public static addTag(timeEntryId: string, tagName: string) {
@@ -106,7 +134,7 @@ export class TimeEntryApi {
     }
 
     public static update(timeEntryId: string, update: ApiUpdateTimeEntry) {
-        return CoreApi.put(`/json/time-entry/${timeEntryId}`, update);
+        return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}`, update);
     }
 
     public static getActive() {

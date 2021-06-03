@@ -1,4 +1,4 @@
-import { CoreApi } from './api';
+import { CoreApi, PaginatedResponse } from './api';
 
 export interface ApiTask {
     id: string;
@@ -35,7 +35,7 @@ export class TaskApi {
             url = url + '?' + params.toString();
         }
 
-        return CoreApi.get<Array<ApiTask>>(url);
+        return CoreApi.get<PaginatedResponse<ApiTask>>(url);
     }
 
     public static create(options: CreateTaskOptions) {

@@ -21,6 +21,8 @@ export class TimestampApi {
     }
 
     public static removeTag(timestampId: string, tagName: string) {
+        tagName = encodeURIComponent(tagName);
+
         return CoreApi.delete(`/json/timestamp/${timestampId}/tag/${tagName}`);
     }
 

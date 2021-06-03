@@ -5,25 +5,60 @@ import { formatTimeDifference } from "./time";
  * TimerView sets up a 1 second timer interval and updates the UI with the duration
  * from the starting time to now.
  */
-export default abstract class TimerView {
-    private interval: any = null;
-    private $timers: JQuery;
 
-    constructor(
-        private timerSelector: string,
-        protected durationFormat: string,
-        protected callback?: any) {
-        this.$timers = $(timerSelector);
+export default class TimerView {
+    private interval: any = null;
+    private durationFormat?: string;
+    // in milliseconds
+    private _startedAt: number;
+    get startedAt(): number {
+        return this._startedAt;
+    }
+    set startedAt(value: number) {
+        this._startedAt = value;
+        this.$container.data('start', value);
     }
 
-    protected abstract updateTimerElement(element: HTMLElement, now: number): string;
+    constructor(
+        private $container: JQuery,
+        protected callback?: any) {
+
+        const start = $container.data('start');
+        if (start) {
+            this._startedAt = start;
+        }
+
+        const durationFormat = $container.data('duration-format');
+        if (durationFormat) {
+            this.setDurationFormat(durationFormat);
+        }
+
+        if ($container.data('active')) {
+            this.start();
+        }
+    }
+
+    protected updateTimerElement($element: JQuery, now: number): string {
+        const durationAsString = formatTimeDifference(this.startedAt, now, this.durationFormat!);
+
+        $element.text(durationAsString);
+
+        return durationAsString;
+    }
 
     setDurationFormat(format: string) {
         this.durationFormat = format;
     }
 
+    /**
+     * Sets the text to display.
+     */
+    setText(value: string) {
+       this.$container.text(value);
+    }
+
     start() {
-        if(this.$timers.length === 0) {
+        if(this.$container.length === 0) {
             return;
         }
 
@@ -31,16 +66,22 @@ export default abstract class TimerView {
             return;
         }
 
+        if (!this._startedAt) {
+            throw new Error('startedAt is not set');
+        }
+
+        if (!this.durationFormat) {
+            throw new Error('No duration format');
+        }
+
         this.interval = setInterval(() => {
             const now = Math.floor((new Date()).getTime());
 
-            this.$timers.each(((index, element) => {
-                const durationAsString = this.updateTimerElement(element, now);
+            const durationAsString = this.updateTimerElement(this.$container, now);
 
-                if(this.callback) {
-                    this.callback(durationAsString);
-                }
-            }));
+            if(this.callback) {
+                this.callback(durationAsString);
+            }
         }, 1000);
     }
 
@@ -52,52 +93,10 @@ export default abstract class TimerView {
     }
 
     getZeroDurationString(): string {
-        return formatTimeDifference(0, 0, this.durationFormat);
-    }
-}
-
-/**
- * DataAttributeTimerView gets the start time from each element's data-start attribute and uses that to compute
- * the total duration.
- */
-export class DataAttributeTimerView extends TimerView {
-    protected updateTimerElement(element: HTMLElement, now: number): string {
-        const $element = $(element);
-        const milliSecondsSinceEpoch = $element.data('start') * 1000;
-
-        const durationAsString = formatTimeDifference(milliSecondsSinceEpoch, now, this.durationFormat);
-
-        $element.text(durationAsString);
-
-        return durationAsString;
-    }
-}
-
-/**
- * StaticStartTimerView uses an input value for the start time to compute the total duration.
- */
-export class StaticStartTimerView extends TimerView {
-    private startTime: number;
-
-    /**
-     * start starts the timer using the input time, in milliseconds since epoch, as the starting point
-     * @param startTime
-     */
-    start(startTime: number = null) {
-        if (startTime === null) {
-            startTime = Math.floor((new Date()).getTime());
+        if (!this.durationFormat) {
+            throw new Error('No duration format');
         }
-        this.startTime = startTime;
-        super.start();
-    }
 
-    protected updateTimerElement(element: HTMLElement, now: number): string {
-        const $element = $(element);
-
-        const durationAsString = formatTimeDifference(this.startTime, now, this.durationFormat);
-
-        $element.text(durationAsString);
-
-        return durationAsString;
+        return formatTimeDifference(0, 0, this.durationFormat);
     }
 }

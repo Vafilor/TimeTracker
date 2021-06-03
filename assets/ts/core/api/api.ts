@@ -3,9 +3,19 @@ export interface JsonResponse<T> {
     data: T
 }
 
+export interface PaginatedResponse<T> {
+    page: number;
+    perPage: number;
+    totalCount: number;
+    totalPages: number;
+    count: number;
+    data: Array<T>;
+}
+
 export interface ApiError {
     code: string;
     message: string;
+
 }
 
 export interface ApiResourceError extends ApiError {

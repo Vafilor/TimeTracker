@@ -3,21 +3,102 @@ import { ApiTimeEntry, TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/t
 import Observable from "./observable";
 import { ConfirmClickEvent, ConfirmDialog } from "./confirm_dialog";
 import { ApiErrorResponse, ApiResourceError } from "../core/api/api";
-import { StaticStartTimerView } from "./timer";
-import { SyncInput } from "./sync_input";
+import TimerView from "./timer";
 
-class SyncTaskTimeEntryDescription extends SyncInput {
+abstract class SyncInputInternal {
+    private $input: JQuery;
+    private $loadingContainer: JQuery;
+    private debounceTime = 500;
+    private timeout: any;
+
+    /**
+     * textChanged is triggered whenever the text has been changed in the input, after the debounce time.
+     */
+    public readonly textChanged = new Observable<string>();
+
+    /**
+     * textUplaoded is triggered whenever the text change has been successfully uploaded the the server.
+     */
+    public readonly textUploaded = new Observable<string>();
+
+    constructor(
+        $inputElement: JQuery,
+        $loadingElement: JQuery) {
+        this.$input = $inputElement;
+        this.$loadingContainer = $loadingElement
+    }
+
+    protected abstract update(text: string): Promise<any>;
+
+    private startLoading() {
+        this.$loadingContainer.find('.js-loading').removeClass('d-none');
+    }
+
+    private stopLoading() {
+        this.$loadingContainer.find('.js-loading').addClass('d-none');
+    }
+
+    protected onTextChange(text: string): Promise<any> {
+        this.textChanged.emit(text);
+
+        return this.update(text)
+            .then(() => {
+                this.stopLoading();
+                this.textUploaded.emit(text);
+            });
+    }
+
+    start() {
+        this.$input.on('input propertychange', () => {
+            clearTimeout(this.timeout);
+            this.startLoading();
+
+            this.timeout = setTimeout(() => {
+                const text = this.$input.val() as string;
+
+                this.onTextChange(text);
+            }, this.debounceTime);
+        })
+
+    }
+
+    stop() {
+        clearTimeout()
+        this.$input.off('input propertychange');
+    }
+
+    setDebounceTime(value: number) {
+        this.debounceTime = value;
+    }
+
+    upload() {
+        this.startLoading();
+        const text = this.$input.val() as string;
+        return this.onTextChange(text);
+    }
+
+    uploadIfHasText(): Promise<any> {
+        const descriptionText = this.$input.val() as string;
+        if (descriptionText && descriptionText.length > 0) {
+            return this.upload();
+        }
+
+        return Promise.resolve();
+    }
+}
+
+export class SyncTaskTimeEntryDescription extends SyncInputInternal {
     private timeEntryId?: string;
 
     public constructor(
-        inputSelector: string,
-        loadingSelector: string) {
-        super(inputSelector, loadingSelector);
+        $inputElement: JQuery,
+        $loadingElement: JQuery) {
+        super($inputElement, $loadingElement);
     }
 
     protected update(text: string): Promise<any> {
         if (!this.timeEntryId) {
-            return;
+            return Promise.resolve();
         }
 
         return TimeEntryApi.update(this.timeEntryId, {
@@ -30,7 +111,7 @@ class SyncTaskTimeEntryDescription extends SyncInput {
     }
 
     clearTimeEntry() {
-        this.timeEntryId = null;
+        this.timeEntryId = undefined;
     }
 }
 
@@ -56,7 +137,7 @@ export default class TaskTimeEntry {
 
     private descriptionUpdater: SyncTaskTimeEntryDescription;
 
-    private durationTimer: StaticStartTimerView;
+    private durationTimer: TimerView;
     private model?: ApiTimeEntry;
     public readonly stopped = new Observable<ApiTimeEntry>();
     private _state: TimeEntryState;
@@ -74,13 +155,18 @@ export default class TaskTimeEntry {
                 this.startLoading();
                 break;
             case TimeEntryState.running:
+                if (!this.model) {
+                    throw new Error('Model is not defined');
+                }
+
                 this.descriptionUpdater.setTimeEntryId(this.model.id);
                 this.descriptionUpdater.start();
                 this.descriptionUpdater.uploadIfHasText();
 
                 this.stopLoading();
                 this.setButtonToStop();
-                this.durationTimer.start(this.model.startedAtEpoch * 1000);
+                this.durationTimer.startedAt = this.model.startedAtEpoch * 1000;
+                this.durationTimer.start();
                 break
             case TimeEntryState.notRunning:
                 this.stopLoading();
@@ -117,11 +203,11 @@ export default class TaskTimeEntry {
 
         this.$loading = this.$container.find('.js-task-time-entry-loading');
 
-        this.durationTimer = new StaticStartTimerView('.js-duration', this.durationFormat);
+        this.durationTimer = new TimerView($('.js-duration'), this.durationFormat);
 
         this.descriptionUpdater = new SyncTaskTimeEntryDescription(
-            '.js-task-time-entry .js-time-entry-description',
-            '.js-task-time-entry',
+            $('.js-task-time-entry .js-time-entry-description'),
+            $('.js-task-time-entry'),
         );
     }
 
@@ -219,8 +305,8 @@ export default class TaskTimeEntry {
                 this.model = res.data.timeEntry;
                 this.state = TimeEntryState.running;
             }).catch( (res: ApiErrorResponse) => {
-                if (res.hasErrorCode(TimeEntryApiErrorCode.codeRunningTime)) {
-                    const error = res.getErrorForCode(TimeEntryApiErrorCode.codeRunningTime) as ApiResourceError;
+                if (res.hasErrorCode(TimeEntryApiErrorCode.codeRunningTimer)) {
+                    const error = res.getErrorForCode(TimeEntryApiErrorCode.codeRunningTimer) as ApiResourceError;
                     const timeEntryId = error.resource;
                     this.confirmStopRunningTimeEntry(timeEntryId);
                 }
@@ -244,6 +330,10 @@ export default class TaskTimeEntry {
         }
 
         this.state = TimeEntryState.stopping;
+
+        if (!this.model) {
+            throw new Error('Model is not defined');
+        }
 
         TimeEntryApi.stop(this.model.id)
             .then(res => {

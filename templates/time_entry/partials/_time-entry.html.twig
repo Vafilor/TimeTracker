@@ -1,0 +1,75 @@
+{% import 'time/partials.html.twig' as time %}
+{% import 'tag/partials.html.twig' as tags %}
+
+<div
+    class="time-entry js-time-entry"
+    data-id="{{ timeEntry.idString }}"
+>
+    <div class="d-flex justify-content-between">
+        <div>
+            {% if not timeEntry.over %}
+                <div class="spinner spinner-border spinner-border-sm text-primary js-time-entry-activity js-loading mr-1" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            {% endif %}
+            <div class="task js-task">
+                {% if timeEntry.assignedToTask %}
+                    <a class="js-task-content" data-task-name="{{ timeEntry.task.name }}" data-task-id="{{ timeEntry.task.idString }}" href="{{ path('task_view', {id: timeEntry.task.id}) }}">{{ timeEntry.task.name }}</a>
+                {% else %}
+                    <div data-task-name="" data-task-id="" class="js-task-content d-inline-block">No Task</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div
+            class="duration js-duration"
+            data-start="{{ timeEntry.startedAt.timestamp * 1000 }}"
+            data-duration-format="{{ app.user.durationFormat }}"
+            data-active="{{ timeEntry.running }}">
+            {{ time.user_duration(timeEntry.duration, app.user) }}
+        </div>
+    </div>
+    <div class="tag-list js-tag-list many-rows mt-1" data-initial-tags-name="{{ timeEntry.tagNames() }}">
+        <div class="js-tag-list-view">
+            {% for tag in timeEntry.tags %}
+                {{ tags.view(tag.name, tag.color) }}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="d-flex js-timestamps mt-2">
+        <div class="timestamp js-started-at" data-timestamp="{{ timeEntry.startedAt.timestamp * 1000 }}">{{ time.user_date(timeEntry.startedAt, app.user) }}</div>
+
+        <div
+            class="ml-2 timestamp js-ended-at"
+            {% if timeEntry.over %}
+            data-timestamp="{{ timeEntry.endedAt.timestamp * 1000 }}"
+            {% endif %}>
+
+            {% if timeEntry.over %}
+                - {{ time.user_date(timeEntry.endedAt, app.user) }}
+            {% endif %}
+        </div>
+    </div>
+    <div
+        class="js-description mt-2"
+        data-description="{{ timeEntry.description }}">
+        {% if timeEntry.descriptionEmpty %}
+            No description
+        {% else %}
+            {{ timeEntry.description|markdown_to_html }}
+        {% endif %}
+    </div>
+    <hr/>
+    <div class="d-flex justify-content-end js-actions">
+        <a href="{{ path('time_entry_view', {id: timeEntry.idString}) }}" class="btn btn-primary js-view">View</a>
+        <button type="button" class="btn btn-primary js-edit ml-2">Edit</button>
+        {% if timeEntry.running %}
+        <button data-time-entry-id="{{ timeEntry.idString }}" class="btn btn-danger js-stop ml-2">
+            <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
+            Stop
+        </button>
+        {% else %}
+        <button type="button" class="btn btn-secondary js-continue ml-2">Continue</button>
+        {% endif %}
+    </div>
+</div>

@@ -1,4 +1,4 @@
-import { CoreApi } from './api';
+import { CoreApi, PaginatedResponse } from './api';
 
 export interface ApiTag {
     name: string;
@@ -6,13 +6,13 @@ export interface ApiTag {
 }
 
 export class TagApi {
-    public static listTags(searchTerm: string, excludeTags: Array<string> = [] ) {
+    public static index(searchTerm: string, excludeTags: Array<string> = [] ) {
         let url = `/json/tag?searchTerm=${searchTerm}`;
         if (excludeTags.length !== 0) {
             const excludeTerms = excludeTags.join(",");
             url += '&exclude=' + excludeTerms;
         }
 
-        return CoreApi.get(url);
+        return CoreApi.get<PaginatedResponse<ApiTag>>(url);
     }
 }

@@ -114,7 +114,11 @@ function pluralize(value: number, singular: string, plural: string): string {
     return result + ' ago';
 }
 
-export function timeAgo(startMillis: number, endMillis: number): string {
+export function timeAgo(startMillis: number, endMillis?: number): string {
+    if (!endMillis) {
+        endMillis = (new Date()).getTime();
+    }
+
     const duration = Math.floor((endMillis - startMillis) / 1000);
 
     if (duration >= secondsInYear) {

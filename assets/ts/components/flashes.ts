@@ -5,7 +5,7 @@ export default class Flashes {
     }
 
     create(label: string, message: string): string {
-        return `<div class="alert alert-${label} alert-dismissible fade show flash">
+        return `<div class="alert alert-${label} hide-top alert-dismissible fade show flash">
             ${message}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -37,6 +37,10 @@ export default class Flashes {
         const $flash = $(this.create(label, message));
 
         this.$container.append($flash);
+
+        setTimeout(() => {
+            $flash.addClass('unhide-top');
+        });
 
         if(autoDismiss) {
             setTimeout(() => {
