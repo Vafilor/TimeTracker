@@ -38,7 +38,18 @@ export class EditDateTime {
         }
 
         const whenDate = `${when.getFullYear()}-${month}-${day}`;
-        const whenTime = `${when.getHours()}:${when.getMinutes()}:${when.getSeconds()}`;
+
+        let minutes = `${when.getMinutes()}`;
+        if (when.getMinutes() < 10) {
+            minutes = '0' + minutes;
+        }
+
+        let seconds = `${when.getSeconds()}`;
+        if (when.getSeconds() < 10) {
+            seconds = '0' + seconds;
+        }
+
+        const whenTime = `${when.getHours()}:${minutes}:${seconds}`;
 
         return {
             date: whenDate,
