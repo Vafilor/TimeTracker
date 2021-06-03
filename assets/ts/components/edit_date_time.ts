@@ -39,6 +39,11 @@ export class EditDateTime {
 
         const whenDate = `${when.getFullYear()}-${month}-${day}`;
 
+        let hours = `${when.getHours()}`;
+        if (when.getHours() < 10) {
+            hours = '0' + hours;
+        }
+
         let minutes = `${when.getMinutes()}`;
         if (when.getMinutes() < 10) {
             minutes = '0' + minutes;
@@ -49,7 +54,7 @@ export class EditDateTime {
             seconds = '0' + seconds;
         }
 
-        const whenTime = `${when.getHours()}:${minutes}:${seconds}`;
+        const whenTime = `${hours}:${minutes}:${seconds}`;
 
         return {
             date: whenDate,
