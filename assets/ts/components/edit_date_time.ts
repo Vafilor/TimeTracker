@@ -1,6 +1,7 @@
 import { DateTimeParts } from "../core/datetime";
 
 export class EditDateTime {
+    private readonly when?: Date;
     private readonly _$container: JQuery;
     get $container(): JQuery {
         return this._$container;
@@ -24,42 +25,45 @@ export class EditDateTime {
             </div>
         </div>`;
     }
+
+    public static dateToParts(when: Date): DateTimeParts {
+        let month = `${when.getMonth() + 1}`;
+        if (when.getMonth() < 9) {
+            month = '0' + month;
+        }
+
+        let day = `${when.getDate()}`;
+        if (when.getDate() < 10) {
+            day = '0' + day;
+        }
+
+        const whenDate = `${when.getFullYear()}-${month}-${day}`;
+        const whenTime = `${when.getHours()}:${when.getMinutes()}:${when.getSeconds()}`;
+
+        return {
+            date: whenDate,
+            time: whenTime,
+        }
+    }
+
     constructor($container: JQuery) {
         this._$container = $container;
 
         const timestamp = $container.data('timestamp');
         if (timestamp) {
-            const parts = timestamp.split(' ');
+            this.when = new Date(timestamp);
+            const parts = EditDateTime.dateToParts(this.when);
 
-            $container.find('.js-date').val(parts[0]);
-            $container.find('.js-time').val(parts[1]);
+            $container.find('.js-date').val(parts.date);
+            $container.find('.js-time').val(parts.time);
         }
     }
 
-    getDateTime(): DateTimeParts|undefined {
-        const dateValue = this.$container.find('.js-date').val() as string;
-        if (!dateValue) {
-            return undefined;
-        }
+    getDate(): Date|undefined {
+        const date = this.$container.find('.js-date').val();
+        const time = this.$container.find('.js-time').val();
 
-        const timeValue = this.$container.find('.js-time').val() as string;
-        if (!timeValue) {
-            return undefined;
-        }
-
-        return {
-            date: this.$container.find('.js-date').val() as string,
-            time: this.$container.find('.js-time').val() as string
-        };
-    }
-
-    getDateTimeString(): string|undefined {
-        const dateTime = this.getDateTime();
-        if (!dateTime) {
-            return undefined;
-        }
-
-        return dateTime.date + ' ' + dateTime.time;
+        return new Date(`${date} ${time}`);
     }
 
     dispose() {

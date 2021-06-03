@@ -117,10 +117,10 @@ interface TimeEntryModel {
     id: string;
     task?: TaskModel,
     description: string;
-    startedAt: string;
-    startedAtParts?: DateTimeParts,
+    startedAt?: string;
+    startedAtEpoch: number; // epoch in milliseconds
     endedAt?: string;
-    endedAtParts?: DateTimeParts,
+    endedAtEpoch?: number; // epoch in milliseconds
     tags: Array<ApiTag>;
 }
 
@@ -169,37 +169,26 @@ class TimeEntryView {
         this.$container.find('.js-task').append(this.$taskName);
     }
 
-    private setStartedAtData(startedAt: string, parts?: DateTimeParts) {
+    private setStartedAtData(epoch: number, display: string) {
         const $element = this.$container.find('.js-started-at');
 
-        if (startedAt === $element.data('timestamp')) {
+        if (epoch === $element.data('timestamp')) {
             return;
         }
 
-        if (!parts) {
-            throw new Error('no parts for setting started at');
-        }
-
-        $element.text(startedAt);
-        $element.data('timestamp', parts.date + ' ' + parts.time);
+        $element.text(display);
+        $element.data('timestamp', epoch);
     }
 
-    setEndedAtData(endedAt?: string, parts?: DateTimeParts) {
-        if (!endedAt) {
-            return;
-        }
-
-        if (!parts) {
-            throw new Error('no parts for setting ended at');
-        }
-
+    setEndedAtData(epoch: number, display: string) {
         const $element = this.$container.find('.js-ended-at');
-        if (endedAt === $element.data('timestamp')) {
+
+        if (epoch === $element.data('timestamp')) {
             return;
         }
 
-        $element.text('- ' + endedAt);
-        $element.data('timestamp', parts.date + ' ' + parts.time);
+        $element.text('- ' + display);
+        $element.data('timestamp', epoch);
     }
 
     set data(model: TimeEntryModel) {
@@ -207,8 +196,14 @@ class TimeEntryView {
 
         this.setTagData(model.tags);
         this.setTaskData(model.task);
-        this.setStartedAtData(model.startedAt, model.startedAtParts);
-        this.setEndedAtData(model.endedAt, model.endedAtParts);
+
+        if (model.startedAt) {
+            this.setStartedAtData(model.startedAtEpoch, model.startedAt);
+        }
+
+        if (model.endedAt && model.endedAtEpoch) {
+            this.setEndedAtData(model.endedAtEpoch, model.endedAt);
+        }
     }
 
     private getTags(): ApiTag[] {
@@ -233,6 +228,9 @@ class TimeEntryView {
     }
 
     get data(): TimeEntryModel {
+        const $startedAt = this.$container.find('.js-started-at');
+        const $endedAt = this.$container.find('.js-ended-at');
+
         return {
             id: this.id,
             task: {
@@ -241,8 +239,10 @@ class TimeEntryView {
                 url: this.$taskName.attr('href')
             },
             description: this._descriptionView.data,
-            startedAt: this.$container.find('.js-started-at').data('timestamp'),
-            endedAt: this.$container.find('.js-ended-at').data('timestamp'),
+            startedAt: $startedAt.text(),
+            startedAtEpoch: $startedAt.data('timestamp'),
+            endedAt: $endedAt.text(),
+            endedAtEpoch: $endedAt.data('timestamp'),
             tags: this.getTags()
         };
     }
@@ -299,9 +299,9 @@ class TimeEntryEditView {
 
     get data(): TimeEntryModel {
         const task = this.taskEdit.getTask();
-        const startedAtString = this.startedAt.getDateTimeString();
-        if (!startedAtString) {
-            throw new Error('No started at');
+
+        if (!this.startedAt.getDate()) {
+            throw new Error('Started at does not have a date');
         }
 
         return {
@@ -312,10 +312,8 @@ class TimeEntryEditView {
                 url: task ? task.url: undefined
             },
             description: this.description.data,
-            startedAt: startedAtString,
-            startedAtParts: this.startedAt.getDateTime(),
-            endedAt: this.endedAt.getDateTimeString(),
-            endedAtParts: this.endedAt.getDateTime(),
+            startedAtEpoch: this.startedAt.getDate()!.getTime(),
+            endedAtEpoch: this.endedAt.getDate()?.getTime(),
             tags: this.tagEdit.getTagList().getTags()
         };
     }
@@ -414,8 +412,12 @@ class TimeEntryIndexItem {
     }
 
     stopUI(timeEntry: ApiTimeEntry) {
-        this.$container.find('.js-ended-at').text('- ' + timeEntry.endedAt);
-        this.$container.find('.js-duration').text(timeEntry.duration);
+        if (!timeEntry.endedAtEpoch || !timeEntry.endedAt) {
+            throw new Error('timeEntry does not have endedAt or endedAtEpoch');
+        }
+        this.view.setEndedAtData(timeEntry.endedAtEpoch * 1000, timeEntry.endedAt)
+
+        this.durationTimer.setText(timeEntry.duration);
 
         this.durationTimer.stop();
         this.view.removeActivityIndicator();
@@ -426,7 +428,11 @@ class TimeEntryIndexItem {
 
         try {
             const res = await TimeEntryApi.stop(this.id, this.dateFormat)
-            this.view.setEndedAtData(res.data.endedAt);
+            if (res.data.endedAtEpoch && res.data.endedAt) {
+                this.view.setEndedAtData(res.data.endedAtEpoch * 1000, res.data.endedAt);
+            } else {
+                throw new Error('Missing required endedAtEpoch and endedAt from api');
+            }
 
             this.durationTimer.stop();
             this.durationTimer.setText(res.data.duration)
@@ -475,10 +481,10 @@ class TimeEntryIndexItem {
         // Timestamps
         const $timestamps = this.$container.find('.js-timestamps');
         const $startedEdit = $(EditDateTime.templateWithLabel('Started', 'js-edit-started-at'));
-        $startedEdit.data('timestamp', data.startedAt);
+        $startedEdit.data('timestamp', data.startedAtEpoch);
         const $endedEdit = $(EditDateTime.templateWithLabel('Ended', 'js-edit-ended-at ml-2'));
-        if (data.endedAt) {
-            $endedEdit.data('timestamp', data.endedAt);
+        if (data.endedAtEpoch) {
+            $endedEdit.data('timestamp', data.endedAtEpoch);
         }
 
         $timestamps.append($startedEdit);
@@ -498,23 +504,36 @@ class TimeEntryIndexItem {
 
         this.updateButton?.startLoading();
 
-
         const newData = this.editView.data;
 
-        if ( (this.data.startedAt !== newData.startedAt) || (this.data.endedAt !== newData.endedAt) ) {
+        if ( (this.data.startedAtEpoch !== newData.startedAtEpoch) || (this.data.endedAtEpoch !== newData.endedAtEpoch) ) {
             try {
-                const res = await TimeEntryApi.update(this.id, {
-                    startedAt: newData.startedAtParts,
-                    endedAt: newData.endedAtParts
-                })
+                let update = {};
+                let updated = false;
 
-                const jsonRes = res as JsonResponse<ApiTimeEntry>;
-                newData.startedAt = jsonRes.data.startedAt;
-                newData.endedAt = jsonRes.data.endedAt;
+                if (this.data.startedAtEpoch !== newData.startedAtEpoch) {
+                    update['startedAt'] = EditDateTime.dateToParts(new Date(newData.startedAtEpoch));
+                    updated = true;
+                }
 
-                if (jsonRes && jsonRes.data.endedAt && !this.data.endedAt) {
-                    this.durationTimer.stop();
-                    this.view.removeActivityIndicator();
+                if (newData.endedAtEpoch && (this.data.endedAtEpoch !== newData.endedAtEpoch)) {
+                    update['endedAt'] = EditDateTime.dateToParts(new Date(newData.endedAtEpoch!));
+                    updated = true;
+                }
+
+                if (updated) {
+                    const res = await TimeEntryApi.update(this.id, update);
+
+                    const jsonRes = res as JsonResponse<ApiTimeEntry>;
+                    newData.startedAt = jsonRes.data.startedAt;
+                    newData.endedAt = jsonRes.data.endedAt;
+
+                    if (jsonRes && jsonRes.data.endedAt && !this.data.endedAt) {
+                        this.durationTimer.stop();
+                        this.view.removeActivityIndicator();
+                    }
+
+                    this.durationTimer.setText(jsonRes.data.duration);
                 }
             } catch (e) {
                 this.flashes.append('danger', 'Unable to update timestamps');
