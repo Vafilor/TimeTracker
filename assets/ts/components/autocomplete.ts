@@ -212,6 +212,11 @@ abstract class Autocomplete {
     }
 }
 
+export interface AutocompleteEnterPressedEvent<T> {
+    query: string;
+    data?: T;
+} 
+
 /**
  * PaginatedAutocomplete simplifies creating an autocomplete for responses that are Paginated.
  * A subclass should implement the following methods
@@ -228,9 +233,41 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
 
     /**
      * enterPressed is fired whenever the enter key is pressed in the search input.
-     * The value is the current query.
+     * The value is the current query along with any currently hovered item from the search results.
+     * There may not be any item currently hovered over, so it is optional.
      */
-    public enterPressed = new Observable<string>();
+    public enterPressed = new Observable<AutocompleteEnterPressedEvent<T>>();
+
+    private _data: T[];
+    set data(value: T[]) {
+        this._data = value;
+        this.itemIndexFocused = undefined;
+    }
+    get data(): T[] {
+        return this._data;
+    }
+
+    private itemFocused?: T;
+    private _itemIndexFocused?: number;
+    set itemIndexFocused(value: number|undefined) {
+        this._itemIndexFocused = value;
+        this.$searchContent.find('.paginated-autocomplete-selected')
+            .removeClass('paginated-autocomplete-selected')
+        ;
+
+        if (value !== undefined) {
+            this.itemFocused = this.data[value];
+
+            this.$searchContent.find(`.js-paginated-autocomplete-index-${value}`)
+                .addClass('paginated-autocomplete-selected')
+            ;
+        } else {
+            this.itemFocused = undefined;
+        }
+    }
+    get itemIndexFocused(): number|undefined {
+        return this._itemIndexFocused;
+    }
 
     constructor($element: JQuery) {
         super($element);
@@ -239,9 +276,60 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
             if (event.key === 'Enter') {
                 // Don't form doesn't submit, if there is one.
                 event.preventDefault();
-                this.enterPressed.emit($(event.currentTarget).val() as string);
+
+                const query = $(event.currentTarget).val() as string;
+                this.enterPressed.emit({
+                    query,
+                    data: this.itemFocused
+                });
+                this.itemFocused = undefined;
             }
         });
+
+        this.$input.on('keydown', (event) => {
+            if (event.key === 'ArrowDown') {
+                this.onArrowDown();
+            } else if (event.key === 'ArrowUp') {
+                this.onArrowUp();
+            }
+        });
+    }
+
+    private onArrowDown() {
+        if (this.data.length === 0) {
+            return;
+        }
+
+        let index = this.itemIndexFocused;
+        if (index === undefined) {
+            index = -1;
+        }
+
+        if (index === (this.data.length - 1)) {
+            index = -1;
+        }
+
+        this.itemIndexFocused = index + 1;
+    }
+
+    private onArrowUp() {
+        if (this.data.length === 0) {
+            return;
+        }
+
+        let index = this.itemIndexFocused;
+        if (index === undefined) {
+            index = this.data.length - 1;
+        }
+
+        if (index === 0) {
+            index = this.data.length;
+        }
+
+        this.itemIndexFocused = index - 1;
+
+        // TODO updated select color and make sure to handle enter press.
+
     }
 
     /**
@@ -289,12 +377,19 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
         }
 
         this.$searchContent.html('');
+
+        this.data = results.data.data;
+
+        let index = 0;
         for(const item of results.data.data) {
             const $template = $(this.template(item));
             $template.addClass('search-result-item');
+            $template.addClass(`js-paginated-autocomplete-index-${index}`);
             $template.on('click', () => this.itemSelected.emit(item));
             this.$searchContent.append($template);
             this.$searchContent.append('<hr class="separator"/>');
+
+            index++;
         }
 
         if(results.data.totalCount > results.data.count) {
@@ -303,5 +398,10 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
 
         this.$searchContent.append(this.$searchContent);
         this.$searchContent.removeClass('d-none');
+    }
+
+    public clear() {
+        super.clear();
+        this._itemIndexFocused = undefined;
     }
 }

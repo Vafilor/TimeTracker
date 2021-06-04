@@ -2,6 +2,7 @@ import Flashes from "./flashes";
 import TagList from "./tag_index";
 import { ApiTag } from "../core/api/tag_api";
 import AutocompleteTags from "./autocomplete_tags";
+import { AutocompleteEnterPressedEvent } from "./autocomplete";
 
 export class TimeEntryTagAssigner {
     private readonly _$container: JQuery;
@@ -41,7 +42,13 @@ export class TimeEntryTagAssigner {
         this.autocomplete = new AutocompleteTags($container);
 
         this.autocomplete.itemSelected.addObserver((tag: ApiTag) => this.onTagSelected(tag));
-        this.autocomplete.enterPressed.addObserver((name: string) => this.onAddTag(name));
+        this.autocomplete.enterPressed.addObserver((event: AutocompleteEnterPressedEvent<ApiTag>) => {
+            if (event.data) {
+                this.onTagSelected(event.data);
+            } else {
+                this.onAddTag(event.query);
+            }
+        });
         $container.find('.js-add').on('click', (event) => {
             this.onAddTag(this.autocomplete.getQuery());
         });

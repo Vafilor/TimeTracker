@@ -4,6 +4,7 @@ import { ApiTask } from "../core/api/task_api";
 import { TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 import { ApiErrorResponse } from "../core/api/api";
 import AutocompleteTask from "./autocomplete_task";
+import { AutocompleteEnterPressedEvent } from "./autocomplete";
 
 export class TimeEntryTaskAssigner {
     private readonly timeEntryId: string;
@@ -48,7 +49,13 @@ export class TimeEntryTaskAssigner {
 
         this.$container.find('.js-delete').on('click', () => this.clearTask());
 
-        this.autocomplete.enterPressed.addObserver((query: string) => this.assignToTask(query));
+        this.autocomplete.enterPressed.addObserver((event: AutocompleteEnterPressedEvent<ApiTask>) => {
+            if (event.data) {
+                this.assignToTask(event.data.name, event.data.id);
+            } else {
+                this.assignToTask(event.query);
+            }
+        });
 
         const taskId = $container.data('task-id') as string;
         const taskName = $container.data('task-name') as string;
@@ -70,11 +77,12 @@ export class TimeEntryTaskAssigner {
         this.autocomplete.setQuery(name);
     }
 
-    private async assignToTask(taskName: string) {
+    private async assignToTask(taskName: string, taskId?: string) {
         this.autocomplete.clearSearchContent();
 
-        const res = await TimeEntryApi.assignToTask(this.timeEntryId, taskName);
+        const res = await TimeEntryApi.assignToTask(this.timeEntryId, taskName, taskId);
         this.task = res.data;
+        this.autocomplete.setQuery(taskName);
 
         if (res.source.status === 201 && res.data.url) {
             this.flashes.appendWithLink('success', `Created new task`, res.data.url, res.data.name);
