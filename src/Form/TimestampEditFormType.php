@@ -18,6 +18,7 @@ class TimestampEditFormType extends AbstractType
             ->add('createdAt', DateTimeType::class, [
                 'date_widget' => 'single_text',
                 'time_widget' => 'single_text',
+                'with_seconds' => true,
                 'view_timezone' => $options['timezone']
             ])
         ;
