@@ -1,13 +1,13 @@
 import '../styles/task.scss';
 import '../styles/partials/task_time_entry.scss';
 
-import AutoMarkdown from "./components/automarkdown";
 import $ from "jquery";
+import AutoMarkdown from "./components/automarkdown";
 import { TaskApi } from "./core/api/task_api";
 import TaskTimeEntry from "./components/task_time_entry";
 import { ApiTimeEntry, TimeEntryApi } from "./core/api/time_entry_api";
-import { formatShortTimeDifference, formatTimeDifference, timeAgo } from "./components/time";
-import { createTagView, createTagViewRemovable } from "./components/tags";
+import { formatShortTimeDifference, timeAgo } from "./components/time";
+import { createTagView } from "./components/tags";
 
 class TaskEntryAutoMarkdown extends AutoMarkdown {
     private readonly taskId: string;
@@ -79,6 +79,20 @@ class TimeEntryActivity {
     }
 }
 
+function updateTotalTime(taskId: string) {
+    const $element = $('.js-total-time');
+    const $value = $element.find('.js-value');
+    const $loading = $element.find('.js-loading');
+
+    $loading.removeClass('d-none');
+
+    TaskApi.reportForTask(taskId)
+        .then(res => {
+            $value.text(res.data.totalTime);
+            $loading.addClass('d-none');
+        })
+}
+
 $(document).ready(() => {
     const $data = $('.js-data');
     const taskId = $data.data('task-id');
@@ -98,6 +112,7 @@ $(document).ready(() => {
     taskTimeEntry.initialize();
     taskTimeEntry.stopped.addObserver((timeEntry: ApiTimeEntry) => {
        timeEntryActivity.prepend(timeEntry);
+        updateTotalTime(taskId);
     });
 
     TimeEntryApi.index({taskId})
@@ -106,4 +121,7 @@ $(document).ready(() => {
                 timeEntryActivity.append(timeEntry);
             }
         })
+
+    updateTotalTime(taskId);
+
 });
