@@ -33,7 +33,7 @@ class TimeEntryRepository extends ServiceEntityRepository
     public function createDefaultQueryBuilder(): QueryBuilder
     {
         return $this->createQueryBuilder('time_entry')
-                    ->andWhere('time_entry.deletedAt is NULL');
+                    ->andWhere('time_entry.deletedAt IS NULL');
     }
 
     public function findForTaskQueryBuilder(string $taskId): QueryBuilder
