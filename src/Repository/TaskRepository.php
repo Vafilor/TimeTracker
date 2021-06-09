@@ -68,4 +68,29 @@ class TaskRepository extends ServiceEntityRepository
 
         return $queryBuilder;
     }
+
+    /**
+     * @param string|Task $task the taskId or task entity.
+     * @return int
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function getTotalTimeInSeconds(string|Task $task): int
+    {
+        $queryBuilder = $this->createDefaultQueryBuilder()
+                             ->join('task.timeEntries', 'time_entry')
+                             ->select('total_seconds(time_entry.startedAt, time_entry.endedAt)')
+                             ->andWhere('task = :task')
+                             ->andWhere('time_entry.endedAt IS NOT NULL')
+                             ->setParameter('task', $task)
+                             ->getQuery()
+        ;
+
+        $result = $queryBuilder->getSingleScalarResult();
+        if (is_null($result)) {
+            return 0;
+        }
+
+        return intval($result);
+    }
 }
