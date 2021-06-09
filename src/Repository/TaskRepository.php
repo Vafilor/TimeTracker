@@ -81,6 +81,7 @@ class TaskRepository extends ServiceEntityRepository
                              ->join('task.timeEntries', 'time_entry')
                              ->select('total_seconds(time_entry.startedAt, time_entry.endedAt)')
                              ->andWhere('task = :task')
+                             ->andWhere('time_entry.deletedAt IS NULL')
                              ->andWhere('time_entry.endedAt IS NOT NULL')
                              ->setParameter('task', $task)
                              ->getQuery()
