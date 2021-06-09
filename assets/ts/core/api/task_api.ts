@@ -24,6 +24,11 @@ export interface CreateTaskOptions {
     name: string;
 }
 
+export interface TaskTimeReport {
+    totalTime: string;
+    totalSeconds: string;
+}
+
 export class TaskApi {
     public static index(nameLike?: string) {
         let url = `/json/task`;
@@ -52,5 +57,9 @@ export class TaskApi {
 
     public static update(taskId: string, update: ApiUpdateTask) {
         return CoreApi.put(`/json/task/${taskId}`, update);
+    }
+
+    public static reportForTask(taskId: string) {
+        return CoreApi.get<TaskTimeReport>(`/json/report/task/${taskId}`);
     }
 }
