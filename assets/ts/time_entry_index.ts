@@ -409,16 +409,29 @@ class TimeEntryIndexItem {
         }
     }
 
+    private addContinueButtonIfNotExist() {
+        if (this.$container.find('.js-continue').length === 0) {
+            this.$continueButton = $(`<button type="button" class="btn btn-secondary js-continue ml-2">Continue</button>`);
+            this.$continueButton.on('click', () => this.delegate.continue(this.id));
+            this.$container.find('.js-actions').append(this.$continueButton);
+        }
+    }
+
     stopUI(timeEntry: ApiTimeEntry) {
         if (!timeEntry.endedAtEpoch || !timeEntry.endedAt) {
             throw new Error('timeEntry does not have endedAt or endedAtEpoch');
         }
         this.view.setEndedAtData(timeEntry.endedAtEpoch * 1000, timeEntry.endedAt)
 
-        this.durationTimer.setText(timeEntry.duration);
+        if (timeEntry.duration) {
+            this.durationTimer.setText(timeEntry.duration);
+        }
 
         this.durationTimer.stop();
         this.view.removeActivityIndicator();
+
+        this.stopButton?.$container.remove();
+        this.addContinueButtonIfNotExist();
     }
 
     async stop() {
@@ -433,7 +446,9 @@ class TimeEntryIndexItem {
             }
 
             this.durationTimer.stop();
-            this.durationTimer.setText(res.data.duration)
+            if (res.data.duration) {
+                this.durationTimer.setText(res.data.duration)
+            }
 
             this.stopButton?.stopLoading();
             this.stopButton?.$container.remove();
@@ -441,12 +456,7 @@ class TimeEntryIndexItem {
 
             this.view.removeActivityIndicator();
 
-            if (this.$container.find('.js-continue').length === 0) {
-                this.$continueButton = $(`<button type="button" class="btn btn-secondary js-continue ml-2">Continue</button>`);
-                this.$continueButton.on('click', () => this.delegate.continue(this.id));
-                this.$container.find('.js-actions').append(this.$continueButton);
-            }
-
+            this.addContinueButtonIfNotExist();
         } catch (e) {
             this.flashes.append('danger', 'Unable to stop time entry');
             this.stopButton?.stopLoading();
@@ -528,12 +538,18 @@ class TimeEntryIndexItem {
                     newData.startedAt = jsonRes.data.startedAt;
                     newData.endedAt = jsonRes.data.endedAt;
 
+
                     if (jsonRes && jsonRes.data.endedAt && !this.data.endedAt) {
                         this.durationTimer.stop();
                         this.view.removeActivityIndicator();
                     }
 
-                    this.durationTimer.setText(jsonRes.data.duration);
+                    this.durationTimer.startedAt = newData.startedAtEpoch;
+                    this.durationTimer.update();
+
+                    if (jsonRes.data.duration) {
+                        this.durationTimer.setText(jsonRes.data.duration);
+                    }
                 }
             } catch (e) {
                 this.flashes.append('danger', 'Unable to update timestamps');

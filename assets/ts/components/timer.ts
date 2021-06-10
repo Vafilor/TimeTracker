@@ -9,12 +9,21 @@ import { formatTimeDifference } from "./time";
 export default class TimerView {
     private interval: any = null;
     private durationFormat?: string;
+
     // in milliseconds
     private _startedAt: number;
     get startedAt(): number {
         return this._startedAt;
     }
+
+    /**
+     * @param value in milliseconds
+     */
     set startedAt(value: number) {
+        if (value === this._startedAt) {
+            return;
+        }
+
         this._startedAt = value;
         this.$container.data('start', value);
     }
@@ -75,14 +84,21 @@ export default class TimerView {
         }
 
         this.interval = setInterval(() => {
-            const now = Math.floor((new Date()).getTime());
-
-            const durationAsString = this.updateTimerElement(this.$container, now);
-
-            if(this.callback) {
-                this.callback(durationAsString);
-            }
+            this.update();
         }, 1000);
+    }
+
+    /**
+     * Recalculate the duration and update the UI.
+     */
+    update() {
+        const now = Math.floor((new Date()).getTime());
+
+        const durationAsString = this.updateTimerElement(this.$container, now);
+
+        if(this.callback) {
+            this.callback(durationAsString);
+        }
     }
 
     stop() {
