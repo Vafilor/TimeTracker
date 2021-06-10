@@ -86,6 +86,8 @@ export class TimeEntryTaskAssigner {
 
         if (res.source.status === 201 && res.data.url) {
             this.flashes.appendWithLink('success', `Created new task`, res.data.url, res.data.name);
+        } else if (res.source.status === 200 && res.data.url) {
+            this.flashes.appendWithLink('success', `Assigned to task`, res.data.url, res.data.name);
         }
     }
 

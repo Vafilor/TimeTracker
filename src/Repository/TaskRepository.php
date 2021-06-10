@@ -94,4 +94,19 @@ class TaskRepository extends ServiceEntityRepository
 
         return intval($result);
     }
+
+    public function findNotCompleted(User $user, string $name): ?Task
+    {
+        $queryBuilder = $this->createDefaultQueryBuilder()
+                             ->andWhere('task.createdBy = :user')
+                             ->andWhere('task.name = :name')
+                             ->andWhere('task.completedAt IS NULL')
+                             ->setParameters([
+                                 'user' => $user,
+                                 'name' => $name
+                             ])
+        ;
+
+        return $queryBuilder->getQuery()->getOneOrNullResult();
+    }
 }

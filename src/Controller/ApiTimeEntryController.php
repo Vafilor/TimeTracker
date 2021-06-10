@@ -576,16 +576,20 @@ class ApiTimeEntryController extends BaseController
 
         $manager = $this->getDoctrine()->getManager();
 
+        $createdTask = false;
         /** @var Task|null $task */
         $task = null;
         if (array_key_exists('id', $data)) {
             $taskId = $data['id'];
             $task = $taskRepository->find($taskId);
+        } else {
+            $task = $taskRepository->findNotCompleted($this->getUser(), $taskName);
         }
 
         if (is_null($task)) {
             $task = new Task($this->getUser(), $taskName);
             $manager->persist($task);
+            $createdTask = true;
         }
 
         $timeEntry->setTask($task);
@@ -599,7 +603,11 @@ class ApiTimeEntryController extends BaseController
             $apiTask->setUrl($this->generateUrl('task_view', ['id' => $task->getIdString()]));
         }
 
-        return $this->json($apiTask, Response::HTTP_CREATED);
+        if ($createdTask) {
+            return $this->json($apiTask, Response::HTTP_CREATED);
+        } else {
+            return $this->json($apiTask, Response::HTTP_OK);
+        }
     }
 
     #[Route('/api/time-entry/{id}/task', name: 'api_time_entry_task_delete', methods: ['DELETE'])]
