@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\TimeEntryRepository;
+use App\Traits\CreateTimestampableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
@@ -24,14 +25,9 @@ use Ramsey\Uuid\Uuid;
 class TimeEntry
 {
     use UUIDTrait;
+    use CreateTimestampableTrait;
     use UpdateTimestampableTrait;
     use TaggableTrait;
-
-    /**
-     * @ORM\Column(type="datetimetz")
-     * @var DateTime
-     */
-    protected $createdAt;
 
     /**
      * @ORM\Column(type="datetimetz")
@@ -79,14 +75,9 @@ class TimeEntry
         $this->owner = $owner;
         $this->description = '';
         $this->tagLinks = new ArrayCollection();
-
-        if (is_null($createdAt)) {
-            $createdAt = new DateTime('now', new DateTimeZone('UTC'));
-        }
-
-        $this->createdAt = $createdAt;
-        $this->startedAt = $createdAt;
-        $this->updatedAt = $createdAt;
+        $this->markCreated($createdAt);
+        $this->startedAt = $this->createdAt;
+        $this->updatedAt = $this->createdAt;
     }
 
     public function getDescription(): string
@@ -104,18 +95,6 @@ class TimeEntry
         $this->description = $description;
 
         return $this;
-    }
-
-    public function setCreatedAt(DateTime $createdAt): self
-    {
-        $createdAt->setTimezone(new DateTimeZone('UTC'));
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
     }
 
     public function getStartedAt(): DateTime
@@ -202,7 +181,7 @@ class TimeEntry
     public function softDelete(DateTime $when = null): self
     {
         if (is_null($when)) {
-            $when = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+            $when = new DateTime('now', new DateTimeZone('UTC'));
         }
 
         $this->deletedAt = $when;
