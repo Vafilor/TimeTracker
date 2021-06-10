@@ -44,7 +44,7 @@ class TimeEntryRepository extends ServiceEntityRepository
         ;
     }
 
-    public function preloadTags(?QueryBuilder $queryBuilder)
+    public function preloadTags(?QueryBuilder $queryBuilder): QueryBuilder
     {
         if (is_null($queryBuilder)) {
             $queryBuilder = $this->createDefaultQueryBuilder();

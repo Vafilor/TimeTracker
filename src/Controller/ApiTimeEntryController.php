@@ -94,7 +94,7 @@ class ApiTimeEntryController extends BaseController
     /**
      * @throws Exception
      */
-    #[Route('/api/time-entry/today', name: 'api_time_entry_today')]
+    #[Route('/api/time-entry/today', name: 'api_time_entry_today', methods: ["GET"])]
     public function today(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
@@ -382,7 +382,7 @@ class ApiTimeEntryController extends BaseController
         return $this->json($apiTimeEntry);
     }
 
-    #[Route('/api/time-entry/{id}/resume', name: 'api_time_entry_resume')]
+    #[Route('/api/time-entry/{id}/resume', name: 'api_time_entry_resume', methods: ["PUT"])]
     public function resume(TimeEntryRepository $timeEntryRepository, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -420,7 +420,7 @@ class ApiTimeEntryController extends BaseController
         return $this->json($apiTimeEntry);
     }
 
-    #[Route('/api/time-entry/{id}/delete', name: 'api_time_entry_delete')]
+    #[Route('/api/time-entry/{id}', name: 'api_time_entry_delete', methods: ["DELETE"])]
     public function delete(TimeEntryRepository $timeEntryRepository, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -527,8 +527,8 @@ class ApiTimeEntryController extends BaseController
         return $this->jsonNoContent();
     }
 
-    #[Route('/api/time-entry/{id}/tags', name: 'api_time_entry_tags')]
-    #[Route('/json/time-entry/{id}/tags', name: 'json_time_entry_tags')]
+    #[Route('/api/time-entry/{id}/tags', name: 'api_time_entry_tags', methods: ["GET"])]
+    #[Route('/json/time-entry/{id}/tags', name: 'json_time_entry_tags', methods: ["GET"])]
     public function tags(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
