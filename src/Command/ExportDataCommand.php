@@ -3,8 +3,10 @@
 namespace App\Command;
 
 use App\Repository\TagRepository;
+use App\Repository\TimestampRepository;
 use App\Repository\UserRepository;
 use App\Transfer\TransferTag;
+use App\Transfer\TransferTimestamp;
 use App\Transfer\TransferUser;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Console\Command\Command;
@@ -23,17 +25,20 @@ class ExportDataCommand extends Command
     private Serializer $serializer;
     private TagRepository $tagRepository;
     private UserRepository $userRepository;
+    private TimestampRepository $timestampRepository;
 
     public function __construct(
         string $name = null,
         SerializerInterface $serializer,
         TagRepository $tagRepository,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        TimestampRepository $timestampRepository,
     ) {
         parent::__construct($name);
         $this->serializer = $serializer;
         $this->tagRepository = $tagRepository;
         $this->userRepository = $userRepository;
+        $this->timestampRepository = $timestampRepository;
     }
 
     protected function configure(): void
@@ -83,6 +88,9 @@ class ExportDataCommand extends Command
 
         $io->writeln("Exporting Users...");
         $fileExportOrder = array_merge($fileExportOrder, $this->exportUsers($outputPath));
+
+        $io->writeln("Exporting Timestamps...");
+        $fileExportOrder = array_merge($fileExportOrder, $this->exportTimestamps($outputPath));
 
         $fileExportOrderPath = $outputPath . DIRECTORY_SEPARATOR . 'order.json';
 
@@ -139,5 +147,16 @@ class ExportDataCommand extends Command
         $filePrefix = $path . DIRECTORY_SEPARATOR . 'users';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferUser::fromEntities($items));
+    }
+
+    private function exportTimestamps(string $path): array
+    {
+        $queryBuilder = $this->timestampRepository->createDefaultQueryBuilder()
+                                                  ->orderBy('timestamp.createdAt')
+        ;
+
+        $filePrefix = $path . DIRECTORY_SEPARATOR . 'timestamps';
+
+        return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTimestamp::fromEntities($items));
     }
 }

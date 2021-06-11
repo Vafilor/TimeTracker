@@ -15,3 +15,8 @@ For importing, there needs to be a defined order to import in.
 A file will contain the order as a JSON array that has the relative path to the import file.
 
 There may be several files per Entity in the export/import. These will have at most 500 items per file.
+
+In relations, 
+
+* Users will be identified by their username
+* tags will be identified by their name, and the username of the creator.
