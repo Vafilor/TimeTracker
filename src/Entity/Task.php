@@ -65,7 +65,7 @@ class Task
         $this->completedAt = null;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -77,7 +77,7 @@ class Task
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
