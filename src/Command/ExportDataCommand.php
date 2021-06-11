@@ -3,9 +3,11 @@
 namespace App\Command;
 
 use App\Repository\TagRepository;
+use App\Repository\TaskRepository;
 use App\Repository\TimestampRepository;
 use App\Repository\UserRepository;
 use App\Transfer\TransferTag;
+use App\Transfer\TransferTask;
 use App\Transfer\TransferTimestamp;
 use App\Transfer\TransferUser;
 use Doctrine\ORM\QueryBuilder;
@@ -14,6 +16,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -26,6 +29,7 @@ class ExportDataCommand extends Command
     private TagRepository $tagRepository;
     private UserRepository $userRepository;
     private TimestampRepository $timestampRepository;
+    private TaskRepository $taskRepository;
 
     public function __construct(
         string $name = null,
@@ -33,12 +37,14 @@ class ExportDataCommand extends Command
         TagRepository $tagRepository,
         UserRepository $userRepository,
         TimestampRepository $timestampRepository,
+        TaskRepository $taskRepository
     ) {
         parent::__construct($name);
         $this->serializer = $serializer;
         $this->tagRepository = $tagRepository;
         $this->userRepository = $userRepository;
         $this->timestampRepository = $timestampRepository;
+        $this->taskRepository = $taskRepository;
     }
 
     protected function configure(): void
@@ -92,6 +98,9 @@ class ExportDataCommand extends Command
         $io->writeln("Exporting Timestamps...");
         $fileExportOrder = array_merge($fileExportOrder, $this->exportTimestamps($outputPath));
 
+        $io->writeln("Exporting Tasks...");
+        $fileExportOrder = array_merge($fileExportOrder, $this->exportTasks($outputPath));
+
         $fileExportOrderPath = $outputPath . DIRECTORY_SEPARATOR . 'order.json';
 
         file_put_contents($fileExportOrderPath, $this->serializer->serialize($fileExportOrder, 'json'));
@@ -114,7 +123,11 @@ class ExportDataCommand extends Command
         while (count($results) !== 0) {
             $filePath = "{$path}_{$chunk}.json";
             $transferItems = $transformer($results);
-            $content = $this->serializer->serialize($transferItems, 'json');
+            
+            $content = $this->serializer->serialize($transferItems, 'json', [
+                AbstractObjectNormalizer::SKIP_NULL_VALUES => true
+            ]);
+
             file_put_contents($filePath, $content);
 
             $queryBuilder = $queryBuilder->setFirstResult($chunk * $chunkSize);
@@ -158,5 +171,16 @@ class ExportDataCommand extends Command
         $filePrefix = $path . DIRECTORY_SEPARATOR . 'timestamps';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTimestamp::fromEntities($items));
+    }
+
+    private function exportTasks(string $path): array
+    {
+        $queryBuilder = $this->taskRepository->createDefaultQueryBuilder()
+                                             ->orderBy('task.createdAt')
+        ;
+
+        $filePrefix = $path . DIRECTORY_SEPARATOR . 'tasks';
+
+        return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTask::fromEntities($items));
     }
 }
