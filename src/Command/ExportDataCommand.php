@@ -4,10 +4,12 @@ namespace App\Command;
 
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
+use App\Repository\TimeEntryRepository;
 use App\Repository\TimestampRepository;
 use App\Repository\UserRepository;
 use App\Transfer\TransferTag;
 use App\Transfer\TransferTask;
+use App\Transfer\TransferTimeEntry;
 use App\Transfer\TransferTimestamp;
 use App\Transfer\TransferUser;
 use Doctrine\ORM\QueryBuilder;
@@ -30,6 +32,7 @@ class ExportDataCommand extends Command
     private UserRepository $userRepository;
     private TimestampRepository $timestampRepository;
     private TaskRepository $taskRepository;
+    private TimeEntryRepository $timeEntryRepository;
 
     public function __construct(
         string $name = null,
@@ -37,7 +40,8 @@ class ExportDataCommand extends Command
         TagRepository $tagRepository,
         UserRepository $userRepository,
         TimestampRepository $timestampRepository,
-        TaskRepository $taskRepository
+        TaskRepository $taskRepository,
+        TimeEntryRepository $timeEntryRepository
     ) {
         parent::__construct($name);
         $this->serializer = $serializer;
@@ -45,6 +49,7 @@ class ExportDataCommand extends Command
         $this->userRepository = $userRepository;
         $this->timestampRepository = $timestampRepository;
         $this->taskRepository = $taskRepository;
+        $this->timeEntryRepository = $timeEntryRepository;
     }
 
     protected function configure(): void
@@ -101,6 +106,9 @@ class ExportDataCommand extends Command
         $io->writeln("Exporting Tasks...");
         $fileExportOrder = array_merge($fileExportOrder, $this->exportTasks($outputPath));
 
+        $io->writeln("Exporting Time Entries...");
+        $fileExportOrder = array_merge($fileExportOrder, $this->exportTimeEntries($outputPath));
+
         $fileExportOrderPath = $outputPath . DIRECTORY_SEPARATOR . 'order.json';
 
         file_put_contents($fileExportOrderPath, $this->serializer->serialize($fileExportOrder, 'json'));
@@ -123,7 +131,7 @@ class ExportDataCommand extends Command
         while (count($results) !== 0) {
             $filePath = "{$path}_{$chunk}.json";
             $transferItems = $transformer($results);
-            
+
             $content = $this->serializer->serialize($transferItems, 'json', [
                 AbstractObjectNormalizer::SKIP_NULL_VALUES => true
             ]);
@@ -182,5 +190,16 @@ class ExportDataCommand extends Command
         $filePrefix = $path . DIRECTORY_SEPARATOR . 'tasks';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTask::fromEntities($items));
+    }
+
+    private function exportTimeEntries(string $path): array
+    {
+        $queryBuilder = $this->timeEntryRepository->createDefaultQueryBuilder()
+                                                  ->orderBy('time_entry.createdAt')
+        ;
+
+        $filePrefix = $path . DIRECTORY_SEPARATOR . 'time_entries';
+
+        return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTimeEntry::fromEntities($items));
     }
 }

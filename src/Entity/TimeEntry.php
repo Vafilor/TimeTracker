@@ -178,6 +178,16 @@ class TimeEntry
         return $this;
     }
 
+    public function getDeletedAt(): ?DateTime
+    {
+        return $this->deletedAt;
+    }
+
+    public function isDeleted(): bool
+    {
+        return !is_null($this->deletedAt);
+    }
+
     public function softDelete(DateTime $when = null): self
     {
         if (is_null($when)) {
