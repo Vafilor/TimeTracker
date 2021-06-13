@@ -380,9 +380,21 @@ class ImportDataCommand extends Command
         $transferTasks = $this->filterOutExistingTasks($transferTasks);
         $tasks = $this->transferTasksToEntities($transferTasks);
 
-        foreach ($tasks as $id => $task) {
-            $io->writeln("Importing Task with id '$id'");
+        $tagIds = Collections::pluckNoDuplicates($this->pluckTagLinks($transferTasks), 'id');
+        $tags = $this->tagRepository->findByKeys('id', $tagIds);
+        $tagIdToTag = Collections::mapByKeyUnique($tags, 'idString');
+
+        foreach ($transferTasks as $id => $transferTask) {
+            $task = $tasks[$id];
             $this->entityManager->persist($task);
+
+            $io->writeln("Importing Task with id '$id'");
+
+            foreach ($transferTask->tags as $transferTagLink) {
+                $tag = $tagIdToTag[$transferTagLink->id];
+                $tagLink = new TagLink($task, $tag);
+                $this->entityManager->persist($tagLink);
+            }
         }
 
         $this->entityManager->flush();

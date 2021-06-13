@@ -15,9 +15,16 @@ class TransferTask
     public int $createdAt;
     public int $updatedAt;
     public string $name;
+    public string $canonicalName; // Technically not needed, but handy to see in json.
     public string $createdBy;
     public string $description;
     public ?int $completedAt = null;
+    public int $priority;
+
+    /**
+     * @var TransferTagLink[]
+     */
+    public array $tags = [];
 
     public static function fromEntity(Task $task): TransferTask
     {
@@ -29,10 +36,14 @@ class TransferTask
         $transfer->name = $task->getName();
         $transfer->createdBy = $task->getCreatedBy()->getUsername();
         $transfer->description = $task->getDescription();
+        $transfer->priority = $task->getPriority();
+        $transfer->canonicalName = $task->getCanonicalName();
 
         if ($task->completed()) {
             $transfer->completedAt = $task->getCompletedAt()->getTimestamp();
         }
+
+        $transfer->tags = TransferTagLink::fromTags($task->getTags());
 
         return $transfer;
     }
@@ -53,12 +64,14 @@ class TransferTask
 
     public function toEntity(User $createdBy): Task
     {
+        // No need to set canonical name as that is automatically handled by the class via setting the name.
         $task = new Task($createdBy, $this->name);
 
         $task->setId(Uuid::fromString($this->id));
         $task->setCreatedAt(DateTimeUtil::dateFromTimestamp($this->createdAt));
         $task->setUpdatedAt(DateTimeUtil::dateFromTimestamp($this->updatedAt));
         $task->setDescription($this->description);
+        $task->setPriority($this->priority);
 
         if ($this->completedAt) {
             $task->setCompletedAt(DateTimeUtil::dateFromTimestamp($this->completedAt));
