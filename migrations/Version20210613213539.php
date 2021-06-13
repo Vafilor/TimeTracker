@@ -47,10 +47,23 @@ final class Version20210613213539 extends AbstractMigration
     protected function upMysql(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE tag_link ADD task_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE tag_link ADD CONSTRAINT FK_D8A326478DB60186 FOREIGN KEY (task_id) REFERENCES task (id)');
+        $this->addSql('CREATE INDEX IDX_D8A326478DB60186 ON tag_link (task_id)');
+        $this->addSql('ALTER TABLE task ADD canonical_name VARCHAR(255), ADD priority INT');
+
+        $this->addSql('UPDATE task SET canonical_name = LOWER(name), priority = 0');
+        $this->addSql('ALTER TABLE task CHANGE canonical_name canonical_name VARCHAR(255) NOT NULL');
+        $this->addSql('ALTER TABLE task CHANGE priority priority INT NOT NULL');
     }
 
     protected function downMysql(Schema $schema) : void
     {
+        // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE tag_link DROP FOREIGN KEY FK_D8A326478DB60186');
+        $this->addSql('DROP INDEX IDX_D8A326478DB60186 ON tag_link');
+        $this->addSql('ALTER TABLE tag_link DROP task_id');
+        $this->addSql('ALTER TABLE task DROP canonical_name, DROP priority');
     }
 
     protected function upSqlite(Schema $schema) : void
