@@ -18,4 +18,12 @@ class DateTimeUtil
         $d2->add(new DateInterval("PT{$seconds}S"));
         return $d2->diff($d1);
     }
+
+    public static function dateFromTimestamp(int $timestamp): DateTime
+    {
+        $dateTime = new DateTime();
+        $dateTime->setTimestamp($timestamp);
+
+        return $dateTime;
+    }
 }
