@@ -94,11 +94,11 @@ class ExportDataCommand extends Command
 
         $io->writeln("Exporting data to $outputPath");
 
-        $io->writeln("Exporting Tags...");
-        $fileExportOrder = array_merge($fileExportOrder, $this->exportTags($outputPath));
-
         $io->writeln("Exporting Users...");
         $fileExportOrder = array_merge($fileExportOrder, $this->exportUsers($outputPath));
+
+        $io->writeln("Exporting Tags...");
+        $fileExportOrder = array_merge($fileExportOrder, $this->exportTags($outputPath));
 
         $io->writeln("Exporting Timestamps...");
         $fileExportOrder = array_merge($fileExportOrder, $this->exportTimestamps($outputPath));
