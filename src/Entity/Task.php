@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Repository\TaskRepository;
 use App\Traits\CreateTimestampableTrait;
+use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
@@ -23,6 +24,7 @@ class Task
     use UUIDTrait;
     use CreateTimestampableTrait;
     use UpdateTimestampableTrait;
+    use TaggableTrait;
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
@@ -94,6 +96,11 @@ class Task
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getCanonicalName(): string
+    {
+        return $this->canonicalName;
     }
 
     public function setName(string $name): self
@@ -177,5 +184,11 @@ class Task
     public function getPriority(): int
     {
         return $this->priority;
+    }
+
+    public function setPriority(int $priority): Task
+    {
+        $this->priority = $priority;
+        return $this;
     }
 }
