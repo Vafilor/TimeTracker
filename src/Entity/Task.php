@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\TaskRepository;
+use App\Traits\CreateTimestampableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
@@ -20,13 +21,8 @@ use Ramsey\Uuid\Uuid;
 class Task
 {
     use UUIDTrait;
+    use CreateTimestampableTrait;
     use UpdateTimestampableTrait;
-
-    /**
-     * @ORM\Column(type="datetimetz")
-     * @var DateTime
-     */
-    protected $createdAt;
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
@@ -62,16 +58,11 @@ class Task
         $this->id = Uuid::uuid4();
         $this->createdBy = $createdBy;
         $this->name = $name;
-        $this->createdAt = new DateTime('now', new DateTimeZone('UTC'));
+        $this->markCreated();
         $this->updatedAt = $this->createdAt;
         $this->timeEntries = new ArrayCollection();
         $this->description = '';
         $this->completedAt = null;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
     }
 
     public function getName(): ?string

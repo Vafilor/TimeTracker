@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use App\Traits\CreateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
 use DateTimeZone;
@@ -19,12 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 class User extends BaseUser
 {
     use UUIDTrait;
-
-    /**
-     * @ORM\Column(type="datetimetz")
-     * @var DateTime
-     */
-    protected $createdAt;
+    use CreateTimestampableTrait;
 
     /**
      * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="owner")
@@ -71,15 +67,7 @@ class User extends BaseUser
         $this->durationFormat = '%hh %Im %Ss';
         $this->tasks = new ArrayCollection();
 
-        if (is_null($createdAt)) {
-            $createdAt = new DateTime('now', new DateTimeZone('UTC'));
-        }
-        $this->createdAt = $createdAt;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
+        $this->markCreated($createdAt);
     }
 
     public function gravatarUrl(int $size = 30): string

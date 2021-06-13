@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\TagRepository;
+use App\Traits\CreateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
 use DateTimeZone;
@@ -17,12 +18,7 @@ use Ramsey\Uuid\Uuid;
 class Tag
 {
     use UUIDTrait;
-
-    /**
-     * @ORM\Column(type="datetimetz")
-     * @var DateTime
-     */
-    protected $createdAt;
+    use CreateTimestampableTrait;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -48,18 +44,13 @@ class Tag
         string $name,
         string $color = '#5d5d5d',
         DateTime $createdAt = null
-    )
-    {
+    ) {
         $this->id = Uuid::uuid4();
         $this->createdBy = $createdBy;
         $this->name = $name;
         $this->color = $color;
         $this->createdBy = $createdBy;
-
-        if (is_null($createdAt)) {
-            $createdAt = new DateTime('now', new DateTimeZone('UTC'));
-        }
-        $this->createdAt = $createdAt;
+        $this->markCreated($createdAt);
     }
 
     public function getName(): string
@@ -76,11 +67,6 @@ class Tag
     public function getColor(): string
     {
         return $this->color;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
     }
 
     public function getCreatedBy(): User

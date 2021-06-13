@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\TimestampRepository;
+use App\Traits\CreateTimestampableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
@@ -20,14 +21,8 @@ use Ramsey\Uuid\Uuid;
 class Timestamp
 {
     use UUIDTrait;
+    use CreateTimestampableTrait;
     use TaggableTrait;
-
-    /**
-     * @ORM\Column(type="datetimetz")
-     * @var DateTime
-     */
-    protected $createdAt;
-
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
@@ -43,20 +38,9 @@ class Timestamp
     public function __construct(User $creator)
     {
         $this->id = Uuid::uuid4();
-        $this->createdAt = new DateTime('now', new DateTimeZone('UTC'));
+        $this->markCreated();
         $this->createdBy = $creator;
         $this->tagLinks = new ArrayCollection();
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(DateTime $createdAt): Timestamp
-    {
-        $this->createdAt = $createdAt;
-        return $this;
     }
 
     public function getCreatedBy(): User
