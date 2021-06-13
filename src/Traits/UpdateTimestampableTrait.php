@@ -17,6 +17,13 @@ trait UpdateTimestampableTrait
      */
     protected $updatedAt;
 
+    public function setUpdatedAt(DateTime $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
     /**
      * @ORM\PreUpdate()
      */
