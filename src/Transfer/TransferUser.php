@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Transfer;
 
 use App\Entity\User;
+use App\Util\DateTimeUtil;
+use Ramsey\Uuid\Uuid;
 
 class TransferUser
 {
+    public string $id;
     public ?string $email;
     public string $username;
     public bool $enabled;
@@ -21,19 +24,21 @@ class TransferUser
 
     public static function fromEntity(User $user): TransferUser
     {
-        $transferUser = new TransferUser();
-        $transferUser->email = $user->getEmail();
-        $transferUser->username = $user->getUsername();
-        $transferUser->enabled = $user->isEnabled();
-        $transferUser->password = $user->getPassword();
-        $transferUser->isVerified = $user->isVerified();
-        $transferUser->createdAt = $user->getCreatedAt()->getTimestamp();
-        $transferUser->timezone = $user->getTimezone();
-        $transferUser->dateFormat = $user->getDateFormat();
-        $transferUser->todayDateFormat = $user->getTodayDateFormat();
-        $transferUser->durationFormat = $user->getDurationFormat();
+        $transfer = new TransferUser();
 
-        return $transferUser;
+        $transfer->id = $user->getIdString();
+        $transfer->email = $user->getEmail();
+        $transfer->username = $user->getUsername();
+        $transfer->enabled = $user->isEnabled();
+        $transfer->password = $user->getPassword();
+        $transfer->isVerified = $user->isVerified();
+        $transfer->createdAt = $user->getCreatedAt()->getTimestamp();
+        $transfer->timezone = $user->getTimezone();
+        $transfer->dateFormat = $user->getDateFormat();
+        $transfer->todayDateFormat = $user->getTodayDateFormat();
+        $transfer->durationFormat = $user->getDurationFormat();
+
+        return $transfer;
     }
 
     /**
@@ -48,5 +53,23 @@ class TransferUser
         }
 
         return $items;
+    }
+
+    public function toEntity(): User
+    {
+        $user = new User(DateTimeUtil::dateFromTimestamp($this->createdAt));
+
+        $user->setId(Uuid::fromString($this->id));
+        $user->setEmail($this->email);
+        $user->setUsername($this->username);
+        $user->setEnabled($this->enabled);
+        $user->setPassword($this->password);
+        $user->setIsVerified($this->isVerified);
+        $user->setTimezone($this->timezone);
+        $user->setDateFormat($this->dateFormat);
+        $user->setTodayDateFormat($this->todayDateFormat);
+        $user->setDurationFormat($this->durationFormat);
+
+        return $user;
     }
 }

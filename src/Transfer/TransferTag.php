@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Transfer;
 
 use App\Entity\Tag;
+use App\Entity\User;
+use App\Util\DateTimeUtil;
+use Ramsey\Uuid\Uuid;
 
 class TransferTag
 {
+    public string $id;
     public int $createdAt;
     public string $name;
     public string $color;
@@ -15,12 +19,15 @@ class TransferTag
 
     public static function fromEntity(Tag $tag): TransferTag
     {
-        return new TransferTag(
-            $tag->getCreatedAt()->getTimestamp(),
-            $tag->getName(),
-            $tag->getColor(),
-            $tag->getCreatedBy()->getUsername()
-        );
+        $transfer = new TransferTag();
+
+        $transfer->id = $tag->getIdString();
+        $transfer->createdAt = $tag->getCreatedAt()->getTimestamp();
+        $transfer->name = $tag->getName();
+        $transfer->color = $tag->getColor();
+        $transfer->createdBy = $tag->getCreatedBy()->getUsername();
+
+        return $transfer;
     }
 
     /**
@@ -37,11 +44,11 @@ class TransferTag
         return $items;
     }
 
-    public function __construct(int $createdAt, string $name, string $color, string $createdBy)
+    public function toEntity(User $createdBy): Tag
     {
-        $this->createdAt = $createdAt;
-        $this->name = $name;
-        $this->color = $color;
-        $this->createdBy = $createdBy;
+        $tag = new Tag($createdBy, $this->name, $this->color, DateTimeUtil::dateFromTimestamp($this->createdAt));
+        $tag->setId(Uuid::fromString($this->id));
+
+        return $tag;
     }
 }

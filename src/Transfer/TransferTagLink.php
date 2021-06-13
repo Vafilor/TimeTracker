@@ -8,8 +8,9 @@ use App\Entity\Tag;
 
 class TransferTagLink
 {
-    public string $name;
-    public string $createdBy;
+    public string $id = '';
+    public string $name = '';
+    public string $createdBy = '';
 
     /**
      * @param iterable|Tag[] $tags
@@ -19,15 +20,14 @@ class TransferTagLink
     {
         $items = [];
         foreach ($tags as $tag) {
-            $items[] = new TransferTagLink($tag->getName(), $tag->getCreatedBy()->getUsername());
+            $item = new TransferTagLink();
+            $item->id = $tag->getIdString();
+            $item->name = $tag->getName();
+            $item->createdBy = $tag->getCreatedBy()->getUsername();
+
+            $items[] = $item;
         }
 
         return $items;
-    }
-
-    public function __construct(string $name, string $createdBy)
-    {
-        $this->name = $name;
-        $this->createdBy = $createdBy;
     }
 }

@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace App\Transfer;
 
 use App\Entity\TimeEntry;
+use App\Entity\User;
+use App\Util\DateTimeUtil;
+use Ramsey\Uuid\Uuid;
 
 class TransferTimeEntry
 {
+    public string $id;
     public int $createdAt;
     public int $updatedAt;
     public int $startedAt;
     public ?int $endedAt = null;
     public ?int $deletedAt = null;
     public string $description;
-    public TransferTaskLink $task;
+    public ?TransferTaskLink $task = null;
     public string $createdBy;
 
     /**
@@ -26,6 +30,7 @@ class TransferTimeEntry
     {
         $transfer = new TransferTimeEntry();
 
+        $transfer->id = $timeEntry->getIdString();
         $transfer->createdAt = $timeEntry->getCreatedAt()->getTimestamp();
         $transfer->updatedAt = $timeEntry->getUpdatedAt()->getTimestamp();
         $transfer->startedAt = $timeEntry->getStartedAt()->getTimestamp();
@@ -61,5 +66,25 @@ class TransferTimeEntry
         }
 
         return $items;
+    }
+
+    public function toEntity(User $createdBy): TimeEntry
+    {
+        $entity = new TimeEntry($createdBy, DateTimeUtil::dateFromTimestamp($this->createdAt));
+        $entity->setId(Uuid::fromString($this->id));
+        $entity->setUpdatedAt(DateTimeUtil::dateFromTimestamp($this->updatedAt));
+        $entity->setStartedAt(DateTimeUtil::dateFromTimestamp($this->startedAt));
+
+        if ($this->endedAt) {
+            $entity->setEndedAt(DateTimeUtil::dateFromTimestamp($this->endedAt));
+        }
+
+        if ($this->deletedAt) {
+            $entity->softDelete(DateTimeUtil::dateFromTimestamp($this->deletedAt));
+        }
+
+        $entity->setDescription($this->description);
+
+        return $entity;
     }
 }
