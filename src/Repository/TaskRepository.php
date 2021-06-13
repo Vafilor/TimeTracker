@@ -54,7 +54,7 @@ class TaskRepository extends ServiceEntityRepository
     {
         if ($filter->hasName()) {
             $name = strtolower($filter->getName());
-            $queryBuilder->andWhere('LOWER(task.name) LIKE :name')
+            $queryBuilder->andWhere('task.canonicalName LIKE :name')
                 ->setParameter('name', "%{$name}%")
             ;
         }

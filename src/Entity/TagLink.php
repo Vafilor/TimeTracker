@@ -17,24 +17,35 @@ class TagLink
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @var int
      */
     private $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=TimeEntry::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=true)
+     * @var TimeEntry|null
      */
     private $timeEntry;
 
     /**
      * @ORM\ManyToOne(targetEntity=Timestamp::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=true)
+     * @var Timestamp|null
      */
     private $timestamp;
 
     /**
+     * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="tagLinks")
+     * @ORM\JoinColumn(nullable=true)
+     * @var Task|null
+     */
+    private $task;
+
+    /**
      * @ORM\ManyToOne(targetEntity=Tag::class)
      * @ORM\JoinColumn(nullable=false)
+     * @var Tag
      */
     private $tag;
 
@@ -46,6 +57,8 @@ class TagLink
             $this->timeEntry = $resource;
         } elseif ($resource instanceof Timestamp) {
             $this->timestamp = $resource;
+        } elseif ($resource instanceof Task) {
+            $this->task = $resource;
         } else {
             throw new InvalidArgumentException("Resource for TagLink not supported");
         }
@@ -64,6 +77,11 @@ class TagLink
     public function getTimestamp(): ?Timestamp
     {
         return $this->timestamp;
+    }
+
+    public function getTask(): ?Task
+    {
+        return$this->task;
     }
 
     public function getTag(): Tag
