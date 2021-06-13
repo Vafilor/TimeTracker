@@ -18,13 +18,16 @@ class UserManager
     public function __construct(
         UserRepository $userRepository,
         UserPasswordEncoderInterface $userPasswordEncoder,
-        EntityManagerInterface $objectManager) {
+        EntityManagerInterface $objectManager
+    )
+    {
         $this->userRepository = $userRepository;
         $this->passwordEncoder = $userPasswordEncoder;
         $this->entityManager = $objectManager;
     }
 
-    public function createUser(string $email, string $username, string $password) {
+    public function createUser(string $email, string $username, string $password)
+    {
         $user = new User();
         $user->setEmail($email);
         $user->setUsername($username);

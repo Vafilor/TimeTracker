@@ -17,10 +17,18 @@ trait UpdateTimestampableTrait
      */
     protected $updatedAt;
 
+    public function setUpdatedAt(DateTime $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
     /**
      * @ORM\PreUpdate()
      */
-    public function onPreUpdate(PreUpdateEventArgs $event) {
+    public function onPreUpdate(PreUpdateEventArgs $event)
+    {
         $this->updatedAt = new DateTime('now', new DateTimeZone('UTC'));
     }
 

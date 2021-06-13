@@ -23,11 +23,6 @@ class User extends BaseUser
     use CreateTimestampableTrait;
 
     /**
-     * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="owner")
-     */
-    private $timeEntries;
-
-    /**
      * @ORM\Column(type="string")
      * @var string
      */
@@ -55,6 +50,11 @@ class User extends BaseUser
      * @ORM\OneToMany(targetEntity=Task::class, mappedBy="createdBy", orphanRemoval=true)
      */
     private $tasks;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="owner")
+     */
+    private $timeEntries;
 
     public function __construct(DateTime $createdAt = null)
     {

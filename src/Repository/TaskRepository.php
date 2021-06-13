@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Form\Model\TaskListFilterModel;
+use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -19,10 +20,12 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Task findOneByOrException(array $criteria, array $orderBy = null)
  * @method Task[]    findAll()
  * @method Task[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Task[] findByKeys(string $key, mixed $keys);
  */
 class TaskRepository extends ServiceEntityRepository
 {
     use FindOrExceptionTrait;
+    use FindByKeysTrait;
 
     public function __construct(ManagerRegistry $registry)
     {

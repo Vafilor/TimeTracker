@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Timestamp;
 use App\Entity\User;
+use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -18,10 +19,12 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Timestamp findOneByOrException(array $criteria, array $orderBy = null)
  * @method Timestamp[]    findAll()
  * @method Timestamp[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Timestamp[] findByKeys(string $key, mixed $keys);
  */
 class TimestampRepository extends ServiceEntityRepository
 {
     use FindOrExceptionTrait;
+    use FindByKeysTrait;
 
     public function __construct(ManagerRegistry $registry)
     {

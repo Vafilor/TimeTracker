@@ -12,6 +12,8 @@ use Doctrine\Common\Collections\Collection;
  * Provides convenience methods for any Entity that has tags.
  * Required: the entity has a property called tagLinks.
  *
+ * @property $tagLinks
+ *
  * Trait TaggableTrait
  * @package App\Traits
  */
