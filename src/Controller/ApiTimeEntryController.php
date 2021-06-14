@@ -532,7 +532,6 @@ class ApiTimeEntryController extends BaseController
     public function tags(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        TagLinkRepository $tagLinkRepository,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');

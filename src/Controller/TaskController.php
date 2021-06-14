@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiTag;
 use App\Entity\Task;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
@@ -148,11 +149,14 @@ class TaskController extends BaseController
             $this->addFlash('success', 'Task successfully updated');
         }
 
+        $apiTags = ApiTag::fromEntities($task->getTags());
+
         return $this->render(
             'task/view.html.twig',
             [
                 'task' => $task,
-                'form' => $form->createView()
+                'form' => $form->createView(),
+                'tags' => $apiTags
             ]
         );
     }
