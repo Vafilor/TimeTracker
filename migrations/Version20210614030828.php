@@ -76,11 +76,57 @@ final class Version20210614030828 extends AbstractMigration
     protected function upMysql(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE tag DROP FOREIGN KEY FK_389B783B03A8386');
+        $this->addSql('DROP INDEX IDX_389B783B03A8386 ON tag');
+        $this->addSql('ALTER TABLE tag CHANGE created_by_id assigned_to_id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE tag ADD CONSTRAINT FK_389B783F4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES users (id)');
+        $this->addSql('CREATE INDEX IDX_389B783F4BD7827 ON tag (assigned_to_id)');
+
+        $this->addSql('ALTER TABLE task DROP FOREIGN KEY FK_527EDB25B03A8386');
+        $this->addSql('DROP INDEX IDX_527EDB25B03A8386 ON task');
+        $this->addSql('ALTER TABLE task CHANGE created_by_id assigned_to_id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE task ADD CONSTRAINT FK_527EDB25F4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES users (id)');
+        $this->addSql('CREATE INDEX IDX_527EDB25F4BD7827 ON task (assigned_to_id)')
+        ;
+        $this->addSql('ALTER TABLE time_entry DROP FOREIGN KEY FK_6E537C0C7E3C61F9');
+        $this->addSql('DROP INDEX IDX_6E537C0C7E3C61F9 ON time_entry');
+        $this->addSql('ALTER TABLE time_entry CHANGE owner_id assigned_to_id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE time_entry ADD CONSTRAINT FK_6E537C0CF4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES users (id)');
+        $this->addSql('CREATE INDEX IDX_6E537C0CF4BD7827 ON time_entry (assigned_to_id)');
+
+        $this->addSql('ALTER TABLE timestamp DROP FOREIGN KEY FK_A5D6E63EB03A8386');
+        $this->addSql('DROP INDEX IDX_A5D6E63EB03A8386 ON timestamp');
+        $this->addSql('ALTER TABLE timestamp CHANGE created_by_id assigned_to_id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE timestamp ADD CONSTRAINT FK_A5D6E63EF4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES users (id)');
+        $this->addSql('CREATE INDEX IDX_A5D6E63EF4BD7827 ON timestamp (assigned_to_id)');
     }
 
     protected function downMysql(Schema $schema) : void
     {
         // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE tag DROP FOREIGN KEY FK_389B783F4BD7827');
+        $this->addSql('DROP INDEX IDX_389B783F4BD7827 ON tag');
+        $this->addSql('ALTER TABLE tag CHANGE assigned_to_id created_by_id CHAR(36) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci` COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE tag ADD CONSTRAINT FK_389B783B03A8386 FOREIGN KEY (created_by_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION');
+        $this->addSql('CREATE INDEX IDX_389B783B03A8386 ON tag (created_by_id)');
+
+        $this->addSql('ALTER TABLE task DROP FOREIGN KEY FK_527EDB25F4BD7827');
+        $this->addSql('DROP INDEX IDX_527EDB25F4BD7827 ON task');
+        $this->addSql('ALTER TABLE task CHANGE assigned_to_id created_by_id CHAR(36) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci` COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE task ADD CONSTRAINT FK_527EDB25B03A8386 FOREIGN KEY (created_by_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION');
+        $this->addSql('CREATE INDEX IDX_527EDB25B03A8386 ON task (created_by_id)');
+
+        $this->addSql('ALTER TABLE time_entry DROP FOREIGN KEY FK_6E537C0CF4BD7827');
+        $this->addSql('DROP INDEX IDX_6E537C0CF4BD7827 ON time_entry');
+        $this->addSql('ALTER TABLE time_entry CHANGE assigned_to_id owner_id CHAR(36) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci` COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE time_entry ADD CONSTRAINT FK_6E537C0C7E3C61F9 FOREIGN KEY (owner_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION');
+        $this->addSql('CREATE INDEX IDX_6E537C0C7E3C61F9 ON time_entry (owner_id)');
+
+        $this->addSql('ALTER TABLE timestamp DROP FOREIGN KEY FK_A5D6E63EF4BD7827');
+        $this->addSql('DROP INDEX IDX_A5D6E63EF4BD7827 ON timestamp');
+        $this->addSql('ALTER TABLE timestamp CHANGE assigned_to_id created_by_id CHAR(36) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci` COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE timestamp ADD CONSTRAINT FK_A5D6E63EB03A8386 FOREIGN KEY (created_by_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION');
+        $this->addSql('CREATE INDEX IDX_A5D6E63EB03A8386 ON timestamp (created_by_id)');
     }
 
     protected function upSqlite(Schema $schema) : void
