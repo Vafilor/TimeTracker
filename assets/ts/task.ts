@@ -8,6 +8,34 @@ import TaskTimeEntry from "./components/task_time_entry";
 import { ApiTimeEntry, TimeEntryApi } from "./core/api/time_entry_api";
 import { formatShortTimeDifference, timeAgo } from "./components/time";
 import { createTagView } from "./components/tags";
+import TagList, { TagListDelegate } from "./components/tag_index";
+import Flashes from "./components/flashes";
+import { ApiTag } from "./core/api/tag_api";
+import { TagAssigner } from "./components/tag_assigner";
+
+class TaskApiAdapter implements TagListDelegate {
+    constructor(private taskId: string, private flashes: Flashes) {
+    }
+
+    addTag(tag: ApiTag): Promise<ApiTag> {
+        return TaskApi.addTag(this.taskId, tag.name)
+            .then(res => {
+                return res.data;
+            })
+            .catch(res => {
+                this.flashes.append('danger', `Unable to add tag '${tag.name}'`)
+                throw res;
+            });
+    }
+
+    removeTag(tagName: string): Promise<void> {
+        return TaskApi.removeTag(this.taskId, tagName)
+            .catch(res => {
+                this.flashes.append('danger', `Unable to add remove tag '${tagName}'`)
+                throw res;
+            });
+    }
+}
 
 class TaskEntryAutoMarkdown extends AutoMarkdown {
     private readonly taskId: string;
@@ -97,6 +125,7 @@ $(document).ready(() => {
     const $data = $('.js-data');
     const taskId = $data.data('task-id');
     const durationFormat = $data.data('duration-format');
+    const flashes = new Flashes($('#flash-messages'));
 
     const autoMarkdown = new TaskEntryAutoMarkdown(
         '.js-description',
@@ -123,5 +152,12 @@ $(document).ready(() => {
         })
 
     updateTotalTime(taskId);
+
+
+    const $tagList = $('.js-tags');
+    const tagList = new TagList($tagList, new TaskApiAdapter(taskId, flashes));
+    const $template = $('.js-autocomplete-tags');
+
+    const tagEdit = new TagAssigner($template, tagList, flashes);
 
 });

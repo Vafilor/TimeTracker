@@ -21,7 +21,7 @@ import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 import { EditDateTime } from "./components/edit_date_time";
 import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
-import { TimeEntryTagAssigner } from "./components/time_entry_tag_assigner";
+import { TagAssigner } from "./components/tag_assigner";
 import TimerView from "./components/timer";
 import AutocompleteTags from "./components/autocomplete_tags";
 import AutocompleteTask from "./components/autocomplete_task";
@@ -276,7 +276,7 @@ class TimeEntryEditView {
     private readonly timeEntryId: string;
     private readonly $container: JQuery;
     private description: TimeEntryDescriptionSync;
-    private tagEdit: TimeEntryTagAssigner;
+    private tagEdit: TagAssigner;
     private taskEdit: TimeEntryTaskAssigner;
     private startedAt: EditDateTime;
     private endedAt: EditDateTime;
@@ -287,7 +287,7 @@ class TimeEntryEditView {
         this.description = new TimeEntryDescriptionSync($container.find('.js-time-entry-description-sync'), timeEntryId);
 
         const tagList = new TagList($container.find('.js-tag-edit-list'), new TimeEntryApiAdapter(timeEntryId, flashes));
-        this.tagEdit = new TimeEntryTagAssigner($container.find('.js-autocomplete-tags'), tagList, flashes);
+        this.tagEdit = new TagAssigner($container.find('.js-autocomplete-tags'), tagList, flashes);
 
         this.taskEdit = new TimeEntryTaskAssigner($container.find('.js-time-entry-task-assigner'), this.timeEntryId, flashes);
 
@@ -480,7 +480,7 @@ class TimeEntryIndexItem {
         const $tagEditList = $('<div class="js-tag-edit-list d-inline-block"></div>');
         $tagEditList.data(TagList.initialDataObjectsKey, data.tags);
         $tagList.append($tagEditList);
-        $tagList.append($(TimeEntryTagAssigner.template()));
+        $tagList.append($(TagAssigner.template()));
 
         // Time Entry Description
         const $timeEntryDescriptionHtml = $(TimeEntryDescriptionSync.template(data.description, 'mt-2'));

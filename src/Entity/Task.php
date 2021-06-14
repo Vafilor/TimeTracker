@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Repository\TaskRepository;
 use App\Traits\CreateTimestampableTrait;
+use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
@@ -23,22 +24,37 @@ class Task
     use UUIDTrait;
     use CreateTimestampableTrait;
     use UpdateTimestampableTrait;
+    use TaggableTrait;
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
      * @var DateTime|null
      */
-    protected $completedAt;
+    private $completedAt;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @var string
      */
     private $name;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     * @var string
+     */
+    private $canonicalName;
+
+    /**
      * @ORM\Column(type="text")
+     * @var string
      */
     private $description;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @var int
+     */
+    private $priority;
 
     /**
      * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="task")
@@ -46,9 +62,14 @@ class Task
     private $timeEntries;
 
     /**
+     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="task")
+     * @var TagLink[]|Collection
+     */
+    private $tagLinks;
+
+    /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tasks")
      * @ORM\JoinColumn(nullable=false)
-     *
      * @var User
      */
     private $createdBy;
@@ -57,12 +78,19 @@ class Task
     {
         $this->id = Uuid::uuid4();
         $this->createdBy = $createdBy;
-        $this->name = $name;
+        $this->setName($name);
         $this->markCreated();
         $this->updatedAt = $this->createdAt;
         $this->timeEntries = new ArrayCollection();
         $this->description = '';
         $this->completedAt = null;
+        $this->priority = 0;
+        $this->tagLinks = new ArrayCollection();
+    }
+
+    private function canonicalizeName(string $name): string
+    {
+        return strtolower($name);
     }
 
     public function getName(): string
@@ -70,9 +98,16 @@ class Task
         return $this->name;
     }
 
+    public function getCanonicalName(): string
+    {
+        return $this->canonicalName;
+    }
+
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        $this->canonicalName = $this->canonicalizeName($name);
 
         return $this;
     }
@@ -143,6 +178,17 @@ class Task
     {
         $this->completedAt = $completedAt;
 
+        return $this;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): Task
+    {
+        $this->priority = $priority;
         return $this;
     }
 }

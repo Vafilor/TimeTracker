@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiError;
 use App\Api\ApiFormError;
 use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
+use App\Api\ApiTag;
 use App\Api\ApiTask;
+use App\Entity\Tag;
+use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
 use App\Form\TaskListFilterFormType;
+use App\Repository\TagLinkRepository;
+use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
 use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
@@ -202,5 +208,110 @@ class ApiTaskController extends BaseController
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
         return $this->json($apiTask);
+    }
+
+    #[Route('/api/task/{id}/tag', name: 'api_task_tag_create', methods: ['POST'])]
+    #[Route('/json/task/{id}/tag', name: 'json_task_tag_create', methods: ['POST'])]
+    public function addTag(
+        Request $request,
+        TaskRepository $taskRepository,
+        TagRepository $tagRepository,
+        TagLinkRepository $tagLinkRepository,
+        string $id
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $task = $taskRepository->findOrException($id);
+        if (!$task->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $data = $this->getJsonBody($request);
+        if (!array_key_exists('tagName', $data)) {
+            $problem = ApiProblem::withErrors(
+                Response::HTTP_BAD_REQUEST,
+                ApiProblem::TYPE_INVALID_REQUEST_BODY,
+                ApiError::missingProperty('tagName')
+            );
+
+            throw new ApiProblemException($problem);
+        }
+
+        $tagName = $data['tagName'];
+
+        $tag = $tagRepository->findOneBy(['name' => $tagName, 'createdBy' => $this->getUser()]);
+        if (is_null($tag)) {
+            $tag = new Tag($this->getUser(), $tagName);
+            $this->getDoctrine()->getManager()->persist($tag);
+        } else {
+            $exitingLink = $tagLinkRepository->findOneBy([
+                                                             'task' => $task,
+                                                             'tag' => $tag
+                                                         ]);
+
+            if (!is_null($exitingLink)) {
+                return $this->json([], Response::HTTP_CONFLICT);
+            }
+        }
+
+        $tagLink = new TagLink($task, $tag);
+        $manager = $this->getDoctrine()->getManager();
+        $manager->persist($tagLink);
+        $manager->flush();
+
+        $apiTag = ApiTag::fromEntity($tag);
+
+        return $this->json($apiTag, Response::HTTP_CREATED);
+    }
+
+    #[Route('/api/task/{id}/tag/{tagName}', name: 'api_task_tag_delete', methods: ['DELETE'])]
+    #[Route('/json/task/{id}/tag/{tagName}', name: 'json_task_tag_delete', methods: ['DELETE'])]
+    public function deleteTag(
+        Request $request,
+        TaskRepository $taskRepository,
+        TagRepository $tagRepository,
+        TagLinkRepository $tagLinkRepository,
+        string $id,
+        string $tagName
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $task = $taskRepository->findOrException($id);
+        if (!$task->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $tag = $tagRepository->findWithUserName($this->getUser(), $tagName);
+        if (is_null($tag)) {
+            throw $this->createNotFoundException();
+        }
+
+        $exitingLink = $tagLinkRepository->findOneByOrException([
+                                                                    'task' => $task,
+                                                                    'tag' => $tag
+                                                                ]);
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($exitingLink);
+        $manager->flush();
+
+        return $this->jsonNoContent();
+    }
+
+    #[Route('/api/task/{id}/tags', name: 'api_task_tags', methods: ["GET"])]
+    #[Route('/json/task/{id}/tags', name: 'json_task_tags', methods: ["GET"])]
+    public function tags(
+        Request $request,
+        TaskRepository $taskRepository,
+        string $id
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $task = $taskRepository->findOrException($id);
+        if (!$task->wasCreatedBy($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $apiTags = ApiTag::fromEntities($task->getTags());
+
+        return $this->json($apiTags);
     }
 }

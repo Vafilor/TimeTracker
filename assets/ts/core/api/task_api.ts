@@ -1,4 +1,5 @@
 import { CoreApi, PaginatedResponse } from './api';
+import { ApiTag } from "./tag_api";
 
 export interface ApiTask {
     id: string;
@@ -61,5 +62,21 @@ export class TaskApi {
 
     public static reportForTask(taskId: string) {
         return CoreApi.get<TaskTimeReport>(`/json/report/task/${taskId}`);
+    }
+
+    public static addTag(taskId: string, tagName: string) {
+        return CoreApi.post<ApiTag>(`/json/task/${taskId}/tag`, {
+            tagName
+        });
+    }
+
+    public static getTags(taskId: string) {
+        return CoreApi.get<ApiTag[]>(`/json/task/${taskId}/tags`);
+    }
+
+    public static removeTag(taskId: string, tagName: string) {
+        tagName = encodeURIComponent(tagName);
+
+        return CoreApi.delete(`/json/task/${taskId}/tag/${tagName}`);
     }
 }
