@@ -34,13 +34,15 @@ final class Version20210614020334 extends AbstractMigration
     protected function upMysql(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
-
+        $this->addSql('ALTER TABLE tag ADD canonical_name VARCHAR(255)');
+        $this->addSql('UPDATE tag SET canonical_name = LOWER(name)');
+        $this->addSql('ALTER TABLE tag CHANGE canonical_name canonical_name VARCHAR(255) NOT NULL');
     }
 
     protected function downMysql(Schema $schema) : void
     {
         // this down() migration is auto-generated, please modify it to your needs
-
+        $this->addSql('ALTER TABLE tag DROP canonical_name');
     }
 
     protected function upSqlite(Schema $schema) : void
