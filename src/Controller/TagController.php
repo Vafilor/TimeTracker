@@ -48,7 +48,7 @@ class TagController extends BaseController
             $data = $filterForm->getData();
             $nameLike = $data->getName();
             if ($nameLike !== '') {
-                $queryBuilder = $queryBuilder->andWhere('LOWER(tag.name) LIKE :name')
+                $queryBuilder = $queryBuilder->andWhere('tag.canonicalName LIKE :name')
                     ->setParameter('name', "%$nameLike%")
                 ;
             }
