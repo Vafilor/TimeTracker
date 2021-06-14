@@ -211,7 +211,7 @@ class ApiTimeEntryController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -230,7 +230,7 @@ class ApiTimeEntryController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -290,7 +290,7 @@ class ApiTimeEntryController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $existingTimeEntry = $timeEntryRepository->findOrException($id);
-        if (!$existingTimeEntry->isOwnedBy($this->getUser())) {
+        if (!$existingTimeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -348,7 +348,7 @@ class ApiTimeEntryController extends BaseController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findWithTagFetchOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -387,7 +387,7 @@ class ApiTimeEntryController extends BaseController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -425,7 +425,7 @@ class ApiTimeEntryController extends BaseController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -452,7 +452,7 @@ class ApiTimeEntryController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -469,7 +469,7 @@ class ApiTimeEntryController extends BaseController
 
         $tagName = $data['tagName'];
 
-        $tag = $tagRepository->findOneBy(['name' => $tagName, 'createdBy' => $this->getUser()]);
+        $tag = $tagRepository->findOneBy(['name' => $tagName, 'assignedTo' => $this->getUser()]);
         if (is_null($tag)) {
             $tag = new Tag($this->getUser(), $tagName);
             $this->getDoctrine()->getManager()->persist($tag);
@@ -506,7 +506,7 @@ class ApiTimeEntryController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -536,7 +536,7 @@ class ApiTimeEntryController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -556,7 +556,7 @@ class ApiTimeEntryController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -618,7 +618,7 @@ class ApiTimeEntryController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 

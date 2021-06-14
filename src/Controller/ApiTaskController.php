@@ -136,7 +136,7 @@ class ApiTaskController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $task = $taskRepository->findOrException($id);
-        if (!$task->wasCreatedBy($this->getUser())) {
+        if (!$task->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -164,7 +164,7 @@ class ApiTaskController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $task = $taskRepository->findOrException($id);
-        if (!$task->wasCreatedBy($this->getUser())) {
+        if (!$task->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -193,7 +193,7 @@ class ApiTaskController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $task = $taskRepository->findOrException($id);
-        if (!$task->wasCreatedBy($this->getUser())) {
+        if (!$task->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -222,7 +222,7 @@ class ApiTaskController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $task = $taskRepository->findOrException($id);
-        if (!$task->wasCreatedBy($this->getUser())) {
+        if (!$task->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -239,7 +239,7 @@ class ApiTaskController extends BaseController
 
         $tagName = $data['tagName'];
 
-        $tag = $tagRepository->findOneBy(['name' => $tagName, 'createdBy' => $this->getUser()]);
+        $tag = $tagRepository->findOneBy(['name' => $tagName, 'assignedto' => $this->getUser()]);
         if (is_null($tag)) {
             $tag = new Tag($this->getUser(), $tagName);
             $this->getDoctrine()->getManager()->persist($tag);
@@ -276,7 +276,7 @@ class ApiTaskController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $task = $taskRepository->findOrException($id);
-        if (!$task->wasCreatedBy($this->getUser())) {
+        if (!$task->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -306,7 +306,7 @@ class ApiTaskController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $task = $taskRepository->findOrException($id);
-        if (!$task->wasCreatedBy($this->getUser())) {
+        if (!$task->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 

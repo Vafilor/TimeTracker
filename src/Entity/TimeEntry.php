@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\TimeEntryRepository;
+use App\Traits\AssignableToUserTrait;
 use App\Traits\CreateTimestampableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
@@ -28,6 +29,7 @@ class TimeEntry
     use CreateTimestampableTrait;
     use UpdateTimestampableTrait;
     use TaggableTrait;
+    use AssignableToUserTrait;
 
     /**
      * @ORM\Column(type="datetimetz")
@@ -56,8 +58,9 @@ class TimeEntry
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="timeEntries")
      * @ORM\JoinColumn(nullable=false)
+     * @var User
      */
-    private $owner;
+    private $assignedTo;
 
     /**
      * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timeEntry")
@@ -69,10 +72,10 @@ class TimeEntry
      */
     private $task;
 
-    public function __construct(User $owner, DateTime $createdAt = null)
+    public function __construct(User $assignedTo, DateTime $createdAt = null)
     {
         $this->id = Uuid::uuid4();
-        $this->owner = $owner;
+        $this->assignTo($assignedTo);
         $this->description = '';
         $this->tagLinks = new ArrayCollection();
         $this->markCreated($createdAt);
@@ -159,23 +162,6 @@ class TimeEntry
     public function running(): bool
     {
         return !$this->isOver();
-    }
-
-    public function getOwner(): User
-    {
-        return $this->owner;
-    }
-
-    public function isOwnedBy(User $user): bool
-    {
-        return $this->getOwner()->equalIds($user);
-    }
-
-    public function setOwner(User $owner): self
-    {
-        $this->owner = $owner;
-
-        return $this;
     }
 
     public function getDeletedAt(): ?DateTime

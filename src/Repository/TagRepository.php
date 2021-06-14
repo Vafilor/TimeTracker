@@ -38,7 +38,7 @@ class TagRepository extends ServiceEntityRepository
     public function findWithUser(User $user): QueryBuilder
     {
         return $this->createDefaultQueryBuilder()
-                    ->andWhere('tag.createdBy = :user')
+                    ->andWhere('tag.assignedTo = :user')
                     ->setParameter('user', $user)
         ;
     }
@@ -68,7 +68,7 @@ class TagRepository extends ServiceEntityRepository
 
     public function existsForUser(string $name, User $user): bool
     {
-        $existingTag = $this->findOneBy(['name' => $name, 'createdBy' => $user]);
+        $existingTag = $this->findOneBy(['name' => $name, 'assignedTo' => $user]);
 
         return !is_null($existingTag);
     }

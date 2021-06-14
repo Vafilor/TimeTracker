@@ -40,7 +40,7 @@ class TaskRepository extends ServiceEntityRepository
     public function findByUserQueryBuilder(User $user): QueryBuilder
     {
         return $this->createDefaultQueryBuilder()
-            ->andWhere('task.createdBy = :user')
+            ->andWhere('task.assignedTo = :user')
             ->setParameter('user', $user)
         ;
     }
@@ -101,7 +101,7 @@ class TaskRepository extends ServiceEntityRepository
     public function findNotCompleted(User $user, string $name): ?Task
     {
         $queryBuilder = $this->createDefaultQueryBuilder()
-                             ->andWhere('task.createdBy = :user')
+                             ->andWhere('task.assignedTo = :user')
                              ->andWhere('task.name = :name')
                              ->andWhere('task.completedAt IS NULL')
                              ->setParameters([

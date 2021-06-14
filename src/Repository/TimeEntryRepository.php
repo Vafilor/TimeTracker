@@ -88,7 +88,7 @@ class TimeEntryRepository extends ServiceEntityRepository
     public function findByUserQueryBuilder(User $user): QueryBuilder
     {
         return $this->createDefaultQueryBuilder()
-                    ->andWhere('time_entry.owner = :user')
+                    ->andWhere('time_entry.assignedTo = :user')
                     ->setParameter('user', $user)
         ;
     }
@@ -96,7 +96,7 @@ class TimeEntryRepository extends ServiceEntityRepository
     public function findRunningTimeEntry(User $user): ?TimeEntry
     {
         return $this->createDefaultQueryBuilder()
-                    ->andWhere('time_entry.owner = :user')
+                    ->andWhere('time_entry.assignedTo = :user')
                     ->andWhere('time_entry.endedAt IS NULL')
                     ->setParameter('user', $user)
                     ->getQuery()
@@ -107,7 +107,7 @@ class TimeEntryRepository extends ServiceEntityRepository
     public function getLatestTimeEntry(User $user): ?TimeEntry
     {
         return $this->createDefaultQueryBuilder()
-            ->andWhere('time_entry.owner = :user')
+            ->andWhere('time_entry.assignedTo = :user')
             ->orderBy('time_entry.createdAt', 'DESC')
             ->setParameter('user', $user)
             ->setMaxResults(1)

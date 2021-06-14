@@ -19,7 +19,7 @@ class TransferTimeEntry
     public ?int $deletedAt = null;
     public string $description;
     public ?TransferTaskLink $task = null;
-    public string $createdBy;
+    public string $assignedTo;
 
     /**
      * @var TransferTagLink[]
@@ -35,7 +35,7 @@ class TransferTimeEntry
         $transfer->updatedAt = $timeEntry->getUpdatedAt()->getTimestamp();
         $transfer->startedAt = $timeEntry->getStartedAt()->getTimestamp();
         $transfer->description = $timeEntry->getDescription();
-        $transfer->createdBy = $timeEntry->getOwner()->getUsername();
+        $transfer->assignedTo = $timeEntry->getAssignedTo()->getUsername();
 
         if ($timeEntry->isOver()) {
             $transfer->endedAt = $timeEntry->getEndedAt()->getTimestamp();
@@ -68,9 +68,9 @@ class TransferTimeEntry
         return $items;
     }
 
-    public function toEntity(User $createdBy): TimeEntry
+    public function toEntity(User $assignedTo): TimeEntry
     {
-        $entity = new TimeEntry($createdBy, DateTimeUtil::dateFromTimestamp($this->createdAt));
+        $entity = new TimeEntry($assignedTo, DateTimeUtil::dateFromTimestamp($this->createdAt));
         $entity->setId(Uuid::fromString($this->id));
         $entity->setUpdatedAt(DateTimeUtil::dateFromTimestamp($this->updatedAt));
         $entity->setStartedAt(DateTimeUtil::dateFromTimestamp($this->startedAt));

@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\TimestampRepository;
+use App\Traits\AssignableToUserTrait;
 use App\Traits\CreateTimestampableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UUIDTrait;
-use DateTime;
-use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -23,41 +21,26 @@ class Timestamp
     use UUIDTrait;
     use CreateTimestampableTrait;
     use TaggableTrait;
+    use AssignableToUserTrait;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=false)
+     * @var User
      */
-    private $createdBy;
+    private $assignedTo;
 
     /**
      * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timestamp", orphanRemoval=true)
      */
     private $tagLinks;
 
-    public function __construct(User $creator)
+    public function __construct(User $assignedTo)
     {
         $this->id = Uuid::uuid4();
         $this->markCreated();
-        $this->createdBy = $creator;
+        $this->assignTo($assignedTo);
         $this->tagLinks = new ArrayCollection();
-    }
-
-    public function getCreatedBy(): User
-    {
-        return $this->createdBy;
-    }
-
-    public function wasCreatedBy(User $user): bool
-    {
-        return $this->getCreatedBy()->equalIds($user);
-    }
-
-    public function setCreatedBy(User $createdBy): self
-    {
-        $this->createdBy = $createdBy;
-
-        return $this;
     }
 
     /**

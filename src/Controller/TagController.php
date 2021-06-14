@@ -108,7 +108,7 @@ class TagController extends BaseController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $tag = $tagRepository->findOrException($id);
-        if (!$tag->wasCreatedBy($this->getUser())) {
+        if (!$tag->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 

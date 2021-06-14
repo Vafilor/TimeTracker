@@ -18,7 +18,7 @@ class ApiReportController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $task = $taskRepository->findOrException($taskId);
-        if (!$task->wasCreatedBy($this->getUser())) {
+        if (!$task->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 

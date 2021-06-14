@@ -122,7 +122,7 @@ class TaskController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $task = $this->taskRepository->findOrException($id);
-        if (!$task->wasCreatedBy($this->getUser())) {
+        if (!$task->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
