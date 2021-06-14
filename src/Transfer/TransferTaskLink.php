@@ -10,7 +10,7 @@ class TransferTaskLink
 {
     public string $id;
     public string $name;
-    public string $createdBy;
+    public string $assignedTo;
 
     /**
      * @param Task $task
@@ -18,13 +18,13 @@ class TransferTaskLink
      */
     public static function fromTask(Task $task): TransferTaskLink
     {
-        return new TransferTaskLink($task->getIdString(), $task->getName(), $task->getCreatedBy()->getUsername());
+        return new TransferTaskLink($task->getIdString(), $task->getName(), $task->getAssignedTo()->getUsername());
     }
 
-    public function __construct(string $id, string $name, string $createdBy)
+    public function __construct(string $id, string $name, string $assignedTo)
     {
         $this->id = $id;
         $this->name = $name;
-        $this->createdBy = $createdBy;
+        $this->assignedTo = $assignedTo;
     }
 }

@@ -13,7 +13,7 @@ class TransferTimestamp
 {
     public string $id;
     public int $createdAt;
-    public string $createdBy;
+    public string $assignedTo;
 
     /**
      * @var TransferTagLink[]
@@ -26,7 +26,7 @@ class TransferTimestamp
 
         $transfer->id = $timestamp->getIdString();
         $transfer->createdAt = $timestamp->getCreatedAt()->getTimestamp();
-        $transfer->createdBy = $timestamp->getCreatedBy()->getUsername();
+        $transfer->assignedTo = $timestamp->getAssignedTo()->getUsername();
         $transfer->tags = TransferTagLink::fromTags($timestamp->getTags());
 
         return $transfer;
@@ -46,9 +46,9 @@ class TransferTimestamp
         return $items;
     }
 
-    public function toEntity(User $createdBy): Timestamp
+    public function toEntity(User $assignedTo): Timestamp
     {
-        $entity = new Timestamp($createdBy);
+        $entity = new Timestamp($assignedTo);
         $entity->setId(Uuid::fromString($this->id));
         $entity->setCreatedAt(DateTimeUtil::dateFromTimestamp($this->createdAt));
 

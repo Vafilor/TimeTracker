@@ -10,7 +10,7 @@ class TransferTagLink
 {
     public string $id = '';
     public string $name = '';
-    public string $createdBy = '';
+    public string $assignedTo = '';
 
     /**
      * @param iterable|Tag[] $tags
@@ -23,7 +23,7 @@ class TransferTagLink
             $item = new TransferTagLink();
             $item->id = $tag->getIdString();
             $item->name = $tag->getName();
-            $item->createdBy = $tag->getCreatedBy()->getUsername();
+            $item->assignedTo = $tag->getAssignedTo()->getUsername();
 
             $items[] = $item;
         }
