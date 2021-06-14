@@ -65,7 +65,7 @@ class TagManager
         }
 
         $tags = $this->tagRepository->findByKeysQuery('name', $names, 'tag')
-                                    ->andWhere('tag.createdBy = :user')
+                                    ->andWhere('tag.assignedTo = :user')
                                     ->setParameter('user', $user)
                                     ->getQuery()
                                     ->getResult()

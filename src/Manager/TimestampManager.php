@@ -28,7 +28,7 @@ class TimestampManager
      */
     public function repeat(Timestamp $timestamp): Timestamp
     {
-        $newTimestamp = new Timestamp($timestamp->getCreatedBy());
+        $newTimestamp = new Timestamp($timestamp->getAssignedTo());
         $this->entityManager->persist($newTimestamp);
 
         foreach ($timestamp->getTagLinks() as $tagLink) {

@@ -47,7 +47,7 @@ class TimestampRepository extends ServiceEntityRepository
     public function findByUserQueryBuilder(User $user): QueryBuilder
     {
         return $this->createDefaultQueryBuilder()
-                    ->andWhere('timestamp.createdBy = :user')
+                    ->andWhere('timestamp.assignedTo = :user')
                     ->setParameter('user', $user)
         ;
     }
