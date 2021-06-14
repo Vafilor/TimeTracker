@@ -35,7 +35,7 @@ class TransferTimeEntry
         $transfer->updatedAt = $timeEntry->getUpdatedAt()->getTimestamp();
         $transfer->startedAt = $timeEntry->getStartedAt()->getTimestamp();
         $transfer->description = $timeEntry->getDescription();
-        $transfer->assignedTo = $timeEntry->getOwner()->getUsername();
+        $transfer->assignedTo = $timeEntry->getAssignedTo()->getUsername();
 
         if ($timeEntry->isOver()) {
             $transfer->endedAt = $timeEntry->getEndedAt()->getTimestamp();
