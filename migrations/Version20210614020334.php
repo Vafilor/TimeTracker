@@ -46,12 +46,31 @@ final class Version20210614020334 extends AbstractMigration
     protected function upSqlite(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('DROP INDEX IDX_389B783B03A8386');
 
+        $this->addSql('CREATE TEMPORARY TABLE __temp__tag AS SELECT id, created_by_id, name, color, created_at FROM tag');
+        $this->addSql('DROP TABLE tag');
+        $this->addSql('CREATE TABLE tag (id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
+        , created_by_id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
+        , name VARCHAR(255) NOT NULL COLLATE BINARY, color VARCHAR(7) NOT NULL COLLATE BINARY, created_at DATETIME NOT NULL, canonical_name VARCHAR(255) NOT NULL, PRIMARY KEY(id), CONSTRAINT FK_389B783B03A8386 FOREIGN KEY (created_by_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
+        $this->addSql('INSERT INTO tag (id, created_by_id, name, canonical_name, color, created_at) SELECT id, created_by_id, name, LOWER(name), color, created_at FROM __temp__tag');
+        $this->addSql('DROP TABLE __temp__tag');
+
+        $this->addSql('CREATE INDEX IDX_389B783B03A8386 ON tag (created_by_id)');
     }
 
     protected function downSqlite(Schema $schema) : void
     {
         // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('DROP INDEX IDX_389B783B03A8386');
+        $this->addSql('CREATE TEMPORARY TABLE __temp__tag AS SELECT id, created_by_id, name, color, created_at FROM tag');
+        $this->addSql('DROP TABLE tag');
+        $this->addSql('CREATE TABLE tag (id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , created_by_id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , name VARCHAR(255) NOT NULL, color VARCHAR(7) NOT NULL, created_at DATETIME NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('INSERT INTO tag (id, created_by_id, name, color, created_at) SELECT id, created_by_id, name, color, created_at FROM __temp__tag');
+        $this->addSql('DROP TABLE __temp__tag');
+        $this->addSql('CREATE INDEX IDX_389B783B03A8386 ON tag (created_by_id)');
     }
 
     public function up(Schema $schema) : void
