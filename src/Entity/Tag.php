@@ -26,6 +26,12 @@ class Tag
     private $name;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     * @var string
+     */
+    private $canonicalName;
+
+    /**
      * @ORM\Column(type="string", length=7)
      * @var string
      *
@@ -53,9 +59,28 @@ class Tag
         $this->markCreated($createdAt);
     }
 
+    private function canonicalizeName(string $name): string
+    {
+        return strtolower($name);
+    }
+
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getCanonicalName(): string
+    {
+        return $this->canonicalName;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        $this->canonicalName = $this->canonicalizeName($name);
+
+        return $this;
     }
 
     public function setColor(string $color): self

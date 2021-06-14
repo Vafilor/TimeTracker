@@ -47,7 +47,7 @@ class ApiTagController extends BaseController
         }
 
         $queryBuilder = $tagRepository->findWithUser($this->getUser())
-            ->andWhere('LOWER(tag.name) LIKE :term')
+            ->andWhere('tag.canonicalName LIKE :term')
             ->setParameter('term', "%$term%");
 
         if (count($excludeItems) !== 0) {
