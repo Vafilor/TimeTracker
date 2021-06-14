@@ -62,7 +62,7 @@ class Tag
 
     private function canonicalizeName(string $name): string
     {
-        return strtolower($name);
+        return trim(strtolower($name));
     }
 
     public function getName(): string
