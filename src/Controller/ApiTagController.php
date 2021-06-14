@@ -67,7 +67,7 @@ class ApiTagController extends BaseController
 
         $items = ApiTag::fromEntities($pagination->getItems());
 
-        return $this->json(ApiPagination::fromPagination($pagination, $items));
+        return $this->jsonNoNulls(ApiPagination::fromPagination($pagination, $items));
     }
 
     #[Route('/api/tag', name: 'api_tag_create', methods: ["POST"])]
@@ -110,7 +110,7 @@ class ApiTagController extends BaseController
             $this->getDoctrine()->getManager()->persist($tag);
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->json(ApiTag::fromEntity($tag), Response::HTTP_CREATED);
+            return $this->jsonNoNulls(ApiTag::fromEntity($tag), Response::HTTP_CREATED);
         } elseif (!$form->isValid()) {
             $formError = new ApiFormError($form->getErrors(true));
             throw new ApiProblemException($formError);
@@ -128,6 +128,6 @@ class ApiTagController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $tag = $tagRepository->findOneByOrException(['name' => $name]);
 
-        return $this->json(ApiTag::fromEntity($tag));
+        return $this->jsonNoNulls(ApiTag::fromEntity($tag));
     }
 }

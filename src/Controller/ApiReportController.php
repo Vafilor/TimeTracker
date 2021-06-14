@@ -26,7 +26,7 @@ class ApiReportController extends BaseController
         $diff = DateTimeUtil::dateIntervalFromSeconds($totalSeconds);
         $formattedTime = $diff->format($this->getUser()->getDurationFormat());
 
-        return $this->json([
+        return $this->jsonNoNulls([
             'totalTime' => $formattedTime,
             'totalSeconds' => $totalSeconds
         ]);

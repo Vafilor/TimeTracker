@@ -76,7 +76,7 @@ class ApiTaskController extends BaseController
 
         $items = ApiTask::fromEntities($pagination->getItems(), $this->getUser());
 
-        return $this->json(ApiPagination::fromPagination($pagination, $items));
+        return $this->jsonNoNulls(ApiPagination::fromPagination($pagination, $items));
     }
 
     #[Route('/api/task', name: 'api_task_create', methods: ["POST"])]
@@ -116,7 +116,7 @@ class ApiTaskController extends BaseController
 
             $apiTimeEntry = ApiTask::fromEntity($newTask, $this->getUser());
 
-            return $this->json($apiTimeEntry);
+            return $this->jsonNoNulls($apiTimeEntry);
         } elseif (!$form->isValid()) {
             $formError = new ApiFormError($form->getErrors(true));
             throw new ApiProblemException($formError);
@@ -142,7 +142,7 @@ class ApiTaskController extends BaseController
 
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
-        return $this->json($apiTask);
+        return $this->jsonNoNulls($apiTask);
     }
 
     /**
@@ -184,7 +184,7 @@ class ApiTaskController extends BaseController
 
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
-        return $this->json($apiTask);
+        return $this->jsonNoNulls($apiTask);
     }
 
     #[Route('/json/task/{id}', name: 'task_json_update', methods: ['PUT'])]
@@ -207,7 +207,7 @@ class ApiTaskController extends BaseController
 
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
-        return $this->json($apiTask);
+        return $this->jsonNoNulls($apiTask);
     }
 
     #[Route('/api/task/{id}/tag', name: 'api_task_tag_create', methods: ['POST'])]
@@ -261,7 +261,7 @@ class ApiTaskController extends BaseController
 
         $apiTag = ApiTag::fromEntity($tag);
 
-        return $this->json($apiTag, Response::HTTP_CREATED);
+        return $this->jsonNoNulls($apiTag, Response::HTTP_CREATED);
     }
 
     #[Route('/api/task/{id}/tag/{tagName}', name: 'api_task_tag_delete', methods: ['DELETE'])]
@@ -312,6 +312,6 @@ class ApiTaskController extends BaseController
 
         $apiTags = ApiTag::fromEntities($task->getTags());
 
-        return $this->json($apiTags);
+        return $this->jsonNoNulls($apiTags);
     }
 }

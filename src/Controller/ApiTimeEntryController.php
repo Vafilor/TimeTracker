@@ -88,7 +88,7 @@ class ApiTimeEntryController extends BaseController
             }
         }
 
-        return $this->json(ApiPagination::fromPagination($pagination, $items));
+        return $this->jsonNoNulls(ApiPagination::fromPagination($pagination, $items));
     }
 
     /**
@@ -130,7 +130,7 @@ class ApiTimeEntryController extends BaseController
 
         $items = ApiTimeEntry::fromEntities($pagination->getItems(), $this->getUser());
 
-        return $this->json(ApiPagination::fromPagination($pagination, $items));
+        return $this->jsonNoNulls(ApiPagination::fromPagination($pagination, $items));
     }
 
     #[Route('/api/time-entry', name: 'api_time_entry_create', methods: ["POST"])]
@@ -200,7 +200,7 @@ class ApiTimeEntryController extends BaseController
             ]);
         }
 
-        return $this->json($data, Response::HTTP_CREATED);
+        return $this->jsonNoNulls($data, Response::HTTP_CREATED);
     }
 
     #[Route('/api/time-entry/{id}', name: 'api_time_entry_view', methods: ["GET"])]
@@ -217,7 +217,7 @@ class ApiTimeEntryController extends BaseController
 
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
 
-        return $this->json($apiTimeEntry);
+        return $this->jsonNoNulls($apiTimeEntry);
     }
 
     #[Route('/api/time-entry/{id}', name: 'api_time_entry_edit', methods: ["PUT"])]
@@ -268,7 +268,7 @@ class ApiTimeEntryController extends BaseController
 
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
 
-        return $this->json($apiTimeEntry);
+        return $this->jsonNoNulls($apiTimeEntry);
     }
 
     /**
@@ -339,7 +339,7 @@ class ApiTimeEntryController extends BaseController
             ]);
         }
 
-        return $this->json($data);
+        return $this->jsonNoNulls($data);
     }
 
     #[Route('/api/time-entry/{id}/stop', name: 'api_time_entry_stop', methods: ['PUT'])]
@@ -379,7 +379,7 @@ class ApiTimeEntryController extends BaseController
             $apiTimeEntry->url = $this->generateUrl('time_entry_view', ['id' => $apiTimeEntry->id]);
         }
 
-        return $this->json($apiTimeEntry);
+        return $this->jsonNoNulls($apiTimeEntry);
     }
 
     #[Route('/api/time-entry/{id}/resume', name: 'api_time_entry_resume', methods: ["PUT"])]
@@ -417,7 +417,7 @@ class ApiTimeEntryController extends BaseController
 
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
 
-        return $this->json($apiTimeEntry);
+        return $this->jsonNoNulls($apiTimeEntry);
     }
 
     #[Route('/api/time-entry/{id}', name: 'api_time_entry_delete', methods: ["DELETE"])]
@@ -491,7 +491,7 @@ class ApiTimeEntryController extends BaseController
 
         $apiTag = ApiTag::fromEntity($tag);
 
-        return $this->json($apiTag, Response::HTTP_CREATED);
+        return $this->jsonNoNulls($apiTag, Response::HTTP_CREATED);
     }
 
     #[Route('/api/time-entry/{id}/tag/{tagName}', name: 'api_time_entry_tag_delete', methods: ['DELETE'])]
@@ -542,7 +542,7 @@ class ApiTimeEntryController extends BaseController
 
         $apiTags = ApiTag::fromEntities($timeEntry->getTags());
 
-        return $this->json($apiTags);
+        return $this->jsonNoNulls($apiTags);
     }
 
     #[Route('/api/time-entry/{id}/task', name: 'api_time_entry_task_create', methods: ['POST'])]
@@ -603,9 +603,9 @@ class ApiTimeEntryController extends BaseController
         }
 
         if ($createdTask) {
-            return $this->json($apiTask, Response::HTTP_CREATED);
+            return $this->jsonNoNulls($apiTask, Response::HTTP_CREATED);
         } else {
-            return $this->json($apiTask, Response::HTTP_OK);
+            return $this->jsonNoNulls($apiTask, Response::HTTP_OK);
         }
     }
 
@@ -651,6 +651,6 @@ class ApiTimeEntryController extends BaseController
 
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
 
-        return $this->json($apiTimeEntry);
+        return $this->jsonNoNulls($apiTimeEntry);
     }
 }

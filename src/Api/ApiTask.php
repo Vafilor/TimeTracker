@@ -13,8 +13,8 @@ class ApiTask
     public string $name;
     public string $description;
     public string $createdAt;
-    public ?string $completedAt;
-    public ?string $url;
+    public ?string $completedAt = null;
+    public ?string $url = null;
 
     public static function fromEntity(Task $task, User $user, string $format = 'date'): ApiTask
     {

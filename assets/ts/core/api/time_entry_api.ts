@@ -20,7 +20,7 @@ export interface ApiTimeEntry {
     endedAtEpoch?: number;
     description: string;
     duration?: string; // If the time entry is not over, no duration.
-    taskId: string;
+    taskId?: string;
     url?: string;
     tags: ApiTag[];
 }
