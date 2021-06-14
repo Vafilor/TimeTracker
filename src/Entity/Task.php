@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\TaskRepository;
+use App\Traits\AssignableToUserTrait;
 use App\Traits\CreateTimestampableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
@@ -25,6 +26,7 @@ class Task
     use CreateTimestampableTrait;
     use UpdateTimestampableTrait;
     use TaggableTrait;
+    use AssignableToUserTrait;
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
@@ -58,6 +60,7 @@ class Task
 
     /**
      * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="task")
+     * @var TimeEntry[]|Collection
      */
     private $timeEntries;
 
@@ -72,12 +75,12 @@ class Task
      * @ORM\JoinColumn(nullable=false)
      * @var User
      */
-    private $createdBy;
+    private $assignedTo;
 
-    public function __construct(User $createdBy, string $name)
+    public function __construct(User $assignedTo, string $name)
     {
         $this->id = Uuid::uuid4();
-        $this->createdBy = $createdBy;
+        $this->assignTo($assignedTo);
         $this->setName($name);
         $this->markCreated();
         $this->updatedAt = $this->createdAt;
@@ -127,23 +130,6 @@ class Task
     public function getTimeEntries(): Collection
     {
         return $this->timeEntries;
-    }
-
-    public function getCreatedBy(): User
-    {
-        return $this->createdBy;
-    }
-
-    public function setCreatedBy(User $createdBy): self
-    {
-        $this->createdBy = $createdBy;
-
-        return $this;
-    }
-
-    public function wasCreatedBy(User $user): bool
-    {
-        return $this->getCreatedBy()->equalIds($user);
     }
 
     public function getCompletedAt(): ?DateTime

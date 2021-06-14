@@ -47,12 +47,12 @@ class User extends BaseUser
     private $durationFormat;
 
     /**
-     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="createdBy", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="assignedTo", orphanRemoval=true)
      */
     private $tasks;
 
     /**
-     * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="owner")
+     * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="assignedTo")
      */
     private $timeEntries;
 
@@ -137,27 +137,5 @@ class User extends BaseUser
     public function getTasks(): Collection
     {
         return $this->tasks;
-    }
-
-    public function addTask(Task $task): self
-    {
-        if (!$this->tasks->contains($task)) {
-            $this->tasks[] = $task;
-            $task->setCreatedBy($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTask(Task $task): self
-    {
-        if ($this->tasks->removeElement($task)) {
-            // set the owning side to null (unless already changed)
-            if ($task->getCreatedBy() === $this) {
-                $task->setCreatedBy(null);
-            }
-        }
-
-        return $this;
     }
 }
