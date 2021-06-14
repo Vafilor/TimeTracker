@@ -4,7 +4,7 @@ import { ApiTag } from "../core/api/tag_api";
 import AutocompleteTags from "./autocomplete_tags";
 import { AutocompleteEnterPressedEvent } from "./autocomplete";
 
-export class TimeEntryTagAssigner {
+export class TagAssigner {
     private readonly _$container: JQuery;
     get $container(): JQuery {
         return this._$container;

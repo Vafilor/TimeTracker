@@ -9,7 +9,7 @@ import AutoMarkdown from "./components/automarkdown";
 import TagList from "./components/tag_index";
 import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
-import { TimeEntryTagAssigner } from "./components/time_entry_tag_assigner";
+import { TagAssigner } from "./components/tag_assigner";
 import TimerView from "./components/timer";
 
 class TimeEntryAutoMarkdown extends AutoMarkdown {
@@ -36,7 +36,7 @@ class TimeEntryPage {
     private readonly durationFormat: string;
     private autoMarkdown: TimeEntryAutoMarkdown;
     private autocompleteTask: TimeEntryTaskAssigner;
-    private tagEdit: TimeEntryTagAssigner;
+    private tagEdit: TagAssigner;
     private readonly flashes: Flashes;
     private timerView?: TimerView;
 
@@ -59,7 +59,7 @@ class TimeEntryPage {
         const tagList = new TagList($tagList, new TimeEntryApiAdapter(this.timeEntryId, this.flashes));
         const $template = $('.js-autocomplete-tags');
 
-        this.tagEdit = new TimeEntryTagAssigner($template, tagList, this.flashes);
+        this.tagEdit = new TagAssigner($template, tagList, this.flashes);
 
         const $timer = $('.js-timer.js-running-timer');
         if ($timer.length !== 0) {

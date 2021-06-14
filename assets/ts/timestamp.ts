@@ -18,7 +18,7 @@ class TimestampApiAdapter implements TagListDelegate {
             })
             .catch(res => {
                 this.flashes.append('danger', `Unable to add tag '${tag.name}'`)
-                return res;
+                throw res;
             });
     }
 

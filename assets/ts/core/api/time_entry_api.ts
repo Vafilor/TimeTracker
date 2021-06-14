@@ -105,6 +105,16 @@ export class TimeEntryApi {
         });
     }
 
+    public static getTags(timeEntryId: string) {
+        return CoreApi.get<ApiTag[]>(`/json/time-entry/${timeEntryId}/tags`);
+    }
+
+    public static removeTag(timeEntryId: string, tagName: string) {
+        tagName = encodeURIComponent(tagName);
+
+        return CoreApi.delete(`/json/time-entry/${timeEntryId}/tag/${tagName}`);
+    }
+
     public static assignToTask(timeEntryId: string, taskName: string, taskId?: string) {
         const url = `/json/time-entry/${timeEntryId}/task`;
 
@@ -123,16 +133,6 @@ export class TimeEntryApi {
         const url = `/json/time-entry/${timeEntryId}/task`;
 
         return CoreApi.delete(url);
-    }
-
-    public static getTags(timeEntryId: string) {
-        return CoreApi.get<ApiTag[]>(`/json/time-entry/${timeEntryId}/tags`);
-    }
-
-    public static removeTag(timeEntryId: string, tagName: string) {
-        tagName = encodeURIComponent(tagName);
-
-        return CoreApi.delete(`/json/time-entry/${timeEntryId}/tag/${tagName}`);
     }
 
     public static update(timeEntryId: string, update: ApiUpdateTimeEntry) {
