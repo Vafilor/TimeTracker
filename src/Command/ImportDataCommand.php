@@ -204,7 +204,7 @@ class ImportDataCommand extends Command
      */
     private function importTags(SymfonyStyle $io, array $transferTags)
     {
-        $usernames = Collections::pluckNoDuplicates($transferTags, 'createdBy');
+        $usernames = Collections::pluckNoDuplicates($transferTags, 'assignedTo');
         $users = $this->userRepository->findByKeys('username', $usernames);
         $usernameToUsers = Collections::mapByKeyUnique($users, 'username');
 
@@ -213,30 +213,30 @@ class ImportDataCommand extends Command
 
         $tagKeysToTags = [];
         foreach ($exitingTags as $exitingTag) {
-            $createdByName = $exitingTag->getCreatedBy()->getUsername();
+            $assignedToName = $exitingTag->getAssignedTo()->getUsername();
             $tagName = $exitingTag->getName();
 
-            $key = "{$createdByName}_{$tagName}";
+            $key = "{$assignedToName}_{$tagName}";
             $tagKeysToTags[$key] = $exitingTag;
         }
 
         foreach ($transferTags as $transferTag) {
-            $username = $transferTag->createdBy;
+            $username = $transferTag->assignedTo;
             if (!array_key_exists($username, $usernameToUsers)) {
                 throw new InvalidArgumentException("Username '$username' does not exist. But Tag with id '{$transferTag->id}' references it");
             }
 
-            /** @var User $createdBy */
-            $createdBy = $usernameToUsers[$username];
+            /** @var User $assignedTo */
+            $assignedTo = $usernameToUsers[$username];
 
             $tagName = $transferTag->name;
-            $createdByName = $createdBy->getUsername();
-            $key = "{$createdByName}_{$tagName}";
+            $assignedToName = $assignedTo->getUsername();
+            $key = "{$assignedToName}_{$tagName}";
             if (array_key_exists($key, $tagKeysToTags)) {
                 continue;
             }
 
-            $tag = $transferTag->toEntity($createdBy);
+            $tag = $transferTag->toEntity($assignedTo);
             $this->entityManager->persist($tag);
         }
 
@@ -273,22 +273,22 @@ class ImportDataCommand extends Command
      */
     private function transferTimestampsToEntities(array $transferTimestamps): array
     {
-        $usernames = Collections::pluckNoDuplicates($transferTimestamps, 'createdBy');
+        $usernames = Collections::pluckNoDuplicates($transferTimestamps, 'assignedTo');
         $users = $this->userRepository->findByKeys('username', $usernames);
         $usernameToUsers = Collections::mapByKeyUnique($users, 'username');
 
         $timestamps = [];
 
         foreach ($transferTimestamps as $transferTimestamp) {
-            $username = $transferTimestamp->createdBy;
+            $username = $transferTimestamp->assignedTo;
             if (!array_key_exists($username, $usernameToUsers)) {
                 throw new InvalidArgumentException("Username '$username' does not exist. But Timestamp with id '{$transferTimestamp->id}' references it");
             }
 
-            /** @var User $createdBy */
-            $createdBy = $usernameToUsers[$username];
+            /** @var User $assignedTo */
+            $assignedTo = $usernameToUsers[$username];
 
-            $timestamps[$transferTimestamp->id] =  $transferTimestamp->toEntity($createdBy);
+            $timestamps[$transferTimestamp->id] =  $transferTimestamp->toEntity($assignedTo);
         }
 
         return $timestamps;
@@ -354,22 +354,22 @@ class ImportDataCommand extends Command
      */
     private function transferTasksToEntities(array $transferTasks): array
     {
-        $usernames = Collections::pluckNoDuplicates($transferTasks, 'createdBy');
+        $usernames = Collections::pluckNoDuplicates($transferTasks, 'assignedTo');
         $users = $this->userRepository->findByKeys('username', $usernames);
         $usernameToUsers = Collections::mapByKeyUnique($users, 'username');
 
         $tasks = [];
 
         foreach ($transferTasks as $transferTask) {
-            $username = $transferTask->createdBy;
+            $username = $transferTask->assignedTo;
             if (!array_key_exists($username, $usernameToUsers)) {
                 throw new InvalidArgumentException("Username '$username' does not exist. But Task with id '{$transferTask->id}' references it");
             }
 
-            /** @var User $createdBy */
-            $createdBy = $usernameToUsers[$username];
+            /** @var User $assignedTo */
+            $assignedTo = $usernameToUsers[$username];
 
-            $tasks[$transferTask->id] = $transferTask->toEntity($createdBy);
+            $tasks[$transferTask->id] = $transferTask->toEntity($assignedTo);
         }
 
         return $tasks;
@@ -430,21 +430,21 @@ class ImportDataCommand extends Command
      */
     private function transferTimeEntriesToEntities(array $transferTimeEntries): array
     {
-        $usernames = Collections::pluckNoDuplicates($transferTimeEntries, 'createdBy');
+        $usernames = Collections::pluckNoDuplicates($transferTimeEntries, 'assignedTo');
         $users = $this->userRepository->findByKeys('username', $usernames);
         $usernameToUsers = Collections::mapByKeyUnique($users, 'username');
 
         $timeEntries = [];
         foreach ($transferTimeEntries as $transferTimeEntry) {
-            $username = $transferTimeEntry->createdBy;
+            $username = $transferTimeEntry->assignedTo;
             if (!array_key_exists($username, $usernameToUsers)) {
                 throw new InvalidArgumentException("Username '$username' does not exist. But TimeEntry with id '{$transferTimeEntry->id}' references it");
             }
 
-            /** @var User $createdBy */
-            $createdBy = $usernameToUsers[$username];
+            /** @var User $assignedTo */
+            $assignedTo = $usernameToUsers[$username];
 
-            $timeEntries[$transferTimeEntry->id] = $transferTimeEntry->toEntity($createdBy);
+            $timeEntries[$transferTimeEntry->id] = $transferTimeEntry->toEntity($assignedTo);
         }
 
         return $timeEntries;
