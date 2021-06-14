@@ -8,7 +8,6 @@ use App\Repository\UserRepository;
 use App\Traits\CreateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
-use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;

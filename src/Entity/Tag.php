@@ -9,7 +9,6 @@ use App\Traits\AssignableToUserTrait;
 use App\Traits\CreateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
-use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
