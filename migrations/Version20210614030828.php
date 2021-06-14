@@ -86,14 +86,96 @@ final class Version20210614030828 extends AbstractMigration
     protected function upSqlite(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('DROP INDEX IDX_389B783B03A8386');
+        $this->addSql('CREATE TEMPORARY TABLE __temp__tag AS SELECT id, created_by_id, name, color, created_at, canonical_name FROM tag');
+        $this->addSql('DROP TABLE tag');
+        $this->addSql('CREATE TABLE tag (id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
+        , assigned_to_id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , name VARCHAR(255) NOT NULL COLLATE BINARY, color VARCHAR(7) NOT NULL COLLATE BINARY, canonical_name VARCHAR(255) NOT NULL COLLATE BINARY, created_at DATETIME NOT NULL, PRIMARY KEY(id), CONSTRAINT FK_389B783F4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
+        $this->addSql('INSERT INTO tag (id, assigned_to_id, name, color, created_at, canonical_name) SELECT id, created_by_id, name, color, created_at, canonical_name FROM __temp__tag');
+        $this->addSql('DROP TABLE __temp__tag');
+        $this->addSql('CREATE INDEX IDX_389B783F4BD7827 ON tag (assigned_to_id)');
 
+        $this->addSql('DROP INDEX IDX_527EDB25B03A8386');
+        $this->addSql('CREATE TEMPORARY TABLE __temp__task AS SELECT id, created_by_id, name, description, created_at, completed_at, updated_at, canonical_name, priority FROM task');
+        $this->addSql('DROP TABLE task');
+        $this->addSql('CREATE TABLE task (id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
+        , assigned_to_id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , name VARCHAR(255) NOT NULL COLLATE BINARY, description CLOB NOT NULL COLLATE BINARY, canonical_name VARCHAR(255) NOT NULL COLLATE BINARY, priority INTEGER NOT NULL, created_at DATETIME NOT NULL, completed_at DATETIME DEFAULT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY(id), CONSTRAINT FK_527EDB25F4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
+        $this->addSql('INSERT INTO task (id, assigned_to_id, name, description, created_at, completed_at, updated_at, canonical_name, priority) SELECT id, created_by_id, name, description, created_at, completed_at, updated_at, canonical_name, priority FROM __temp__task');
+        $this->addSql('DROP TABLE __temp__task');
+        $this->addSql('CREATE INDEX IDX_527EDB25F4BD7827 ON task (assigned_to_id)');
+
+        $this->addSql('DROP INDEX IDX_6E537C0C8DB60186');
+        $this->addSql('DROP INDEX IDX_6E537C0C7E3C61F9');
+        $this->addSql('CREATE TEMPORARY TABLE __temp__time_entry AS SELECT id, owner_id, task_id, description, created_at, ended_at, deleted_at, started_at, updated_at FROM time_entry');
+        $this->addSql('DROP TABLE time_entry');
+        $this->addSql('CREATE TABLE time_entry (id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
+        , task_id CHAR(36) DEFAULT NULL COLLATE BINARY --(DC2Type:uuid)
+        , assigned_to_id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , description CLOB NOT NULL COLLATE BINARY, created_at DATETIME NOT NULL, ended_at DATETIME DEFAULT NULL, deleted_at DATETIME DEFAULT NULL, started_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY(id), CONSTRAINT FK_6E537C0CF4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_6E537C0C8DB60186 FOREIGN KEY (task_id) REFERENCES task (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
+        $this->addSql('INSERT INTO time_entry (id, assigned_to_id, task_id, description, created_at, ended_at, deleted_at, started_at, updated_at) SELECT id, owner_id, task_id, description, created_at, ended_at, deleted_at, started_at, updated_at FROM __temp__time_entry');
+        $this->addSql('DROP TABLE __temp__time_entry');
+        $this->addSql('CREATE INDEX IDX_6E537C0C8DB60186 ON time_entry (task_id)');
+        $this->addSql('CREATE INDEX IDX_6E537C0CF4BD7827 ON time_entry (assigned_to_id)');
+
+        $this->addSql('DROP INDEX IDX_A5D6E63EB03A8386');
+        $this->addSql('CREATE TEMPORARY TABLE __temp__timestamp AS SELECT id, created_by_id, created_at FROM timestamp');
+        $this->addSql('DROP TABLE timestamp');
+        $this->addSql('CREATE TABLE timestamp (id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
+        , assigned_to_id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , created_at DATETIME NOT NULL, PRIMARY KEY(id), CONSTRAINT FK_A5D6E63EF4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
+        $this->addSql('INSERT INTO timestamp (id, assigned_to_id, created_at) SELECT id, created_by_id, created_at FROM __temp__timestamp');
+        $this->addSql('DROP TABLE __temp__timestamp');
+        $this->addSql('CREATE INDEX IDX_A5D6E63EF4BD7827 ON timestamp (assigned_to_id)');
     }
 
     protected function downSqlite(Schema $schema) : void
     {
         // this down() migration is auto-generated, please modify it to your needs
-    }
+        $this->addSql('DROP INDEX IDX_389B783F4BD7827');
+        $this->addSql('CREATE TEMPORARY TABLE __temp__tag AS SELECT id, assigned_to_id, name, canonical_name, color, created_at FROM tag');
+        $this->addSql('DROP TABLE tag');
+        $this->addSql('CREATE TABLE tag (id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , name VARCHAR(255) NOT NULL, canonical_name VARCHAR(255) NOT NULL, color VARCHAR(7) NOT NULL, created_by_id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
+        , created_at DATETIME NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('INSERT INTO tag (id, created_by_id, name, canonical_name, color, created_at) SELECT id, assigned_to_id, name, canonical_name, color, created_at FROM __temp__tag');
+        $this->addSql('DROP TABLE __temp__tag');
+        $this->addSql('CREATE INDEX IDX_389B783B03A8386 ON tag (created_by_id)');
 
+        $this->addSql('DROP INDEX IDX_527EDB25F4BD7827');
+        $this->addSql('CREATE TEMPORARY TABLE __temp__task AS SELECT id, assigned_to_id, completed_at, name, canonical_name, description, priority, created_at, updated_at FROM task');
+        $this->addSql('DROP TABLE task');
+        $this->addSql('CREATE TABLE task (id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , name VARCHAR(255) NOT NULL, canonical_name VARCHAR(255) NOT NULL, description CLOB NOT NULL, priority INTEGER NOT NULL, created_by_id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
+        , completed_at DATETIME DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('INSERT INTO task (id, created_by_id, completed_at, name, canonical_name, description, priority, created_at, updated_at) SELECT id, assigned_to_id, completed_at, name, canonical_name, description, priority, created_at, updated_at FROM __temp__task');
+        $this->addSql('DROP TABLE __temp__task');
+        $this->addSql('CREATE INDEX IDX_527EDB25B03A8386 ON task (created_by_id)');
+
+        $this->addSql('DROP INDEX IDX_6E537C0CF4BD7827');
+        $this->addSql('DROP INDEX IDX_6E537C0C8DB60186');
+        $this->addSql('CREATE TEMPORARY TABLE __temp__time_entry AS SELECT id, assigned_to_id, task_id, started_at, ended_at, deleted_at, description, created_at, updated_at FROM time_entry');
+        $this->addSql('DROP TABLE time_entry');
+        $this->addSql('CREATE TABLE time_entry (id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , task_id CHAR(36) DEFAULT NULL --(DC2Type:uuid)
+        , description CLOB NOT NULL, owner_id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
+        , started_at DATETIME NOT NULL, ended_at DATETIME DEFAULT NULL, deleted_at DATETIME DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('INSERT INTO time_entry (id, owner_id, task_id, started_at, ended_at, deleted_at, description, created_at, updated_at) SELECT id, assigned_to_id, task_id, started_at, ended_at, deleted_at, description, created_at, updated_at FROM __temp__time_entry');
+        $this->addSql('DROP TABLE __temp__time_entry');
+        $this->addSql('CREATE INDEX IDX_6E537C0C8DB60186 ON time_entry (task_id)');
+        $this->addSql('CREATE INDEX IDX_6E537C0C7E3C61F9 ON time_entry (owner_id)');
+
+        $this->addSql('DROP INDEX IDX_A5D6E63EF4BD7827');
+        $this->addSql('CREATE TEMPORARY TABLE __temp__timestamp AS SELECT id, assigned_to_id, created_at FROM timestamp');
+        $this->addSql('DROP TABLE timestamp');
+        $this->addSql('CREATE TABLE timestamp (id CHAR(36) NOT NULL --(DC2Type:uuid)
+        , created_by_id CHAR(36) NOT NULL COLLATE BINARY --(DC2Type:uuid)
+        , created_at DATETIME NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('INSERT INTO timestamp (id, created_by_id, created_at) SELECT id, assigned_to_id, created_at FROM __temp__timestamp');
+        $this->addSql('DROP TABLE __temp__timestamp');
+        $this->addSql('CREATE INDEX IDX_A5D6E63EB03A8386 ON timestamp (created_by_id)');
+    }
 
     public function up(Schema $schema) : void
     {
