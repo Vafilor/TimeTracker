@@ -53,7 +53,7 @@ class Tag
     ) {
         $this->id = Uuid::uuid4();
         $this->createdBy = $createdBy;
-        $this->name = $name;
+        $this->setName($name);
         $this->color = $color;
         $this->createdBy = $createdBy;
         $this->markCreated($createdAt);
