@@ -94,12 +94,14 @@ class ApiTimestampController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $timestampRepository->findCreateQueryBuilder($id);
+
+        /** @var Timestamp|null $timestamp */
         $timestamp = $timestampRepository->preloadTags($queryBuilder)->getQuery()->getResult();
         if (is_null($timestamp)) {
             $this->createNotFoundException();
         }
 
-        if (!$timestamp->wasCreatedBy($this->getUser())) {
+        if (!$timestamp->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -116,7 +118,7 @@ class ApiTimestampController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timestamp = $timestampRepository->findOrException($id);
-        if (!$timestamp->wasCreatedBy($this->getUser())) {
+        if (!$timestamp->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -138,7 +140,7 @@ class ApiTimestampController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timestamp = $timestampRepository->findOrException($id);
-        if (!$timestamp->wasCreatedBy($this->getUser())) {
+        if (!$timestamp->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -169,7 +171,7 @@ class ApiTimestampController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timestamp = $timestampRepository->findOrException($id);
-        if (!$timestamp->wasCreatedBy($this->getUser())) {
+        if (!$timestamp->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -188,7 +190,7 @@ class ApiTimestampController extends BaseController
 
         $tagName = $data['tagName'];
 
-        $tag = $tagRepository->findOneBy(['name' => $tagName, 'createdBy' => $this->getUser()]);
+        $tag = $tagRepository->findOneBy(['name' => $tagName, 'assignedTo' => $this->getUser()]);
         if (is_null($tag)) {
             $tag = new Tag($this->getUser(), $tagName);
             $this->getDoctrine()->getManager()->persist($tag);
@@ -225,7 +227,7 @@ class ApiTimestampController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timestamp = $timestampRepository->findOrException($id);
-        if (!$timestamp->wasCreatedBy($this->getUser())) {
+        if (!$timestamp->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -261,7 +263,7 @@ class ApiTimestampController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timestamp = $timestampRepository->findOrException($id);
-        if (!$timestamp->wasCreatedBy($this->getUser())) {
+        if (!$timestamp->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 

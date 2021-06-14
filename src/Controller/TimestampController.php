@@ -73,7 +73,7 @@ class TimestampController extends BaseController
             throw $this->createNotFoundException();
         }
 
-        if (!$timestamp->wasCreatedBy($this->getUser())) {
+        if (!$timestamp->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -108,7 +108,7 @@ class TimestampController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timestamp = $timestampRepository->findOrException($id);
-        if (!$timestamp->wasCreatedBy($this->getUser())) {
+        if (!$timestamp->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 

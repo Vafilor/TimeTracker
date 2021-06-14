@@ -173,7 +173,7 @@ class TimeEntryController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $existingTimeEntry = $timeEntryRepository->findOrException($id);
-        if (!$existingTimeEntry->isOwnedBy($this->getUser())) {
+        if (!$existingTimeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -207,7 +207,7 @@ class TimeEntryController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -250,7 +250,7 @@ class TimeEntryController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -270,7 +270,7 @@ class TimeEntryController extends BaseController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -296,7 +296,7 @@ class TimeEntryController extends BaseController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
-        if (!$timeEntry->isOwnedBy($this->getUser())) {
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
