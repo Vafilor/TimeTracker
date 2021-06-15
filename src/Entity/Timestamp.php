@@ -10,6 +10,7 @@ use App\Traits\CreateTimestampableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UUIDTrait;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -32,8 +33,15 @@ class Timestamp
 
     /**
      * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timestamp", orphanRemoval=true)
+     * @var TagLink[]|Collection
      */
     private $tagLinks;
+
+    /**
+     * @ORM\OneToMany(targetEntity=StatisticValue::class, mappedBy="timestamp")
+     * @var StatisticValue[]|Collection
+     */
+    private $statisticValues;
 
     public function __construct(User $assignedTo)
     {
@@ -41,6 +49,7 @@ class Timestamp
         $this->markCreated();
         $this->assignTo($assignedTo);
         $this->tagLinks = new ArrayCollection();
+        $this->statisticValues = new ArrayCollection();
     }
 
     /**
@@ -56,5 +65,13 @@ class Timestamp
         $this->tagLinks->add($tagLink);
 
         return $this;
+    }
+
+    /**
+     * @return StatisticValue[]|Collection
+     */
+    public function getStatisticValues(): Collection|array
+    {
+        return $this->statisticValues;
     }
 }

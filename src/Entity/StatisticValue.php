@@ -49,7 +49,7 @@ class StatisticValue
     private $timeEntry;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Timestamp::class)
+     * @ORM\ManyToOne(targetEntity=Timestamp::class, inversedBy="statisticValues")
      * @var Timestamp|null
      */
     private $timestamp;
