@@ -19,7 +19,7 @@ class ApiTimeEntry
     public ?int $endedAtEpoch = null;
     public string $description;
     public ?string $duration = null;
-    public string $taskId;
+    public ?string $taskId = null;
     public ?string $url = null;
     public array $tags;
 

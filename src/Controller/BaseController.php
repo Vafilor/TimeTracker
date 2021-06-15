@@ -16,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 /**
  * Class BaseController.
@@ -108,5 +109,19 @@ class BaseController extends AbstractController
     public function jsonNoContent(): JsonResponse
     {
         return $this->json([], Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Changes the serializer so that nulls are not output in the response, they are removed.
+     *
+     * @param $data
+     * @param int $status
+     * @param array $headers
+     * @param array $context
+     * @return JsonResponse
+     */
+    public function jsonNoNulls($data, int $status = 200, array $headers = [], array $context = []): JsonResponse
+    {
+        return $this->json($data, $status, $headers, array_merge([AbstractObjectNormalizer::SKIP_NULL_VALUES => true, $context]));
     }
 }

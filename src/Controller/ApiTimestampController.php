@@ -53,7 +53,7 @@ class ApiTimestampController extends BaseController
 
         $items = ApiTimestamp::fromEntities($pagination->getItems(), $this->dateTimeFormatter, $this->getUser(), $this->now());
 
-        return $this->json(ApiPagination::fromPagination($pagination, $items));
+        return $this->jsonNoNulls(ApiPagination::fromPagination($pagination, $items));
     }
 
     #[Route('/api/timestamp', name: 'api_timestamp_create', methods: ["POST"])]
@@ -82,7 +82,7 @@ class ApiTimestampController extends BaseController
 
         $apiTimestamp = ApiTimestamp::fromEntity($this->dateTimeFormatter, $timestamp, $this->getUser(), $now);
 
-        return $this->json($apiTimestamp, Response::HTTP_CREATED);
+        return $this->jsonNoNulls($apiTimestamp, Response::HTTP_CREATED);
     }
 
     #[Route('/api/timestamp/{id}', name: 'api_timestamp_view', methods: ["GET"])]
@@ -107,7 +107,7 @@ class ApiTimestampController extends BaseController
 
         $apiTimestamp = ApiTimestamp::fromEntity($this->dateTimeFormatter, $timestamp, $this->getUser(), $this->now());
 
-        return $this->json($apiTimestamp);
+        return $this->jsonNoNulls($apiTimestamp);
     }
 
     #[Route('/api/timestamp/{id}/delete', name: 'api_timestamp_delete', methods: ["DELETE"])]
@@ -157,7 +157,7 @@ class ApiTimestampController extends BaseController
             $now
         );
 
-        return $this->json($apiTimestamp, Response::HTTP_CREATED);
+        return $this->jsonNoNulls($apiTimestamp, Response::HTTP_CREATED);
     }
 
     #[Route('/api/timestamp/{id}/tag', name: 'api_timestamp_tag_create', methods: ['POST'])]
@@ -212,7 +212,7 @@ class ApiTimestampController extends BaseController
 
         $apiTag = ApiTag::fromEntity($tag);
 
-        return $this->json($apiTag, Response::HTTP_CREATED);
+        return $this->jsonNoNulls($apiTag, Response::HTTP_CREATED);
     }
 
     #[Route('/api/timestamp/{id}/tag/{tagName}', name: 'api_timestamp_tag_delete', methods: ['DELETE'])]
@@ -267,6 +267,6 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        return $this->json(ApiTag::fromEntities($timestamp->getTags()));
+        return $this->jsonNoNulls(ApiTag::fromEntities($timestamp->getTags()));
     }
 }
