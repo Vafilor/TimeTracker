@@ -33,14 +33,24 @@ class StatisticModel
         return $this;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): StatisticModel
+    public function hasDescription(): bool
     {
+        return !is_null($this->description);
+    }
+
+    public function setDescription(?string $description): self
+    {
+        if (is_null($description)) {
+            $description = '';
+        }
+
         $this->description = $description;
+
         return $this;
     }
 

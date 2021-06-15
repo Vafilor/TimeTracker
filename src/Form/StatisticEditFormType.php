@@ -21,12 +21,14 @@ class StatisticEditFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('description', TextareaType::class)
+            ->add('description', TextareaType::class, [
+                'required' => false
+            ])
             ->add('valueType', TextType::class)
             ->add('timeType', ChoiceType::class, [
                 'choices' => [
                     TimeType::instant => 'instant',
-                    TimeType::duration => 'duration'
+                    TimeType::interval => 'interval'
                 ]
             ])
         ;

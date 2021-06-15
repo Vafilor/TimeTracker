@@ -14,15 +14,15 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
 class TimeType
 {
     const instant = 'instant';
-    const duration = 'duration';
+    const interval = 'interval';
 
     public static function isValid(string $type): bool
     {
-        return $type === TimeType::instant || $type === TimeType::duration;
+        return $type === TimeType::instant || $type === TimeType::interval;
     }
 
     public static function invalidErrorMessage(string $type)
     {
-        return "timeType '$type' is invalid. Excepted either 'instant' or 'duration'";
+        return "timeType '$type' is invalid. Excepted either 'instant' or 'interval'";
     }
 }

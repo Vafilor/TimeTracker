@@ -30,27 +30,22 @@ class StatisticEditModel
         $this->setTimeType($timeType);
     }
 
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): StatisticEditModel
-    {
-        $this->name = $name;
-        return $this;
-    }
-
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): StatisticEditModel
+    public function hasDescription(): bool
     {
+        return !is_null($this->description);
+    }
+
+    public function setDescription(?string $description): self
+    {
+        if (is_null($description)) {
+            $description = '';
+        }
+
         $this->description = $description;
         return $this;
     }

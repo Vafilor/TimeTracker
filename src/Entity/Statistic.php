@@ -57,7 +57,7 @@ class Statistic
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @var string One of 'instance' | 'duration'
+     * @var string One of 'instance' | 'interval'
      */
     private $timeType;
 
