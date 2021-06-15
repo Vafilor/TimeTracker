@@ -30,6 +30,29 @@
             </div>
         </div>
 
+        <div class="d-flex mt-2 js-add-statistic">
+            <div class="autocomplete js-autocomplete js-autocomplete-statistic">
+                <div class="d-flex bg-white">
+                    <div class="search">
+                        <input
+                                type="text"
+                                class="js-input"
+                                placeholder="statistic name..."
+                                name="tag"
+                                autocomplete="off">
+                        <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="search-results js-search-results d-none"></div>
+            </div>
+            <div class="ml-2">
+                <input type="text" class="js-statistic-input"/>
+            </div>
+            <button type="button" class="ml-2 btn js-add bg-white btn-outline-primary">
+                Add
+            </button>
+        </div>
+
         {{ form_start(form) }}
         {{ form_widget(form) }}
         <button type="submit" class="btn btn-primary">Update</button>

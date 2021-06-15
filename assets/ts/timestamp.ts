@@ -5,8 +5,8 @@ import TagList, { TagListDelegate } from "./components/tag_index";
 import Flashes from "./components/flashes";
 import { ApiTag } from "./core/api/tag_api";
 import { TimestampApi } from "./core/api/timestamp_api";
-import AutocompleteTags from "./components/autocomplete_tags";
 import { TagAssigner } from "./components/tag_assigner";
+import AutocompleteStatistics from "./components/autocomplete_statistics";
 
 class TimestampApiAdapter implements TagListDelegate {
     constructor(private timestampId: string, private flashes: Flashes) {
@@ -41,4 +41,9 @@ $(document).ready(() => {
 
     const tagList = new TagList($('.js-tags'), new TimestampApiAdapter(timestampId, flashes));
     const autocomplete = new TagAssigner($('.js-autocomplete-tags'), tagList, flashes);
+    const autocompleteStatistic = new AutocompleteStatistics($('.js-autocomplete-statistic'), 'instant');
+
+    $('.js-add-statistic .js-add').on('click', (event) => {
+        console.log('Congratulations, you have been clicked');
+    })
 });
