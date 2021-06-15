@@ -28,6 +28,10 @@ export default class TimerView {
         this.$container.data('start', value);
     }
 
+    get running(): boolean {
+        return this.interval !== null;
+    }
+
     constructor(
         private $container: JQuery,
         protected callback?: any) {

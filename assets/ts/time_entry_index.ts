@@ -344,6 +344,9 @@ class TimeEntryIndexItem {
     private data?: TimeEntryModel;
     private view: TimeEntryView;
     private editView?: TimeEntryEditView;
+    get editing(): boolean {
+        return this.editView !== undefined;
+    }
 
     constructor($container: JQuery, delegate: TimeEntryActionDelegate, durationFormat: string, dateFormat: DateFormat, flashes: Flashes) {
         this.$container = $container;
@@ -421,6 +424,12 @@ class TimeEntryIndexItem {
         if (!timeEntry.endedAtEpoch || !timeEntry.endedAt) {
             throw new Error('timeEntry does not have endedAt or endedAtEpoch');
         }
+
+
+        if (!this.editing) {
+            this.addContinueButtonIfNotExist();
+        }
+
         this.view.setEndedAtData(timeEntry.endedAtEpoch * 1000, timeEntry.endedAt)
 
         if (timeEntry.duration) {
@@ -431,7 +440,7 @@ class TimeEntryIndexItem {
         this.view.removeActivityIndicator();
 
         this.stopButton?.$container.remove();
-        this.addContinueButtonIfNotExist();
+
     }
 
     async stop() {
@@ -569,6 +578,10 @@ class TimeEntryIndexItem {
         this.view.show();
 
         this.data = newData;
+
+        if (!this.durationTimer.running) {
+            this.addContinueButtonIfNotExist();
+        }
 
         setTimeout(() => {
             this.$container.removeClass('edit');
