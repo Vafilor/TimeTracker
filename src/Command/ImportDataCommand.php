@@ -104,7 +104,7 @@ class ImportDataCommand extends Command
         $fileImportOrder = $this->getFileImportOrder($inputPath);
 
         foreach ($fileImportOrder as $filePath) {
-            $absoluteFilePath = __DIR__ . DIRECTORY_SEPARATOR . 'export' . DIRECTORY_SEPARATOR . $filePath;
+            $absoluteFilePath = $inputPath . DIRECTORY_SEPARATOR . $filePath;
 
             $file = new File($absoluteFilePath);
             $fileName = $file->getFilename();
