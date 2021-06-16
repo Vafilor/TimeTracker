@@ -53,7 +53,7 @@ class TimeEntryRepository extends ServiceEntityRepository
             $queryBuilder = $this->createDefaultQueryBuilder();
         }
 
-        $queryBuilder = $queryBuilder->addSelect('tag_link')
+        $queryBuilder = $queryBuilder->addSelect('tag_link, tag')
                                      ->leftJoin('time_entry.tagLinks', 'tag_link')
                                      ->leftJoin('tag_link.tag', 'tag')
         ;
