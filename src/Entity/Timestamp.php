@@ -29,7 +29,7 @@ class Timestamp
      * @ORM\JoinColumn(nullable=false)
      * @var User
      */
-    private $assignedTo;
+    private User $assignedTo;
 
     /**
      * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timestamp", orphanRemoval=true)

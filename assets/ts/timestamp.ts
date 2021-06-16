@@ -7,6 +7,7 @@ import { ApiTag } from "./core/api/tag_api";
 import { TimestampApi } from "./core/api/timestamp_api";
 import { TagAssigner } from "./components/tag_assigner";
 import AutocompleteStatistics from "./components/autocomplete_statistics";
+import { ApiStatistic, StatisticApi } from "./core/api/statistic_api";
 
 class TimestampApiAdapter implements TagListDelegate {
     constructor(private timestampId: string, private flashes: Flashes) {
@@ -42,8 +43,20 @@ $(document).ready(() => {
     const tagList = new TagList($('.js-tags'), new TimestampApiAdapter(timestampId, flashes));
     const autocomplete = new TagAssigner($('.js-autocomplete-tags'), tagList, flashes);
     const autocompleteStatistic = new AutocompleteStatistics($('.js-autocomplete-statistic'), 'instant');
+    autocompleteStatistic.itemSelected.addObserver((val: ApiStatistic) => {
+        autocompleteStatistic.setQuery(val.canonicalName);
+        autocompleteStatistic.clearSearchContent();
+    })
 
     $('.js-add-statistic .js-add').on('click', (event) => {
-        console.log('Congratulations, you have been clicked');
+        const statisticName = autocompleteStatistic.getQuery();
+        const value = $('.js-statistic-input').val() as string;
+
+        TimestampApi.addStatistic(timestampId, {
+            statisticName,
+            value
+        }).then(res => {
+            console.log(res);
+        })
     })
 });

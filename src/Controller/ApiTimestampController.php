@@ -8,13 +8,17 @@ use App\Api\ApiError;
 use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
+use App\Api\ApiStatisticValue;
 use App\Api\ApiTag;
 use App\Api\ApiTimestamp;
+use App\Entity\Statistic;
+use App\Entity\StatisticValue;
 use App\Entity\Tag;
 use App\Entity\TagLink;
 use App\Entity\Timestamp;
 use App\Manager\TagManager;
 use App\Manager\TimestampManager;
+use App\Repository\StatisticRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
@@ -268,5 +272,66 @@ class ApiTimestampController extends BaseController
         }
 
         return $this->jsonNoNulls(ApiTag::fromEntities($timestamp->getTags()));
+    }
+
+    #[Route('/api/timestamp/{id}/statistic', name: 'api_timestamp_statistic_create', methods: ['POST'])]
+    #[Route('/json/timestamp/{id}/statistic', name: 'json_timestamp_statistic_create', methods: ['POST'])]
+    public function addStatisticValue(
+        Request $request,
+        TimestampRepository $timestampRepository,
+        StatisticRepository $statisticRepository,
+        string $id
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        // TODO simplify error throwing - check multiple fields at once. Probably do a form
+        // TODO - how would CLI use this? Probably use the canonical name, which should be unique per assigned user.
+        $data = $this->getJsonBody($request);
+        if (!array_key_exists('statisticName', $data)) {
+            $problem = ApiProblem::withErrors(
+                Response::HTTP_BAD_REQUEST,
+                ApiProblem::TYPE_INVALID_REQUEST_BODY,
+                ApiError::missingProperty('statisticName')
+            );
+
+            throw new ApiProblemException(
+                $problem
+            );
+        }
+
+        if (!array_key_exists('value', $data)) {
+            $problem = ApiProblem::withErrors(
+                Response::HTTP_BAD_REQUEST,
+                ApiProblem::TYPE_INVALID_REQUEST_BODY,
+                ApiError::missingProperty('value')
+            );
+
+            throw new ApiProblemException(
+                $problem
+            );
+        }
+
+        $name = Statistic::canonicalizeName($data['statisticName']);
+        $value = floatval($data['value']);
+
+        $statistic = $statisticRepository->findOneBy(['canonicalName' => $name, 'assignedTo' => $this->getUser()]);
+        if (is_null($statistic)) {
+            $statistic = new Statistic($this->getUser(), $name);
+            $this->getDoctrine()->getManager()->persist($statistic);
+        }
+
+        $statisticValue = StatisticValue::fromTimestamp($statistic, $value, $timestamp);
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->persist($statisticValue);
+        $manager->flush();
+
+        $apiModel = ApiStatisticValue::fromEntity($statisticValue);
+
+        return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
     }
 }

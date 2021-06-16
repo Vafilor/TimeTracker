@@ -5,18 +5,15 @@ declare(strict_types=1);
 namespace App\Api;
 
 use App\Entity\Statistic;
+use App\Entity\StatisticValue;
 
-class ApiStatistic
+class ApiStatisticValue
 {
-    public string $name;
-    public string $canonicalName;
+    public string $value;
 
-    public static function fromEntity(Statistic $statistic): ApiStatistic
+    public static function fromEntity(StatisticValue $statisticValue): ApiStatisticValue
     {
-        $entity = new ApiStatistic($statistic->getName());
-        $entity->canonicalName = $statistic->getCanonicalName();
-
-        return $entity;
+        return new ApiStatisticValue($statisticValue->getValue());
     }
 
     /**
@@ -33,8 +30,8 @@ class ApiStatistic
         return $items;
     }
 
-    public function __construct(string $name)
+    public function __construct(string $value)
     {
-        $this->name = $name;
+        $this->value = $value;
     }
 }

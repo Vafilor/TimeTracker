@@ -27,52 +27,51 @@ class Statistic
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @var string
      */
-    private $icon;
+    private string $icon;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @var string
      */
-    private $name;
+    private string $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @var string
      */
-    private $canonicalName;
+    private string $canonicalName;
 
     /**
      * @ORM\Column(type="text")
-     * @var string
      */
-    private $description;
+    private string $description;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @var string
      */
-    private $valueType;
+    private string $valueType;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @var string One of 'instance' | 'interval'
      */
-    private $timeType;
+    private string $timeType;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=false)
-     * @var User
      */
-    private $assignedTo;
+    private User $assignedTo;
 
     /**
      * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timeEntry")
      * @var TagLink[]
      */
     private $tagLinks;
+
+    public static function canonicalizeName(string $name): string
+    {
+        return trim(strtolower($name));
+    }
 
     public function __construct(User $assignedTo, string $name)
     {
@@ -84,11 +83,6 @@ class Statistic
         $this->valueType = 'int';
         $this->timeType = TimeType::instant;
         $this->tagLinks = new ArrayCollection();
-    }
-
-    private function canonicalizeName(string $name): string
-    {
-        return trim(strtolower($name));
     }
 
     public function getCanonicalName(): string
@@ -105,7 +99,7 @@ class Statistic
     {
         $this->name = $name;
 
-        $this->canonicalName = $this->canonicalizeName($name);
+        $this->canonicalName = self::canonicalizeName($name);
 
         return $this;
     }
@@ -115,7 +109,7 @@ class Statistic
         return $this->icon;
     }
 
-    public function setIcon(?string $icon): self
+    public function setIcon(string $icon): self
     {
         $this->icon = $icon;
 

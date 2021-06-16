@@ -1,5 +1,6 @@
 import { CoreApi } from "./api";
 import { ApiTag } from "./tag_api";
+import { AddStatisticRequest, ApiStatisticValue } from "./statistic_api";
 
 export interface ApiTimestamp {
     id: string;
@@ -28,5 +29,9 @@ export class TimestampApi {
 
     public static repeat(timestampId: string) {
         return CoreApi.post<ApiTimestamp>(`/json/timestamp/${timestampId}/repeat`, {});
+    }
+
+    public static addStatistic(timestampId: string, request: AddStatisticRequest) {
+        return CoreApi.post<ApiStatisticValue>(`/json/timestamp/${timestampId}/statistic`, request);
     }
 }

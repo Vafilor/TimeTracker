@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\StatisticValue;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,32 +21,26 @@ class StatisticValueRepository extends ServiceEntityRepository
         parent::__construct($registry, StatisticValue::class);
     }
 
-    // /**
-    //  * @return StatisticValue[] Returns an array of StatisticValue objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function createDefaultQueryBuilder(): QueryBuilder
     {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        return $this->createQueryBuilder('statistic_value');
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?StatisticValue
+    public function findWithUserQueryBuilder(User $user): QueryBuilder
     {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
+        return $this->createDefaultQueryBuilder()
+                    ->addSelect('statistic')
+                    ->join('statistic_value.statistic', 'statistic')
+                    ->andWhere('statistic.assignedTo = :user')
+                    ->setParameter('user', $user)
         ;
     }
-    */
+
+    public function findWithUser(User $user)
+    {
+        return $this->findWithUserQueryBuilder($user)
+                    ->getQuery()
+                    ->getResult()
+        ;
+    }
 }

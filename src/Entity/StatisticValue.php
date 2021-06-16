@@ -5,9 +5,12 @@ namespace App\Entity;
 use App\Repository\StatisticValueRepository;
 use App\Traits\CreateTimestampableTrait;
 use App\Traits\UUIDTrait;
+use App\Util\TimeType;
 use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=StatisticValueRepository::class)
@@ -20,58 +23,75 @@ class StatisticValue
     /**
      * @ORM\ManyToOne(targetEntity=Statistic::class)
      * @ORM\JoinColumn(nullable=false)
-     * @var Statistic
      */
-    private $statistic;
+    private Statistic $statistic;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @var string
+     * @ORM\Column(type="float")
      */
-    private $value;
+    private float $value;
 
     /**
      * @ORM\Column(type="datetimetz")
-     * @var DateTime
      */
-    protected $startedAt;
+    protected DateTime $startedAt;
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
-     * @var DateTime|null
      */
-    protected $endedAt;
+    protected ?DateTime $endedAt;
 
     /**
      * @ORM\ManyToOne(targetEntity=TimeEntry::class)
-     * @var TimeEntry|null
      */
-    private $timeEntry;
+    private ?TimeEntry $timeEntry;
 
     /**
      * @ORM\ManyToOne(targetEntity=Timestamp::class, inversedBy="statisticValues")
-     * @var Timestamp|null
      */
-    private $timestamp;
+    private ?Timestamp $timestamp;
 
-    public function getStatistic(): ?Statistic
+    public static function fromTimestamp(Statistic $statistic, float $value, Timestamp $timestamp): StatisticValue
+    {
+        if ($statistic->getTimeType() !== TimeType::instant) {
+            throw new InvalidArgumentException("Statistic is not an 'instant' type. Unable to associate to timestamp");
+        }
+
+        $value = new StatisticValue($statistic, $value);
+
+        $value->setStartedAt($timestamp->getCreatedAt());
+        $value->setEndedAt($timestamp->getCreatedAt());
+        $value->setTimestamp($timestamp);
+
+        return $value;
+    }
+
+    public function __construct(Statistic $statistic, float $value)
+    {
+        $this->id = Uuid::uuid4();
+        $this->markCreated();
+        $this->statistic = $statistic;
+        $this->value = $value;
+    }
+
+    public function getStatistic(): Statistic
     {
         return $this->statistic;
     }
 
-    public function setStatistic(?Statistic $statistic): self
+    public function setStatistic(Statistic $statistic): self
     {
         $this->statistic = $statistic;
 
         return $this;
     }
 
-    public function getValue(): ?string
+    public function getValue(): string
     {
         return $this->value;
     }
 
-    public function setValue(string $value): self
+    public function setValue(float $value): self
     {
         $this->value = $value;
 
@@ -123,5 +143,10 @@ class StatisticValue
         $this->timestamp = $timestamp;
 
         return $this;
+    }
+
+    public function hasResource(): bool
+    {
+        return !is_null($this->timestamp) || !is_null($this->timeEntry);
     }
 }

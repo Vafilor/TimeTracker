@@ -30,6 +30,10 @@
             </div>
         </div>
 
+        {% for value in timestamp.statisticValues %}
+            <div>{{ value.statistic.name }} : {{ value.value }}</div>
+        {% endfor %}
+
         <div class="d-flex mt-2 js-add-statistic">
             <div class="autocomplete js-autocomplete js-autocomplete-statistic">
                 <div class="d-flex bg-white">
@@ -48,7 +52,7 @@
             <div class="ml-2">
                 <input type="text" class="js-statistic-input"/>
             </div>
-            <button type="button" class="ml-2 btn js-add bg-white btn-outline-primary">
+            <button type="button" class="ml-2 btn js-add btn-outline-primary">
                 Add
             </button>
         </div>
