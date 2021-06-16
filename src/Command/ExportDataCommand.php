@@ -111,6 +111,13 @@ class ExportDataCommand extends Command
 
         $fileExportOrderPath = $outputPath . DIRECTORY_SEPARATOR . 'order.json';
 
+        // Make sure the paths in the fileExportOrder are relative
+        $prefixLength = strlen($outputPath . DIRECTORY_SEPARATOR);
+        $fileExportOrder = array_map(
+            fn (string $path) => substr($path, $prefixLength),
+            $fileExportOrder
+        );
+
         file_put_contents($fileExportOrderPath, $this->serializer->serialize($fileExportOrder, 'json'));
 
         $io->success("Data successfully exported to $outputPath");
