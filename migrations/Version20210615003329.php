@@ -24,7 +24,7 @@ final class Version20210615003329 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_649B469CF4BD7827 ON statistic (assigned_to_id)');
         $this->addSql('COMMENT ON COLUMN statistic.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN statistic.assigned_to_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('CREATE TABLE statistic_value (id UUID NOT NULL, statistic_id UUID NOT NULL, time_entry_id UUID DEFAULT NULL, timestamp_id UUID DEFAULT NULL, value VARCHAR(255) NOT NULL, started_at TIMESTAMP(0) WITH TIME ZONE NOT NULL, ended_at TIMESTAMP(0) WITH TIME ZONE DEFAULT NULL, created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE statistic_value (id UUID NOT NULL, statistic_id UUID NOT NULL, time_entry_id UUID DEFAULT NULL, timestamp_id UUID DEFAULT NULL, value DOUBLE PRECISION NOT NULL, started_at TIMESTAMP(0) WITH TIME ZONE NOT NULL, ended_at TIMESTAMP(0) WITH TIME ZONE DEFAULT NULL, created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_FC7CA2053B6268F ON statistic_value (statistic_id)');
         $this->addSql('CREATE INDEX IDX_FC7CA201EB30A8E ON statistic_value (time_entry_id)');
         $this->addSql('CREATE INDEX IDX_FC7CA202F202E84 ON statistic_value (timestamp_id)');
