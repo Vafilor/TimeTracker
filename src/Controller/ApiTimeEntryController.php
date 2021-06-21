@@ -700,16 +700,14 @@ class ApiTimeEntryController extends BaseController
 
         /** @var AddStatisticValue $data */
         $data = $form->getData();
-        $name = $data->getStatisticName();
         $value = $data->getValue();
 
-        $statistic = $statisticRepository->findOneBy(['canonicalName' => $name, 'assignedTo' => $this->getUser()]);
+        // TODO add a manager and add a method find or create.
+        $statistic = $statisticRepository->findOneBy(['canonicalName' => $data->getCanonicalStatisticName(), 'assignedTo' => $this->getUser()]);
         if (is_null($statistic)) {
-            $statistic = new Statistic($this->getUser(), $name, 'interval');
+            $statistic = new Statistic($this->getUser(), $data->getStatisticName(), 'interval');
             $this->getDoctrine()->getManager()->persist($statistic);
         }
-
-        // TODO update statistic values when a time entry is stopped/ended
 
         $statisticValue = StatisticValue::fromTimeEntry($statistic, $value, $timeEntry);
 

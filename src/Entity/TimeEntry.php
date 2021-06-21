@@ -149,6 +149,10 @@ class TimeEntry
 
         $this->endedAt = $endedAt;
 
+        foreach ($this->getStatisticValues() as $statisticValue) {
+            $statisticValue->setEndedAt($endedAt);
+        }
+
         return $this;
     }
 

@@ -45,6 +45,11 @@ class AddStatisticValue
      */
     public function getStatisticName(): string
     {
+        return $this->statisticName;
+    }
+
+    public function getCanonicalStatisticName(): string
+    {
         return Statistic::canonicalizeName($this->statisticName);
     }
 
