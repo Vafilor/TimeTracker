@@ -19,6 +19,7 @@ use App\Entity\Timestamp;
 use App\Manager\TagManager;
 use App\Manager\TimestampManager;
 use App\Repository\StatisticRepository;
+use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
@@ -333,5 +334,29 @@ class ApiTimestampController extends BaseController
         $apiModel = ApiStatisticValue::fromEntity($statisticValue);
 
         return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
+    }
+
+    #[Route('/api/timestamp/{id}/statistic/{statisticId}', name: 'api_timestamp_statistic_delete', methods: ['DELETE'])]
+    #[Route('/json/timestamp/{id}/statistic/{statisticId}', name: 'json_timestamp_statistic_delete', methods: ['DELETE'])]
+    public function removeStatisticValue(
+        Request $request,
+        TimestampRepository $timestampRepository,
+        StatisticValueRepository $statisticValueRepository,
+        string $id,
+        string $statisticId,
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $statisticValue = $statisticValueRepository->findOrException($statisticId);
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($statisticValue);
+        $manager->flush();
+
+        return $this->jsonNoContent();
     }
 }

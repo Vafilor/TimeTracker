@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\StatisticValue;
 use App\Entity\User;
+use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -11,11 +12,14 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @method StatisticValue|null find($id, $lockMode = null, $lockVersion = null)
  * @method StatisticValue|null findOneBy(array $criteria, array $orderBy = null)
+ * @method StatisticValue findOneByOrException(array $criteria, array $orderBy = null)
  * @method StatisticValue[]    findAll()
  * @method StatisticValue[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class StatisticValueRepository extends ServiceEntityRepository
 {
+    use FindOrExceptionTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, StatisticValue::class);

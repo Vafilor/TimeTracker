@@ -8,12 +8,14 @@ export interface ApiStatistic {
 }
 
 export interface ApiStatisticValue {
-    value: string;
+    id: string;
+    name: string;
+    value: number;
 }
 
 export interface AddStatisticRequest {
     statisticName: string;
-    value: string;
+    value: number;
 }
 
 export class StatisticApi {

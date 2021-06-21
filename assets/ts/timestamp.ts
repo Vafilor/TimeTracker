@@ -7,7 +7,10 @@ import { ApiTag } from "./core/api/tag_api";
 import { TimestampApi } from "./core/api/timestamp_api";
 import { TagAssigner } from "./components/tag_assigner";
 import AutocompleteStatistics from "./components/autocomplete_statistics";
-import { ApiStatistic, StatisticApi } from "./core/api/statistic_api";
+import { ApiStatistic, ApiStatisticValue, StatisticApi } from "./core/api/statistic_api";
+import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/StatisticValuePicker";
+import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/StatisticValueList";
+import { JsonResponse } from "./core/api/api";
 
 class TimestampApiAdapter implements TagListDelegate {
     constructor(private timestampId: string, private flashes: Flashes) {
@@ -33,6 +36,22 @@ class TimestampApiAdapter implements TagListDelegate {
     }
 }
 
+class TimestampStatisticDelegate implements StatisticValueListDelegate{
+    constructor(private timestampId: string) {
+    }
+
+    add(value: AddStatisticValue): Promise<JsonResponse<ApiStatisticValue>> {
+        return TimestampApi.addStatistic(this.timestampId, {
+            statisticName: value.name,
+            value: value.value
+        });
+    }
+
+    remove(id: string): Promise<JsonResponse<void>> {
+        return TimestampApi.removeStatistic(this.timestampId, id);
+    }
+}
+
 $(document).ready(() => {
     const $data = $('.js-data');
     const timestampId = $data.data('timestamp-id');
@@ -42,21 +61,14 @@ $(document).ready(() => {
 
     const tagList = new TagList($('.js-tags'), new TimestampApiAdapter(timestampId, flashes));
     const autocomplete = new TagAssigner($('.js-autocomplete-tags'), tagList, flashes);
-    const autocompleteStatistic = new AutocompleteStatistics($('.js-autocomplete-statistic'), 'instant');
-    autocompleteStatistic.itemSelected.addObserver((val: ApiStatistic) => {
-        autocompleteStatistic.setQuery(val.canonicalName);
-        autocompleteStatistic.clearSearchContent();
-    })
 
-    $('.js-add-statistic .js-add').on('click', (event) => {
-        const statisticName = autocompleteStatistic.getQuery();
-        const value = $('.js-statistic-input').val() as string;
+    const statisticValueList = new StatisticValueList($('.statistic-values'), new TimestampStatisticDelegate(timestampId));
 
-        TimestampApi.addStatistic(timestampId, {
-            statisticName,
-            value
-        }).then(res => {
-            console.log(res);
-        })
-    })
+    const statisticValuePicker = new StatisticValuePicker($('.js-add-statistic'), 'instant');
+    statisticValuePicker.valuePicked.addObserver((event: StatisticValuePickedEvent) => {
+        statisticValueList.addRequest({
+            name: event.name,
+            value: event.value
+        });
+    });
 });

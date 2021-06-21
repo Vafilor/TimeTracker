@@ -30,39 +30,55 @@
             </div>
         </div>
 
-        {% for value in timestamp.statisticValues %}
-            <div>{{ value.statistic.name }} : {{ value.value }}</div>
-        {% endfor %}
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
 
-        <div class="d-flex mt-2 js-add-statistic">
+        <label>Data</label>
+        <div class="d-flex mt-2 js-add-statistic add-statistic">
             <div class="autocomplete js-autocomplete js-autocomplete-statistic">
                 <div class="d-flex bg-white">
                     <div class="search">
                         <input
                                 type="text"
                                 class="js-input"
-                                placeholder="statistic name..."
-                                name="tag"
+                                placeholder="name..."
+                                name="statistic-name"
                                 autocomplete="off">
-                        <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
+                        <button type="button" class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
                 <div class="search-results js-search-results d-none"></div>
             </div>
-            <div class="ml-2">
-                <input type="text" class="js-statistic-input"/>
-            </div>
-            <button type="button" class="ml-2 btn js-add btn-outline-primary">
+            <input
+                    type="number"
+                    class="js-statistic-input border rounded ml-2 focusable"
+                    placeholder="value..."
+                    autocomplete="off"
+            />
+            <button type="button" class="ml-2 btn btn-sm js-add btn-outline-primary">
                 Add
             </button>
         </div>
+        <div class="statistic-values mt-2">
+        {% for value in timestamp.statisticValues %}
+            <div class="statistic-value-row" data-id="{{ value.idString }}">
+                <div class="content">
+                    <span class="statistic-name">{{ value.statistic.name }}</span>
+                    <span class="statistic-value ml-3">{{ value.value }}</span>
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm rounded-left-0 js-delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        {% endfor %}
+        </div>
 
-        {{ form_start(form) }}
-        {{ form_widget(form) }}
-        <button type="submit" class="btn btn-primary">Update</button>
-        <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#delete-modal">
-            Delete
-        </button>
+        <div class="mt-2">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#delete-modal">
+                Delete
+            </button>
+        </div>
         {{ form_end(form) }}
     </div>
 

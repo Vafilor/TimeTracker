@@ -66,6 +66,9 @@ abstract class Autocomplete {
      */
     public readonly inputChange = new Observable<string>();
 
+    /**
+     * This is fired whenever the search query is cleared.
+     */
     public readonly inputClear = new Observable<void>();
 
     /**
@@ -210,6 +213,20 @@ abstract class Autocomplete {
         this.cancelled = true;
         this.inputClear.emit();
     }
+
+    /**
+     * Triggers blur on the input.
+     */
+    blur() {
+        this.$input.trigger('blur');
+    }
+
+    /**
+     * Triggers focus on the input.
+     */
+    focus() {
+        this.$input.trigger('focus');
+    }
 }
 
 export interface AutocompleteEnterPressedEvent<T> {
@@ -327,9 +344,6 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
         }
 
         this.itemIndexFocused = index - 1;
-
-        // TODO updated select color and make sure to handle enter press.
-
     }
 
     /**

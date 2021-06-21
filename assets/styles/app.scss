@@ -392,3 +392,49 @@ input {
         transition: top 0.3s;
     }
 }
+
+.statistic-values {
+    max-width: 300px;
+
+    .statistic-value-row {
+        display: flex;
+        justify-content: space-between;
+        border: 1px solid $input-border-color;
+        border-radius: $input-border-radius;
+        background-color: white;
+        transition: opacity 0.3s;
+
+        &.disabled {
+            opacity: 0.65;
+        }
+
+        .content {
+            padding: 5px 0 5px 10px;
+        }
+
+        margin-top: 2px;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+    }
+}
+
+input {
+    &.focusable {
+        &:focus {
+            color: #495057;
+            background-color: #fff;
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
+        }
+    }
+}
+
+.add-statistic {
+    .js-statistic-input {
+        padding-left: 5px;
+    }
+}

@@ -34,4 +34,8 @@ export class TimestampApi {
     public static addStatistic(timestampId: string, request: AddStatisticRequest) {
         return CoreApi.post<ApiStatisticValue>(`/json/timestamp/${timestampId}/statistic`, request);
     }
+
+    public static removeStatistic(timestampId: string, statisticId: string) {
+        return CoreApi.delete(`/json/timestamp/${timestampId}/statistic/${statisticId}`);
+    }
 }
