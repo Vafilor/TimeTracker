@@ -35,13 +35,13 @@ class Timestamp
      * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timestamp", orphanRemoval=true)
      * @var TagLink[]|Collection
      */
-    private $tagLinks;
+    private Collection $tagLinks;
 
     /**
      * @ORM\OneToMany(targetEntity=StatisticValue::class, mappedBy="timestamp")
      * @var StatisticValue[]|Collection
      */
-    private $statisticValues;
+    private Collection $statisticValues;
 
     public function __construct(User $assignedTo)
     {

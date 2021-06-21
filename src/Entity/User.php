@@ -11,6 +11,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -23,42 +24,41 @@ class User extends BaseUser
 
     /**
      * @ORM\Column(type="string")
-     * @var string
      */
-    private $timezone;
+    private string $timezone;
 
     /**
      * @ORM\Column(type="string")
-     * @var string
      */
-    private $dateFormat;
+    private string $dateFormat;
 
     /**
      * @ORM\Column(type="string")
-     * @var string
      */
-    private $todayDateFormat;
+    private string $todayDateFormat;
 
     /**
      * @ORM\Column(type="string")
-     * @var string
      */
-    private $durationFormat;
+    private string $durationFormat;
 
     /**
      * @ORM\OneToMany(targetEntity=Task::class, mappedBy="assignedTo", orphanRemoval=true)
+     * @var Task[]|Collection
      */
-    private $tasks;
+    private Collection $tasks;
 
     /**
      * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="assignedTo")
+     * @var TimeEntry[]|Collection
      */
-    private $timeEntries;
+    private Collection $timeEntries;
 
     public function __construct(DateTime $createdAt = null)
     {
         parent::__construct();
 
+        $this->id = Uuid::uuid4();
         $this->timeEntries = new ArrayCollection();
         $this->timezone = "America/Los_Angeles";
         $this->dateFormat = 'm/d/Y h:i:s A';

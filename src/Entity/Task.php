@@ -30,59 +30,53 @@ class Task
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
-     * @var DateTime|null
      */
-    private $completedAt;
+    private ?DateTime $completedAt;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @var string
      */
-    private $name;
+    private string $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @var string
      */
-    private $canonicalName;
+    private string $canonicalName;
 
     /**
      * @ORM\Column(type="text")
-     * @var string
      */
-    private $description;
+    private string $description;
 
     /**
      * @ORM\Column(type="integer")
-     * @var int
      */
-    private $priority;
+    private int $priority;
 
     /**
      * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="task")
      * @var TimeEntry[]|Collection
      */
-    private $timeEntries;
+    private Collection $timeEntries;
 
     /**
      * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="task")
      * @var TagLink[]|Collection
      */
-    private $tagLinks;
+    private Collection $tagLinks;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tasks")
      * @ORM\JoinColumn(nullable=false)
-     * @var User
      */
-    private $assignedTo;
+    private User $assignedTo;
 
     public function __construct(User $assignedTo, string $name)
     {
         $this->id = Uuid::uuid4();
+        $this->markCreated();
         $this->assignTo($assignedTo);
         $this->setName($name);
-        $this->markCreated();
         $this->updatedAt = $this->createdAt;
         $this->timeEntries = new ArrayCollection();
         $this->description = '';

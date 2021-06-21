@@ -17,44 +17,38 @@ class TagLink
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @var int
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=TimeEntry::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=true)
-     * @var TimeEntry|null
      */
-    private $timeEntry;
+    private ?TimeEntry $timeEntry;
 
     /**
      * @ORM\ManyToOne(targetEntity=Timestamp::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=true)
-     * @var Timestamp|null
      */
-    private $timestamp;
+    private ?Timestamp $timestamp;
 
     /**
      * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=true)
-     * @var Task|null
      */
-    private $task;
+    private ?Task $task;
 
     /**
      * @ORM\ManyToOne(targetEntity=Tag::class)
      * @ORM\JoinColumn(nullable=false)
-     * @var Tag
      */
-    private $tag;
+    private Tag $tag;
 
     /**
      * @ORM\ManyToOne(targetEntity=Statistic::class)
      * @ORM\JoinColumn(nullable=true)
-     * @var Statistic
      */
-    private $statistic;
+    private ?Statistic $statistic;
 
     public function __construct(mixed $resource, Tag $tag)
     {
@@ -66,7 +60,7 @@ class TagLink
             $this->timestamp = $resource;
         } elseif ($resource instanceof Task) {
             $this->task = $resource;
-        } else if ($resource instanceof Statistic) {
+        } elseif ($resource instanceof Statistic) {
             $this->statistic = $resource;
         } else {
             throw new InvalidArgumentException("Resource for TagLink not supported");
