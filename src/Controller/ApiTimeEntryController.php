@@ -9,18 +9,25 @@ use App\Api\ApiFormError;
 use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
+use App\Api\ApiStatisticValue;
 use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Api\ApiTimeEntry;
+use App\Entity\Statistic;
+use App\Entity\StatisticValue;
 use App\Entity\Tag;
 use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Entity\TimeEntry;
+use App\Form\AddStatisticValueFormType;
+use App\Form\Model\AddStatisticValue;
 use App\Form\Model\TimeEntryListFilterModel;
 use App\Form\Model\TimeEntryModel;
 use App\Form\TimeEntryFormType;
 use App\Form\TimeEntryListFilterFormType;
 use App\Manager\TagManager;
+use App\Repository\StatisticRepository;
+use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
@@ -652,5 +659,90 @@ class ApiTimeEntryController extends BaseController
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
 
         return $this->jsonNoNulls($apiTimeEntry);
+    }
+
+    #[Route('/api/time-entry/{id}/statistic', name: 'api_time_entry_statistic_create', methods: ['POST'])]
+    #[Route('/json/time-entry/{id}/statistic', name: 'json_time_entry_statistic_create', methods: ['POST'])]
+    public function addStatisticValue(
+        Request $request,
+        TimeEntryRepository $timeEntryRepository,
+        StatisticRepository $statisticRepository,
+        string $id
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValue(), [
+            'csrf_protection' => false
+        ]);
+
+        $data = $this->getJsonBody($request);
+
+        try {
+            $form->submit($data);
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
+        }
+
+        if (!$form->isSubmitted()) {
+            throw new ApiProblemException(
+                ApiFormError::invalidAction('bad_data', 'Form not submitted')
+            );
+        }
+
+        if (!$form->isValid()) {
+            $formError = new ApiFormError($form->getErrors(true));
+            throw new ApiProblemException($formError);
+        }
+
+        /** @var AddStatisticValue $data */
+        $data = $form->getData();
+        $name = $data->getStatisticName();
+        $value = $data->getValue();
+
+        $statistic = $statisticRepository->findOneBy(['canonicalName' => $name, 'assignedTo' => $this->getUser()]);
+        if (is_null($statistic)) {
+            $statistic = new Statistic($this->getUser(), $name, 'interval');
+            $this->getDoctrine()->getManager()->persist($statistic);
+        }
+
+        // TODO update statistic values when a time entry is stopped/ended
+
+        $statisticValue = StatisticValue::fromTimeEntry($statistic, $value, $timeEntry);
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->persist($statisticValue);
+        $manager->flush();
+
+        $apiModel = ApiStatisticValue::fromEntity($statisticValue);
+
+        return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
+    }
+
+    #[Route('/api/time-entry/{id}/statistic/{statisticId}', name: 'api_time_entry_statistic_delete', methods: ['DELETE'])]
+    #[Route('/json/time-entry/{id}/statistic/{statisticId}', name: 'json_time_entry_statistic_delete', methods: ['DELETE'])]
+    public function removeStatisticValue(
+        Request $request,
+        TimeEntryRepository $timeEntryRepository,
+        StatisticValueRepository $statisticValueRepository,
+        string $id,
+        string $statisticId,
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $statisticValue = $statisticValueRepository->findOrException($statisticId);
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($statisticValue);
+        $manager->flush();
+
+        return $this->jsonNoContent();
     }
 }

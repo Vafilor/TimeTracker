@@ -91,6 +91,8 @@ export default class StatisticValueList {
         this.delegate.add(value)
             .then(res => {
                 this.add(res.data, id);
+            }, (err) => {
+                this.removePending(id);
             })
         ;
     }
@@ -104,6 +106,17 @@ export default class StatisticValueList {
         $html.data('id', value.id);
 
         this.enableStatisticValue($html);
+        this.pendingItems.delete(id);
+    }
+
+    private removePending(id: string) {
+        const $html = this.pendingItems.get(id);
+        if (!$html) {
+            return;
+        }
+
+        $html.remove();
+
         this.pendingItems.delete(id);
     }
 }

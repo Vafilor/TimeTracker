@@ -73,7 +73,7 @@ class Statistic
         return trim(strtolower($name));
     }
 
-    public function __construct(User $assignedTo, string $name)
+    public function __construct(User $assignedTo, string $name, string $timeType = TimeType::instant)
     {
         $this->id = Uuid::uuid4();
         $this->assignTo($assignedTo);
@@ -81,7 +81,7 @@ class Statistic
         $this->markCreated();
         $this->description = '';
         $this->valueType = 'int';
-        $this->timeType = TimeType::instant;
+        $this->setTimeType($timeType);
         $this->tagLinks = new ArrayCollection();
     }
 

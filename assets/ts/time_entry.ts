@@ -11,6 +11,11 @@ import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 import { TagAssigner } from "./components/tag_assigner";
 import TimerView from "./components/timer";
+import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/StatisticValueList";
+import { JsonResponse } from "./core/api/api";
+import { ApiStatisticValue } from "./core/api/statistic_api";
+import { TimestampApi } from "./core/api/timestamp_api";
+import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/StatisticValuePicker";
 
 class TimeEntryAutoMarkdown extends AutoMarkdown {
     private readonly timeEntryId: string;
@@ -28,6 +33,22 @@ class TimeEntryAutoMarkdown extends AutoMarkdown {
         return TimeEntryApi.update(this.timeEntryId, {
             description: body,
         });
+    }
+}
+
+class TimeEntryStatisticDelegate implements StatisticValueListDelegate{
+    constructor(private timeEntryId: string) {
+    }
+
+    add(value: AddStatisticValue): Promise<JsonResponse<ApiStatisticValue>> {
+        return TimeEntryApi.addStatistic(this.timeEntryId, {
+            statisticName: value.name,
+            value: value.value
+        });
+    }
+
+    remove(id: string): Promise<JsonResponse<void>> {
+        return TimeEntryApi.removeStatistic(this.timeEntryId, id);
     }
 }
 
@@ -69,6 +90,20 @@ class TimeEntryPage {
 
             this.timerView.start();
         }
+
+        this.addStatisticData();
+    }
+
+    private addStatisticData() {
+        const statisticValueList = new StatisticValueList($('.statistic-values'), new TimeEntryStatisticDelegate(this.timeEntryId));
+
+        const statisticValuePicker = new StatisticValuePicker($('.js-add-statistic'), 'interval');
+        statisticValuePicker.valuePicked.addObserver((event: StatisticValuePickedEvent) => {
+            statisticValueList.addRequest({
+                name: event.name,
+                value: event.value
+            });
+        });
     }
 }
 

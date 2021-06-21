@@ -42,7 +42,7 @@ class StatisticValue
     protected ?DateTime $endedAt;
 
     /**
-     * @ORM\ManyToOne(targetEntity=TimeEntry::class)
+     * @ORM\ManyToOne(targetEntity=TimeEntry::class, inversedBy="statisticValues")
      */
     private ?TimeEntry $timeEntry;
 
@@ -62,6 +62,21 @@ class StatisticValue
         $value->setStartedAt($timestamp->getCreatedAt());
         $value->setEndedAt($timestamp->getCreatedAt());
         $value->setTimestamp($timestamp);
+
+        return $value;
+    }
+
+    public static function fromTimeEntry(Statistic $statistic, float $value, TimeEntry $timeEntry): StatisticValue
+    {
+        if ($statistic->getTimeType() !== TimeType::interval) {
+            throw new InvalidArgumentException("Statistic is not an 'interval' type. Unable to associate to time-entry");
+        }
+
+        $value = new StatisticValue($statistic, $value);
+
+        $value->setStartedAt($timeEntry->getStartedAt());
+        $value->setEndedAt($timeEntry->getEndedAt());
+        $value->setTimeEntry($timeEntry);
 
         return $value;
     }
@@ -114,9 +129,12 @@ class StatisticValue
         return $this->endedAt;
     }
 
-    public function setEndedAt(DateTime $endedAt): static
+    public function setEndedAt(?DateTime $endedAt): static
     {
-        $endedAt->setTimezone(new DateTimeZone('UTC'));
+        if ($endedAt) {
+            $endedAt->setTimezone(new DateTimeZone('UTC'));
+        }
+
         $this->endedAt = $endedAt;
         return $this;
     }

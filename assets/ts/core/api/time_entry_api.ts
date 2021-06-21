@@ -1,6 +1,7 @@
 import { CoreApi, JsonResponse } from "./api";
 import { ApiTag } from "./tag_api";
 import { ApiTask } from "./task_api";
+import { AddStatisticRequest, ApiStatisticValue } from "./statistic_api";
 
 export type DateFormat = 'date' | 'today';
 
@@ -142,5 +143,13 @@ export class TimeEntryApi {
     public static getActive() {
         const url = '/json/time-entry/active';
         return CoreApi.get<ApiTimeEntry|null>(url);
+    }
+
+    public static addStatistic(timeEntryId: string, request: AddStatisticRequest) {
+        return CoreApi.post<ApiStatisticValue>(`/json/time-entry/${timeEntryId}/statistic`, request);
+    }
+
+    public static removeStatistic(timeEntryId: string, statisticId: string) {
+        return CoreApi.delete(`/json/time-entry/${timeEntryId}/statistic/${statisticId}`);
     }
 }
