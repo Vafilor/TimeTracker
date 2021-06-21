@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use App\Form\Model\AddStatisticValue;
 use App\Form\Model\StatisticEditModel;
 use App\Util\TimeType;
 use Symfony\Component\Form\AbstractType;
@@ -13,28 +14,20 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class StatisticEditFormType extends AbstractType
+class AddStatisticValueFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('description', TextareaType::class, [
-                'required' => false
-            ])
-            ->add('valueType', TextType::class)
-            ->add('timeType', ChoiceType::class, [
-                'choices' => [
-                    TimeType::instant => 'instant',
-                    TimeType::interval => 'interval'
-                ]
-            ])
+            ->add('statisticName', TextType::class)
+            ->add('value', TextType::class)
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-                                   'data_class' => StatisticEditModel::class
+                                   'data_class' => AddStatisticValue::class
                                ]);
     }
 }

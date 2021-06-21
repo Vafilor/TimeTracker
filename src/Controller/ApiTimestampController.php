@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiError;
+use App\Api\ApiFormError;
 use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
@@ -16,6 +17,9 @@ use App\Entity\StatisticValue;
 use App\Entity\Tag;
 use App\Entity\TagLink;
 use App\Entity\Timestamp;
+use App\Form\AddStatisticFormType;
+use App\Form\AddStatisticValueFormType;
+use App\Form\Model\AddStatisticValue;
 use App\Manager\TagManager;
 use App\Manager\TimestampManager;
 use App\Repository\StatisticRepository;
@@ -23,6 +27,7 @@ use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
+use InvalidArgumentException;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -289,35 +294,33 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        // TODO simplify error throwing - check multiple fields at once. Probably do a form
-        // TODO - how would CLI use this? Probably use the canonical name, which should be unique per assigned user.
+        $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValue(), [
+            'csrf_protection' => false
+        ]);
+
         $data = $this->getJsonBody($request);
-        if (!array_key_exists('statisticName', $data)) {
-            $problem = ApiProblem::withErrors(
-                Response::HTTP_BAD_REQUEST,
-                ApiProblem::TYPE_INVALID_REQUEST_BODY,
-                ApiError::missingProperty('statisticName')
-            );
 
+        try {
+            $form->submit($data);
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
+        }
+
+        if (!$form->isSubmitted()) {
             throw new ApiProblemException(
-                $problem
+                ApiFormError::invalidAction('bad_data', 'Form not submitted')
             );
         }
 
-        if (!array_key_exists('value', $data)) {
-            $problem = ApiProblem::withErrors(
-                Response::HTTP_BAD_REQUEST,
-                ApiProblem::TYPE_INVALID_REQUEST_BODY,
-                ApiError::missingProperty('value')
-            );
-
-            throw new ApiProblemException(
-                $problem
-            );
+        if (!$form->isValid()) {
+            $formError = new ApiFormError($form->getErrors(true));
+            throw new ApiProblemException($formError);
         }
 
-        $name = Statistic::canonicalizeName($data['statisticName']);
-        $value = floatval($data['value']);
+        /** @var AddStatisticValue $data */
+        $data = $form->getData();
+        $name = $data->getStatisticName();
+        $value = $data->getValue();
 
         $statistic = $statisticRepository->findOneBy(['canonicalName' => $name, 'assignedTo' => $this->getUser()]);
         if (is_null($statistic)) {
