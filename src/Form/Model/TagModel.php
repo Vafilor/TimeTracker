@@ -11,7 +11,7 @@ class TagModel
     /**
      * @Assert\NotBlank()
      */
-    private string $name;
+    private ?string $name;
     private string $color;
 
     public function __construct()
@@ -25,7 +25,7 @@ class TagModel
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(?string $name): self
     {
         $this->name = $name;
         return $this;

@@ -24,28 +24,25 @@ class Tag
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private string $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @var string
      */
-    private $canonicalName;
+    private string $canonicalName;
 
     /**
      * @ORM\Column(type="string", length=7)
-     * @var string
      *
      * Hex color string, includes #. e.g. #FF0000
      */
-    private $color;
+    private string $color;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=false)
-     * @var User
      */
-    private $assignedTo;
+    private User $assignedTo;
 
     public function __construct(
         User $assignedTo,

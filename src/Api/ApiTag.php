@@ -16,7 +16,7 @@ class ApiTag
 
     public static function fromEntity(Tag $tag): ApiTag
     {
-        return new ApiTag($tag->getName(), $tag->getColor());
+        return new ApiTag($tag->getName(), $tag->getCanonicalName(), $tag->getColor());
     }
 
     /**
@@ -47,7 +47,7 @@ class ApiTag
         return $items;
     }
 
-    public function __construct(string $name, string $color)
+    public function __construct(string $name, string $canonicalName, string $color)
     {
         $this->name = $name;
         $this->color = $color;
