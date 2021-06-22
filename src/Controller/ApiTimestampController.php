@@ -17,7 +17,6 @@ use App\Entity\StatisticValue;
 use App\Entity\Tag;
 use App\Entity\TagLink;
 use App\Entity\Timestamp;
-use App\Form\AddStatisticFormType;
 use App\Form\AddStatisticValueFormType;
 use App\Form\Model\AddStatisticValue;
 use App\Manager\TagManager;
@@ -27,6 +26,7 @@ use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
+use App\Traits\TaggableController;
 use InvalidArgumentException;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
 use Knp\Component\Pager\PaginatorInterface;
@@ -37,6 +37,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiTimestampController extends BaseController
 {
+    use TaggableController;
+
     private DateTimeFormatter $dateTimeFormatter;
 
     public function __construct(DateTimeFormatter $dateTimeFormatter)
@@ -175,7 +177,7 @@ class ApiTimestampController extends BaseController
     public function addTag(
         Request $request,
         TimestampRepository $timestampRepository,
-        TagRepository $tagRepository,
+        TagManager $tagManager,
         TagLinkRepository $tagLinkRepository,
         string $id
     ): JsonResponse {
@@ -185,44 +187,13 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $data = $this->getJsonBody($request);
-        if (!array_key_exists('tagName', $data)) {
-            $problem = ApiProblem::withErrors(
-                Response::HTTP_BAD_REQUEST,
-                ApiProblem::TYPE_INVALID_REQUEST_BODY,
-                ApiError::missingProperty('tagName')
-            );
-
-            throw new ApiProblemException(
-                $problem
-            );
-        }
-
-        $tagName = $data['tagName'];
-
-        $tag = $tagRepository->findOneBy(['name' => $tagName, 'assignedTo' => $this->getUser()]);
-        if (is_null($tag)) {
-            $tag = new Tag($this->getUser(), $tagName);
-            $this->getDoctrine()->getManager()->persist($tag);
-        }
-
-        $exitingLink = $tagLinkRepository->findOneBy([
-                                                              'timestamp' => $timestamp,
-                                                              'tag' => $tag
-                                                          ]);
-
-        if (!is_null($exitingLink)) {
-            return $this->json([], Response::HTTP_CONFLICT);
-        }
-
-        $tagLink = new TagLink($timestamp, $tag);
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($tagLink);
-        $manager->flush();
-
-        $apiTag = ApiTag::fromEntity($tag);
-
-        return $this->jsonNoNulls($apiTag, Response::HTTP_CREATED);
+        return $this->addTagRequest(
+            $request,
+            $tagManager,
+            $tagLinkRepository,
+            $this->getUser(),
+            $timestamp
+        );
     }
 
     #[Route('/api/timestamp/{id}/tag/{tagName}', name: 'api_timestamp_tag_delete', methods: ['DELETE'])]
@@ -241,27 +212,13 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $tag = $tagRepository->findOneByOrException(['name' => $tagName]);
-
-        $exitingLink = $tagLinkRepository->findOneBy([
-                                                              'timestamp' => $timestamp,
-                                                              'tag' => $tag
-                                                          ]);
-
-        if (is_null($exitingLink)) {
-            throw new ApiProblemException(
-                ApiProblem::invalidAction(
-                    TimestampController::codeTagNotAssociated,
-                    "Tag '$tagName' is not associated to this timestamp"
-                )
-            );
-        }
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($exitingLink);
-        $manager->flush();
-
-        return $this->jsonNoContent();
+        return $this->removeTagRequest(
+            $tagRepository,
+            $tagLinkRepository,
+            $this->getUser(),
+            $tagName,
+            $timestamp
+        );
     }
 
     #[Route('/api/timestamp/{id}/tags', name: 'api_timestamp_tags', methods: ["GET"])]
@@ -277,7 +234,7 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        return $this->jsonNoNulls(ApiTag::fromEntities($timestamp->getTags()));
+        return $this->getTagsRequest($timestamp);
     }
 
     #[Route('/api/timestamp/{id}/statistic', name: 'api_timestamp_statistic_create', methods: ['POST'])]

@@ -18,9 +18,11 @@ use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
 use App\Form\TaskListFilterFormType;
+use App\Manager\TagManager;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
+use App\Traits\TaggableController;
 use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -31,6 +33,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiTaskController extends BaseController
 {
+    use TaggableController;
+
     #[Route('/api/task', name: 'api_task_index', methods: ["GET"])]
     #[Route('/json/task', name: 'json_task_index', methods: ["GET"])]
     public function index(
@@ -215,7 +219,7 @@ class ApiTaskController extends BaseController
     public function addTag(
         Request $request,
         TaskRepository $taskRepository,
-        TagRepository $tagRepository,
+        TagManager $tagManager,
         TagLinkRepository $tagLinkRepository,
         string $id
     ): JsonResponse {
@@ -226,42 +230,13 @@ class ApiTaskController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $data = $this->getJsonBody($request);
-        if (!array_key_exists('tagName', $data)) {
-            $problem = ApiProblem::withErrors(
-                Response::HTTP_BAD_REQUEST,
-                ApiProblem::TYPE_INVALID_REQUEST_BODY,
-                ApiError::missingProperty('tagName')
-            );
-
-            throw new ApiProblemException($problem);
-        }
-
-        $tagName = $data['tagName'];
-
-        $tag = $tagRepository->findOneBy(['name' => $tagName, 'assignedto' => $this->getUser()]);
-        if (is_null($tag)) {
-            $tag = new Tag($this->getUser(), $tagName);
-            $this->getDoctrine()->getManager()->persist($tag);
-        } else {
-            $exitingLink = $tagLinkRepository->findOneBy([
-                                                             'task' => $task,
-                                                             'tag' => $tag
-                                                         ]);
-
-            if (!is_null($exitingLink)) {
-                return $this->json([], Response::HTTP_CONFLICT);
-            }
-        }
-
-        $tagLink = new TagLink($task, $tag);
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($tagLink);
-        $manager->flush();
-
-        $apiTag = ApiTag::fromEntity($tag);
-
-        return $this->jsonNoNulls($apiTag, Response::HTTP_CREATED);
+        return $this->addTagRequest(
+            $request,
+            $tagManager,
+            $tagLinkRepository,
+            $this->getUser(),
+            $task
+        );
     }
 
     #[Route('/api/task/{id}/tag/{tagName}', name: 'api_task_tag_delete', methods: ['DELETE'])]
@@ -280,26 +255,18 @@ class ApiTaskController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $tag = $tagRepository->findWithUserName($this->getUser(), $tagName);
-        if (is_null($tag)) {
-            throw $this->createNotFoundException();
-        }
-
-        $exitingLink = $tagLinkRepository->findOneByOrException([
-                                                                    'task' => $task,
-                                                                    'tag' => $tag
-                                                                ]);
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($exitingLink);
-        $manager->flush();
-
-        return $this->jsonNoContent();
+        return $this->removeTagRequest(
+            $tagRepository,
+            $tagLinkRepository,
+            $this->getUser(),
+            $tagName,
+            $task
+        );
     }
 
     #[Route('/api/task/{id}/tags', name: 'api_task_tags', methods: ["GET"])]
     #[Route('/json/task/{id}/tags', name: 'json_task_tags', methods: ["GET"])]
-    public function tags(
+    public function indexTag(
         Request $request,
         TaskRepository $taskRepository,
         string $id
@@ -310,8 +277,6 @@ class ApiTaskController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $apiTags = ApiTag::fromEntities($task->getTags());
-
-        return $this->jsonNoNulls($apiTags);
+        return $this->getTagsRequest($task);
     }
 }

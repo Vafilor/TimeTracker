@@ -102,7 +102,7 @@ export class TimeEntryApi {
 
     public static addTag(timeEntryId: string, tagName: string) {
         return CoreApi.post<ApiTag>(`/json/time-entry/${timeEntryId}/tag`, {
-            tagName
+            name: tagName
         });
     }
 

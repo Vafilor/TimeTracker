@@ -101,6 +101,10 @@ class Statistic
 
         $this->canonicalName = self::canonicalizeName($name);
 
+        if (strlen($this->canonicalName) === 0) {
+            throw new InvalidArgumentException('Name can not be blank once whitespace is removed.');
+        }
+
         return $this;
     }
 

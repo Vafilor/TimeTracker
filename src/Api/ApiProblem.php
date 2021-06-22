@@ -24,6 +24,20 @@ class ApiProblem
     private string $title;
     private array $extraData;
 
+    public static function missingKeysInBody(string ...$keys): ApiProblem
+    {
+        $errors = [];
+        foreach ($keys as $key) {
+            $errors[] = ApiError::missingProperty($key);
+        }
+
+        return self::withErrors(
+            Response::HTTP_BAD_REQUEST,
+            ApiProblem::TYPE_INVALID_REQUEST_BODY,
+            ...$errors
+        );
+    }
+
     public static function invalidAction(string $code, string $message, array $extra = []): ApiProblem
     {
         return self::withErrors(

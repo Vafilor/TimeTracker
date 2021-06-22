@@ -10,6 +10,7 @@ use App\Traits\CreateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -77,6 +78,10 @@ class Tag
         $this->name = $name;
 
         $this->canonicalName = $this->canonicalizeName($name);
+
+        if (strlen($this->canonicalName) === 0) {
+            throw new InvalidArgumentException('Name can not be blank once whitespace is removed.');
+        }
 
         return $this;
     }

@@ -50,7 +50,7 @@ class TagLink
      */
     private ?Statistic $statistic;
 
-    public function __construct(mixed $resource, Tag $tag)
+    public function __construct(TimeEntry|Timestamp|Task|Statistic $resource, Tag $tag)
     {
         $this->tag = $tag;
 

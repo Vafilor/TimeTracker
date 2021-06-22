@@ -23,6 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class TagController extends BaseController
 {
     const CODE_NAME_TAKEN = 'code_name_taken';
+    const CODE_TAG_NOT_ASSOCIATED = 'tag_not_associated';
 
     #[Route('/tag', name: 'tag_index')]
     public function index(
