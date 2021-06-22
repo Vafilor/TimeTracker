@@ -11,14 +11,12 @@ class StatisticModel
 {
     private string $name;
     private string $description;
-    private string $valueType;
     private string $timeType;
 
     public function __construct()
     {
         $this->name = '';
         $this->description = '';
-        $this->valueType = 'int';
         $this->timeType = 'instant';
     }
 
@@ -51,17 +49,6 @@ class StatisticModel
 
         $this->description = $description;
 
-        return $this;
-    }
-
-    public function getValueType(): string
-    {
-        return $this->valueType;
-    }
-
-    public function setValueType(string $valueType): StatisticModel
-    {
-        $this->valueType = $valueType;
         return $this;
     }
 

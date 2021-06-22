@@ -13,7 +13,7 @@ export interface ApiTimestamp {
 export class TimestampApi {
     public static addTag(timestampId: string, tagName: string) {
         return CoreApi.post<ApiTag>(`/json/timestamp/${timestampId}/tag`, {
-            tagName
+            name: tagName
         });
     }
 

@@ -21,8 +21,9 @@ class StatisticFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class)
-            ->add('description', TextareaType::class)
-            ->add('valueType', TextType::class)
+            ->add('description', TextareaType::class, [
+                'required' => false
+            ])
             ->add('timeType', ChoiceType::class, [
                 'choices' => [
                     TimeType::instant => 'instant',

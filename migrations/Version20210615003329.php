@@ -20,7 +20,7 @@ final class Version20210615003329 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE TABLE statistic (id UUID NOT NULL, assigned_to_id UUID NOT NULL, icon VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, canonical_name VARCHAR(255) NOT NULL, description TEXT NOT NULL, value_type VARCHAR(255) NOT NULL, time_type VARCHAR(255) NOT NULL, created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE statistic (id UUID NOT NULL, assigned_to_id UUID NOT NULL, icon VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, canonical_name VARCHAR(255) NOT NULL, description TEXT NOT NULL, time_type VARCHAR(255) NOT NULL, created_at TIMESTAMP(0) WITH TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_649B469CF4BD7827 ON statistic (assigned_to_id)');
         $this->addSql('COMMENT ON COLUMN statistic.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN statistic.assigned_to_id IS \'(DC2Type:uuid)\'');

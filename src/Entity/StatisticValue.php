@@ -6,6 +6,7 @@ use App\Repository\StatisticValueRepository;
 use App\Traits\CreateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use App\Util\TimeType;
+use App\Util\TypeUtil;
 use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
@@ -50,6 +51,18 @@ class StatisticValue
      * @ORM\ManyToOne(targetEntity=Timestamp::class, inversedBy="statisticValues")
      */
     private ?Timestamp $timestamp;
+
+    public static function fromResource(Statistic $statistic, float $value, Timestamp|TimeEntry $resource): StatisticValue
+    {
+        if ($resource instanceof Timestamp) {
+            return self::fromTimestamp($statistic, $value, $resource);
+        } elseif ($resource instanceof TimeEntry) {
+            return self::fromTimeEntry($statistic, $value, $resource);
+        } else {
+            $className = TypeUtil::getClassName($resource);
+            throw new InvalidArgumentException("Unsupported StatisticValue resource '{$className}'");
+        }
+    }
 
     public static function fromTimestamp(Statistic $statistic, float $value, Timestamp $timestamp): StatisticValue
     {

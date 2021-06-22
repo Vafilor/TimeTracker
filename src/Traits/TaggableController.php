@@ -33,6 +33,7 @@ trait TaggableController
     abstract public function getJsonBody(Request $request, array $default = null): array;
     abstract public function persistAndFlush(mixed $obj): void;
     abstract public function removeAndFlush(mixed $obj): void;
+    abstract public function jsonNoNulls($data, int $status = 200, array $headers = [], array $context = []): JsonResponse;
 
     public function addTagRequest(
         Request $request,
@@ -53,7 +54,15 @@ trait TaggableController
             throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
         }
 
-        if (!$form->isSubmitted() || !$form->isValid()) {
+        if (!$form->isSubmitted()) {
+            if (!$form->isSubmitted()) {
+                throw new ApiProblemException(
+                    ApiFormError::invalidAction('bad_data', 'Form not submitted')
+                );
+            }
+        }
+
+        if (!$form->isValid()) {
             $formError = new ApiFormError($form->getErrors(true));
             throw new ApiProblemException($formError);
         }

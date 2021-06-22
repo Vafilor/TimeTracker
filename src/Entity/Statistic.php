@@ -47,11 +47,6 @@ class Statistic
 
     /**
      * @ORM\Column(type="string", length=255)
-     */
-    private string $valueType;
-
-    /**
-     * @ORM\Column(type="string", length=255)
      * @var string One of 'instance' | 'interval'
      */
     private string $timeType;
@@ -80,7 +75,6 @@ class Statistic
         $this->setName($name);
         $this->markCreated();
         $this->description = '';
-        $this->valueType = 'int';
         $this->setTimeType($timeType);
         $this->tagLinks = new ArrayCollection();
     }
@@ -128,18 +122,6 @@ class Statistic
     public function setDescription(string $description): self
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getValueType(): string
-    {
-        return $this->valueType;
-    }
-
-    public function setValueType(string $valueType): self
-    {
-        $this->valueType = $valueType;
 
         return $this;
     }

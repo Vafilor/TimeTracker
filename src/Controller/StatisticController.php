@@ -78,7 +78,6 @@ class StatisticController extends BaseController
             $statistic = new Statistic($this->getUser(), $name);
             $statistic->setDescription($data->getDescription());
             $statistic->setTimeType($data->getTimeType());
-            $statistic->setValueType($data->getValueType());
 
             $this->getDoctrine()->getManager()->persist($statistic);
             $this->getDoctrine()->getManager()->flush();

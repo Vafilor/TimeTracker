@@ -19,6 +19,7 @@ use App\Entity\TagLink;
 use App\Entity\Timestamp;
 use App\Form\AddStatisticValueFormType;
 use App\Form\Model\AddStatisticValue;
+use App\Manager\StatisticManager;
 use App\Manager\TagManager;
 use App\Manager\TimestampManager;
 use App\Repository\StatisticRepository;
@@ -26,6 +27,7 @@ use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
+use App\Traits\StatisticsValueController;
 use App\Traits\TaggableController;
 use InvalidArgumentException;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
@@ -38,6 +40,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTimestampController extends BaseController
 {
     use TaggableController;
+    use StatisticsValueController;
 
     private DateTimeFormatter $dateTimeFormatter;
 
@@ -242,7 +245,7 @@ class ApiTimestampController extends BaseController
     public function addStatisticValue(
         Request $request,
         TimestampRepository $timestampRepository,
-        StatisticRepository $statisticRepository,
+        StatisticManager $statisticManager,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -251,49 +254,12 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValue(), [
-            'csrf_protection' => false
-        ]);
-
-        $data = $this->getJsonBody($request);
-
-        try {
-            $form->submit($data);
-        } catch (InvalidArgumentException $invalidArgumentException) {
-            throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
-        }
-
-        if (!$form->isSubmitted()) {
-            throw new ApiProblemException(
-                ApiFormError::invalidAction('bad_data', 'Form not submitted')
-            );
-        }
-
-        if (!$form->isValid()) {
-            $formError = new ApiFormError($form->getErrors(true));
-            throw new ApiProblemException($formError);
-        }
-
-        /** @var AddStatisticValue $data */
-        $data = $form->getData();
-        $name = $data->getStatisticName();
-        $value = $data->getValue();
-
-        $statistic = $statisticRepository->findOneBy(['canonicalName' => $name, 'assignedTo' => $this->getUser()]);
-        if (is_null($statistic)) {
-            $statistic = new Statistic($this->getUser(), $name);
-            $this->getDoctrine()->getManager()->persist($statistic);
-        }
-
-        $statisticValue = StatisticValue::fromTimestamp($statistic, $value, $timestamp);
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($statisticValue);
-        $manager->flush();
-
-        $apiModel = ApiStatisticValue::fromEntity($statisticValue);
-
-        return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
+        return $this->addStatisticValueRequest(
+            $request,
+            $statisticManager,
+            $this->getUser(),
+            $timestamp
+        );
     }
 
     #[Route('/api/timestamp/{id}/statistic/{statisticId}', name: 'api_timestamp_statistic_delete', methods: ['DELETE'])]
@@ -311,12 +277,6 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $statisticValue = $statisticValueRepository->findOrException($statisticId);
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($statisticValue);
-        $manager->flush();
-
-        return $this->jsonNoContent();
+        return $this->removeStatisticValueRequest($statisticValueRepository, $statisticId);
     }
 }

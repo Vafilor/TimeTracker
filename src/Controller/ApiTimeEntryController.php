@@ -27,6 +27,7 @@ use App\Form\Model\TimeEntryListFilterModel;
 use App\Form\Model\TimeEntryModel;
 use App\Form\TimeEntryFormType;
 use App\Form\TimeEntryListFilterFormType;
+use App\Manager\StatisticManager;
 use App\Manager\TagManager;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
@@ -34,6 +35,7 @@ use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
+use App\Traits\StatisticsValueController;
 use App\Traits\TaggableController;
 use DateTime;
 use DateTimeZone;
@@ -49,6 +51,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTimeEntryController extends BaseController
 {
     use TaggableController;
+    use StatisticsValueController;
 
     /**
      * @throws Exception
@@ -632,7 +635,7 @@ class ApiTimeEntryController extends BaseController
     public function addStatisticValue(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        StatisticRepository $statisticRepository,
+        StatisticManager $statisticManager,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -641,49 +644,12 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValue(), [
-            'csrf_protection' => false
-        ]);
-
-        $data = $this->getJsonBody($request);
-
-        try {
-            $form->submit($data);
-        } catch (InvalidArgumentException $invalidArgumentException) {
-            throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
-        }
-
-        if (!$form->isSubmitted()) {
-            throw new ApiProblemException(
-                ApiFormError::invalidAction('bad_data', 'Form not submitted')
-            );
-        }
-
-        if (!$form->isValid()) {
-            $formError = new ApiFormError($form->getErrors(true));
-            throw new ApiProblemException($formError);
-        }
-
-        /** @var AddStatisticValue $data */
-        $data = $form->getData();
-        $value = $data->getValue();
-
-        // TODO add a manager and add a method find or create.
-        $statistic = $statisticRepository->findOneBy(['canonicalName' => $data->getCanonicalStatisticName(), 'assignedTo' => $this->getUser()]);
-        if (is_null($statistic)) {
-            $statistic = new Statistic($this->getUser(), $data->getStatisticName(), 'interval');
-            $this->getDoctrine()->getManager()->persist($statistic);
-        }
-
-        $statisticValue = StatisticValue::fromTimeEntry($statistic, $value, $timeEntry);
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($statisticValue);
-        $manager->flush();
-
-        $apiModel = ApiStatisticValue::fromEntity($statisticValue);
-
-        return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
+        return $this->addStatisticValueRequest(
+            $request,
+            $statisticManager,
+            $this->getUser(),
+            $timeEntry
+        );
     }
 
     #[Route('/api/time-entry/{id}/statistic/{statisticId}', name: 'api_time_entry_statistic_delete', methods: ['DELETE'])]
@@ -701,12 +667,6 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $statisticValue = $statisticValueRepository->findOrException($statisticId);
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($statisticValue);
-        $manager->flush();
-
-        return $this->jsonNoContent();
+        return $this->removeStatisticValueRequest($statisticValueRepository, $statisticId);
     }
 }
