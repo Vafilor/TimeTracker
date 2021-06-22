@@ -692,9 +692,12 @@ class TimeEntryIndexPage implements TimeEntryActionDelegate{
     private createTimeEntryButton: LoadingButton;
     private confirmDialog?: ConfirmDialog;
     private filter: TimeEntryListFilter;
+    private page: string;
 
     constructor() {
         const $data = $('.js-data');
+        this.page = $data.data('page');
+
         this.dateFormat = $data.data('date-format') as DateFormat;
         this.durationFormat = $data.data('duration-format');
         this.flashes = new Flashes($('#fixed-flash-messages'));
@@ -726,11 +729,15 @@ class TimeEntryIndexPage implements TimeEntryActionDelegate{
         this.timeEntryList.stopTimeEntryUI(res.data);
 
         const createResponse = await TimeEntryApi.create({withHtmlTemplate: true}, this.dateFormat);
-        this.createTimeEntry(createResponse.data);
+
+        if (this.page === 'today') {
+            window.location.href = createResponse.data.url;
+        } else {
+            this.createTimeEntry(createResponse.data);
+        }
 
         this.confirmDialog?.remove();
         this.confirmDialog = undefined;
-
     }
 
     private async stopTimeEntryAndContinue(stopTimeEntryId: string, continueTimeEntryId) {
@@ -766,7 +773,14 @@ class TimeEntryIndexPage implements TimeEntryActionDelegate{
 
         try {
             const res = await TimeEntryApi.create({withHtmlTemplate: true}, this.dateFormat);
-            this.createTimeEntry(res.data);
+
+            if (this.page === 'today') {
+                if (res.data.url) {
+                    window.location.href = res.data.url;
+                }
+            } else {
+                this.createTimeEntry(res.data);
+            }
         } catch (e) {
             if (e instanceof ApiErrorResponse) {
                 const runningTimerError = e.getErrorForCode(TimeEntryApiErrorCode.codeRunningTimer) as ApiResourceError;
