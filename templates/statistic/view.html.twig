@@ -10,7 +10,7 @@
 
         <h1 class="text-center">{{ statistic.name }}</h1>
 
-        <div class="mb-2">Created: {{ time.user_date(statistic.createdAt, app.user) }}</div>
+        <div class="mb-2">Created: {{ time.user_datetime(statistic.createdAt, app.user) }}</div>
 
         {{ form_start(form) }}
         {{ form_widget(form) }}
@@ -22,9 +22,13 @@
 
 {% block stylesheets %}
     {{ parent() }}
+
+    {{ encore_entry_link_tags('statistic') }}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
+
+    {{ encore_entry_script_tags('statistic') }}
 {% endblock %}
 

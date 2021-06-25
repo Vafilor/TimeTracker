@@ -100,9 +100,10 @@ export default class TagList {
 
     /**
      * handleAddTagSuccess is called when we successfully add a tag.
+     * We pass in the original name in case any formatting happens to the tag name, like trimming whitespace.
      */
-    private handleAddTagSuccess(tag: ApiTag) {
-        const $view = this.tagMap.get(tag.name);
+    private handleAddTagSuccess(originalName: string, tag: ApiTag) {
+        const $view = this.tagMap.get(originalName);
         if (!$view) {
             return;
         }
@@ -110,6 +111,8 @@ export default class TagList {
         this.tags.push(tag);
         this.pendingTagMap.delete(tag.name);
 
+        $view.data('name', tag.name);
+        $view.find('.label').text(tag.name);
         $view.removeClass('pending');
         $view.css('background-color', tag.color);
         this.tagsChanged.emit(this);
@@ -153,7 +156,7 @@ export default class TagList {
 
         this.delegate.addTag(tag)
             .then((res) => {
-                this.handleAddTagSuccess(res);
+                this.handleAddTagSuccess(tag.name, res);
             })
             .catch((res) => {
                 this.handleAddTagFailure(tag);

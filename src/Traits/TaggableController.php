@@ -31,8 +31,8 @@ trait TaggableController
 {
     abstract protected function createForm(string $type, $data = null, array $options = []): FormInterface;
     abstract public function getJsonBody(Request $request, array $default = null): array;
-    abstract public function persistAndFlush(mixed $obj): void;
-    abstract public function removeAndFlush(mixed $obj): void;
+    abstract public function persist(mixed $obj, bool $flush = false): void;
+    abstract public function doctrineRemove(mixed $obj, bool $flush = false): void;
     abstract public function jsonNoNulls($data, int $status = 200, array $headers = [], array $context = []): JsonResponse;
 
     public function addTagRequest(
@@ -55,11 +55,9 @@ trait TaggableController
         }
 
         if (!$form->isSubmitted()) {
-            if (!$form->isSubmitted()) {
-                throw new ApiProblemException(
-                    ApiFormError::invalidAction('bad_data', 'Form not submitted')
-                );
-            }
+            throw new ApiProblemException(
+                ApiFormError::invalidAction('bad_data', 'Form not submitted')
+            );
         }
 
         if (!$form->isValid()) {
@@ -78,7 +76,7 @@ trait TaggableController
 
         $tagLink = new TagLink($resource, $tag);
 
-        $this->persistAndFlush($tagLink);
+        $this->persist($tagLink, true);
 
         $apiTag = ApiTag::fromEntity($tag);
 
@@ -109,7 +107,7 @@ trait TaggableController
             );
         }
 
-        $this->removeAndFlush($existingLink);
+        $this->doctrineRemove($existingLink, true);
 
         return $this->jsonNoContent();
     }

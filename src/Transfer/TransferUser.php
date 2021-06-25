@@ -34,8 +34,8 @@ class TransferUser
         $transfer->isVerified = $user->isVerified();
         $transfer->createdAt = $user->getCreatedAt()->getTimestamp();
         $transfer->timezone = $user->getTimezone();
-        $transfer->dateFormat = $user->getDateFormat();
-        $transfer->todayDateFormat = $user->getTodayDateFormat();
+        $transfer->dateFormat = $user->getDateTimeFormat();
+        $transfer->todayDateFormat = $user->getTodayDateTimeFormat();
         $transfer->durationFormat = $user->getDurationFormat();
 
         return $transfer;
@@ -66,8 +66,8 @@ class TransferUser
         $user->setPassword($this->password);
         $user->setIsVerified($this->isVerified);
         $user->setTimezone($this->timezone);
-        $user->setDateFormat($this->dateFormat);
-        $user->setTodayDateFormat($this->todayDateFormat);
+        $user->setDateTimeFormat($this->dateFormat);
+        $user->setTodayDateTimeFormat($this->todayDateFormat);
         $user->setDurationFormat($this->durationFormat);
 
         return $user;

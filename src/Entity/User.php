@@ -35,7 +35,12 @@ class User extends BaseUser
     /**
      * @ORM\Column(type="string")
      */
-    private string $todayDateFormat;
+    private string $dateTimeFormat;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private string $todayDateTimeFormat;
 
     /**
      * @ORM\Column(type="string")
@@ -61,8 +66,9 @@ class User extends BaseUser
         $this->id = Uuid::uuid4();
         $this->timeEntries = new ArrayCollection();
         $this->timezone = "America/Los_Angeles";
-        $this->dateFormat = 'm/d/Y h:i:s A';
-        $this->todayDateFormat = 'h:i:s A';
+        $this->dateFormat = 'm/d/Y';
+        $this->dateTimeFormat = 'm/d/Y h:i:s A';
+        $this->todayDateTimeFormat = 'h:i:s A';
         $this->durationFormat = '%hh %Im %Ss';
         $this->tasks = new ArrayCollection();
 
@@ -102,20 +108,25 @@ class User extends BaseUser
         return $this->dateFormat;
     }
 
-    public function setDateFormat(string $dateFormat): User
+    public function getDateTimeFormat(): string
     {
-        $this->dateFormat = $dateFormat;
+        return $this->dateTimeFormat;
+    }
+
+    public function setDateTimeFormat(string $dateTimeFormat): User
+    {
+        $this->dateTimeFormat = $dateTimeFormat;
         return $this;
     }
 
-    public function getTodayDateFormat(): string
+    public function getTodayDateTimeFormat(): string
     {
-        return $this->todayDateFormat;
+        return $this->todayDateTimeFormat;
     }
 
-    public function setTodayDateFormat(string $todayDateFormat): User
+    public function setTodayDateTimeFormat(string $todayDateTimeFormat): User
     {
-        $this->todayDateFormat = $todayDateFormat;
+        $this->todayDateTimeFormat = $todayDateTimeFormat;
         return $this;
     }
 

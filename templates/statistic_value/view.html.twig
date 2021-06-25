@@ -1,0 +1,30 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}TimeTracker{% endblock %}
+
+{% block content_body %}
+    <div class="p-3">
+        <h1 class="text-center">{{ statisticValue.statistic.name }}</h1>
+
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button type="submit" class="btn btn-primary">Update</button>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('statistic_value') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('statistic_value') }}
+{% endblock %}
+

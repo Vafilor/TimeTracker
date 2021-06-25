@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\StatisticValue;
+use App\Form\Model\StatisticValueEditModel;
+use App\Form\StatisticValueEditFormType;
 use App\Repository\StatisticValueRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -58,6 +60,36 @@ class StatisticValueController extends BaseController
         return $this->render('statistic_value/index.html.twig', [
             'pagination' => $pagination,
             'data' => $data
+        ]);
+    }
+
+    #[Route('/record/{id}/view', name: 'statistic_value_view')]
+    public function view(Request $request, StatisticValueRepository $statisticValueRepository, string $id): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $statisticValue = $statisticValueRepository->findOrException($id);
+        if (!$statisticValue->getStatistic()->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $form = $this->createForm(StatisticValueEditFormType::class, StatisticValueEditModel::fromEntity($statisticValue));
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var StatisticValueEditModel $data */
+            $data = $form->getData();
+
+            $statisticValue->setValue($data->getValue());
+
+            $this->addFlash('success', 'Record successfully updated.');
+
+            $this->getDoctrine()->getManager()->flush();
+        }
+
+        return $this->render('statistic_value/view.html.twig', [
+            'statisticValue' => $statisticValue,
+            'form' => $form->createView()
         ]);
     }
 }

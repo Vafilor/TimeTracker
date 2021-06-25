@@ -6,6 +6,7 @@ namespace App\Api;
 
 use App\Entity\TimeEntry;
 use App\Entity\User;
+use App\Util\DateFormatType;
 
 class ApiTimeEntry
 {
@@ -30,7 +31,7 @@ class ApiTimeEntry
      * @throws \Exception
      * @return ApiTimeEntry
      */
-    public static function fromEntity(TimeEntry $timeEntry, User $user, string $format = 'date'): ApiTimeEntry
+    public static function fromEntity(TimeEntry $timeEntry, User $user, string $format = DateFormatType::DATE_TIME): ApiTimeEntry
     {
         $apiTimeEntry = new ApiTimeEntry();
         $apiTimeEntry->id = $timeEntry->getIdString();
@@ -63,7 +64,7 @@ class ApiTimeEntry
      * @return ApiTimeEntry[]
      * @throws \Exception
      */
-    public static function fromEntities(iterable $entities, User $user, string $format = 'date'): array
+    public static function fromEntities(iterable $entities, User $user, string $format = DateFormatType::DATE_TIME): array
     {
         $items = [];
         foreach ($entities as $entity) {

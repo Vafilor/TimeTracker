@@ -26,6 +26,7 @@ import TimerView from "./components/timer";
 import AutocompleteTags from "./components/autocomplete_tags";
 import AutocompleteTask from "./components/autocomplete_task";
 import MarkdownView from "./components/markdown_view";
+import { AutocompleteEnterPressedEvent } from "./components/autocomplete";
 
 interface TimeEntryActionDelegate {
     continue(timeEntryId: string): Promise<any>;
@@ -48,8 +49,8 @@ class TimeEntryDescriptionSync {
     public static template(content: string, extraClass: string): string {
         return `
             <div class="js-time-entry-description-sync ${extraClass}">
-                <textarea class="js-content-edit w-100" rows="2">${content}</textarea>
-                <div class="timestamp js-status">Up to date</div>
+                <textarea class="form-control js-content-edit w-100" rows="2">${content}</textarea>
+                <div class="timestamp mt-1 js-status">Up to date</div>
             </div>
         `;
     }
@@ -655,6 +656,18 @@ class TimeEntryListFilter {
             $realTaskInput.val(task.id);
         })
 
+        autocompleteTask.enterPressed.addObserver((event: AutocompleteEnterPressedEvent<ApiTask>) => {
+            if (event.data) {
+                autocompleteTask.setQuery(event.data.name);
+                autocompleteTask.clearSearchContent();
+                $realTaskInput.val(event.data.id);
+            }
+
+            setTimeout(() => {
+                this.autocompleteTags.positionSearchContent();
+            }, 10);
+        })
+
         autocompleteTask.inputChange.addObserver(() => {
             $realTaskInput.val('');
         })
@@ -671,6 +684,21 @@ class TimeEntryListFilter {
 
         this.autocompleteTags.itemSelected.addObserver((apiTag: ApiTag) => {
             tagList.add(apiTag);
+            setTimeout(() => {
+                this.autocompleteTags.positionSearchContent();
+            }, 10);
+        })
+
+        this.autocompleteTags.enterPressed.addObserver((event: AutocompleteEnterPressedEvent<ApiTag>) => {
+            if (event.data) {
+                tagList.add(event.data);
+            } else {
+                tagList.add({
+                    name: event.query,
+                    color: '#5d5d5d'
+                });
+            }
+
             setTimeout(() => {
                 this.autocompleteTags.positionSearchContent();
             }, 10);

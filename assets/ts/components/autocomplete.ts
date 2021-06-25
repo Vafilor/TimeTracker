@@ -77,6 +77,21 @@ abstract class Autocomplete {
     constructor(private $element: JQuery) {
         this.$input = $element.find('.js-input');
         this.$input.on('input', (event) => this.onInput(event));
+
+        this.$input.on('focus', (event) => {
+            $(event.currentTarget).parent().addClass('fake-focus');
+        })
+
+        this.$input.on('blur', (event) => {
+            $(event.currentTarget).parent().removeClass('fake-focus');
+        })
+
+        this.$input.on('keydown', (event) => {
+            if (event.key === 'Tab') {
+                this.onClickOutside();
+            }
+        })
+
         this.$search = $element.find('.search');
         this.$searchContent = $element.find('.js-search-results');
 
@@ -108,6 +123,7 @@ abstract class Autocomplete {
      * onClickOutside is called whenever we click something outside the search element.
      */
     protected onClickOutside() {
+        this.$input.parent().removeClass('fake-focus');
         this.clearSearchContent();
     }
 
@@ -198,6 +214,14 @@ abstract class Autocomplete {
     }
 
     /**
+     * resetQuery clears the input and focuses on it.
+     */
+    resetQuery() {
+        this.$input.val('');
+        this.$input.trigger('focus');
+    }
+
+    /**
      * getQuery gets the input's current value.
      */
     getQuery(): string {
@@ -255,7 +279,7 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
      */
     public enterPressed = new Observable<AutocompleteEnterPressedEvent<T>>();
 
-    private _data: T[];
+    private _data: T[] = [];
     set data(value: T[]) {
         this._data = value;
         this.itemIndexFocused = undefined;
@@ -399,7 +423,11 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
             const $template = $(this.template(item));
             $template.addClass('search-result-item');
             $template.addClass(`js-paginated-autocomplete-index-${index}`);
-            $template.on('click', () => this.itemSelected.emit(item));
+
+            $template.on('click', (event) => {
+                this.itemSelected.emit(item);
+            });
+
             this.$searchContent.append($template);
             this.$searchContent.append('<hr class="separator"/>');
 

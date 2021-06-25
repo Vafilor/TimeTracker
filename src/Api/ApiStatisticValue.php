@@ -11,7 +11,7 @@ class ApiStatisticValue
 {
     public string $id;
     public string $name;
-    public string $value;
+    public float $value;
 
     public static function fromEntity(StatisticValue $statisticValue): ApiStatisticValue
     {
@@ -36,7 +36,7 @@ class ApiStatisticValue
         return $items;
     }
 
-    public function __construct(string $id, string $name, string $value)
+    public function __construct(string $id, string $name, float $value)
     {
         $this->id = $id;
         $this->name = $name;

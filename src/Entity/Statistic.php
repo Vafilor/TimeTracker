@@ -68,7 +68,7 @@ class Statistic
         return trim(strtolower($name));
     }
 
-    public function __construct(User $assignedTo, string $name, string $timeType = TimeType::instant)
+    public function __construct(User $assignedTo, string $name, string $timeType = TimeType::INSTANT)
     {
         $this->id = Uuid::uuid4();
         $this->assignTo($assignedTo);

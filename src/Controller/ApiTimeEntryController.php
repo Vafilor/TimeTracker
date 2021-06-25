@@ -35,7 +35,7 @@ use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
-use App\Traits\StatisticsValueController;
+use App\Traits\HasStatisticDataTrait;
 use App\Traits\TaggableController;
 use DateTime;
 use DateTimeZone;
@@ -51,7 +51,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTimeEntryController extends BaseController
 {
     use TaggableController;
-    use StatisticsValueController;
+    use HasStatisticDataTrait;
 
     /**
      * @throws Exception
@@ -573,9 +573,9 @@ class ApiTimeEntryController extends BaseController
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
         if (str_starts_with($request->getPathInfo(), '/api')) {
-            $apiTask->setUrl($this->generateUrl('api_task_view', ['id' => $task->getIdString()]));
+            $apiTask->url = $this->generateUrl('api_task_view', ['id' => $task->getIdString()]);
         } else {
-            $apiTask->setUrl($this->generateUrl('task_view', ['id' => $task->getIdString()]));
+            $apiTask->url = $this->generateUrl('task_view', ['id' => $task->getIdString()]);
         }
 
         if ($createdTask) {

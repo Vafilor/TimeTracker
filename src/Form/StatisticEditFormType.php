@@ -18,14 +18,16 @@ class StatisticEditFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('name', TextType::class, [
+                'required' => false
+            ])
             ->add('description', TextareaType::class, [
                 'required' => false
             ])
-            ->add('valueType', TextType::class)
             ->add('timeType', ChoiceType::class, [
                 'choices' => [
-                    TimeType::instant => 'instant',
-                    TimeType::interval => 'interval'
+                    TimeType::INSTANT => 'instant',
+                    TimeType::INTERVAL => 'interval'
                 ]
             ])
         ;
@@ -33,8 +35,6 @@ class StatisticEditFormType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-                                   'data_class' => StatisticEditModel::class
-                               ]);
+        $resolver->setDefaults(['data_class' => StatisticEditModel::class]);
     }
 }

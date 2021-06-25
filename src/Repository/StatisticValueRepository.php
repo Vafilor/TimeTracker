@@ -2,7 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\Statistic;
 use App\Entity\StatisticValue;
+use App\Entity\TimeEntry;
+use App\Entity\Timestamp;
 use App\Entity\User;
 use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -12,6 +15,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @method StatisticValue|null find($id, $lockMode = null, $lockVersion = null)
  * @method StatisticValue|null findOneBy(array $criteria, array $orderBy = null)
+ * @method StatisticValue findOrException($id, $lockMode = null, $lockVersion = null)
  * @method StatisticValue findOneByOrException(array $criteria, array $orderBy = null)
  * @method StatisticValue[]    findAll()
  * @method StatisticValue[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
@@ -46,5 +50,28 @@ class StatisticValueRepository extends ServiceEntityRepository
                     ->getQuery()
                     ->getResult()
         ;
+    }
+
+    public function findForStatisticResource(Statistic $statistic, TimeEntry|Timestamp $resource): ?StatisticValue
+    {
+        $queryBuilder = $this->createDefaultQueryBuilder()
+                             ->join('statistic_value.statistic', 'statistic')
+                             ->andWhere('statistic.name = :name')
+                             ->setParameter('name', $statistic->getName())
+        ;
+
+        if ($resource instanceof TimeEntry) {
+            $queryBuilder = $queryBuilder->join('statistic_value.timeEntry', 'timeEntry')
+                                         ->andWhere('timeEntry = :resource')
+                                         ->setParameter('resource', $resource)
+            ;
+        } elseif ($resource  instanceof Timestamp) {
+            $queryBuilder = $queryBuilder->join('statistic_value.timestamp', 'timestamp')
+                                         ->andWhere('timestamp = :resource')
+                                         ->setParameter('resource', $resource)
+            ;
+        }
+
+        return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 }

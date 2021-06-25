@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Api\ApiError;
 use App\Api\ApiFormError;
 use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
-use App\Api\ApiTag;
 use App\Api\ApiTask;
-use App\Entity\Tag;
-use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
@@ -47,6 +43,7 @@ class ApiTaskController extends BaseController
 
         $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
 
+        $this->createForm(TaskListFilterFormType::class, new TaskListFilterModel());
         $filterForm = $formFactory->createNamed(
             '',
             TaskListFilterFormType::class,

@@ -28,6 +28,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class StatisticController extends BaseController
 {
+    const CODE_NAME_TAKEN = 'code_name_taken';
+
     #[Route('/statistic', name: 'statistic_index')]
     public function index(
         Request $request,
@@ -44,19 +46,13 @@ class StatisticController extends BaseController
             'direction' => 'asc'
         ]);
 
-        $defaultModel = new StatisticModel();
-        $createForm = $this->createForm(StatisticFormType::class, $defaultModel, [
-            'action' => $this->generateUrl('statistic_create')
-        ]);
-
         return $this->render('statistic/index.html.twig', [
             'pagination' => $pagination,
-            'form' => $createForm->createView(),
         ]);
     }
 
     #[Route('/statistic/create', name: 'statistic_create')]
-    public function create(Request $request, TagRepository $tagRepository): Response
+    public function create(Request $request, StatisticRepository $statisticRepository): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -68,8 +64,9 @@ class StatisticController extends BaseController
             /** @var StatisticModel $data */
             $data = $form->getData();
             $name = $data->getName();
+            $canonicalName = Statistic::canonicalizeName($name);
 
-            $existingStatistic = $tagRepository->findWithUserName($this->getUser(), $name);
+            $existingStatistic = $statisticRepository->findWithUserNameCanonical($this->getUser(), $canonicalName);
             if (!is_null($existingStatistic)) {
                 $this->addFlash('danger', "Statistic '$name' already exists for user '{$this->getUser()->getUsername()}'");
                 return $this->redirectToRoute('statistic_view', ['id' => $existingStatistic->getIdString()]);
@@ -79,8 +76,7 @@ class StatisticController extends BaseController
             $statistic->setDescription($data->getDescription());
             $statistic->setTimeType($data->getTimeType());
 
-            $this->getDoctrine()->getManager()->persist($statistic);
-            $this->getDoctrine()->getManager()->flush();
+            $this->persist($statistic, true);
 
             $this->addFlash('success', "Statistic '$name' has been created");
 
@@ -108,11 +104,21 @@ class StatisticController extends BaseController
             $data = $form->getData();
             $statistic->setDescription($data->getDescription());
             $statistic->setTimeType($data->getTimeType());
-            $statistic->setValueType($data->getValueType());
 
-            $this->getDoctrine()->getManager()->flush();
+            $error = false;
+            if ($data->hasName()) {
+                if ($statisticRepository->existsForUserName($this->getUser(), $data->getName())) {
+                    $error = true;
+                    $this->addFlash('danger', "Statistic with name '{$data->getName()}' already exists");
+                } else {
+                    $statistic->setName($data->getName());
+                }
+            }
 
-            $this->addFlash('success', "Statistic '{$statistic->getName()}' has been updated");
+            if (!$error) {
+                $this->getDoctrine()->getManager()->flush();
+                $this->addFlash('success', "Statistic '{$statistic->getName()}' has been updated");
+            }
         }
 
         return $this->render('statistic/view.html.twig', [

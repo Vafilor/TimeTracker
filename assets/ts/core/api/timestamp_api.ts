@@ -1,6 +1,7 @@
 import { CoreApi } from "./api";
 import { ApiTag } from "./tag_api";
-import { AddStatisticRequest, ApiStatisticValue } from "./statistic_api";
+import { AddStatisticRequest } from "./statistic_api";
+import { ApiStatisticValue } from "./statistic_value_api";
 
 export interface ApiTimestamp {
     id: string;

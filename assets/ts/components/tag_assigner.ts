@@ -3,6 +3,7 @@ import TagList from "./tag_index";
 import { ApiTag } from "../core/api/tag_api";
 import AutocompleteTags from "./autocomplete_tags";
 import { AutocompleteEnterPressedEvent } from "./autocomplete";
+import IdGenerator from "./id_generator";
 
 export class TagAssigner {
     private readonly _$container: JQuery;
@@ -15,23 +16,27 @@ export class TagAssigner {
     private autocomplete: AutocompleteTags;
 
     static template(): string {
+        const id = IdGenerator.next();
+
         return `
         <div class="autocomplete js-autocomplete js-autocomplete-tags">
-            <div class="d-flex">
+            <div class="autocomplete-search-group">
                 <div class="search border-right-0 rounded-right-0">
+                    <label class="sr-only" for="autocomplete-tag-${id}">name</label>
                     <input
+                            id="autocomplete-tag-${id}"
                             type="text"
-                            class="js-input"
+                            class="js-input form-control unset-height"
                             placeholder="tag name..."
                             name="tag"
                             autocomplete="off">
                     <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
                 </div>
-                <button type="button" class="btn js-add btn-outline-primary rounded-left-0">
+                <button type="button" class="btn js-add btn-outline-primary autocomplete-search-group-append">
                     Add
                 </button>   
             </div>
-            <div class="search-results js-search-results d-none"></div>
+            <div class="search-results d-none js-search-results"></div>
         </div>`;
     }
 

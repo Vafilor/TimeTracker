@@ -13,9 +13,8 @@ import { TagAssigner } from "./components/tag_assigner";
 import TimerView from "./components/timer";
 import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/StatisticValueList";
 import { JsonResponse } from "./core/api/api";
-import { ApiStatisticValue } from "./core/api/statistic_api";
-import { TimestampApi } from "./core/api/timestamp_api";
 import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/StatisticValuePicker";
+import { ApiStatisticValue } from "./core/api/statistic_value_api";
 
 class TimeEntryAutoMarkdown extends AutoMarkdown {
     private readonly timeEntryId: string;
@@ -78,7 +77,7 @@ class TimeEntryPage {
 
         const $tagList = $('.js-tags');
         const tagList = new TagList($tagList, new TimeEntryApiAdapter(this.timeEntryId, this.flashes));
-        const $template = $('.js-autocomplete-tags');
+        const $template = $('.js-autocomplete-tags-container');
 
         this.tagEdit = new TagAssigner($template, tagList, this.flashes);
 
@@ -95,11 +94,11 @@ class TimeEntryPage {
     }
 
     private addStatisticData() {
-        const statisticValueList = new StatisticValueList($('.statistic-values'), new TimeEntryStatisticDelegate(this.timeEntryId));
+        const statisticValueList = new StatisticValueList($('.statistic-values'), new TimeEntryStatisticDelegate(this.timeEntryId), this.flashes);
 
         const statisticValuePicker = new StatisticValuePicker($('.js-add-statistic'), 'interval');
         statisticValuePicker.valuePicked.addObserver((event: StatisticValuePickedEvent) => {
-            statisticValueList.addRequest({
+            statisticValueList.add({
                 name: event.name,
                 value: event.value
             });

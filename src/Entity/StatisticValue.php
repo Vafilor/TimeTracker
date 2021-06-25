@@ -66,7 +66,7 @@ class StatisticValue
 
     public static function fromTimestamp(Statistic $statistic, float $value, Timestamp $timestamp): StatisticValue
     {
-        if ($statistic->getTimeType() !== TimeType::instant) {
+        if ($statistic->getTimeType() !== TimeType::INSTANT) {
             throw new InvalidArgumentException("Statistic is not an 'instant' type. Unable to associate to timestamp");
         }
 
@@ -81,15 +81,26 @@ class StatisticValue
 
     public static function fromTimeEntry(Statistic $statistic, float $value, TimeEntry $timeEntry): StatisticValue
     {
-        if ($statistic->getTimeType() !== TimeType::interval) {
+        $value = self::fromInterval($statistic, $value, $timeEntry->getStartedAt(), $timeEntry->getEndedAt());
+        $value->setTimeEntry($timeEntry);
+
+        return $value;
+    }
+
+    public static function fromInterval(
+        Statistic $statistic,
+        float $value,
+        DateTime $startedAt,
+        ?DateTime $endedAt = null): StatisticValue
+    {
+        if ($statistic->getTimeType() !== TimeType::INTERVAL) {
             throw new InvalidArgumentException("Statistic is not an 'interval' type. Unable to associate to time-entry");
         }
 
         $value = new StatisticValue($statistic, $value);
 
-        $value->setStartedAt($timeEntry->getStartedAt());
-        $value->setEndedAt($timeEntry->getEndedAt());
-        $value->setTimeEntry($timeEntry);
+        $value->setStartedAt($startedAt);
+        $value->setEndedAt($endedAt);
 
         return $value;
     }
@@ -114,7 +125,7 @@ class StatisticValue
         return $this;
     }
 
-    public function getValue(): string
+    public function getValue(): float
     {
         return $this->value;
     }

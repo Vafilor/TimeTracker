@@ -51,7 +51,7 @@
                         {% endfor %}
                     </td>
                     <td class="js-timestamp-ago">{{ timestamp.createdAt | ago }}</td>
-                    <td>{{ time.user_date(timestamp.createdAt, app.user) }}</td>
+                    <td>{{ time.user_datetime(timestamp.createdAt, app.user) }}</td>
                     <td>
                         <button type="button" class="btn btn-primary js-timestamp-repeat">
                             <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>

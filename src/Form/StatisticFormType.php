@@ -26,8 +26,8 @@ class StatisticFormType extends AbstractType
             ])
             ->add('timeType', ChoiceType::class, [
                 'choices' => [
-                    TimeType::instant => 'instant',
-                    TimeType::interval => 'interval'
+                    TimeType::INSTANT => 'instant',
+                    TimeType::INTERVAL => 'interval'
                 ]
             ])
         ;

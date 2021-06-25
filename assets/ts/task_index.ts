@@ -155,5 +155,4 @@ $(document).ready(() => {
                 $target.removeAttr('disabled');
             })
     });
-
 });

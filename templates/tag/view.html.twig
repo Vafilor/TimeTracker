@@ -14,7 +14,7 @@
     <div class="tag js-tag-preview" style="background-color: {{ tag.color }}">{{ tag.name }}</div>
     <hr/>
 
-    <div class="mb-2">Created: {{ time.user_date(tag.createdAt, app.user) }}</div>
+    <div class="mb-2">Created: {{ time.user_datetime(tag.createdAt, app.user) }}</div>
 
     {{ form_start(form) }}
     {{ form_label(form.color) }}

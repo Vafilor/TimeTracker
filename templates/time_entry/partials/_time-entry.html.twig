@@ -37,7 +37,7 @@
         </div>
     </div>
     <div class="d-flex js-timestamps mt-2">
-        <div class="timestamp js-started-at" data-timestamp="{{ timeEntry.startedAt.timestamp * 1000 }}">{{ time.user_date(timeEntry.startedAt, app.user) }}</div>
+        <div class="timestamp js-started-at" data-timestamp="{{ timeEntry.startedAt.timestamp * 1000 }}">{{ time.user_datetime(timeEntry.startedAt, app.user) }}</div>
 
         <div
             class="ml-2 timestamp js-ended-at"
@@ -46,7 +46,7 @@
             {% endif %}>
 
             {% if timeEntry.over %}
-                - {{ time.user_date(timeEntry.endedAt, app.user) }}
+                - {{ time.user_datetime(timeEntry.endedAt, app.user) }}
             {% endif %}
         </div>
     </div>

@@ -10,34 +10,28 @@ use InvalidArgumentException;
 
 class StatisticEditModel
 {
+    private ?string $name;
     private string $description;
-    private string $valueType;
     private string $timeType;
 
     public static function fromEntity(Statistic $statistic): StatisticEditModel
     {
         return new StatisticEditModel(
             $statistic->getDescription(),
-            $statistic->getValueType(),
             $statistic->getTimeType()
         );
     }
 
-    public function __construct(string $description, string $valueType, string $timeType)
+    public function __construct(string $description, string $timeType)
     {
+        $this->name = null;
         $this->setDescription($description);
-        $this->setValueType($valueType);
         $this->setTimeType($timeType);
     }
 
     public function getDescription(): ?string
     {
         return $this->description;
-    }
-
-    public function hasDescription(): bool
-    {
-        return !is_null($this->description);
     }
 
     public function setDescription(?string $description): self
@@ -47,17 +41,6 @@ class StatisticEditModel
         }
 
         $this->description = $description;
-        return $this;
-    }
-
-    public function getValueType(): string
-    {
-        return $this->valueType;
-    }
-
-    public function setValueType(string $valueType): StatisticEditModel
-    {
-        $this->valueType = $valueType;
         return $this;
     }
 
@@ -73,6 +56,22 @@ class StatisticEditModel
         }
 
         $this->timeType = $timeType;
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function hasName(): bool
+    {
+        return !is_null($this->name);
+    }
+
+    public function setName(?string $name): StatisticEditModel
+    {
+        $this->name = $name;
         return $this;
     }
 }

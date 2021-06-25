@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Manager;
 
+use App\Api\ApiStatistic;
 use App\Entity\Statistic;
 use App\Entity\Tag;
 use App\Entity\User;
@@ -33,7 +34,7 @@ class StatisticManager
         }
 
         $statistic = $this->statisticRepository->findOneBy([
-            'canonicalName' => $name,
+            'canonicalName' => Statistic::canonicalizeName($name),
             'assignedTo' => $assignedTo,
             'timeType' => $timeType
         ]);

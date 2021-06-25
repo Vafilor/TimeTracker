@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Traits;
+namespace App\Controller;
 
 use App\Api\ApiFormError;
 use App\Api\ApiProblem;
@@ -10,38 +10,25 @@ use App\Api\ApiProblemException;
 use App\Api\ApiStatisticValue;
 use App\Entity\StatisticValue;
 use App\Entity\TimeEntry;
-use App\Entity\Timestamp;
-use App\Entity\User;
 use App\Form\AddStatisticValueFormType;
 use App\Form\Model\AddStatisticValue;
 use App\Manager\StatisticManager;
-use App\Repository\StatisticValueRepository;
+use App\Util\DateRange;
 use App\Util\TimeType;
+use DateTime;
+use DateTimeZone;
 use InvalidArgumentException;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
-trait StatisticsValueController
+class ApiStatisticValueController extends BaseController
 {
-    abstract protected function createForm(string $type, $data = null, array $options = []): FormInterface;
-    abstract public function getJsonBody(Request $request, array $default = null): array;
-    abstract public function persistAndFlush(mixed $obj): void;
-    abstract public function removeAndFlush(mixed $obj): void;
-    abstract public function jsonNoNulls($data, int $status = 200, array $headers = [], array $context = []): JsonResponse;
-
-    public function addStatisticValueRequest(
-        Request $request,
-        StatisticManager $statisticManager,
-        User $assignedTo,
-        Timestamp|TimeEntry $resource)
+    #[Route('/api/record', name: 'api_statistic_value_create', methods: ["POST"])]
+    #[Route('/json/record', name: 'json_statistic_value_create', methods: ["POST"])]
+    public function addForDay(Request $request, StatisticManager $statisticManager): JsonResponse
     {
-        $timeType = TimeType::instant;
-        if ($resource instanceof TimeEntry) {
-            $timeType = TimeType::interval;
-        }
-
         $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValue(), [
             'csrf_protection' => false
         ]);
@@ -69,28 +56,22 @@ trait StatisticsValueController
 
         /** @var AddStatisticValue $data */
         $data = $form->getData();
-        $name = $data->getStatisticName();
         $value = $data->getValue();
+        $day = $data->getDay();
 
-        $statistic = $statisticManager->findOrCreateByName($data->getCanonicalStatisticName(), $assignedTo, $timeType);
-        $statisticValue = StatisticValue::fromResource($statistic, $value, $resource);
+        $userTimeZone = $this->getUser()->getTimezone();
+        if (!$day) {
+            $day = new DateTime('now', new DateTimeZone($userTimeZone));
+        }
 
-        $this->persistAndFlush($statisticValue);
+        $dayRange = DateRange::dayFromDateTime($day);
+        $statistic = $statisticManager->findOrCreateByName($data->getStatisticName(), $this->getUser(), TimeType::INTERVAL);
+        $statisticValue = StatisticValue::fromInterval($statistic, $value, $dayRange->getStart(), $dayRange->getEnd());
+
+        $this->persist($statisticValue, true);
 
         $apiModel = ApiStatisticValue::fromEntity($statisticValue);
 
         return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
-    }
-
-    public function removeStatisticValueRequest(
-        StatisticValueRepository $statisticValueRepository,
-        string $statisticId
-    )
-    {
-        $statisticValue = $statisticValueRepository->findOrException($statisticId);
-
-        $this->removeAndFlush($statisticValue);
-
-        return $this->jsonNoContent();
     }
 }

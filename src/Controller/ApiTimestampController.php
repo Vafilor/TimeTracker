@@ -27,7 +27,7 @@ use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
-use App\Traits\StatisticsValueController;
+use App\Traits\HasStatisticDataTrait;
 use App\Traits\TaggableController;
 use InvalidArgumentException;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
@@ -40,7 +40,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTimestampController extends BaseController
 {
     use TaggableController;
-    use StatisticsValueController;
+    use HasStatisticDataTrait;
 
     private DateTimeFormatter $dateTimeFormatter;
 
@@ -245,7 +245,8 @@ class ApiTimestampController extends BaseController
     public function addStatisticValue(
         Request $request,
         TimestampRepository $timestampRepository,
-        StatisticManager $statisticManager,
+        StatisticRepository $statisticRepository,
+        StatisticValueRepository $statisticValueRepository,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -256,7 +257,8 @@ class ApiTimestampController extends BaseController
 
         return $this->addStatisticValueRequest(
             $request,
-            $statisticManager,
+            $statisticRepository,
+            $statisticValueRepository,
             $this->getUser(),
             $timestamp
         );

@@ -47,11 +47,34 @@ class StatisticRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findWithUserName(User $user, string $name): Statistic|null
+    public function findWithUserNameCanonicalQueryBuilder(User $user, string $name): QueryBuilder
+    {
+        return $this->findWithUser($user)
+            ->andWhere('statistic.canonicalName = :name')
+            ->setParameter('name', $name)
+            ;
+    }
+
+    public function findWithUserName(User $user, string $name): ?Statistic
     {
         return $this->findWithUserNameQueryBuilder($user, $name)
                     ->getQuery()
                     ->getOneOrNullResult()
         ;
+    }
+
+    public function findWithUserNameCanonical(User $user, string $name): ?Statistic
+    {
+        return $this->findWithUserNameCanonicalQueryBuilder($user, $name)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    public function existsForUserName(User $user, string $name): bool
+    {
+        $result = $this->findWithUserName($user, $name);
+
+        return !is_null($result);
     }
 }

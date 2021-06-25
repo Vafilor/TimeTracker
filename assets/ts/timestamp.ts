@@ -6,11 +6,10 @@ import Flashes from "./components/flashes";
 import { ApiTag } from "./core/api/tag_api";
 import { TimestampApi } from "./core/api/timestamp_api";
 import { TagAssigner } from "./components/tag_assigner";
-import AutocompleteStatistics from "./components/autocomplete_statistics";
-import { ApiStatistic, ApiStatisticValue, StatisticApi } from "./core/api/statistic_api";
 import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/StatisticValuePicker";
 import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/StatisticValueList";
 import { JsonResponse } from "./core/api/api";
+import { ApiStatisticValue } from "./core/api/statistic_value_api";
 
 class TimestampApiAdapter implements TagListDelegate {
     constructor(private timestampId: string, private flashes: Flashes) {
@@ -55,18 +54,17 @@ class TimestampStatisticDelegate implements StatisticValueListDelegate{
 $(document).ready(() => {
     const $data = $('.js-data');
     const timestampId = $data.data('timestamp-id');
-    const durationFormat = $data.data('duration-format');
 
-    const flashes = new Flashes($('#flash-messages'));
+    const flashes = new Flashes($('#fixed-flash-messages'));
 
     const tagList = new TagList($('.js-tags'), new TimestampApiAdapter(timestampId, flashes));
-    const autocomplete = new TagAssigner($('.js-autocomplete-tags'), tagList, flashes);
+    const autocomplete = new TagAssigner($('.js-autocomplete-tags-container'), tagList, flashes);
 
-    const statisticValueList = new StatisticValueList($('.statistic-values'), new TimestampStatisticDelegate(timestampId));
+    const statisticValueList = new StatisticValueList($('.statistic-values'), new TimestampStatisticDelegate(timestampId), flashes);
 
     const statisticValuePicker = new StatisticValuePicker($('.js-add-statistic'), 'instant');
     statisticValuePicker.valuePicked.addObserver((event: StatisticValuePickedEvent) => {
-        statisticValueList.addRequest({
+        statisticValueList.add({
             name: event.name,
             value: event.value
         });

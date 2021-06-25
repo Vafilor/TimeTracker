@@ -1,10 +1,14 @@
 import $ from 'jquery';
-import { ApiStatisticValue } from "../core/api/statistic_api";
-import { JsonResponse } from "../core/api/api";
+import { ApiError, ApiErrorResponse, JsonResponse } from "../core/api/api";
+import { ApiStatisticValue, StatisticValueApi } from "../core/api/statistic_value_api";
+import IdGenerator from "./id_generator";
+import { ApiStatistic } from "../core/api/statistic_api";
+import Flashes from "./flashes";
 
 export interface AddStatisticValue {
     name: string;
     value: number;
+    day?: string;
 }
 
 export interface StatisticValueListDelegate {
@@ -13,8 +17,6 @@ export interface StatisticValueListDelegate {
 }
 
 export default class StatisticValueList {
-    private pendingItems = new Map<string, JQuery>();
-
     private static createItemHtml(value: ApiStatisticValue): string {
         return `
             <div class="statistic-value-row" data-id="${value.id}">
@@ -29,10 +31,19 @@ export default class StatisticValueList {
         `;
     }
 
+    private static fakeElement(data: AddStatisticValue): ApiStatisticValue {
+        return {
+            id: IdGenerator.next(),
+            name: data.name,
+            value: data.value
+        };
+    }
+
     constructor(
         private $container: JQuery,
-        private delegate: StatisticValueListDelegate) {
-
+        private delegate: StatisticValueListDelegate,
+        private flashes: Flashes
+    ) {
         $container.on(
             'click',
             '.js-delete',
@@ -52,6 +63,11 @@ export default class StatisticValueList {
         $container.find('button').removeAttr('disabled');
     }
 
+    // insertNewElement decides where to place the new element, potentially based on filter/order criteria
+    private insertNewElement($element: JQuery, data: ApiStatisticValue) {
+        this.$container.append($element);
+    }
+
     private deleteStatisticValue($element: JQuery) {
         const id = $element.data('id');
         this.disableStatisticValue($element);
@@ -59,64 +75,64 @@ export default class StatisticValueList {
         this.delegate.remove(id)
             .then(res => {
                 $element.remove();
-
             }, () =>{
                 this.enableStatisticValue($element);
             })
         ;
     }
 
-    private addPending(value: AddStatisticValue): string {
-        const id = Math.floor(Math.random() * 100000).toString();
-        const fakeItem: ApiStatisticValue = {
-            id,
-            name: value.name,
-            value: value.value
-        };
-
-
-        const $html = $(StatisticValueList.createItemHtml(fakeItem));
-        this.disableStatisticValue($html);
-
-        this.pendingItems.set(id, $html);
-
-        this.$container.prepend($html);
-
-        return id;
+    private getElementByName(name: string): JQuery {
+        return this.$container.find(`[data-name="${name}"]`);
     }
 
-    addRequest(value: AddStatisticValue) {
-        const id = this.addPending(value);
+    private highlightExisting(name: string) {
+        const $element = this.getElementByName(name);
+        $element.addClass('border-danger');
+
+        setTimeout(() => {
+            $element.removeClass('border-danger');
+        }, 1000);
+    }
+
+    add(value: AddStatisticValue) {
+        const $existingElement = this.getElementByName(value.name);
+        if ($existingElement.length !== 0) {
+            this.highlightExisting(value.name);
+            return;
+        }
+
+        const fake = StatisticValueList.fakeElement(value);
+        const $html = $(StatisticValueList.createItemHtml(fake));
+
+        this.disableStatisticValue($html);
+
+        this.insertNewElement($html, fake);
 
         this.delegate.add(value)
             .then(res => {
-                this.add(res.data, id);
-            }, (err) => {
-                this.removePending(id);
+                this.addSuccess($html, res.data);
+            }, (err: ApiErrorResponse) => {
+                this.addFailure($html);
+
+                if (err.response.status === 409) {
+                    this.flashes.append('danger', `Unable to add record, a record with name '${value.name}' already exists`);
+
+                    this.highlightExisting(value.name);
+                } else {
+                    this.flashes.append('danger', 'Unable to add record');
+                }
             })
         ;
     }
 
-    private add(value: ApiStatisticValue, id: string) {
-        const $html = this.pendingItems.get(id);
-        if (!$html) {
-            return;
-        }
+    private addSuccess($element: JQuery, value: ApiStatisticValue) {
+        $element.data('id', value.id);
+        $element.data('name', value.name);
 
-        $html.data('id', value.id);
-
-        this.enableStatisticValue($html);
-        this.pendingItems.delete(id);
+        this.enableStatisticValue($element);
     }
 
-    private removePending(id: string) {
-        const $html = this.pendingItems.get(id);
-        if (!$html) {
-            return;
-        }
-
-        $html.remove();
-
-        this.pendingItems.delete(id);
+    private addFailure($element: JQuery) {
+        $element.remove();
     }
 }

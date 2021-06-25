@@ -1,5 +1,6 @@
 {% extends 'sidebar.html.twig' %}
 {% import 'time/partials.html.twig' as time %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
 
 {% block content_class %}w-100{% endblock %}
 
@@ -13,27 +14,12 @@
 
     <div class="d-flex justify-content-between">
 
-        <div class="autocomplete js-autocomplete js-autocomplete-task">
-            <div class="d-flex bg-white">
-                <div class="search border-right-0 rounded-right-0">
-                    <input
-                            type="text"
-                            class="js-input"
-                            placeholder="task name..."
-                            name="task"
-                            autocomplete="off"
-                            {% if timeEntry.assignedToTask %}
-                            value="{{ timeEntry.task.name }}"
-                            {% endif %}
-                    >
-                    <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                </div>
-                <button type="button" class="btn js-delete btn-outline-danger rounded-left-0">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-            <div class="search-results js-search-results d-none"></div>
-        </div>
+        {% set taskName = '' %}
+        {% if timeEntry.assignedToTask %}
+            {% set taskName = timeEntry.task.name %}
+        {% endif %}
+
+        {{ autocomplete.removable('task', { button: { class: 'bg-weak-white btn-outline-danger'}, search: { value: taskName, placeholder: 'task name' } }) }}
 
         <div class="mt-2">
             {% if not timeEntry.over %}
@@ -51,26 +37,10 @@
         </div>
     </div>
 
-    <div class="js-autocomplete-tags d-flex align-items-center mt-2">
+    <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
         <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
 
-        <div class="autocomplete js-autocomplete js-autocomplete-tags">
-            <div class="d-flex bg-white">
-                <div class="search border-right-0 rounded-right-0">
-                    <input
-                            type="text"
-                            class="js-input"
-                            placeholder="tag name..."
-                            name="tag"
-                            autocomplete="off">
-                    <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                </div>
-                <button type="button" class="btn js-add btn-outline-primary rounded-left-0">
-                    Add
-                </button>
-            </div>
-            <div class="search-results js-search-results d-none"></div>
-        </div>
+        {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
     </div>
 
     {{ form_start(form, {attr: {class: 'mt-2'}}) }}
@@ -136,38 +106,30 @@
                 <tbody>
                     <tr>
                         <td>Created</td>
-                        <td>{{ time.user_date(timeEntry.createdAt, app.user) }}</td>
+                        <td>{{ time.user_datetime(timeEntry.createdAt, app.user) }}</td>
                     </tr>
                     <tr>
                         <td>Last Updated</td>
-                        <td>{{ time.user_date(timeEntry.updatedAt, app.user) }}</td>
+                        <td>{{ time.user_datetime(timeEntry.updatedAt, app.user) }}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="tab-pane fade" id="data" role="tabpanel" aria-labelledby="data-tab">
             <div class="d-flex mt-2 js-add-statistic add-statistic">
-                <div class="autocomplete js-autocomplete js-autocomplete-statistic">
-                    <div class="d-flex bg-white">
-                        <div class="search">
-                            <input
-                                    type="text"
-                                    class="js-input"
-                                    placeholder="name..."
-                                    name="statistic-name"
-                                    autocomplete="off">
-                            <button type="button" class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                        </div>
-                    </div>
-                    <div class="search-results js-search-results d-none"></div>
+                {{ autocomplete.list('statistic', { search: { tabIndex: '1' } }) }}
+                <div class="ml-2">
+                    <label class="sr-only" for="add-statistic-value">record value</label>
+                    <input
+                            id="add-statistic-value"
+                            tabindex="2"
+                            type="number"
+                            class="js-statistic-input form-control"
+                            placeholder="value..."
+                            autocomplete="off"
+                    />
                 </div>
-                <input
-                        type="number"
-                        class="js-statistic-input border rounded ml-2 focusable"
-                        placeholder="value..."
-                        autocomplete="off"
-                />
-                <button type="button" class="ml-2 btn btn-sm js-add btn-outline-primary">
+                <button type="button" class="ml-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
                     Add
                 </button>
             </div>

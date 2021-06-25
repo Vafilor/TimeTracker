@@ -1,5 +1,6 @@
 {% extends 'sidebar.html.twig' %}
 {% import 'time/partials.html.twig' as time %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
 
 {% block content_class %}w-100{% endblock %}
 
@@ -8,26 +9,10 @@
          data-duration-format="{{ app.user.durationFormat }}"
          data-timestamp-id="{{ timestamp.idString }}">
 
-        <div class="js-autocomplete-tags d-flex align-items-center mt-2">
+        <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
             <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
 
-            <div class="autocomplete js-autocomplete js-autocomplete-tags">
-                <div class="d-flex bg-white">
-                    <div class="search border-right-0 rounded-right-0">
-                        <input
-                                type="text"
-                                class="js-input"
-                                placeholder="tag name..."
-                                name="tag"
-                                autocomplete="off">
-                        <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                    </div>
-                    <button type="button" class="btn js-add btn-outline-primary rounded-left-0">
-                        Add
-                    </button>
-                </div>
-                <div class="search-results js-search-results d-none"></div>
-            </div>
+            {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
         </div>
 
         {{ form_start(form) }}
@@ -35,33 +20,31 @@
 
         <label>Data</label>
         <div class="d-flex mt-2 js-add-statistic add-statistic">
-            <div class="autocomplete js-autocomplete js-autocomplete-statistic">
-                <div class="d-flex bg-white">
-                    <div class="search">
-                        <input
-                                type="text"
-                                class="js-input"
-                                placeholder="name..."
-                                name="statistic-name"
-                                autocomplete="off">
-                        <button type="button" class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                    </div>
-                </div>
-                <div class="search-results js-search-results d-none"></div>
+            {{ autocomplete.list('statistic', { search: { tabIndex: '1' } }) }}
+            <div class="ml-2">
+                <label class="sr-only" for="add-statistic-value">record value</label>
+                <input
+                        id="add-statistic-value"
+                        tabindex="2"
+                        type="number"
+                        class="js-statistic-input form-control"
+                        placeholder="value..."
+                        autocomplete="off"
+                />
             </div>
-            <input
-                    type="number"
-                    class="js-statistic-input border rounded ml-2 focusable"
-                    placeholder="value..."
-                    autocomplete="off"
-            />
-            <button type="button" class="ml-2 btn btn-sm js-add btn-outline-primary">
+            <button type="button" class="ml-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
                 Add
             </button>
         </div>
+
+{#         TODO macro #}
+{#        Try using it for a while #}
         <div class="statistic-values mt-2">
         {% for value in timestamp.statisticValues %}
-            <div class="statistic-value-row" data-id="{{ value.idString }}">
+            <div
+                class="statistic-value-row js-statistic-item"
+                data-id="{{ value.idString }}"
+                data-name="{{ value.statistic.name }}">
                 <div class="content">
                     <span class="statistic-name">{{ value.statistic.name }}</span>
                     <span class="statistic-value ml-3">{{ value.value }}</span>

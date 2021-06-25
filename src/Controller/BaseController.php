@@ -126,25 +126,33 @@ class BaseController extends AbstractController
     }
 
     /**
-     * Utility method to get the doctrine manager, persist the input object, and flush.
+     * Utility method to get the doctrine manager, persist the input object
      * @param mixed $obj
+     * @param bool $flush
      */
-    public function persistAndFlush(mixed $obj): void
+    public function persist(mixed $obj, bool $flush = false): void
     {
         $manager = $this->getDoctrine()->getManager();
         $manager->persist($obj);
-        $manager->flush();
+
+        if ($flush) {
+            $manager->flush();
+        }
     }
 
     /**
-     * Utility method to get the doctrine manager, remove the input objet, and flush.
+     * Utility method to get the doctrine manager, remove the input object
      * @param mixed $obj
+     * @param bool $flush
      */
-    public function removeAndFlush(mixed $obj): void
+    public function doctrineRemove(mixed $obj, bool $flush = false): void
     {
         $manager = $this->getDoctrine()->getManager();
         $manager->remove($obj);
-        $manager->flush();
+
+        if ($flush) {
+            $manager->flush();
+        }
     }
 
     /**
