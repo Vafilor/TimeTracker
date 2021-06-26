@@ -28,7 +28,7 @@ class Statistic
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private string $icon;
+    private ?string $icon;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -44,6 +44,20 @@ class Statistic
      * @ORM\Column(type="text")
      */
     private string $description;
+
+    /**
+     * @ORM\Column(type="string", length=7)
+     *
+     * Hex color string, includes #. e.g. #FF0000
+     */
+    private string $color;
+
+    /**
+     * @ORM\Column(type="string")
+     *
+     * The unit of the statistic, like meters, cups, beats per minute.
+     */
+    private string $unit;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -77,6 +91,9 @@ class Statistic
         $this->description = '';
         $this->setTimeType($timeType);
         $this->tagLinks = new ArrayCollection();
+        $this->icon = null;
+        $this->color = '#000000';
+        $this->unit = '';
     }
 
     public function getCanonicalName(): string
@@ -107,11 +124,16 @@ class Statistic
         return $this->icon;
     }
 
-    public function setIcon(string $icon): self
+    public function setIcon(?string $icon): self
     {
         $this->icon = $icon;
 
         return $this;
+    }
+
+    public function hasIcon(): bool
+    {
+        return !is_null($this->icon);
     }
 
     public function getDescription(): string
@@ -139,6 +161,28 @@ class Statistic
 
         $this->timeType = $timeType;
 
+        return $this;
+    }
+
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): self
+    {
+        $this->color = $color;
+        return $this;
+    }
+
+    public function getUnit(): string
+    {
+        return $this->unit;
+    }
+
+    public function setUnit(string $unit): self
+    {
+        $this->unit = $unit;
         return $this;
     }
 }

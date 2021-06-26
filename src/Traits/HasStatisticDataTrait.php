@@ -17,7 +17,6 @@ use App\Entity\Timestamp;
 use App\Entity\User;
 use App\Form\AddStatisticValueFormType;
 use App\Form\Model\AddStatisticValue;
-use App\Manager\StatisticManager;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
 use App\Util\TimeType;
@@ -98,7 +97,7 @@ trait HasStatisticDataTrait
 
         $this->persist($statisticValue, true);
 
-        $apiModel = ApiStatisticValue::fromEntity($statisticValue);
+        $apiModel = ApiStatisticValue::fromEntity($statisticValue, $assignedTo);
 
         return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
     }

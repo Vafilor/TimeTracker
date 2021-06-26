@@ -14,7 +14,10 @@ class ApiStatistic
     public string $canonicalName;
     public string $createdAt;
     public int $createdAtEpoch;
-    public ?string $url = null;
+    public string $color;
+    public string $unit;
+    public ?string $icon;
+    public ?string $url;
 
     public static function fromEntity(Statistic $statistic, User $user, string $format = DateFormatType::DATE_TIME): ApiStatistic
     {
@@ -22,6 +25,9 @@ class ApiStatistic
         $entity->canonicalName = $statistic->getCanonicalName();
         $entity->createdAt = ApiDateTime::formatUserDate($statistic->getCreatedAt(), $user, $format);
         $entity->createdAtEpoch = $statistic->getCreatedAt()->getTimestamp();
+        $entity->color = $statistic->getColor();
+        $entity->icon = $statistic->getIcon();
+        $entity->unit = $statistic->getUnit();
 
         return $entity;
     }
@@ -44,5 +50,6 @@ class ApiStatistic
     {
         $this->name = $name;
         $this->url = null;
+        $this->icon = null;
     }
 }

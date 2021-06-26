@@ -16,6 +16,10 @@ class StatisticValueDayDelegate implements StatisticValueListDelegate{
         return StatisticValueApi.addForDay(value.name, value.value, value.day);
     }
 
+    update(id: string, value: number): Promise<JsonResponse<ApiStatisticValue>> {
+        return StatisticValueApi.update(id, value);
+    }
+
     remove(id: string): Promise<JsonResponse<void>> {
         // TODO
         return TimestampApi.removeStatistic('this.timestampId', id);

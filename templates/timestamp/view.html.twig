@@ -1,8 +1,11 @@
 {% extends 'sidebar.html.twig' %}
 {% import 'time/partials.html.twig' as time %}
 {% import 'components/autocomplete.html.twig' as autocomplete %}
+{% import 'components/statistic-value.html.twig' as statistics %}
 
 {% block content_class %}w-100{% endblock %}
+
+{% block title %}Timestamp{% endblock %}
 
 {% block content_body %}
     <div class="p-3 js-data"
@@ -37,24 +40,7 @@
             </button>
         </div>
 
-{#         TODO macro #}
-{#        Try using it for a while #}
-        <div class="statistic-values mt-2">
-        {% for value in timestamp.statisticValues %}
-            <div
-                class="statistic-value-row js-statistic-item"
-                data-id="{{ value.idString }}"
-                data-name="{{ value.statistic.name }}">
-                <div class="content">
-                    <span class="statistic-name">{{ value.statistic.name }}</span>
-                    <span class="statistic-value ml-3">{{ value.value }}</span>
-                </div>
-                <button type="button" class="btn btn-outline-danger btn-sm rounded-left-0 js-delete">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        {% endfor %}
-        </div>
+        {{ statistics.valueList(timestamp.statisticValues, {class: 'mt-2'}) }}
 
         <div class="mt-2">
             <button type="submit" class="btn btn-primary">Update</button>

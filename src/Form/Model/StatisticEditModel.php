@@ -10,23 +10,37 @@ use InvalidArgumentException;
 
 class StatisticEditModel
 {
-    private ?string $name;
+    private string $name;
     private string $description;
     private string $timeType;
+    // icon is optional
+    private ?string $icon;
+    private string $color;
+    private string $unit;
 
     public static function fromEntity(Statistic $statistic): StatisticEditModel
     {
-        return new StatisticEditModel(
+        $model = new StatisticEditModel(
+            $statistic->getName(),
             $statistic->getDescription(),
-            $statistic->getTimeType()
+            $statistic->getTimeType(),
+            $statistic->getColor(),
+            $statistic->getIcon()
         );
+
+        $model->setUnit($statistic->getUnit());
+
+        return $model;
     }
 
-    public function __construct(string $description, string $timeType)
+    public function __construct(string $name, string $description, string $timeType, string $color, ?string $icon)
     {
-        $this->name = null;
+        $this->name = $name;
         $this->setDescription($description);
         $this->setTimeType($timeType);
+        $this->color = $color;
+        $this->icon = $icon;
+        $this->unit = '';
     }
 
     public function getDescription(): ?string
@@ -41,6 +55,7 @@ class StatisticEditModel
         }
 
         $this->description = $description;
+
         return $this;
     }
 
@@ -64,14 +79,42 @@ class StatisticEditModel
         return $this->name;
     }
 
-    public function hasName(): bool
-    {
-        return !is_null($this->name);
-    }
-
-    public function setName(?string $name): StatisticEditModel
+    public function setName(string $name): self
     {
         $this->name = $name;
+        return $this;
+    }
+
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    public function setIcon(?string $icon): self
+    {
+        $this->icon = $icon;
+        return $this;
+    }
+
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): self
+    {
+        $this->color = $color;
+        return $this;
+    }
+
+    public function getUnit(): string
+    {
+        return $this->unit;
+    }
+
+    public function setUnit(string $unit): self
+    {
+        $this->unit = $unit;
         return $this;
     }
 }

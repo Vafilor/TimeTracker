@@ -10,9 +10,12 @@ use App\Api\ApiProblemException;
 use App\Api\ApiStatisticValue;
 use App\Entity\StatisticValue;
 use App\Entity\TimeEntry;
+use App\Entity\User;
 use App\Form\AddStatisticValueFormType;
 use App\Form\Model\AddStatisticValue;
 use App\Manager\StatisticManager;
+use App\Repository\StatisticValueRepository;
+use App\Repository\TimestampRepository;
 use App\Util\DateRange;
 use App\Util\TimeType;
 use DateTime;
@@ -70,8 +73,35 @@ class ApiStatisticValueController extends BaseController
 
         $this->persist($statisticValue, true);
 
-        $apiModel = ApiStatisticValue::fromEntity($statisticValue);
+        $apiModel = ApiStatisticValue::fromEntity($statisticValue, $this->getUser());
 
         return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
+    }
+
+    #[Route('/api/statistic-value/{id}', name: 'api_statistic_value_update', methods: ['PUT'])]
+    #[Route('/json/statistic-value/{id}', name: 'json_statistic_value_update', methods: ['PUT'])]
+    public function updateStatisticValue(
+        Request $request,
+        StatisticValueRepository $statisticValueRepository,
+        string $id,
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $data = $this->getJsonBody($request);
+        $this->ensureKeysExist($data, 'value');
+        $value = floatval($data['value']);
+
+        $statisticValue = $statisticValueRepository->findOrException($id);
+        if (!$statisticValue->getStatistic()->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $statisticValue->setValue($value);
+
+        $this->flush();
+
+        $apiModel = ApiStatisticValue::fromEntity($statisticValue, $this->getUser());
+
+        return $this->jsonNoNulls($apiModel, Response::HTTP_OK);
     }
 }

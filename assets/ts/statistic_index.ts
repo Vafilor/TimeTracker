@@ -81,6 +81,8 @@ class StatisticList {
             canonicalName: data.name,
             createdAt: '',
             createAtEpoch: 0,
+            color: '#000000',
+            unit: ''
         };
     }
 

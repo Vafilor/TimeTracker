@@ -9,7 +9,7 @@ import { TagAssigner } from "./components/tag_assigner";
 import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/StatisticValuePicker";
 import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/StatisticValueList";
 import { JsonResponse } from "./core/api/api";
-import { ApiStatisticValue } from "./core/api/statistic_value_api";
+import { ApiStatisticValue, StatisticValueApi } from "./core/api/statistic_value_api";
 
 class TimestampApiAdapter implements TagListDelegate {
     constructor(private timestampId: string, private flashes: Flashes) {
@@ -44,6 +44,10 @@ class TimestampStatisticDelegate implements StatisticValueListDelegate{
             statisticName: value.name,
             value: value.value
         });
+    }
+
+    update(id: string, value: number): Promise<JsonResponse<ApiStatisticValue>> {
+        return StatisticValueApi.update(id, value);
     }
 
     remove(id: string): Promise<JsonResponse<void>> {

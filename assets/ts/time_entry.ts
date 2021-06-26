@@ -14,7 +14,7 @@ import TimerView from "./components/timer";
 import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/StatisticValueList";
 import { JsonResponse } from "./core/api/api";
 import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/StatisticValuePicker";
-import { ApiStatisticValue } from "./core/api/statistic_value_api";
+import { ApiStatisticValue, StatisticValueApi } from "./core/api/statistic_value_api";
 
 class TimeEntryAutoMarkdown extends AutoMarkdown {
     private readonly timeEntryId: string;
@@ -46,6 +46,10 @@ class TimeEntryStatisticDelegate implements StatisticValueListDelegate{
         });
     }
 
+    update(id: string, value: number): Promise<JsonResponse<ApiStatisticValue>> {
+        return StatisticValueApi.update(id, value);
+    }
+
     remove(id: string): Promise<JsonResponse<void>> {
         return TimeEntryApi.removeStatistic(this.timeEntryId, id);
     }
@@ -64,7 +68,7 @@ class TimeEntryPage {
         const $data = $('.js-data');
         this.timeEntryId = $data.data('time-entry-id');
         this.durationFormat = $data.data('duration-format');
-        this.flashes = new Flashes($('#flash-messages'));
+        this.flashes = new Flashes($('#fixed-flash-messages'));
 
         this.autoMarkdown = new TimeEntryAutoMarkdown(
             '.js-description',

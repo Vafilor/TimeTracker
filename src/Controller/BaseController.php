@@ -141,6 +141,14 @@ class BaseController extends AbstractController
     }
 
     /**
+     * Utility method to get the doctrine manager, and flush the entity manager.
+     */
+    public function flush(): void
+    {
+        $this->getDoctrine()->getManager()->flush();
+    }
+
+    /**
      * Utility method to get the doctrine manager, remove the input object
      * @param mixed $obj
      * @param bool $flush

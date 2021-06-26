@@ -635,7 +635,8 @@ class ApiTimeEntryController extends BaseController
     public function addStatisticValue(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        StatisticManager $statisticManager,
+        StatisticRepository $statisticRepository,
+        StatisticValueRepository $statisticValueRepository,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -646,7 +647,8 @@ class ApiTimeEntryController extends BaseController
 
         return $this->addStatisticValueRequest(
             $request,
-            $statisticManager,
+            $statisticRepository,
+            $statisticValueRepository,
             $this->getUser(),
             $timeEntry
         );

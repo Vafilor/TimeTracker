@@ -104,9 +104,12 @@ class StatisticController extends BaseController
             $data = $form->getData();
             $statistic->setDescription($data->getDescription());
             $statistic->setTimeType($data->getTimeType());
+            $statistic->setIcon($data->getIcon());
+            $statistic->setColor($data->getColor());
+            $statistic->setUnit($data->getUnit());
 
             $error = false;
-            if ($data->hasName()) {
+            if ($data->getName() !== $statistic->getName()) {
                 if ($statisticRepository->existsForUserName($this->getUser(), $data->getName())) {
                     $error = true;
                     $this->addFlash('danger', "Statistic with name '{$data->getName()}' already exists");

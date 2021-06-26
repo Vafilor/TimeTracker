@@ -8,7 +8,12 @@ export default class AutocompleteStatistics extends PaginatedAutocomplete<ApiSta
     }
 
     protected template(item: ApiStatistic): string {
-        return `<div>${item.name}</div>`;
+        let icon = `<i class="far fa-square" style="color: ${item.color}"></i>`;
+        if (item.icon) {
+            icon = `<i class="${item.icon}" style="color: ${item.color}"></i>`
+        }
+
+        return `<div><span class="autocomplete-statistic-icon">${icon}</span>${item.name}</div>`;
     }
 
     protected queryApi(query: string): Promise<JsonResponse<PaginatedResponse<ApiStatistic>>> {

@@ -8,6 +8,7 @@ use App\Form\Model\StatisticEditModel;
 use App\Util\TimeType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -21,7 +22,14 @@ class StatisticEditFormType extends AbstractType
             ->add('name', TextType::class, [
                 'required' => false
             ])
+            ->add('color', ColorType::class)
+            ->add('icon', TextType::class, [
+                'required' => false
+            ])
             ->add('description', TextareaType::class, [
+                'required' => false
+            ])
+            ->add('unit', TextType::class, [
                 'required' => false
             ])
             ->add('timeType', ChoiceType::class, [

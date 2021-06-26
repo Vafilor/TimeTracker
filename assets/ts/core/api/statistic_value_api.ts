@@ -1,9 +1,10 @@
 import { CoreApi } from "./api";
+import { ApiStatistic } from "./statistic_api";
 
 export interface ApiStatisticValue {
     id: string;
-    name: string;
     value: number;
+    statistic: ApiStatistic;
 }
 
 export class StatisticValueApi {
@@ -12,6 +13,12 @@ export class StatisticValueApi {
             statisticName: name,
             value,
             day
+        });
+    }
+
+    public static update(id: string, value: number) {
+        return CoreApi.put<ApiStatisticValue>(`/json/statistic-value/${id}`, {
+            value
         });
     }
 }

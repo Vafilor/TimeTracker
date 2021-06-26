@@ -7,6 +7,9 @@ export interface ApiStatistic {
     canonicalName: string;
     createdAt: string;
     createAtEpoch: number;
+    color: string;
+    unit: string;
+    icon?: string;
     url?: string;
 }
 

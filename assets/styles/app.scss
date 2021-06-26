@@ -7,6 +7,7 @@
 @import "partials/tags";
 @import "partials/filters";
 @import "partials/autocomplete";
+@import "partials/statistics";
 
 $sidebarWidth: 260px;
 $headerHeight: 58px;
@@ -319,59 +320,6 @@ input {
     }
 }
 
-// TODO partial
-.statistic-values {
-    max-width: 300px;
-
-    .statistic-value-row {
-        display: flex;
-        justify-content: space-between;
-        border: 1px solid $input-border-color;
-        border-radius: $input-border-radius;
-        background-color: white;
-        transition: opacity 0.3s, border 0.3s;
-
-        &.disabled {
-            opacity: 0.65;
-        }
-
-        .content {
-            padding: 5px 0 5px 10px;
-        }
-
-        margin-top: 2px;
-
-        &:first-child {
-            margin-top: 0;
-        }
-
-    }
-}
-
-// TODO remove, I don't think this is used anymore
-input {
-    &.focusable {
-        &:focus {
-            color: #495057;
-            background-color: #fff;
-            border-color: #80bdff;
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
-        }
-    }
-}
-
-.add-statistic {
-    .js-statistic-input {
-        padding-left: 5px;
-    }
-}
-
-
 .bg-weak-white {
     background-color: white;
-
-    &:active {
-        background-color: unset;
-    }
 }
