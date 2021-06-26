@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Entity\User;
+use App\Traits\DatabaseUtilitiesTrait;
 use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\QueryBuilder;
@@ -25,6 +26,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
  */
 class BaseController extends AbstractController
 {
+    use DatabaseUtilitiesTrait;
+
     const PAGINATION_PER_PAGE = 10;
     const PAGINATION_MAX_PER_PAGE = 50;
 
@@ -123,44 +126,6 @@ class BaseController extends AbstractController
     public function jsonNoNulls($data, int $status = 200, array $headers = [], array $context = []): JsonResponse
     {
         return $this->json($data, $status, $headers, array_merge([AbstractObjectNormalizer::SKIP_NULL_VALUES => true, $context]));
-    }
-
-    /**
-     * Utility method to get the doctrine manager, persist the input object
-     * @param mixed $obj
-     * @param bool $flush
-     */
-    public function persist(mixed $obj, bool $flush = false): void
-    {
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($obj);
-
-        if ($flush) {
-            $manager->flush();
-        }
-    }
-
-    /**
-     * Utility method to get the doctrine manager, and flush the entity manager.
-     */
-    public function flush(): void
-    {
-        $this->getDoctrine()->getManager()->flush();
-    }
-
-    /**
-     * Utility method to get the doctrine manager, remove the input object
-     * @param mixed $obj
-     * @param bool $flush
-     */
-    public function doctrineRemove(mixed $obj, bool $flush = false): void
-    {
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($obj);
-
-        if ($flush) {
-            $manager->flush();
-        }
     }
 
     /**
