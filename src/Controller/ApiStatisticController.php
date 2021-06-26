@@ -15,6 +15,7 @@ use App\Form\Model\StatisticModel;
 use App\Form\StatisticFormType;
 use App\Repository\StatisticRepository;
 use App\Util\TimeType;
+use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -80,7 +81,13 @@ class ApiStatisticController extends BaseController
 
         $data = $this->getJsonBody($request);
 
-        $form->submit($data);
+        try {
+            $form->submit($data);
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            throw new ApiProblemException(
+                new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR)
+            );
+        }
 
         if (!$form->isSubmitted()) {
             throw new ApiProblemException(
