@@ -6,8 +6,8 @@ import Flashes from "./components/flashes";
 import { ApiTag } from "./core/api/tag_api";
 import { TimestampApi } from "./core/api/timestamp_api";
 import { TagAssigner } from "./components/tag_assigner";
-import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/StatisticValuePicker";
-import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/StatisticValueList";
+import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/statistic_value_picker";
+import Statistic_value_list, { AddStatisticValue, StatisticValueListDelegate } from "./components/statistic_value_list";
 import { JsonResponse } from "./core/api/api";
 import { ApiStatisticValue, StatisticValueApi } from "./core/api/statistic_value_api";
 
@@ -64,7 +64,7 @@ $(document).ready(() => {
     const tagList = new TagList($('.js-tags'), new TimestampApiAdapter(timestampId, flashes));
     const autocomplete = new TagAssigner($('.js-autocomplete-tags-container'), tagList, flashes);
 
-    const statisticValueList = new StatisticValueList($('.statistic-values'), new TimestampStatisticDelegate(timestampId), flashes);
+    const statisticValueList = new Statistic_value_list($('.statistic-values'), new TimestampStatisticDelegate(timestampId), flashes);
 
     const statisticValuePicker = new StatisticValuePicker($('.js-add-statistic'), 'instant');
     statisticValuePicker.valuePicked.addObserver((event: StatisticValuePickedEvent) => {

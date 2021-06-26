@@ -11,9 +11,9 @@ import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 import { TagAssigner } from "./components/tag_assigner";
 import TimerView from "./components/timer";
-import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/StatisticValueList";
+import Statistic_value_list, { AddStatisticValue, StatisticValueListDelegate } from "./components/statistic_value_list";
 import { JsonResponse } from "./core/api/api";
-import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/StatisticValuePicker";
+import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/statistic_value_picker";
 import { ApiStatisticValue, StatisticValueApi } from "./core/api/statistic_value_api";
 
 class TimeEntryAutoMarkdown extends AutoMarkdown {
@@ -98,7 +98,7 @@ class TimeEntryPage {
     }
 
     private addStatisticData() {
-        const statisticValueList = new StatisticValueList($('.statistic-values'), new TimeEntryStatisticDelegate(this.timeEntryId), this.flashes);
+        const statisticValueList = new Statistic_value_list($('.statistic-values'), new TimeEntryStatisticDelegate(this.timeEntryId), this.flashes);
 
         const statisticValuePicker = new StatisticValuePicker($('.js-add-statistic'), 'interval');
         statisticValuePicker.valuePicked.addObserver((event: StatisticValuePickedEvent) => {
