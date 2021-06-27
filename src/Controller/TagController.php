@@ -92,7 +92,7 @@ class TagController extends BaseController
                 return $this->redirectToRoute('tag_view', ['id' => $existingTag->getIdString()]);
             }
 
-            $tag = new Tag($this->getUser(), $name);
+            $tag = new Tag($this->getUser(), $name, $data->getColor());
             $this->getDoctrine()->getManager()->persist($tag);
             $this->getDoctrine()->getManager()->flush();
 
