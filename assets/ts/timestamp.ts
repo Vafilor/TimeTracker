@@ -7,8 +7,8 @@ import { ApiTag } from "./core/api/tag_api";
 import { TimestampApi } from "./core/api/timestamp_api";
 import { TagAssigner } from "./components/tag_assigner";
 import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/statistic_value_picker";
-import Statistic_value_list, { AddStatisticValue, StatisticValueListDelegate } from "./components/statistic_value_list";
-import { JsonResponse } from "./core/api/api";
+import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/statistic_value_list";
+import { ApiErrorResponse, JsonResponse } from "./core/api/api";
 import { ApiStatisticValue, StatisticValueApi } from "./core/api/statistic_value_api";
 
 class TimestampApiAdapter implements TagListDelegate {
@@ -64,13 +64,26 @@ $(document).ready(() => {
     const tagList = new TagList($('.js-tags'), new TimestampApiAdapter(timestampId, flashes));
     const autocomplete = new TagAssigner($('.js-autocomplete-tags-container'), tagList, flashes);
 
-    const statisticValueList = new Statistic_value_list($('.statistic-values'), new TimestampStatisticDelegate(timestampId), flashes);
+    const statisticValueList = new StatisticValueList($('.statistic-values'), new TimestampStatisticDelegate(timestampId), flashes);
 
     const statisticValuePicker = new StatisticValuePicker($('.js-add-statistic'), 'instant');
-    statisticValuePicker.valuePicked.addObserver((event: StatisticValuePickedEvent) => {
-        statisticValueList.add({
-            name: event.name,
-            value: event.value
-        });
+    statisticValuePicker.valuePicked.addObserver(async (event: StatisticValuePickedEvent) => {
+        try {
+            await statisticValueList.add({
+                name: event.name,
+                value: event.value
+            });
+        } catch (e) {
+            const err = e as ApiErrorResponse;
+            if (!err) {
+                return;
+            }
+
+            if (err.response.status === 409) {
+                flashes.append('danger', `Unable to add record, a record with name '${event.name}' already exists for ${event.day}`);
+            } else {
+                flashes.append('danger', 'Unable to add record');
+            }
+        }
     });
 });

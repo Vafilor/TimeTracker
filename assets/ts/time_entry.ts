@@ -11,8 +11,8 @@ import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 import { TagAssigner } from "./components/tag_assigner";
 import TimerView from "./components/timer";
-import Statistic_value_list, { AddStatisticValue, StatisticValueListDelegate } from "./components/statistic_value_list";
-import { JsonResponse } from "./core/api/api";
+import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/statistic_value_list";
+import { ApiErrorResponse, JsonResponse } from "./core/api/api";
 import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/statistic_value_picker";
 import { ApiStatisticValue, StatisticValueApi } from "./core/api/statistic_value_api";
 
@@ -98,14 +98,27 @@ class TimeEntryPage {
     }
 
     private addStatisticData() {
-        const statisticValueList = new Statistic_value_list($('.statistic-values'), new TimeEntryStatisticDelegate(this.timeEntryId), this.flashes);
+        const statisticValueList = new StatisticValueList($('.statistic-values'), new TimeEntryStatisticDelegate(this.timeEntryId), this.flashes);
 
         const statisticValuePicker = new StatisticValuePicker($('.js-add-statistic'), 'interval');
-        statisticValuePicker.valuePicked.addObserver((event: StatisticValuePickedEvent) => {
-            statisticValueList.add({
-                name: event.name,
-                value: event.value
-            });
+        statisticValuePicker.valuePicked.addObserver(async (event: StatisticValuePickedEvent) => {
+            try {
+                await statisticValueList.add({
+                    name: event.name,
+                    value: event.value
+                });
+            } catch (e) {
+                const err = e as ApiErrorResponse;
+                if (!err) {
+                    return;
+                }
+
+                if (err.response.status === 409) {
+                    this.flashes.append('danger', `Unable to add record, a record with name '${event.name}' already exists for ${event.day}`);
+                } else {
+                    this.flashes.append('danger', 'Unable to add record');
+                }
+            }
         });
     }
 }

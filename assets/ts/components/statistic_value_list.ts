@@ -4,6 +4,7 @@ import { ApiStatisticValue } from "../core/api/statistic_value_api";
 import IdGenerator from "./id_generator";
 import Flashes from "./flashes";
 import Observable from "./observable";
+import { TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 
 export interface AddStatisticValue {
     name: string;
@@ -286,11 +287,13 @@ export default class StatisticValueList {
         return this.items.find((value => value.data.name === name));
     }
 
-    add(value: AddStatisticValue) {
-        const existingElement = this.getItemByName(value.name);
-        if (existingElement) {
-            existingElement.highlight();
-            return;
+    async add(value: AddStatisticValue, skipExistingCheck = false): Promise<void|JsonResponse<ApiStatisticValue>> {
+        if (!skipExistingCheck) {
+            const existingElement = this.getItemByName(value.name);
+            if (existingElement) {
+                existingElement.highlight();
+                return Promise.resolve();
+            }
         }
 
         const fake = StatisticValueList.fakeElement(value);
@@ -302,19 +305,14 @@ export default class StatisticValueList {
 
         this.insertNewElement(newItem);
 
-        this.delegate.add(value)
-            .then(res => {
-                this.addSuccess(newItem, res.data);
-            }, (err: ApiErrorResponse) => {
-                this.addFailure(newItem);
+        try {
+            const res = await this.delegate.add(value);
+            this.addSuccess(newItem, res.data);
+        } catch (e) {
+            this.addFailure(newItem);
 
-                if (err.response.status === 409) {
-                    this.flashes.append('danger', `Unable to add record, a record with name '${value.name}' already exists`);
-                } else {
-                    this.flashes.append('danger', 'Unable to add record');
-                }
-            })
-        ;
+            throw e;
+        }
     }
 
     private addSuccess(item: StatisticValueItem, value: ApiStatisticValue) {

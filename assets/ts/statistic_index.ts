@@ -4,8 +4,6 @@ import $ from "jquery";
 import { ApiStatistic, CreateStatisticOptions, StatisticApi, TimeType } from "./core/api/statistic_api";
 import Observable from "./components/observable";
 import Flashes from "./components/flashes";
-import IdGenerator from "./components/id_generator";
-import { ApiStatisticValue } from "./core/api/statistic_value_api";
 import { ApiErrorResponse } from "./core/api/api";
 
 class CreateStatisticForm {
