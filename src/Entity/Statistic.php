@@ -11,6 +11,7 @@ use App\Traits\TaggableTrait;
 use App\Traits\UUIDTrait;
 use App\Util\TimeType;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
@@ -77,6 +78,12 @@ class Statistic
      */
     private $tagLinks;
 
+    /**
+     * @ORM\OneToMany(targetEntity=StatisticValue::class, mappedBy="statistic", orphanRemoval=true)
+     * @var StatisticValue[]|Collection
+     */
+    private Collection $statisticValues;
+
     public static function canonicalizeName(string $name): string
     {
         return trim(strtolower($name));
@@ -91,6 +98,7 @@ class Statistic
         $this->description = '';
         $this->setTimeType($timeType);
         $this->tagLinks = new ArrayCollection();
+        $this->statisticValues = new ArrayCollection();
         $this->icon = null;
         $this->color = '#000000';
         $this->unit = '';

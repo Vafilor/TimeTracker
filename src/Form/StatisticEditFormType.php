@@ -24,6 +24,8 @@ class StatisticEditFormType extends AbstractType
             ])
             ->add('color', ColorType::class)
             ->add('icon', TextType::class, [
+                'help' => "Choose a free icon from <a href=\"https://fontawesome.com/\" target='_blank'>Font Awesome</a>",
+                'help_html' => true,
                 'required' => false
             ])
             ->add('description', TextareaType::class, [

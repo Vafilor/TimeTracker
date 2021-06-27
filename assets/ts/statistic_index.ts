@@ -62,6 +62,7 @@ class StatisticList {
             <tr class="statistic-row">
                 <td><a href="${url}" class="js-name">${statistic.name}</a></td>
                 <td class="js-created-at">${statistic.createdAt}</td>
+                <td></td>
                 <td>
                     <a href="${url}" class="btn btn-primary js-view">View</a>
                 </td>

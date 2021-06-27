@@ -4,22 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Api\ApiPagination;
-use App\Api\ApiTag;
 use App\Entity\Statistic;
-use App\Entity\Tag;
 use App\Form\Model\StatisticEditModel;
 use App\Form\Model\StatisticModel;
-use App\Form\Model\TagEditModel;
-use App\Form\Model\TagListFilterModel;
-use App\Form\Model\TagModel;
 use App\Form\StatisticEditFormType;
 use App\Form\StatisticFormType;
-use App\Form\TagEditFormType;
-use App\Form\TagFormType;
-use App\Form\TagListFilterFormType;
 use App\Repository\StatisticRepository;
-use App\Repository\TagRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -128,5 +118,26 @@ class StatisticController extends BaseController
             'statistic' => $statistic,
             'form' => $form->createView()
         ]);
+    }
+
+    #[Route('/statistic/{id}/delete', name: 'statistic_delete')]
+    public function remove(
+        Request $request,
+        StatisticRepository $statisticRepository,
+        string $id
+    ): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $statistic = $statisticRepository->findOrException($id);
+        if (!$statistic->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $this->doctrineRemove($statistic, true);
+
+        $this->addFlash('success', 'Statistic successfully removed');
+
+        return $this->redirectToRoute('statistic_index');
     }
 }

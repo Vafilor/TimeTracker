@@ -22,12 +22,6 @@ class StatisticValue
     use CreateTimestampableTrait;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Statistic::class)
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private Statistic $statistic;
-
-    /**
      * @ORM\Column(type="float")
      */
     private float $value;
@@ -41,6 +35,12 @@ class StatisticValue
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected ?DateTime $endedAt;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Statistic::class, inversedBy="statisticValues")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private Statistic $statistic;
 
     /**
      * @ORM\ManyToOne(targetEntity=TimeEntry::class, inversedBy="statisticValues")

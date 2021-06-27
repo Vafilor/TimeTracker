@@ -112,8 +112,12 @@ class StatisticEditModel
         return $this->unit;
     }
 
-    public function setUnit(string $unit): self
+    public function setUnit(?string $unit): self
     {
+        if (is_null($unit)) {
+            $unit = '';
+        }
+
         $this->unit = $unit;
         return $this;
     }

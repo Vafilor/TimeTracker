@@ -13,9 +13,9 @@
             <div>
                 <strong>Resource</strong>
                 {% if statisticValue.timestamp %}
-                    timestamp
+                    <a href="{{ path('timestamp_view', { id: statisticValue.timestamp.id}) }}">timestamp</a>
                 {% elseif statisticValue.timeEntry %}
-                    time entry
+                    <a href="{{ path('time_entry_view', { id: statisticValue.timeEntry.id}) }}">time entry</a>
                 {% else %}
                     day
                 {% endif %}
@@ -27,10 +27,6 @@
                 <strong>End:</strong> {{ time.user_datetime(statisticValue.endedAt, app.user) }}
             </div>
         </div>
-
-
-
-
 
         {{ form_start(form) }}
         {{ form_widget(form) }}
@@ -62,7 +58,6 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 {% endblock %}
 

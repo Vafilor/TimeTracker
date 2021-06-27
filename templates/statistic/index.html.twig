@@ -38,6 +38,7 @@
             <tr>
                 <th>{{ knp_pagination_sortable(pagination, 'Name', 'statistic.name') }}</th>
                 <th>{{ knp_pagination_sortable(pagination, 'Created', 'statistic.createdAt') }}</th>
+                <th>Unit</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -47,8 +48,16 @@
                     class="statistic-row"
                     data-name="{{ statistic.name }}"
                     data-created-at="{{ statistic.createdAt.timestamp }}">
-                    <td><a href="{{ path('statistic_view', {id: statistic.idString}) }}">{{ statistic.name }}</a></td>
+                    <td>
+                        <a href="{{ path('statistic_view', {id: statistic.idString}) }}">
+                            {% if statistic.hasIcon %}
+                                <i class="{{ statistic.icon }}" style="color:{{ statistic.color }}"></i>
+                            {% endif %}
+                            {{ statistic.name }}
+                        </a>
+                    </td>
                     <td>{{ time.user_datetime(statistic.createdAt, app.user) }}</td>
+                    <td>{{ statistic.unit }}</td>
                     <td>
                         <a href="{{ path('statistic_view', {id: statistic.idString}) }}" class="btn btn-primary">View</a>
                     </td>
