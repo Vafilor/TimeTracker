@@ -47,26 +47,38 @@
                 <th>Start</th>
                 <th>Name</th>
                 <th>Value</th>
+                <th>Resource</th>
                 <th>Actions</th>
             </tr>
             </thead>
             <tbody>
             {% for date in data|keys %}
                 <tr>
-{#                     TOOD use the date format of the first entry #}
-                    <td colspan="4" class="table-secondary font-weight-bold">{{ date }}</td>
+                    <td colspan="5" class="table-secondary font-weight-bold">{{ date }}</td>
                 </tr>
                 {% for value in data[date] %}
                 <tr>
                     <td>
-                        {% if value.hasResource %}
-                            {{ time.user_date(value.startedAt, app.user) }}
+                        {% if value.timestamp %}
+                            {{ time.user_datetime(value.startedAt, app.user) }}
+                        {% elseif value.timeEntry %}
+                            {{ time.user_datetime(value.startedAt, app.user) }} -
+                            {{ time.user_datetime(value.endedAt, app.user) }}
                         {% else %}
                             {{ time.user_date(value.startedAt, app.user) }}
                         {% endif %}
                     </td>
                     <td>{{ value.statistic.name }}</td>
                     <td>{{ value.value }}</td>
+                    <td>
+                        {% if value.timestamp %}
+                            timestamp
+                        {% elseif value.timeEntry %}
+                            time entry
+                        {% else %}
+                            day
+                        {% endif %}
+                    </td>
                     <td>
                         <a href="{{ path('statistic_value_view', {id: value.idString}) }}" class="btn btn-primary">View</a>
                     </td>

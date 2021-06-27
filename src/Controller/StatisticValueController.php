@@ -8,6 +8,7 @@ use App\Entity\StatisticValue;
 use App\Form\Model\StatisticValueEditModel;
 use App\Form\StatisticValueEditFormType;
 use App\Repository\StatisticValueRepository;
+use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,15 +32,19 @@ class StatisticValueController extends BaseController
             'direction' => 'DESC'
         ]);
 
-        $dateFormat = 'm/d/Y';
         $data = [];
 
         /** @var StatisticValue|null $previousValue */
         $previousValue = null;
 
+        $dateFormat = $this->getUser()->getDateFormat();
+        $timezone = $this->getUser()->getTimezone();
+
         /** @var StatisticValue $statisticValue */
         foreach($pagination->getItems() as $statisticValue) {
-            $key = $statisticValue->getStartedAt()->format($dateFormat);
+            $start = clone $statisticValue->getStartedAt();
+            $startedAt = $start->setTimezone(new DateTimeZone($timezone));
+            $key = $startedAt->format($dateFormat);
 
             if (!$previousValue) {
                 $previousValue = $statisticValue;
@@ -91,5 +96,25 @@ class StatisticValueController extends BaseController
             'statisticValue' => $statisticValue,
             'form' => $form->createView()
         ]);
+    }
+
+    #[Route('/record/{id}/delete', name: 'statistic_value_delete')]
+    public function remove(
+        Request $request,
+        StatisticValueRepository $statisticValueRepository,
+        string $id): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $statisticValue = $statisticValueRepository->findOrException($id);
+        if (!$statisticValue->getStatistic()->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $this->doctrineRemove($statisticValue, true);
+
+        $this->addFlash('success', 'Record successfully removed');
+
+        return $this->redirectToRoute('statistic_value_index');
     }
 }

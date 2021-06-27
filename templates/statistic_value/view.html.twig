@@ -3,16 +3,66 @@
 
 {% block content_class %}w-100{% endblock %}
 
-{% block title %}TimeTracker{% endblock %}
+{% block title %}Record: {{ statisticValue.statistic.name }}{% endblock %}
 
 {% block content_body %}
     <div class="p-3">
         <h1 class="text-center">{{ statisticValue.statistic.name }}</h1>
 
+        <div>
+            <div>
+                <strong>Resource</strong>
+                {% if statisticValue.timestamp %}
+                    timestamp
+                {% elseif statisticValue.timeEntry %}
+                    time entry
+                {% else %}
+                    day
+                {% endif %}
+            </div>
+            <div>
+                <strong>Start:</strong> {{ time.user_datetime(statisticValue.startedAt, app.user) }}
+            </div>
+            <div>
+                <strong>End:</strong> {{ time.user_datetime(statisticValue.endedAt, app.user) }}
+            </div>
+        </div>
+
+
+
+
+
         {{ form_start(form) }}
         {{ form_widget(form) }}
         <button type="submit" class="btn btn-primary">Update</button>
+        <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#delete-modal">
+            Delete
+        </button>
         {{ form_end(form) }}
+
+    </div>
+    {{ form_end(form) }}
+
+    <!-- Delete modal -->
+    <div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="delete-modal-label">Are you sure you want to delete?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    This will delete the record
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a href="{{ path('statistic_value_delete', {id: statisticValue.id}) }}" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 {% endblock %}
 

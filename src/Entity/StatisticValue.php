@@ -33,12 +33,12 @@ class StatisticValue
     private float $value;
 
     /**
-     * @ORM\Column(type="datetimetz")
+     * @ORM\Column(type="datetime")
      */
     protected DateTime $startedAt;
 
     /**
-     * @ORM\Column(type="datetimetz", nullable=true)
+     * @ORM\Column(type="datetime", nullable=true)
      */
     protected ?DateTime $endedAt;
 
@@ -139,18 +139,23 @@ class StatisticValue
 
     public function getStartedAt(): DateTime
     {
-        return $this->startedAt;
+        return clone $this->startedAt;
     }
 
     public function setStartedAt(DateTime $startedAt): self
     {
+        $startedAt->setTimezone(new DateTimeZone('UTC'));
         $this->startedAt = $startedAt;
         return $this;
     }
 
     public function getEndedAt(): ?DateTime
     {
-        return $this->endedAt;
+        if (is_null($this->endedAt)) {
+            return null;
+        }
+
+        return clone $this->endedAt;
     }
 
     public function setEndedAt(?DateTime $endedAt): static
@@ -190,5 +195,20 @@ class StatisticValue
     public function hasResource(): bool
     {
         return !is_null($this->timestamp) || !is_null($this->timeEntry);
+    }
+
+    public function hasTimestamp(): bool
+    {
+        return !is_null($this->timestamp);
+    }
+
+    public function hasTimeEntry(): bool
+    {
+        return !is_null($this->timeEntry);
+    }
+
+    public function hasDay(): bool
+    {
+        return !$this->hasTimestamp() && !$this->hasTimeEntry();
     }
 }

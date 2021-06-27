@@ -42,6 +42,6 @@ trait CreateTimestampableTrait
 
     public function getCreatedAt(): DateTime
     {
-        return $this->createdAt;
+        return clone $this->createdAt;
     }
 }

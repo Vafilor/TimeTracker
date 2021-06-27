@@ -21,6 +21,7 @@ class AddStatisticValueFormType extends AbstractType
             ->add('day', DateType::class, [
                 'required' => false,
                 'widget' => 'single_text',
+                'view_timezone' => $options['timezone']
             ])
         ;
     }
@@ -30,5 +31,7 @@ class AddStatisticValueFormType extends AbstractType
         $resolver->setDefaults([
                                    'data_class' => AddStatisticValue::class
                                ]);
+
+        $resolver->setRequired(['timezone']);
     }
 }

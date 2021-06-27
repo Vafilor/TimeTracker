@@ -12,15 +12,13 @@ class DateRange
     private DateTime $start;
     private DateTime $end;
 
-    public static function dayFromDateTime(DateTime $dateTime, string $timeZone = 'UTC'): DateRange
+    public static function dayFromDateTime(DateTime $dateTime): DateRange
     {
         $start = clone $dateTime;
         $start->setTime(0, 0, 0, 0);
-        $start->setTimezone(new DateTimeZone($timeZone));
 
         $end = clone $dateTime;
         $end->setTime(23, 59, 59);
-        $end->setTimezone(new DateTimeZone($timeZone));
 
         return new DateRange($start, $end);
     }
@@ -33,11 +31,12 @@ class DateRange
 
     public function getStart(): DateTime
     {
-        return $this->start;
+
+        return clone $this->start;
     }
 
     public function getEnd(): DateTime
     {
-        return $this->end;
+        return clone $this->end;
     }
 }

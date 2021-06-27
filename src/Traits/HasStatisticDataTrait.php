@@ -47,7 +47,8 @@ trait HasStatisticDataTrait
         }
 
         $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValue(), [
-            'csrf_protection' => false
+            'csrf_protection' => false,
+            'timezone' => $assignedTo->getTimezone(),
         ]);
 
         $data = $this->getJsonBody($request);

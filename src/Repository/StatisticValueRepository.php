@@ -8,6 +8,8 @@ use App\Entity\TimeEntry;
 use App\Entity\Timestamp;
 use App\Entity\User;
 use App\Traits\FindOrExceptionTrait;
+use App\Util\DateRange;
+use DateTimeZone;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -73,5 +75,32 @@ class StatisticValueRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * @param Statistic $statistic
+     * @param DateRange $dateRange
+     * @return StatisticValue|null
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findForDay(Statistic $statistic, DateRange $dateRange): ?StatisticValue
+    {
+        $start = $dateRange->getStart()->setTimezone(new DateTimeZone('UTC'));
+        $end = $dateRange->getEnd()->setTimezone(new DateTimeZone('UTC'));
+
+        return $this->createDefaultQueryBuilder()
+                    ->andWhere('statistic_value.statistic = :statistic')
+                    ->andWhere('statistic_value.timestamp IS NULL')
+                    ->andWhere('statistic_value.timeEntry IS NULL')
+                    ->andWhere('statistic_value.startedAt = :start')
+                    ->andWhere('statistic_value.endedAt = :end')
+                    ->setParameters([
+                        'statistic' => $statistic,
+                        'start' => $start,
+                        'end' => $end
+                     ])
+                    ->getQuery()
+                    ->getOneOrNullResult()
+        ;
     }
 }
