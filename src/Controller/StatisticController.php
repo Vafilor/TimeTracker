@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiTag;
 use App\Entity\Statistic;
 use App\Form\Model\StatisticEditModel;
 use App\Form\Model\StatisticModel;
@@ -113,10 +114,11 @@ class StatisticController extends BaseController
                 $this->addFlash('success', "Statistic '{$statistic->getName()}' has been updated");
             }
         }
-
+        
         return $this->render('statistic/view.html.twig', [
             'statistic' => $statistic,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'tags' => ApiTag::fromEntities($statistic->getTags()),
         ]);
     }
 

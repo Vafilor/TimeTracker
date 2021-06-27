@@ -1,12 +1,14 @@
 {% extends 'sidebar.html.twig' %}
 {% import 'time/partials.html.twig' as time %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
 
 {% block content_class %}w-100{% endblock %}
 
 {% block title %}Stat: {{ statistic.name }}{% endblock %}
 
 {% block content_body %}
-    <div class="p-3">
+    <div class="p-3 js-data"
+         data-statistic-id="{{ statistic.idString }}">
 
         <h1 class="text-center">
             <div class="d-inline-block js-statistic-icon-preview mr-2" style="color: {{ statistic.color }}">
@@ -17,7 +19,13 @@
             {{ statistic.name }}
         </h1>
 
-        <div class="mb-2">Created: {{ time.user_datetime(statistic.createdAt, app.user) }}</div>
+        <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
+            <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+
+            {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+        </div>
+
+        <div class="mb-2 mt-2">Created: {{ time.user_datetime(statistic.createdAt, app.user) }}</div>
 
         {{ form_start(form) }}
         {{ form_row(form.name) }}

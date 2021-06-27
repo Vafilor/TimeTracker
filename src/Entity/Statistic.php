@@ -73,7 +73,7 @@ class Statistic
     private User $assignedTo;
 
     /**
-     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timeEntry")
+     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="statistic")
      * @var TagLink[]
      */
     private $tagLinks;

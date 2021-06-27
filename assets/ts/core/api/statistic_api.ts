@@ -1,4 +1,5 @@
 import { CoreApi, PaginatedResponse } from './api';
+import { ApiTag } from "./tag_api";
 
 export type TimeType = 'instant' | 'interval';
 
@@ -35,5 +36,21 @@ export class StatisticApi {
         const url = `/json/statistic`;
 
         return CoreApi.post<ApiStatistic>(url, options);
+    }
+
+    public static addTag(statisticId: string, tagName: string) {
+        return CoreApi.post<ApiTag>(`/json/statistic/${statisticId}/tag`, {
+            name: tagName
+        });
+    }
+
+    public static getTags(statisticId: string) {
+        return CoreApi.get<ApiTag[]>(`/json/statistic/${statisticId}/tags`);
+    }
+
+    public static removeTag(statisticId: string, tagName: string) {
+        tagName = encodeURIComponent(tagName);
+
+        return CoreApi.delete(`/json/statistic/${statisticId}/tag/${tagName}`);
     }
 }

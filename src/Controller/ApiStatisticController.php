@@ -13,7 +13,11 @@ use App\Api\ApiStatistic;
 use App\Entity\Statistic;
 use App\Form\Model\StatisticModel;
 use App\Form\StatisticFormType;
+use App\Manager\TagManager;
 use App\Repository\StatisticRepository;
+use App\Repository\TagLinkRepository;
+use App\Repository\TagRepository;
+use App\Traits\TaggableController;
 use App\Util\TimeType;
 use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
@@ -24,6 +28,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiStatisticController extends BaseController
 {
+    use TaggableController;
+
     #[Route('/api/statistic', name: 'api_statistic_index', methods: ["GET"])]
     #[Route('/json/statistic', name: 'json_statistic_index', methods: ["GET"])]
     public function index(
@@ -129,5 +135,70 @@ class ApiStatisticController extends BaseController
         }
 
         return $this->jsonNoNulls($apiStatistic, Response::HTTP_CREATED);
+    }
+
+    #[Route('/api/statistic/{id}/tag', name: 'api_statistic_tag_create', methods: ['POST'])]
+    #[Route('/json/statistic/{id}/tag', name: 'json_statistic_tag_create', methods: ['POST'])]
+    public function addTag(
+        Request $request,
+        StatisticRepository $statisticRepository,
+        TagManager $tagManager,
+        TagLinkRepository $tagLinkRepository,
+        string $id
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $statistic = $statisticRepository->findOrException($id);
+        if (!$statistic->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->addTagRequest(
+            $request,
+            $tagManager,
+            $tagLinkRepository,
+            $this->getUser(),
+            $statistic
+        );
+    }
+
+    #[Route('/api/statistic/{id}/tag/{tagName}', name: 'api_statistic_tag_delete', methods: ['DELETE'])]
+    #[Route('/json/statistic/{id}/tag/{tagName}', name: 'json_statistic_tag_delete', methods: ['DELETE'])]
+    public function removeTag(
+        Request $request,
+        StatisticRepository $statisticRepository,
+        TagRepository $tagRepository,
+        TagLinkRepository $tagLinkRepository,
+        string $id,
+        string $tagName
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $statistic = $statisticRepository->findOrException($id);
+        if (!$statistic->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->removeTagRequest(
+            $tagRepository,
+            $tagLinkRepository,
+            $this->getUser(),
+            $tagName,
+            $statistic
+        );
+    }
+
+    #[Route('/api/statistic/{id}/tags', name: 'api_statistic_tags', methods: ["GET"])]
+    #[Route('/json/statistic/{id}/tags', name: 'json_statistic_tags', methods: ["GET"])]
+    public function indexTag(
+        Request $request,
+        StatisticRepository $statisticRepository,
+        string $id
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $statistic = $statisticRepository->findOrException($id);
+        if (!$statistic->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->getTagsRequest($statistic);
     }
 }
