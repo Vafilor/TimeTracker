@@ -129,9 +129,32 @@ class TagController extends BaseController
             $this->addFlash('success', "Tag '{$tag->getName()}' has been updated");
         }
 
+        $count = $tagRepository->getReferenceCount($tag);
+
         return $this->render('tag/view.html.twig', [
             'tag' => $tag,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'references' => $count
         ]);
+    }
+
+    #[Route('/tag/{id}/delete', name: 'tag_delete')]
+    public function remove(
+        Request $request,
+        TagRepository $tagRepository,
+        string $id
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $tag = $tagRepository->findOrException($id);
+        if (!$tag->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $this->doctrineRemove($tag, true);
+
+        $this->addFlash('success', 'Tag successfully removed');
+
+        return $this->redirectToRoute('tag_index');
     }
 }

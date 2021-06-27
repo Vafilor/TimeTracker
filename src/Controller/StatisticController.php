@@ -114,7 +114,7 @@ class StatisticController extends BaseController
                 $this->addFlash('success', "Statistic '{$statistic->getName()}' has been updated");
             }
         }
-        
+
         return $this->render('statistic/view.html.twig', [
             'statistic' => $statistic,
             'form' => $form->createView(),

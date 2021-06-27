@@ -72,4 +72,30 @@ class TagRepository extends ServiceEntityRepository
 
         return !is_null($existingTag);
     }
+
+    public function getReferenceCount(Tag $tag): int
+    {
+        $timeEntryQueryBuilder = $this->createDefaultQueryBuilder()
+             ->select('COUNT(tag.id)')
+             ->join('tag.tagLinks', 'tag_link')
+             ->join('tag_link.timeEntry', 'time_entry')
+             ->andWhere('tag_link.timeEntry IS NOT NULL')
+             ->andWhere('time_entry.deletedAt IS NULL')
+             ->andWhere('tag = :tag')
+             ->setParameter('tag', $tag)
+        ;
+
+        $otherQueryBuilder = $this->createDefaultQueryBuilder()
+            ->select('COUNT(tag.id)')
+            ->join('tag.tagLinks', 'tag_link')
+            ->andWhere('tag_link.timeEntry IS NULL')
+            ->andWhere('tag = :tag')
+            ->setParameter('tag', $tag)
+        ;
+
+        $timeEntryCount = $timeEntryQueryBuilder->getQuery()->getSingleScalarResult();
+        $otherCount = $otherQueryBuilder->getQuery()->getSingleScalarResult();
+
+        return $timeEntryCount + $otherCount;
+    }
 }

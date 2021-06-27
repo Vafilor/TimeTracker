@@ -39,13 +39,13 @@ class TagLink
     private ?Task $task;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Tag::class)
+     * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=false)
      */
     private Tag $tag;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Statistic::class)
+     * @ORM\ManyToOne(targetEntity=Statistic::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=true)
      */
     private ?Statistic $statistic;
