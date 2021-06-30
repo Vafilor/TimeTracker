@@ -149,6 +149,11 @@ class StatisticValue
         return $this;
     }
 
+    public function hasEnded(): bool
+    {
+        return !is_null($this->endedAt);
+    }
+
     public function getEndedAt(): ?DateTime
     {
         if (is_null($this->endedAt)) {

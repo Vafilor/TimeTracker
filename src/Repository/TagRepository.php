@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Tag;
 use App\Entity\User;
+use App\Traits\FindByKeysInterface;
 use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -20,7 +21,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Tag[]    findAll()
  * @method Tag[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TagRepository extends ServiceEntityRepository
+class TagRepository extends ServiceEntityRepository implements FindByKeysInterface
 {
     use FindByKeysTrait;
     use FindOrExceptionTrait;

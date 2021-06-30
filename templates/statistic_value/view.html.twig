@@ -11,6 +11,9 @@
 
         <div>
             <div>
+                <strong>Statistic</strong> <a href="{{ path('statistic_view', {id: statisticValue.statistic.id}) }}">{{ statisticValue.statistic.name }}</a>
+            </div>
+            <div>
                 <strong>Resource</strong>
                 {% if statisticValue.timestamp %}
                     <a href="{{ path('timestamp_view', { id: statisticValue.timestamp.id}) }}">timestamp</a>

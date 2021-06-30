@@ -2,11 +2,15 @@
 
 namespace App\Command;
 
+use App\Repository\StatisticRepository;
+use App\Repository\StatisticValueRepository;
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\TimestampRepository;
 use App\Repository\UserRepository;
+use App\Transfer\TransferStatistic;
+use App\Transfer\TransferStatisticValue;
 use App\Transfer\TransferTag;
 use App\Transfer\TransferTask;
 use App\Transfer\TransferTimeEntry;
@@ -33,6 +37,8 @@ class ExportDataCommand extends Command
     private TimestampRepository $timestampRepository;
     private TaskRepository $taskRepository;
     private TimeEntryRepository $timeEntryRepository;
+    private StatisticRepository $statisticRepository;
+    private StatisticValueRepository $statisticValueRepository;
 
     public function __construct(
         string $name = null,
@@ -41,7 +47,9 @@ class ExportDataCommand extends Command
         UserRepository $userRepository,
         TimestampRepository $timestampRepository,
         TaskRepository $taskRepository,
-        TimeEntryRepository $timeEntryRepository
+        TimeEntryRepository $timeEntryRepository,
+        StatisticRepository $statisticRepository,
+        StatisticValueRepository $statisticValueRepository,
     ) {
         parent::__construct($name);
         $this->serializer = $serializer;
@@ -50,6 +58,8 @@ class ExportDataCommand extends Command
         $this->timestampRepository = $timestampRepository;
         $this->taskRepository = $taskRepository;
         $this->timeEntryRepository = $timeEntryRepository;
+        $this->statisticRepository = $statisticRepository;
+        $this->statisticValueRepository = $statisticValueRepository;
     }
 
     protected function configure(): void
@@ -108,6 +118,12 @@ class ExportDataCommand extends Command
 
         $io->writeln("Exporting Time Entries...");
         $fileExportOrder = array_merge($fileExportOrder, $this->exportTimeEntries($outputPath));
+
+        $io->writeln("Exporting Statistics...");
+        $fileExportOrder = array_merge($fileExportOrder, $this->exportStatistics($outputPath));
+
+        $io->writeln("Exporting Statistic Values...");
+        $fileExportOrder = array_merge($fileExportOrder, $this->exportStatisticValues($outputPath));
 
         $fileExportOrderPath = $outputPath . DIRECTORY_SEPARATOR . 'order.json';
 
@@ -201,5 +217,27 @@ class ExportDataCommand extends Command
         $filePrefix = $path . DIRECTORY_SEPARATOR . 'time_entries';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTimeEntry::fromEntities($items));
+    }
+
+    private function exportStatistics(string $path): array
+    {
+        $queryBuilder = $this->statisticRepository->createDefaultQueryBuilder()
+                                                  ->orderBy('statistic.createdAt')
+        ;
+
+        $filePrefix = $path . DIRECTORY_SEPARATOR . 'statistics';
+
+        return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferStatistic::fromEntities($items));
+    }
+
+    private function exportStatisticValues(string $path): array
+    {
+        $queryBuilder = $this->statisticValueRepository->createDefaultQueryBuilder()
+                                                       ->orderBy('statistic_value.createdAt')
+        ;
+
+        $filePrefix = $path . DIRECTORY_SEPARATOR . 'statistic_values';
+
+        return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferStatisticValue::fromEntities($items));
     }
 }

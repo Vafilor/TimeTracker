@@ -7,6 +7,8 @@ use App\Entity\StatisticValue;
 use App\Entity\TimeEntry;
 use App\Entity\Timestamp;
 use App\Entity\User;
+use App\Traits\FindByKeysInterface;
+use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
 use App\Util\DateRange;
 use DateTimeZone;
@@ -22,9 +24,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method StatisticValue[]    findAll()
  * @method StatisticValue[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class StatisticValueRepository extends ServiceEntityRepository
+class StatisticValueRepository extends ServiceEntityRepository implements FindByKeysInterface
 {
     use FindOrExceptionTrait;
+    use FindByKeysTrait;
 
     public function __construct(ManagerRegistry $registry)
     {

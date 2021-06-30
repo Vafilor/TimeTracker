@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Form\Model\TimeEntryListFilterModel;
+use App\Traits\FindByKeysInterface;
 use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -21,9 +22,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @method TimeEntry findOneByOrException(array $criteria, array $orderBy = null)
  * @method TimeEntry[]    findAll()
  * @method TimeEntry[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- * @method TimeEntry[] findByKeys(string $key, mixed $keys);
+ * @method TimeEntry[] findByKeys(string $key, mixed $values);
  */
-class TimeEntryRepository extends ServiceEntityRepository
+class TimeEntryRepository extends ServiceEntityRepository implements FindByKeysInterface
 {
     use FindOrExceptionTrait;
     use FindByKeysTrait;

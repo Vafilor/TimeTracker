@@ -45,7 +45,7 @@
             <thead>
             <tr>
                 <th>Start</th>
-                <th>Name</th>
+                <th>Statistic</th>
                 <th>Value</th>
                 <th>Resource</th>
                 <th>Actions</th>
@@ -68,7 +68,14 @@
                             {{ time.user_date(value.startedAt, app.user) }}
                         {% endif %}
                     </td>
-                    <td>{{ value.statistic.name }}</td>
+                    <td>
+                        <span style="color: {{ value.statistic.color }}">
+                            {% if value.statistic.icon %}
+                                <i class="{{ value.statistic.icon }}"></i>
+                            {% endif %}
+                        </span>
+                        <span class="ml-2">{{ value.statistic.name }}</span>
+                    </td>
                     <td>{{ value.value }}</td>
                     <td>
                         {% if value.timestamp %}

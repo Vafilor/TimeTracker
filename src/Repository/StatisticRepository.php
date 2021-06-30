@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Statistic;
 use App\Entity\User;
+use App\Traits\FindByKeysInterface;
+use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -17,9 +19,10 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Statistic findOrException($id, $lockMode = null, $lockVersion = null)
  * @method Statistic findOneByOrException(array $criteria, array $orderBy = null)
  */
-class StatisticRepository extends ServiceEntityRepository
+class StatisticRepository extends ServiceEntityRepository implements FindByKeysInterface
 {
     use FindOrExceptionTrait;
+    use FindByKeysTrait;
 
     public function __construct(ManagerRegistry $registry)
     {
