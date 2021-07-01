@@ -239,7 +239,7 @@ class ApiTaskController extends BaseController
 
         $tagName = $data['tagName'];
 
-        $tag = $tagRepository->findOneBy(['name' => $tagName, 'assignedto' => $this->getUser()]);
+        $tag = $tagRepository->findOneBy(['name' => $tagName, 'assignedTo' => $this->getUser()]);
         if (is_null($tag)) {
             $tag = new Tag($this->getUser(), $tagName);
             $this->getDoctrine()->getManager()->persist($tag);
