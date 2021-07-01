@@ -2,7 +2,6 @@ import $ from 'jquery';
 
 import '../styles/tag.scss';
 
-
 $(document).ready(() => {
     // Set up the preview to change color when the form input does
     const $colorPreview = $('.js-tag-preview');

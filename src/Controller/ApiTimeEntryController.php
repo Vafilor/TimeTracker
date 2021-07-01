@@ -9,10 +9,8 @@ use App\Api\ApiFormError;
 use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
-use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Api\ApiTimeEntry;
-use App\Entity\Tag;
 use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Entity\TimeEntry;
@@ -25,6 +23,7 @@ use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
+use App\Traits\TaggableController;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -38,6 +37,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiTimeEntryController extends BaseController
 {
+    use TaggableController;
+
     /**
      * @throws Exception
      */
@@ -194,7 +195,7 @@ class ApiTimeEntryController extends BaseController
             'url' => $url
         ];
 
-        if ( boolval($request->query->get('template', 'false')) ) {
+        if (boolval($request->query->get('template', 'false'))) {
             $data['template'] = $this->renderView('time_entry/partials/_time-entry.html.twig', [
                 'timeEntry' => $timeEntry
             ]);
@@ -333,7 +334,7 @@ class ApiTimeEntryController extends BaseController
             'url' => $url
         ];
 
-        if ( boolval($request->query->get('template', 'false')) ) {
+        if (boolval($request->query->get('template', 'false'))) {
             $data['template'] = $this->renderView('time_entry/partials/_time-entry.html.twig', [
                 'timeEntry' => $timeEntry
             ]);
@@ -445,7 +446,7 @@ class ApiTimeEntryController extends BaseController
     public function addTag(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        TagRepository $tagRepository,
+        TagManager $tagManager,
         TagLinkRepository $tagLinkRepository,
         string $id
     ): JsonResponse {
@@ -456,42 +457,13 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $data = $this->getJsonBody($request);
-        if (!array_key_exists('tagName', $data)) {
-            $problem = ApiProblem::withErrors(
-                Response::HTTP_BAD_REQUEST,
-                ApiProblem::TYPE_INVALID_REQUEST_BODY,
-                ApiError::missingProperty('tagName')
-            );
-
-            throw new ApiProblemException($problem);
-        }
-
-        $tagName = $data['tagName'];
-
-        $tag = $tagRepository->findOneBy(['name' => $tagName, 'assignedTo' => $this->getUser()]);
-        if (is_null($tag)) {
-            $tag = new Tag($this->getUser(), $tagName);
-            $this->getDoctrine()->getManager()->persist($tag);
-        } else {
-            $exitingLink = $tagLinkRepository->findOneBy([
-                                                                  'timeEntry' => $timeEntry,
-                                                                  'tag' => $tag
-                                                              ]);
-
-            if (!is_null($exitingLink)) {
-                return $this->json([], Response::HTTP_CONFLICT);
-            }
-        }
-
-        $tagLink = new TagLink($timeEntry, $tag);
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($tagLink);
-        $manager->flush();
-
-        $apiTag = ApiTag::fromEntity($tag);
-
-        return $this->jsonNoNulls($apiTag, Response::HTTP_CREATED);
+        return $this->addTagRequest(
+            $request,
+            $tagManager,
+            $tagLinkRepository,
+            $this->getUser(),
+            $timeEntry
+        );
     }
 
     #[Route('/api/time-entry/{id}/tag/{tagName}', name: 'api_time_entry_tag_delete', methods: ['DELETE'])]
@@ -510,26 +482,18 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $tag = $tagRepository->findWithUserName($this->getUser(), $tagName);
-        if (is_null($tag)) {
-            throw $this->createNotFoundException();
-        }
-
-        $exitingLink = $tagLinkRepository->findOneByOrException([
-                                                                         'timeEntry' => $timeEntry,
-                                                                         'tag' => $tag
-                                                                     ]);
-
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($exitingLink);
-        $manager->flush();
-
-        return $this->jsonNoContent();
+        return $this->removeTagRequest(
+            $tagRepository,
+            $tagLinkRepository,
+            $this->getUser(),
+            $tagName,
+            $timeEntry
+        );
     }
 
     #[Route('/api/time-entry/{id}/tags', name: 'api_time_entry_tags', methods: ["GET"])]
     #[Route('/json/time-entry/{id}/tags', name: 'json_time_entry_tags', methods: ["GET"])]
-    public function tags(
+    public function indexTag(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
         string $id
@@ -540,9 +504,7 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $apiTags = ApiTag::fromEntities($timeEntry->getTags());
-
-        return $this->jsonNoNulls($apiTags);
+        return $this->getTagsRequest($timeEntry);
     }
 
     #[Route('/api/time-entry/{id}/task', name: 'api_time_entry_task_create', methods: ['POST'])]
@@ -570,7 +532,7 @@ class ApiTimeEntryController extends BaseController
 
             throw new ApiProblemException($problem);
         }
-        
+
         $taskName = $data['name'];
 
         $manager = $this->getDoctrine()->getManager();
@@ -597,9 +559,9 @@ class ApiTimeEntryController extends BaseController
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
         if (str_starts_with($request->getPathInfo(), '/api')) {
-            $apiTask->setUrl($this->generateUrl('api_task_view', ['id' => $task->getIdString()]));
+            $apiTask->url = $this->generateUrl('api_task_view', ['id' => $task->getIdString()]);
         } else {
-            $apiTask->setUrl($this->generateUrl('task_view', ['id' => $task->getIdString()]));
+            $apiTask->url = $this->generateUrl('task_view', ['id' => $task->getIdString()]);
         }
 
         if ($createdTask) {
