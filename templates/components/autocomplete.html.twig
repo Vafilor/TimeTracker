@@ -1,0 +1,85 @@
+
+{% macro start(name, attr) %}
+    {% set _attr = { class: '' } %}
+    {% if attr %}
+        {% set _attr = _attr|merge(attr) %}
+    {% endif %}
+<div class="autocomplete js-autocomplete js-autocomplete-{{ name }} {{ _attr.class }}">
+    {% endmacro %}
+
+    {% macro search(name, attr) %}
+        {% set _attr = { class: '', value: '', placeholder: 'name'} %}
+        {% if attr %}
+            {% set _attr = _attr|merge(attr) %}
+        {% endif %}
+
+        <div class="search {{ _attr.class }}">
+            <label class="sr-only" for="{{ name }}-name">name</label>
+            <input
+                    id="{{ name }}-name"
+                    {% if _attr.tabIndex is defined%}
+                        tabindex="{{ _attr.tabIndex }}"
+                    {% endif %}
+                    type="text"
+                    class="js-input form-control unset-height"
+                    placeholder="{{ _attr.placeholder }}"
+                    name="{{ name }}-name"
+                    value="{{ _attr.value }}"
+                    autocomplete="off">
+            <button type="button" class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
+        </div>
+    {% endmacro %}
+
+    {% macro search_results() %}
+        <div class="search-results d-none js-search-results"></div>
+    {% endmacro %}
+
+    {% macro end(name) %}
+</div>
+{% endmacro %}
+
+{% macro list(name, attr) %}
+    {% set _attr = {root: {}, search: {}} %}
+    {% if attr %}
+        {% set _attr = _attr|merge(attr) %}
+    {% endif %}
+
+    {{ _self.start(name, _attr.root) }}
+    {{ _self.search(name, _attr.search) }}
+    {{ _self.search_results() }}
+    {{ _self.end() }}
+{% endmacro %}
+
+{% macro add(name, attr) %}
+    {% set _attr = {button: { class: '' }, search: {}} %}
+    {% if attr %}
+        {% set _attr = _attr|merge(attr) %}
+    {% endif %}
+
+    {{ _self.start(name) }}
+    <div class="autocomplete-search-group">
+        {{ _self.search(name, _attr.search) }}
+        {{ _self.search_results() }}
+        <button type="button" class="btn js-add autocomplete-search-group-append {{ _attr.button.class }}">
+            Add
+        </button>
+    </div>
+    {{ _self.end() }}
+{% endmacro %}
+
+{% macro removable(name, attr) %}
+    {% set _attr = {button: { class: '' }, search: {}} %}
+    {% if attr %}
+        {% set _attr = _attr|merge(attr) %}
+    {% endif %}
+
+    {{ _self.start(name) }}
+    <div class="autocomplete-search-group">
+        {{ _self.search(name, _attr.search) }}
+        {{ _self.search_results() }}
+        <button type="button" class="btn js-delete autocomplete-search-group-append {{ _attr.button.class }}">
+            <i class="fas fa-trash"></i>
+        </button>
+    </div>
+    {{ _self.end() }}
+{% endmacro %}
