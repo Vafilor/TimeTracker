@@ -17,37 +17,32 @@ class TagLink
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @var int
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=TimeEntry::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=true)
-     * @var TimeEntry|null
      */
-    private $timeEntry;
+    private ?TimeEntry $timeEntry;
 
     /**
      * @ORM\ManyToOne(targetEntity=Timestamp::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=true)
-     * @var Timestamp|null
      */
-    private $timestamp;
+    private ?Timestamp $timestamp;
 
     /**
      * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=true)
-     * @var Task|null
      */
-    private $task;
+    private ?Task $task;
 
     /**
      * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=false)
-     * @var Tag
      */
-    private $tag;
+    private Tag $tag;
 
     public function __construct(mixed $resource, Tag $tag)
     {

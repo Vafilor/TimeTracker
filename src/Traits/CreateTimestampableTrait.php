@@ -21,9 +21,9 @@ trait CreateTimestampableTrait
      * 'now' in UTC.
      *
      * @param DateTime|null $createdAt
-     * @throws \Exception
+     * @return static
      */
-    public function markCreated(DateTime $createdAt = null): static
+    public function markCreated(?DateTime $createdAt = null): static
     {
         if (is_null($createdAt)) {
             $createdAt = new DateTime('now');
@@ -42,6 +42,6 @@ trait CreateTimestampableTrait
 
     public function getCreatedAt(): DateTime
     {
-        return $this->createdAt;
+        return clone $this->createdAt;
     }
 }

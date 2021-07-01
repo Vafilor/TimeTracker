@@ -9,6 +9,8 @@ use App\Traits\AssignableToUserTrait;
 use App\Traits\CreateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -24,34 +26,31 @@ class Tag
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private string $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @var string
      */
-    private $canonicalName;
+    private string $canonicalName;
 
     /**
      * @ORM\Column(type="string", length=7)
-     * @var string
      *
      * Hex color string, includes #. e.g. #FF0000
      */
-    private $color;
+    private string $color;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=false)
-     * @var User
      */
-    private $assignedTo;
+    private User $assignedTo;
 
     /**
      * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="tag", orphanRemoval=true)
      * @var TagLink[]|Collection
      */
-    private $tagLinks;
+    private Collection $tagLinks;
 
     public function __construct(
         User $assignedTo,
@@ -64,6 +63,7 @@ class Tag
         $this->setName($name);
         $this->color = $color;
         $this->markCreated($createdAt);
+        $this->tagLinks = new ArrayCollection();
     }
 
     private function canonicalizeName(string $name): string

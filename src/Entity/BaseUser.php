@@ -43,19 +43,18 @@ class BaseUser implements UserInterface
     protected ?array $roles = [];
 
     /**
-     * @var string The hashed password
+     * The hashed password
      * @ORM\Column(type="string")
      */
-    protected $password;
+    protected string $password;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isVerified;
+    private bool $isVerified;
 
     public function __construct()
     {
-        $this->id = Uuid::uuid4();
         $this->username = '';
         $this->email = '';
         $this->isVerified = false;
