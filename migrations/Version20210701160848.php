@@ -38,11 +38,16 @@ final class Version20210701160848 extends AbstractMigration
     protected function upMysql(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE users CHANGE date_format date_time_format VARCHAR(255) NOT NULL, CHANGE today_date_format today_date_time_format VARCHAR(255) NOT NULL, ADD date_format VARCHAR(255)');
+        $this->addSql("UPDATE users SET date_format = 'm/d/Y'");
+        $this->addSql('ALTER TABLE users CHANGE date_format date_format VARCHAR(255) NOT NULL');
     }
 
     protected function downMysql(Schema $schema) : void
     {
         // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE users DROP date_format');
+        $this->addSql('ALTER TABLE users CHANGE today_date_time_format today_date_format VARCHAR(255) NOT NULL, CHANGE date_time_format date_format VARCHAR(255) NOT NULL');
     }
 
     protected function upSqlite(Schema $schema) : void
