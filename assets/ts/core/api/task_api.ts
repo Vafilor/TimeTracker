@@ -30,13 +30,25 @@ export interface TaskTimeReport {
     totalSeconds: string;
 }
 
+export interface IndexOptions {
+    nameLike?: string;
+    showCompleted?: boolean;
+}
+
 export class TaskApi {
-    public static index(nameLike?: string) {
+    public static index(options?: IndexOptions) {
         let url = `/json/task`;
 
-        if (nameLike) {
+        if (options) {
             let params = new URLSearchParams();
-            params.append('name', nameLike);
+
+            if (options.nameLike) {
+                params.append('name', options.nameLike);
+            }
+
+            if (options.showCompleted) {
+                params.append('showCompleted', `${options.showCompleted}`);
+            }
 
             url = url + '?' + params.toString();
         }

@@ -134,26 +134,25 @@ $(document).ready(() => {
         .on('change',
             '.js-task-completed',
             (event) => {
-        const $target = $(event.currentTarget);
-        const checked = $target.is(':checked');
-        const taskId = $target.data('task-id') as string;
+                const $target = $(event.currentTarget);
+                const checked = $target.is(':checked');
+                const taskId = $target.data('task-id') as string;
 
-        $target.attr('disabled', 'true');
+                $target.attr('disabled', 'true');
 
-        TaskApi.check(taskId, checked)
-            .then((res: JsonResponse<ApiTask>) => {
-                $target.removeAttr('disabled');
-                $target.parent().find('.js-completed-at').remove();
+                TaskApi.check(taskId, checked)
+                    .then((res: JsonResponse<ApiTask>) => {
+                        $target.removeAttr('disabled');
+                        $target.parent().find('.js-completed-at').remove();
 
-                if (res.data.completedAt && showCompleted) {
-                    $target.parent().append(`<span class="ml-1 js-completed-at">${res.data.completedAt}</span>`);
-                } else {
-                    $target.parent().parent().remove();
-                }
-            })
-            .catch(() => {
-                $target.removeAttr('disabled');
-            })
-    });
-
+                        if (res.data.completedAt && showCompleted) {
+                            $target.parent().append(`<span class="ml-1 js-completed-at">${res.data.completedAt}</span>`);
+                        } else {
+                            $target.parent().parent().remove();
+                        }
+                    })
+                    .catch(() => {
+                        $target.removeAttr('disabled');
+                    })
+            });
 });

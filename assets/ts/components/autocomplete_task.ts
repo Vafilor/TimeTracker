@@ -12,6 +12,6 @@ export default class AutocompleteTask extends PaginatedAutocomplete<ApiTask> {
     }
 
     protected queryApi(query: string): Promise<JsonResponse<PaginatedResponse<ApiTask>>> {
-        return TaskApi.index(query);
+        return TaskApi.index({nameLike: query, showCompleted: true});
     }
 }
