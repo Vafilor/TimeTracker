@@ -108,6 +108,12 @@ class User extends BaseUser
         return $this->dateFormat;
     }
 
+    public function setDateFormat(string $dateFormat): User
+    {
+        $this->dateFormat = $dateFormat;
+        return $this;
+    }
+
     public function getDateTimeFormat(): string
     {
         return $this->dateTimeFormat;
