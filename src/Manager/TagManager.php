@@ -37,11 +37,18 @@ class TagManager
         );
     }
 
-    public function findOrCreateByName(string $name): Tag
+    /**
+     * Finds a tag for a given name/user. If it does not exist, it is created and persisted to the database.
+     *
+     * @param string $name
+     * @param User $assignedTo
+     * @return Tag
+     */
+    public function findOrCreateByName(string $name, User $assignedTo): Tag
     {
-        $tag = $this->tagRepository->findOneBy(['name' => $name]);
+        $tag = $this->tagRepository->findOneBy(['name' => $name, 'assignedTo' => $assignedTo]);
         if (is_null($tag)) {
-            $tag = new Tag($name);
+            $tag = new Tag($assignedTo, $name);
             $this->entityManager->persist($tag);
         }
 
@@ -65,10 +72,10 @@ class TagManager
         }
 
         $tags = $this->tagRepository->findByKeysQuery('name', $names, 'tag')
-                                    ->andWhere('tag.assignedTo = :user')
-                                    ->setParameter('user', $user)
-                                    ->getQuery()
-                                    ->getResult()
+            ->andWhere('tag.assignedTo = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult()
         ;
 
         foreach ($tags as $existingTag) {
