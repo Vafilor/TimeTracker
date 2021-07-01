@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Entity\User;
+use App\Traits\DatabaseUtilitiesTrait;
 use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\QueryBuilder;
@@ -25,6 +26,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
  */
 class BaseController extends AbstractController
 {
+    use DatabaseUtilitiesTrait;
+
     const PAGINATION_PER_PAGE = 10;
     const PAGINATION_MAX_PER_PAGE = 50;
 
