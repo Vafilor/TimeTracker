@@ -49,10 +49,10 @@
                         <a href="{{ path('task_view', {id: timeEntry.task.id}) }}">{{ timeEntry.task.name }}</a>
                         {% endif %}
                     </td>
-                    <td class="js-started-at">{{ time.user_date_today(timeEntry.startedAt, app.user) }}</td>
+                    <td class="js-started-at">{{ time.user_datetime_today(timeEntry.startedAt, app.user) }}</td>
                     <td class="js-ended-at">
                         {% if timeEntry.over %}
-                            {{ time.user_date_today(timeEntry.endedAt, app.user) }}
+                            {{ time.user_datetime_today(timeEntry.endedAt, app.user) }}
                         {% endif %}
                     </td>
                     <td class="js-duration">

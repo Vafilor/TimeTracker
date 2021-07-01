@@ -103,11 +103,11 @@
                 <tbody>
                     <tr>
                         <td>Created</td>
-                        <td>{{ time.user_date(timeEntry.createdAt, app.user) }}</td>
+                        <td>{{ time.user_datetime(timeEntry.createdAt, app.user) }}</td>
                     </tr>
                     <tr>
                         <td>Last Updated</td>
-                        <td>{{ time.user_date(timeEntry.updatedAt, app.user) }}</td>
+                        <td>{{ time.user_datetime(timeEntry.updatedAt, app.user) }}</td>
                     </tr>
                 </tbody>
             </table>

@@ -57,11 +57,11 @@
                     <td>
                         <input data-task-id="{{ task.idString }}" type="checkbox" class="js-task-completed" {% if task.completed %} checked="true" {% endif%} />
                         {% if task.completed %}
-                        <span class="ml-1 js-completed-at">{{ time.user_date(task.completedAt, app.user) }}</span>
+                        <span class="ml-1 js-completed-at">{{ time.user_datetime(task.completedAt, app.user) }}</span>
                         {% endif %}
                     </td>
                     <td>{{ task.name }}</td>
-                    <td>{{ time.user_date(task.createdAt, app.user) }}</td>
+                    <td>{{ time.user_datetime(task.createdAt, app.user) }}</td>
                     <td>
                         {{ task.description | slice(0,50) }}
                         {% if task.description | length > 50 %}
