@@ -222,6 +222,10 @@ body {
     width: unset;
 }
 
+.unset-height {
+    height: unset;
+}
+
 .pointer-hover {
     &:hover {
         cursor: pointer;

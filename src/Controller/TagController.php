@@ -23,6 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class TagController extends BaseController
 {
     const CODE_NAME_TAKEN = 'code_name_taken';
+    const CODE_TAG_NOT_ASSOCIATED = 'tag_not_associated';
 
     #[Route('/tag', name: 'tag_index')]
     public function index(
@@ -91,7 +92,7 @@ class TagController extends BaseController
                 return $this->redirectToRoute('tag_view', ['id' => $existingTag->getIdString()]);
             }
 
-            $tag = new Tag($this->getUser(), $name);
+            $tag = new Tag($this->getUser(), $name, $data->getColor());
             $this->getDoctrine()->getManager()->persist($tag);
             $this->getDoctrine()->getManager()->flush();
 
@@ -128,9 +129,32 @@ class TagController extends BaseController
             $this->addFlash('success', "Tag '{$tag->getName()}' has been updated");
         }
 
+        $count = $tagRepository->getReferenceCount($tag);
+
         return $this->render('tag/view.html.twig', [
             'tag' => $tag,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'references' => $count
         ]);
+    }
+
+    #[Route('/tag/{id}/delete', name: 'tag_delete')]
+    public function remove(
+        Request $request,
+        TagRepository $tagRepository,
+        string $id
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $tag = $tagRepository->findOrException($id);
+        if (!$tag->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $this->doctrineRemove($tag, true);
+
+        $this->addFlash('success', 'Tag successfully removed');
+
+        return $this->redirectToRoute('tag_index');
     }
 }

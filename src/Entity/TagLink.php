@@ -43,7 +43,7 @@ class TagLink
     private $task;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Tag::class)
+     * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="tagLinks")
      * @ORM\JoinColumn(nullable=false)
      * @var Tag
      */

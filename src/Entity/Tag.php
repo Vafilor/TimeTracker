@@ -47,6 +47,12 @@ class Tag
      */
     private $assignedTo;
 
+    /**
+     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="tag", orphanRemoval=true)
+     * @var TagLink[]|Collection
+     */
+    private $tagLinks;
+
     public function __construct(
         User $assignedTo,
         string $name,

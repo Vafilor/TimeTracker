@@ -66,7 +66,7 @@ export class TaskApi {
 
     public static addTag(taskId: string, tagName: string) {
         return CoreApi.post<ApiTag>(`/json/task/${taskId}/tag`, {
-            tagName
+            name: tagName
         });
     }
 
