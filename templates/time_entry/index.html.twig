@@ -1,6 +1,7 @@
 {% extends 'sidebar.html.twig' %}
 {% import 'time/partials.html.twig' as time %}
 {% import 'tag/partials.html.twig' as tags %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
 
 {% block content_class %}w-100{% endblock %}
 
@@ -52,50 +53,20 @@
                 {{ form_widget(filterForm.tags, {attr: {class: 'js-real-tag-input d-none'}}) }}
                 <div class="js-tags tag-list js-tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
 
-                <div class="autocomplete js-autocomplete js-autocomplete-tags">
-                    <div class="d-flex bg-white">
-                        <div class="search border-right-0 rounded-right-0">
-                            <input
-                                    type="text"
-                                    class="js-input"
-                                    placeholder="tag name..."
-                                    name="tag"
-                                    autocomplete="off">
-                            <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                        </div>
-                        <button type="button" class="btn js-add btn-outline-primary rounded-left-0">
-                            Add
-                        </button>
-                    </div>
-                    <div class="search-results js-search-results d-none"></div>
-                </div>
+                {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'} }) }}
             </div>
 
-            {{ form_label(filterForm.taskId) }}
-            <div>
-                <div class="autocomplete js-autocomplete js-autocomplete-task">
-                    <div class="d-flex bg-white">
-                        <div class="search">
-                            <input
-                                    type="text"
-                                    class="js-input"
-                                    placeholder="task name..."
-                                    name="task"
-                                    autocomplete="off"
-                                    {% if task %}
-                                    value="{{ task.name }}"
-                                    {% endif %}
-                            >
-                            <button type="button" class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                        </div>
-                    </div>
-                    <div class="search-results js-search-results d-none"></div>
-
-                    {{ form_widget(filterForm.taskId, {attr: {class: 'd-none js-real-task-input'}}) }}
-                </div>
+            <div class="d-block">
+                {{ form_label(filterForm.taskId) }}
             </div>
 
-            <button type="submit" class="btn btn-primary mt-2">Search</button>
+            {{ autocomplete.list('task', { search: { value: task.name ?? '' } }) }}
+
+            {{ form_widget(filterForm.taskId, {attr: {class: 'd-none js-real-task-input'}}) }}
+
+            <div class="d-block">
+                <button type="submit" class="btn btn-primary mt-2">Search</button>
+            </div>
             {{ form_end(filterForm) }}
         </div>
 

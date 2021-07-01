@@ -37,8 +37,8 @@ $(document).ready(() => {
     const timestampId = $data.data('timestamp-id');
     const durationFormat = $data.data('duration-format');
 
-    const flashes = new Flashes($('#flash-messages'));
+    const flashes = new Flashes($('#fixed-flash-messages'));
 
     const tagList = new TagList($('.js-tags'), new TimestampApiAdapter(timestampId, flashes));
-    const autocomplete = new TagAssigner($('.js-autocomplete-tags'), tagList, flashes);
+    const autocomplete = new TagAssigner($('.js-autocomplete-tags-container'), tagList, flashes);
 });

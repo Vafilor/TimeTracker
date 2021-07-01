@@ -44,7 +44,7 @@ class TimeEntryPage {
         const $data = $('.js-data');
         this.timeEntryId = $data.data('time-entry-id');
         this.durationFormat = $data.data('duration-format');
-        this.flashes = new Flashes($('#flash-messages'));
+        this.flashes = new Flashes($('#fixed-flash-messages'));
 
         this.autoMarkdown = new TimeEntryAutoMarkdown(
             '.js-description',
@@ -57,7 +57,7 @@ class TimeEntryPage {
 
         const $tagList = $('.js-tags');
         const tagList = new TagList($tagList, new TimeEntryApiAdapter(this.timeEntryId, this.flashes));
-        const $template = $('.js-autocomplete-tags');
+        const $template = $('.js-autocomplete-tags-container');
 
         this.tagEdit = new TagAssigner($template, tagList, this.flashes);
 
