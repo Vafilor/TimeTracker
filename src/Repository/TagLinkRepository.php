@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Tag;
 use App\Entity\TagLink;
+use App\Entity\Task;
 use App\Entity\TimeEntry;
+use App\Entity\Timestamp;
 use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @method TagLink|null find($id, $lockMode = null, $lockVersion = null)
@@ -49,5 +53,31 @@ class TagLinkRepository extends ServiceEntityRepository
                     ->getQuery()
                     ->getResult()
         ;
+    }
+
+    public function findForResource(TimeEntry|Timestamp|Task $resource, Tag $tag): ?TagLink
+    {
+        $data = ['tag' => $tag];
+
+        if ($resource instanceof TimeEntry) {
+            $data['timeEntry'] = $resource;
+        } elseif ($resource instanceof Timestamp) {
+            $data['timestamp'] = $resource;
+        } elseif ($resource instanceof Task) {
+            $data['task'] = $resource;
+        }
+
+        return $this->findOneBy($data);
+    }
+
+    public function findForResourceOrException(TimeEntry|Timestamp|Task $resource, Tag $tag): TagLink
+    {
+        $result = $this->findForResource($resource, $tag);
+
+        if (is_null($result)) {
+            throw new NotFoundHttpException();
+        }
+
+        return $result;
     }
 }
