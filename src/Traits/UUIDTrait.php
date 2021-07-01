@@ -14,7 +14,7 @@ trait UUIDTrait
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
      */
-    protected $id;
+    protected UuidInterface $id;
 
     public function getId(): UuidInterface
     {
@@ -26,17 +26,19 @@ trait UUIDTrait
         return $this->id->toString();
     }
 
-    public function setId(UuidInterface $uuid)
+    public function setId(UuidInterface $uuid): static
     {
         $this->id = $uuid;
+
+        return $this;
     }
 
-    public function equalIds($that)
+    public function equalIds($that): bool
     {
         return $this->getId()->equals($that->getId());
     }
 
-    public function equals($that)
+    public function equals($that): bool
     {
         return $this->equalIds($that);
     }

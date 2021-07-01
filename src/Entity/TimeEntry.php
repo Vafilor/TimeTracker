@@ -15,6 +15,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
@@ -33,54 +34,52 @@ class TimeEntry
 
     /**
      * @ORM\Column(type="datetimetz")
-     * @var DateTime
      */
-    protected $startedAt;
+    protected DateTime $startedAt;
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
-     * @var DateTime|null
      */
-    protected $endedAt;
+    protected ?DateTime $endedAt;
 
     /**
      * @ORM\Column(type="datetimetz", nullable=true)
-     * @var DateTime|null
      */
-    protected $deletedAt;
+    protected ?DateTime $deletedAt;
 
     /**
-     * @var string
      * @ORM\Column(type="text")
      */
-    private $description;
+    private string $description;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="timeEntries")
      * @ORM\JoinColumn(nullable=false)
-     * @var User
      */
-    private $assignedTo;
+    private User $assignedTo;
 
     /**
      * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timeEntry")
+     * @var TagLink[]|Collection
      */
-    private $tagLinks;
+    private Collection $tagLinks;
 
     /**
      * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="timeEntries")
      */
-    private $task;
+    private ?Task $task;
 
     public function __construct(User $assignedTo, DateTime $createdAt = null)
     {
         $this->id = Uuid::uuid4();
+        $this->markCreated($createdAt);
         $this->assignTo($assignedTo);
         $this->description = '';
         $this->tagLinks = new ArrayCollection();
-        $this->markCreated($createdAt);
         $this->startedAt = $this->createdAt;
         $this->updatedAt = $this->createdAt;
+        $this->task = null;
+        $this->endedAt = null;
     }
 
     public function getDescription(): string

@@ -10,6 +10,7 @@ use App\Traits\CreateTimestampableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UUIDTrait;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -28,12 +29,13 @@ class Timestamp
      * @ORM\JoinColumn(nullable=false)
      * @var User
      */
-    private $assignedTo;
+    private User $assignedTo;
 
     /**
      * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timestamp", orphanRemoval=true)
+     * @var TagLink[]|Collection
      */
-    private $tagLinks;
+    private Collection $tagLinks;
 
     public function __construct(User $assignedTo)
     {
