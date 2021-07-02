@@ -445,7 +445,8 @@ class ImportDataCommand extends Command
         /** @var TransferStatisticValue[] $transferStatisticValues */
         $transferStatisticValues = $this->filterOutById($transferStatisticValues, $this->statisticValueRepository);
 
-        $statisticIds = Collections::pluck($transferStatisticValues, 'statistic.idString');
+        $statisticIds = Collections::pluck($transferStatisticValues, 'statisticId');
+        
         $this->statisticLoader->loadByIds($statisticIds);
 
         $timeEntryIds = [];
