@@ -3,7 +3,6 @@ import $ from 'jquery';
 import '../styles/statistic_value_index.scss';
 import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/statistic_value_list";
 import { ApiErrorResponse, JsonResponse } from "./core/api/api";
-import { TimestampApi } from "./core/api/timestamp_api";
 import Flashes from "./components/flashes";
 import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/statistic_value_picker";
 import { ApiStatisticValue, StatisticValueApi } from "./core/api/statistic_value_api";
@@ -21,8 +20,7 @@ class StatisticValueDayDelegate implements StatisticValueListDelegate{
     }
 
     remove(id: string): Promise<JsonResponse<void>> {
-        // TODO
-        return TimestampApi.removeStatistic('this.timestampId', id);
+        return StatisticValueApi.remove(id);
     }
 }
 

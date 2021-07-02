@@ -151,4 +151,23 @@ class ApiStatisticValueController extends BaseController
 
         return $this->jsonNoNulls($apiModel, Response::HTTP_OK);
     }
+
+    #[Route('/api/statistic-value/{id}', name: 'api_statistic_value_delete', methods: ['DELETE'])]
+    #[Route('/json/statistic-value/{id}', name: 'json_statistic_value_delete', methods: ['DELETE'])]
+    public function removeStatisticValue(
+        Request $request,
+        StatisticValueRepository $statisticValueRepository,
+        string $id,
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $statisticValue = $statisticValueRepository->findOrException($id);
+        if (!$statisticValue->getStatistic()->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $this->doctrineRemove($statisticValue, true);
+
+        return $this->jsonNoContent();
+    }
 }

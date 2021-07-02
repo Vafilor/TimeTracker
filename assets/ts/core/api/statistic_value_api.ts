@@ -21,4 +21,8 @@ export class StatisticValueApi {
             value
         });
     }
+
+    public static remove(id: string) {
+        return CoreApi.delete(`/json/statistic-value/${id}`);
+    }
 }

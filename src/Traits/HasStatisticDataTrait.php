@@ -39,7 +39,8 @@ trait HasStatisticDataTrait
         StatisticRepository $statisticRepository,
         StatisticValueRepository $statisticValueRepository,
         User $assignedTo,
-        Timestamp|TimeEntry $resource)
+        Timestamp|TimeEntry $resource
+    )
     {
         $timeType = TimeType::INSTANT;
         if ($resource instanceof TimeEntry) {
@@ -106,11 +107,10 @@ trait HasStatisticDataTrait
     public function removeStatisticValueRequest(
         StatisticValueRepository $statisticValueRepository,
         string $statisticId
-    )
-    {
+    ): JsonResponse {
         $statisticValue = $statisticValueRepository->findOrException($statisticId);
 
-        $this->doctrineRemove($statisticValue,true);
+        $this->doctrineRemove($statisticValue, true);
 
         return $this->jsonNoContent();
     }
