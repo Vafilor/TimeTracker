@@ -18,15 +18,14 @@ class UserEditFormType extends AbstractType
         $builder
             ->add('timezone', TimezoneType::class)
             ->add('dateFormat', TextType::class)
-            ->add('todayDateFormat', TextType::class)
+            ->add('dateTimeFormat', TextType::class)
+            ->add('todayDateTimeFormat', TextType::class)
             ->add('durationFormat', TextType::class)
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-                                   'data_class' => UserEditModel::class
-                               ]);
+        $resolver->setDefaults(['data_class' => UserEditModel::class]);
     }
 }

@@ -161,7 +161,6 @@ class ImportDataCommand extends Command
     {
         foreach ($sources as $source) {
             if ($source->task) {
-                echo $source->task->id;
                 yield $source->task;
             }
         }

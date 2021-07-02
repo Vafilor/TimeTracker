@@ -35,7 +35,12 @@ class User extends BaseUser
     /**
      * @ORM\Column(type="string")
      */
-    private string $todayDateFormat;
+    private string $dateTimeFormat;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private string $todayDateTimeFormat;
 
     /**
      * @ORM\Column(type="string")
@@ -109,14 +114,25 @@ class User extends BaseUser
         return $this;
     }
 
-    public function getTodayDateFormat(): string
+    public function getDateTimeFormat(): string
     {
-        return $this->todayDateFormat;
+        return $this->dateTimeFormat;
     }
 
-    public function setTodayDateFormat(string $todayDateFormat): User
+    public function setDateTimeFormat(string $dateTimeFormat): User
     {
-        $this->todayDateFormat = $todayDateFormat;
+        $this->dateTimeFormat = $dateTimeFormat;
+        return $this;
+    }
+
+    public function getTodayDateTimeFormat(): string
+    {
+        return $this->todayDateTimeFormat;
+    }
+
+    public function setTodayDateTimeFormat(string $todayDateTimeFormat): User
+    {
+        $this->todayDateTimeFormat = $todayDateTimeFormat;
         return $this;
     }
 

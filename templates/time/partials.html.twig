@@ -2,8 +2,12 @@
     {{ input_date|date(user.dateFormat, user.timezone) }}
 {% endmacro %}
 
-{% macro user_date_today(input_date, user) %}
-    {{ input_date|date(user.todayDateFormat, user.timezone) }}
+{% macro user_datetime(input_date, user) %}
+    {{ input_date|date(user.dateTimeFormat, user.timezone) }}
+{% endmacro %}
+
+{% macro user_datetime_today(input_date, user) %}
+    {{ input_date|date(user.todayDateTimeFormat, user.timezone) }}
 {% endmacro %}
 
 {% macro user_duration(input_duration, user) %}

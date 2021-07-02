@@ -6,6 +6,7 @@ namespace App\Api;
 
 use App\Entity\Task;
 use App\Entity\User;
+use App\Util\DateFormatType;
 
 class ApiTask
 {
@@ -16,7 +17,7 @@ class ApiTask
     public ?string $completedAt = null;
     public ?string $url = null;
 
-    public static function fromEntity(Task $task, User $user, string $format = 'date'): ApiTask
+    public static function fromEntity(Task $task, User $user, string $format = DateFormatType::DATE_TIME): ApiTask
     {
         $apiTask = new ApiTask($task->getIdString(), $task->getName());
         $apiTask->createdAt = ApiDateTime::formatUserDate($task->getCreatedAt(), $user, $format);
@@ -35,7 +36,7 @@ class ApiTask
      * @param string $format
      * @return ApiTask[]
      */
-    public static function fromEntities(iterable $entities, User $user, string $format = 'date'): array
+    public static function fromEntities(iterable $entities, User $user, string $format = DateFormatType::DATE_TIME): array
     {
         $items = [];
         foreach ($entities as $entity) {

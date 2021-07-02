@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Api;
 
-use App\Entity\TimeEntry;
 use App\Entity\Timestamp;
 use App\Entity\User;
+use App\Util\DateFormatType;
 use DateTime;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
 
@@ -23,7 +23,7 @@ class ApiTimestamp
         Timestamp $timestamp,
         User $user,
         DateTime $now,
-        string $format = 'date'
+        string $format = DateFormatType::DATE_TIME
     ): ApiTimestamp {
         $apiModel = new ApiTimestamp();
         $apiModel->id = $timestamp->getIdString();
@@ -54,7 +54,7 @@ class ApiTimestamp
         DateTimeFormatter $dateTimeFormatter,
         User $user,
         DateTime $now,
-        string $format = 'date'
+        string $format = DateFormatType::DATE_TIME
     ): array {
         $items = [];
         foreach ($entities as $entity) {

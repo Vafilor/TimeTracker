@@ -2,7 +2,7 @@ import { CoreApi, JsonResponse } from "./api";
 import { ApiTag } from "./tag_api";
 import { ApiTask } from "./task_api";
 
-export type DateFormat = 'date' | 'today';
+export type DateFormat = 'date' | 'date_time' | 'date_time_today';
 
 export interface ApiDateTimeUpdate {
     date: string;
@@ -57,7 +57,7 @@ export interface ContinueTimeEntryOptions {
 }
 
 export class TimeEntryApi {
-    public static create(options: CreateTimeEntryOptions, format: DateFormat = 'date') {
+    public static create(options: CreateTimeEntryOptions, format: DateFormat = 'date_time') {
         let url = '/json/time-entry';
         if (options.withHtmlTemplate) {
             url += '?template=true';
@@ -84,7 +84,7 @@ export class TimeEntryApi {
         return CoreApi.get<JsonResponse<ApiTimeEntry[]>>(url);
     }
 
-    public static stop(timeEntryId: string, format: DateFormat = 'date') {
+    public static stop(timeEntryId: string, format: DateFormat = 'date_time') {
         return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}/stop`, {
             'time_format': format
         });

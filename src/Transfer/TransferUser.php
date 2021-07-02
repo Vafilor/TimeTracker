@@ -19,7 +19,8 @@ class TransferUser
     public int $createdAt;
     public string $timezone;
     public string $dateFormat;
-    public string $todayDateFormat;
+    public string $dateTimeFormat;
+    public string $todayDateTimeFormat;
     public string $durationFormat;
 
     public static function fromEntity(User $user): TransferUser
@@ -35,7 +36,8 @@ class TransferUser
         $transfer->createdAt = $user->getCreatedAt()->getTimestamp();
         $transfer->timezone = $user->getTimezone();
         $transfer->dateFormat = $user->getDateFormat();
-        $transfer->todayDateFormat = $user->getTodayDateFormat();
+        $transfer->dateTimeFormat = $user->getDateTimeFormat();
+        $transfer->todayDateTimeFormat = $user->getTodayDateTimeFormat();
         $transfer->durationFormat = $user->getDurationFormat();
 
         return $transfer;
@@ -67,7 +69,8 @@ class TransferUser
         $user->setIsVerified($this->isVerified);
         $user->setTimezone($this->timezone);
         $user->setDateFormat($this->dateFormat);
-        $user->setTodayDateFormat($this->todayDateFormat);
+        $user->setDateTimeFormat($this->dateTimeFormat);
+        $user->setTodayDateTimeFormat($this->todayDateTimeFormat);
         $user->setDurationFormat($this->durationFormat);
 
         return $user;

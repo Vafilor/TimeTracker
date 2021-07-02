@@ -37,7 +37,7 @@
                     <span class="color-tile align-text-bottom mr-2" style="background-color: {{ tag.color }}"></span>
                     <span class="color-tile-text">{{ tag.color }}</span>
                 </td>
-                <td>{{ time.user_date(tag.createdAt, app.user) }}</td>
+                <td>{{ time.user_datetime(tag.createdAt, app.user) }}</td>
                 <td><a href="{{ path('time_entry_index', {tags: tag.name }) }}">Time entries</a> </td>
                 <td>
                     <a href="{{ path('tag_view', {id: tag.idString}) }}" class="btn btn-primary">View</a>
