@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 trait UpdateTimestampableTrait
 {
     /**
-     * @ORM\Column(type="datetimetz")
+     * @ORM\Column(type="datetime")
      * @var DateTime
      */
     protected $updatedAt;

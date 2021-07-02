@@ -33,17 +33,17 @@ class TimeEntry
     use AssignableToUserTrait;
 
     /**
-     * @ORM\Column(type="datetimetz")
+     * @ORM\Column(type="datetime")
      */
     protected DateTime $startedAt;
 
     /**
-     * @ORM\Column(type="datetimetz", nullable=true)
+     * @ORM\Column(type="datetime", nullable=true)
      */
     protected ?DateTime $endedAt;
 
     /**
-     * @ORM\Column(type="datetimetz", nullable=true)
+     * @ORM\Column(type="datetime", nullable=true)
      */
     protected ?DateTime $deletedAt;
 
