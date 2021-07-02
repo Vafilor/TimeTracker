@@ -81,7 +81,7 @@ class Collections
      *
      * @throws LogicException if the keys are not unique
      */
-    public static function mapByKeyUnique(iterable $items, string $key)
+    public static function mapByKeyUnique(iterable $items, string $key): array
     {
         $result = [];
 

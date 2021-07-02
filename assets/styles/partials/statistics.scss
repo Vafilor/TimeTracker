@@ -1,0 +1,47 @@
+@import "~bootstrap/scss/variables";
+
+.statistic-values {
+  max-width: 300px;
+  background-color: white;
+
+  .statistic-value-row {
+    transition: opacity 0.3s, box-shadow 0.3s;
+
+    &.highlighted {
+      box-shadow: 0 0 0 0.2rem rgb(255 0 35 / 41%);
+    }
+
+    margin-top: 10px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &.disabled {
+      opacity: 0.65;
+    }
+  }
+
+  .input-value {
+    border-right: 0;
+  }
+
+  .input-group-append {
+    border-left: 0;
+  }
+
+  .upload-status {
+      border-color: $input-border-color;
+      border-width: $input-border-width;
+      border-style: solid;
+      border-left: 0;
+      border-right: 0;
+      padding:$input-btn-padding-y $input-btn-padding-x;
+  }
+}
+
+.autocomplete-statistic-icon {
+  padding: 0 5px;
+  min-width: 35px;
+  display: inline-block;
+}

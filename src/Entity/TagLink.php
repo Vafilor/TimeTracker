@@ -44,7 +44,13 @@ class TagLink
      */
     private Tag $tag;
 
-    public function __construct(mixed $resource, Tag $tag)
+    /**
+     * @ORM\ManyToOne(targetEntity=Statistic::class, inversedBy="tagLinks")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private ?Statistic $statistic;
+
+    public function __construct(TimeEntry|Timestamp|Task|Statistic $resource, Tag $tag)
     {
         $this->tag = $tag;
 
@@ -54,6 +60,8 @@ class TagLink
             $this->timestamp = $resource;
         } elseif ($resource instanceof Task) {
             $this->task = $resource;
+        } elseif ($resource instanceof Statistic) {
+            $this->statistic = $resource;
         } else {
             throw new InvalidArgumentException("Resource for TagLink not supported");
         }
@@ -77,6 +85,11 @@ class TagLink
     public function getTask(): ?Task
     {
         return$this->task;
+    }
+
+    public function getStatistic(): ?Statistic
+    {
+        return $this->statistic;
     }
 
     public function getTag(): Tag

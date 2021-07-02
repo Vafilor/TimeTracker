@@ -1,6 +1,7 @@
 {% extends 'sidebar.html.twig' %}
 {% import 'time/partials.html.twig' as time %}
 {% import 'components/autocomplete.html.twig' as autocomplete %}
+{% import 'components/statistic-value.html.twig' as statistics %}
 
 {% block content_class %}w-100{% endblock %}
 
@@ -84,6 +85,9 @@
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="details-tab" data-toggle="tab" href="#details" role="tab" aria-selected="false">Details</a>
         </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="data-tab" data-toggle="tab" href="#data" role="tab" aria-selected="false">Data</a>
+        </li>
     </ul>
     <div class="tab-content" id="description-content">
         <div class="tab-pane fade show active " id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
@@ -111,6 +115,26 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+        <div class="tab-pane fade" id="data" role="tabpanel" aria-labelledby="data-tab">
+            <div class="d-flex mt-2 js-add-statistic add-statistic">
+                {{ autocomplete.list('statistic', { search: { tabIndex: '1' } }) }}
+                <div class="ml-2">
+                    <label class="sr-only" for="add-statistic-value">record value</label>
+                    <input
+                            id="add-statistic-value"
+                            tabindex="2"
+                            type="number"
+                            class="js-statistic-input form-control"
+                            placeholder="value..."
+                            autocomplete="off"
+                    />
+                </div>
+                <button type="button" class="ml-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
+                    Add
+                </button>
+            </div>
+            {{ statistics.valueList(timeEntry.statisticValues, {class: 'mt-2'}) }}
         </div>
     </div>
 

@@ -106,6 +106,10 @@ class Task
 
         $this->canonicalName = $this->canonicalizeName($name);
 
+        if (strlen($this->canonicalName) === 0) {
+            throw new InvalidArgumentException('Name can not be blank once whitespace is removed.');
+        }
+
         return $this;
     }
 

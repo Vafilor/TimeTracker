@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Statistic;
 use App\Entity\Tag;
 use App\Entity\TagLink;
 use App\Entity\Task;
@@ -38,7 +39,7 @@ class TagLinkRepository extends ServiceEntityRepository
     }
 
     /**
-     * Finds the TimeEntryTags for a TimeEntry with the tags fetched.
+     * Finds the TagLinks for a TimeEntry with the tags fetched.
      *
      * @param TimeEntry $timeEntry
      * @return TagLink[]
@@ -55,7 +56,7 @@ class TagLinkRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findForResource(TimeEntry|Timestamp|Task $resource, Tag $tag): ?TagLink
+    public function findForResource(TimeEntry|Timestamp|Task|Statistic $resource, Tag $tag): ?TagLink
     {
         $data = ['tag' => $tag];
 
@@ -65,12 +66,14 @@ class TagLinkRepository extends ServiceEntityRepository
             $data['timestamp'] = $resource;
         } elseif ($resource instanceof Task) {
             $data['task'] = $resource;
+        } elseif ($resource instanceof Statistic) {
+            $data['statistic'] = $resource;
         }
 
         return $this->findOneBy($data);
     }
 
-    public function findForResourceOrException(TimeEntry|Timestamp|Task $resource, Tag $tag): TagLink
+    public function findForResourceOrException(TimeEntry|Timestamp|Task|Statistic $resource, Tag $tag): TagLink
     {
         $result = $this->findForResource($resource, $tag);
 

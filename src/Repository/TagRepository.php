@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Tag;
 use App\Entity\User;
+use App\Traits\FindByKeysInterface;
 use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -20,7 +21,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Tag[]    findAll()
  * @method Tag[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TagRepository extends ServiceEntityRepository
+class TagRepository extends ServiceEntityRepository implements FindByKeysInterface
 {
     use FindByKeysTrait;
     use FindOrExceptionTrait;
@@ -76,21 +77,21 @@ class TagRepository extends ServiceEntityRepository
     public function getReferenceCount(Tag $tag): int
     {
         $timeEntryQueryBuilder = $this->createDefaultQueryBuilder()
-            ->select('COUNT(tag.id)')
-            ->join('tag.tagLinks', 'tag_link')
-            ->join('tag_link.timeEntry', 'time_entry')
-            ->andWhere('tag_link.timeEntry IS NOT NULL')
-            ->andWhere('time_entry.deletedAt IS NULL')
-            ->andWhere('tag = :tag')
-            ->setParameter('tag', $tag)
+                                      ->select('COUNT(tag.id)')
+                                      ->join('tag.tagLinks', 'tag_link')
+                                      ->join('tag_link.timeEntry', 'time_entry')
+                                      ->andWhere('tag_link.timeEntry IS NOT NULL')
+                                      ->andWhere('time_entry.deletedAt IS NULL')
+                                      ->andWhere('tag = :tag')
+                                      ->setParameter('tag', $tag)
         ;
 
         $otherQueryBuilder = $this->createDefaultQueryBuilder()
-            ->select('COUNT(tag.id)')
-            ->join('tag.tagLinks', 'tag_link')
-            ->andWhere('tag_link.timeEntry IS NULL')
-            ->andWhere('tag = :tag')
-            ->setParameter('tag', $tag)
+                                  ->select('COUNT(tag.id)')
+                                  ->join('tag.tagLinks', 'tag_link')
+                                  ->andWhere('tag_link.timeEntry IS NULL')
+                                  ->andWhere('tag = :tag')
+                                  ->setParameter('tag', $tag)
         ;
 
         $timeEntryCount = $timeEntryQueryBuilder->getQuery()->getSingleScalarResult();

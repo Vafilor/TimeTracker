@@ -3,15 +3,17 @@
 namespace App\Command;
 
 use App\Entity\TagLink;
-use App\Entity\Task;
-use App\Entity\TimeEntry;
-use App\Entity\Timestamp;
-use App\Entity\User;
+use App\Repository\StatisticRepository;
+use App\Repository\StatisticValueRepository;
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\TimestampRepository;
 use App\Repository\UserRepository;
+use App\Traits\FindByKeysInterface;
+use App\Transfer\RepositoryKeyCache;
+use App\Transfer\TransferStatistic;
+use App\Transfer\TransferStatisticValue;
 use App\Transfer\TransferTag;
 use App\Transfer\TransferTask;
 use App\Transfer\TransferTimeEntry;
@@ -19,7 +21,6 @@ use App\Transfer\TransferTimestamp;
 use App\Transfer\TransferUser;
 use App\Util\Collections;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,30 +37,47 @@ class ImportDataCommand extends Command
 
     private Serializer $serializer;
     private TagRepository $tagRepository;
-    private UserRepository $userRepository;
     private TimestampRepository $timestampRepository;
     private TaskRepository $taskRepository;
     private TimeEntryRepository $timeEntryRepository;
+    private StatisticRepository $statisticRepository;
     private EntityManagerInterface $entityManager;
+    private RepositoryKeyCache $userLoader;
+    private RepositoryKeyCache $tagLoader;
+    private RepositoryKeyCache $taskLoader;
+    private RepositoryKeyCache $statisticLoader;
+    private RepositoryKeyCache $timeEntryLoader;
+    private RepositoryKeyCache $timestampLoader;
+    private StatisticValueRepository $statisticValueRepository;
 
     public function __construct(
         string $name = null,
         SerializerInterface $serializer,
         TagRepository $tagRepository,
-        UserRepository $userRepository,
         TimestampRepository $timestampRepository,
         TaskRepository $taskRepository,
         TimeEntryRepository $timeEntryRepository,
-        EntityManagerInterface $entityManager
+        StatisticRepository $statisticRepository,
+        StatisticValueRepository $statisticValueRepository,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager,
     ) {
         parent::__construct($name);
         $this->serializer = $serializer;
         $this->tagRepository = $tagRepository;
-        $this->userRepository = $userRepository;
         $this->timestampRepository = $timestampRepository;
         $this->taskRepository = $taskRepository;
         $this->timeEntryRepository = $timeEntryRepository;
+        $this->statisticRepository = $statisticRepository;
+        $this->statisticValueRepository = $statisticValueRepository;
         $this->entityManager = $entityManager;
+
+        $this->userLoader = new RepositoryKeyCache($userRepository);
+        $this->tagLoader = new RepositoryKeyCache($tagRepository);
+        $this->taskLoader = new RepositoryKeyCache($taskRepository);
+        $this->statisticLoader = new RepositoryKeyCache($statisticRepository);
+        $this->timeEntryLoader = new RepositoryKeyCache($timeEntryRepository);
+        $this->timestampLoader = new RepositoryKeyCache($timestampRepository);
     }
 
     protected function configure(): void
@@ -127,6 +145,12 @@ class ImportDataCommand extends Command
             } elseif (str_starts_with($fileName, 'time_entries')) {
                 $data = $this->serializer->deserialize($content, TransferTimeEntry::class . '[]', 'json');
                 $this->importTimeEntries($io, $data);
+            } elseif (str_starts_with($fileName, 'statistics')) {
+                $data = $this->serializer->deserialize($content, TransferStatistic::class . '[]', 'json');
+                $this->importStatistics($io, $data);
+            } elseif (str_starts_with($fileName, 'statistic_values')) {
+                $data = $this->serializer->deserialize($content, TransferStatisticValue::class . '[]', 'json');
+                $this->importStatisticValues($io, $data);
             } else {
                 $io->error("Unsupported import file '${filePath}'");
                 return Command::FAILURE;
@@ -166,6 +190,55 @@ class ImportDataCommand extends Command
         }
     }
 
+    /**
+     * Takes an iterable of transfer objects that have a method toEntity(User).
+     * Returns an array where the key is the id, and the entry is the Entity of the transfer object,
+     * constructed by loading the User from the database.
+     *
+     * TODO can psalm allow us to specify this? I guess it's something like
+     * implements interface<T>.... and then the input object is anything that implements interface, with any T.
+     * and return is array<string, T>
+     *
+     * @param $transfers
+     * @return array
+     */
+    private function makeEntityMap(iterable $transfers): array
+    {
+        $entities = [];
+        foreach ($transfers as $transfer) {
+            $user = $this->userLoader->findOneByKeyOrException('username', $transfer->assignedTo);
+            $entity = $transfer->toEntity($user);
+            $entities[$transfer->id] = $entity;
+        }
+
+        return $entities;
+    }
+
+    /**
+     * Removes all items that are already in the database, identified by the id.
+     *
+     * @param array $transferItems
+     * @param FindByKeysInterface $repository
+     * @return array
+     */
+    private function filterOutById(array $transferItems, FindByKeysInterface $repository): array
+    {
+        $ids = Collections::pluck($transferItems, 'id');
+        $existingItems = $repository->findByKeys('id', $ids);
+        $idToItem = Collections::mapByKeyUnique($existingItems, 'idString');
+
+        $result = [];
+        foreach ($transferItems as $transferItem) {
+            if (array_key_exists($transferItem->id, $idToItem)) {
+                continue;
+            }
+
+            $result[$transferItem->id] = $transferItem;
+        }
+
+        return $result;
+    }
+
     private function getFileImportOrder(string $directoryPath): array
     {
         $path = $directoryPath . DIRECTORY_SEPARATOR . 'order.json';
@@ -181,11 +254,10 @@ class ImportDataCommand extends Command
     private function importUsers(SymfonyStyle $io, array $transferUsers)
     {
         $usernames = Collections::pluckNoDuplicates($transferUsers, 'username');
-        $users = $this->userRepository->findByKeys('username', $usernames);
-        $usernameToUsers = Collections::mapByKeyUnique($users, 'username');
+        $this->userLoader->loadByKey('username', $usernames);
 
         foreach ($transferUsers as $transferUser) {
-            if (array_key_exists($transferUser->username, $usernameToUsers)) {
+            if ($this->userLoader->hasKey('username', $transferUser->username)) {
                 continue;
             }
 
@@ -206,8 +278,7 @@ class ImportDataCommand extends Command
     private function importTags(SymfonyStyle $io, array $transferTags)
     {
         $usernames = Collections::pluckNoDuplicates($transferTags, 'assignedTo');
-        $users = $this->userRepository->findByKeys('username', $usernames);
-        $usernameToUsers = Collections::mapByKeyUnique($users, 'username');
+        $this->userLoader->loadByKey('username', $usernames);
 
         $tagNames = Collections::pluckNoDuplicates($transferTags, 'name');
         $exitingTags = $this->tagRepository->findByKeys('name', $tagNames);
@@ -222,13 +293,7 @@ class ImportDataCommand extends Command
         }
 
         foreach ($transferTags as $transferTag) {
-            $username = $transferTag->assignedTo;
-            if (!array_key_exists($username, $usernameToUsers)) {
-                throw new InvalidArgumentException("Username '$username' does not exist. But Tag with id '{$transferTag->id}' references it");
-            }
-
-            /** @var User $assignedTo */
-            $assignedTo = $usernameToUsers[$username];
+            $assignedTo = $this->userLoader->findOneByKeyOrException('username', $transferTag->assignedTo);
 
             $tagName = $transferTag->name;
             $assignedToName = $assignedTo->getUsername();
@@ -245,68 +310,18 @@ class ImportDataCommand extends Command
     }
 
     /**
-     * Returns TransferTimestamps that do not already exist in the database, identified by id.
-     *
-     * @param TransferTimestamp[] $transferTimestamps
-     * @return TransferTimestamp[]
-     */
-    private function filterOutExistingTimestamps($transferTimestamps): array
-    {
-        $ids = Collections::pluck($transferTimestamps, 'id');
-        $existingTimestamps = $this->timestampRepository->findByKeys('id', $ids);
-        $idToTimestamp = Collections::mapByKeyUnique($existingTimestamps, 'idString');
-
-        $result = [];
-        foreach ($transferTimestamps as $transferTimestamp) {
-            if (array_key_exists($transferTimestamp->id, $idToTimestamp)) {
-                continue;
-            }
-
-            $result[$transferTimestamp->id] = $transferTimestamp;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param TransferTimestamp[] $transferTimestamps
-     * @return Timestamp[]
-     */
-    private function transferTimestampsToEntities(array $transferTimestamps): array
-    {
-        $usernames = Collections::pluckNoDuplicates($transferTimestamps, 'assignedTo');
-        $users = $this->userRepository->findByKeys('username', $usernames);
-        $usernameToUsers = Collections::mapByKeyUnique($users, 'username');
-
-        $timestamps = [];
-
-        foreach ($transferTimestamps as $transferTimestamp) {
-            $username = $transferTimestamp->assignedTo;
-            if (!array_key_exists($username, $usernameToUsers)) {
-                throw new InvalidArgumentException("Username '$username' does not exist. But Timestamp with id '{$transferTimestamp->id}' references it");
-            }
-
-            /** @var User $assignedTo */
-            $assignedTo = $usernameToUsers[$username];
-
-            $timestamps[$transferTimestamp->id] =  $transferTimestamp->toEntity($assignedTo);
-        }
-
-        return $timestamps;
-    }
-
-    /**
      * @param SymfonyStyle $io
      * @param TransferTimestamp[] $transferTimestamps
      */
-    private function importTimestamps(SymfonyStyle $io, $transferTimestamps)
+    private function importTimestamps(SymfonyStyle $io, array $transferTimestamps)
     {
-        $transferTimestamps = $this->filterOutExistingTimestamps($transferTimestamps);
-        $timestamps = $this->transferTimestampsToEntities($transferTimestamps);
+        /** @var TransferTimestamp[] $transferTimestamps */
+        $transferTimestamps = $this->filterOutById($transferTimestamps, $this->timestampRepository);
+
+        $timestamps = $this->makeEntityMap($transferTimestamps);
 
         $tagIds = Collections::pluckNoDuplicates($this->pluckTagLinks($transferTimestamps), 'id');
-        $tags = $this->tagRepository->findByKeys('id', $tagIds);
-        $tagIdToTag = Collections::mapByKeyUnique($tags, 'idString');
+        $this->tagLoader->loadByIds($tagIds);
 
         foreach ($transferTimestamps as $id => $transferTimestamp) {
             $io->writeln("Importing Timestamp with id '$id'");
@@ -316,7 +331,7 @@ class ImportDataCommand extends Command
             $this->entityManager->persist($timestamp);
 
             foreach ($transferTimestamp->tags as $transferTagLink) {
-                $tag = $tagIdToTag[$transferTagLink->id];
+                $tag = $this->tagLoader->findByIdOrException($transferTagLink->id);
                 $tagLink = new TagLink($timestamp, $tag);
                 $this->entityManager->persist($tagLink);
             }
@@ -326,64 +341,18 @@ class ImportDataCommand extends Command
     }
 
     /**
-     * Returns TransferTasks that do not already exist in the database, identified by id.
-     *
+     * @param SymfonyStyle $io
      * @param TransferTask[] $transferTasks
-     * @return TransferTask[]
      */
-    private function filterOutExistingTasks(array $transferTasks): array
+    private function importTasks(SymfonyStyle $io, array $transferTasks)
     {
-        $ids = Collections::pluck($transferTasks, 'id');
-        $existingTasks = $this->taskRepository->findByKeys('id', $ids);
-        $idToTask = Collections::mapByKeyUnique($existingTasks, 'idString');
+        /** @var TransferTask[] $transferTasks */
+        $transferTasks = $this->filterOutById($transferTasks, $this->taskRepository);
 
-        $result = [];
-        foreach ($transferTasks as $transferTask) {
-            if (array_key_exists($transferTask->id, $idToTask)) {
-                continue;
-            }
-
-            $result[$transferTask->id] = $transferTask;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param TransferTask[] $transferTasks
-     * @return Task[]
-     */
-    private function transferTasksToEntities(array $transferTasks): array
-    {
-        $usernames = Collections::pluckNoDuplicates($transferTasks, 'assignedTo');
-        $users = $this->userRepository->findByKeys('username', $usernames);
-        $usernameToUsers = Collections::mapByKeyUnique($users, 'username');
-
-        $tasks = [];
-
-        foreach ($transferTasks as $transferTask) {
-            $username = $transferTask->assignedTo;
-            if (!array_key_exists($username, $usernameToUsers)) {
-                throw new InvalidArgumentException("Username '$username' does not exist. But Task with id '{$transferTask->id}' references it");
-            }
-
-            /** @var User $assignedTo */
-            $assignedTo = $usernameToUsers[$username];
-
-            $tasks[$transferTask->id] = $transferTask->toEntity($assignedTo);
-        }
-
-        return $tasks;
-    }
-
-    private function importTasks(SymfonyStyle $io, $transferTasks)
-    {
-        $transferTasks = $this->filterOutExistingTasks($transferTasks);
-        $tasks = $this->transferTasksToEntities($transferTasks);
+        $tasks = $this->makeEntityMap($transferTasks);
 
         $tagIds = Collections::pluckNoDuplicates($this->pluckTagLinks($transferTasks), 'id');
-        $tags = $this->tagRepository->findByKeys('id', $tagIds);
-        $tagIdToTag = Collections::mapByKeyUnique($tags, 'idString');
+        $this->tagLoader->loadByIds($tagIds);
 
         foreach ($transferTasks as $id => $transferTask) {
             $task = $tasks[$id];
@@ -392,7 +361,7 @@ class ImportDataCommand extends Command
             $io->writeln("Importing Task with id '$id'");
 
             foreach ($transferTask->tags as $transferTagLink) {
-                $tag = $tagIdToTag[$transferTagLink->id];
+                $tag = $this->tagLoader->findByIdOrException($transferTagLink->id);
                 $tagLink = new TagLink($task, $tag);
                 $this->entityManager->persist($tagLink);
             }
@@ -402,77 +371,27 @@ class ImportDataCommand extends Command
     }
 
     /**
-     * Returns TransferTimeEntries that do not already exist in the database, identified by id.
-     *
-     * @param TransferTimeEntry[] $transferTimeEntries
-     * @return TransferTimeEntry[]
-     */
-    private function filterOutExistingTimeEntries(array $transferTimeEntries): array
-    {
-        $ids = Collections::pluck($transferTimeEntries, 'id');
-        $existingTimeEntries = $this->timeEntryRepository->findByKeys('id', $ids);
-        $idToTimeEntry = Collections::mapByKeyUnique($existingTimeEntries, 'idString');
-
-        $result = [];
-        foreach ($transferTimeEntries as $transferTimeEntry) {
-            if (array_key_exists($transferTimeEntry->id, $idToTimeEntry)) {
-                continue;
-            }
-
-            $result[$transferTimeEntry->id] = $transferTimeEntry;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param TransferTimeEntry[] $transferTimeEntries
-     * @return TimeEntry[]
-     */
-    private function transferTimeEntriesToEntities(array $transferTimeEntries): array
-    {
-        $usernames = Collections::pluckNoDuplicates($transferTimeEntries, 'assignedTo');
-        $users = $this->userRepository->findByKeys('username', $usernames);
-        $usernameToUsers = Collections::mapByKeyUnique($users, 'username');
-
-        $timeEntries = [];
-        foreach ($transferTimeEntries as $transferTimeEntry) {
-            $username = $transferTimeEntry->assignedTo;
-            if (!array_key_exists($username, $usernameToUsers)) {
-                throw new InvalidArgumentException("Username '$username' does not exist. But TimeEntry with id '{$transferTimeEntry->id}' references it");
-            }
-
-            /** @var User $assignedTo */
-            $assignedTo = $usernameToUsers[$username];
-
-            $timeEntries[$transferTimeEntry->id] = $transferTimeEntry->toEntity($assignedTo);
-        }
-
-        return $timeEntries;
-    }
-
-    /**
      * @param SymfonyStyle $io
      * @param TransferTimeEntry[] $transferTimeEntries
      */
-    private function importTimeEntries(SymfonyStyle $io, $transferTimeEntries)
+    private function importTimeEntries(SymfonyStyle $io, array $transferTimeEntries)
     {
-        $transferTimeEntries = $this->filterOutExistingTimeEntries($transferTimeEntries);
-        $timeEntries = $this->transferTimeEntriesToEntities($transferTimeEntries);
+        /** @var TransferTimeEntry[] $transferTimeEntries */
+        $transferTimeEntries = $this->filterOutById($transferTimeEntries, $this->timeEntryRepository);
+
+        $timeEntries = $this->makeEntityMap($transferTimeEntries);
 
         $tagIds = Collections::pluckNoDuplicates($this->pluckTagLinks($transferTimeEntries), 'id');
-        $tags = $this->tagRepository->findByKeys('id', $tagIds);
-        $tagIdToTag = Collections::mapByKeyUnique($tags, 'idString');
+        $this->tagLoader->loadByIds($tagIds);
 
         $taskIds = Collections::pluckNoDuplicates($this->pluckTasks($transferTimeEntries), 'id');
-        $tasks = $this->taskRepository->findByKeys('id', $taskIds);
-        $taskIdToTask = Collections::mapByKeyUnique($tasks, 'idString');
+        $this->taskLoader->loadByIds($taskIds);
 
         foreach ($transferTimeEntries as $id => $transferTimeEntry) {
             $timeEntry = $timeEntries[$id];
 
             if ($transferTimeEntry->task) {
-                $task = $taskIdToTask[$transferTimeEntry->task->id];
+                $task = $this->taskLoader->findByIdOrException($transferTimeEntry->task->id);
                 $timeEntry->setTask($task);
             }
 
@@ -480,10 +399,82 @@ class ImportDataCommand extends Command
             $this->entityManager->persist($timeEntry);
 
             foreach ($transferTimeEntry->tags as $transferTagLink) {
-                $tag = $tagIdToTag[$transferTagLink->id];
+                $tag = $this->tagLoader->findByIdOrException($transferTagLink->id);
                 $tagLink = new TagLink($timeEntry, $tag);
                 $this->entityManager->persist($tagLink);
             }
+        }
+
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @param SymfonyStyle $io
+     * @param TransferStatistic[] $transferStatistics
+     */
+    private function importStatistics(SymfonyStyle $io, array $transferStatistics)
+    {
+        /** @var TransferStatistic[] $transferStatistics */
+        $transferStatistics = $this->filterOutById($transferStatistics, $this->statisticRepository);
+        $usernames = Collections::pluckNoDuplicates($transferStatistics, 'assignedTo');
+        $this->userLoader->loadByKey('username', $usernames);
+
+        $statistics = $this->makeEntityMap($transferStatistics);
+
+        $tagIds = Collections::pluckNoDuplicates($this->pluckTagLinks($transferStatistics), 'id');
+        $this->tagLoader->loadByIds($tagIds);
+
+        foreach ($transferStatistics as $id => $transferStatistic) {
+            $statistic = $statistics[$id];
+
+            $io->writeln("Importing Statistic with id '$id'");
+            $this->entityManager->persist($statistic);
+
+            foreach ($transferStatistic->tags as $transferTagLink) {
+                $tag = $this->tagLoader->findByIdOrException($transferTagLink->id);
+                $tagLink = new TagLink($statistic, $tag);
+                $this->entityManager->persist($tagLink);
+            }
+        }
+
+        $this->entityManager->flush();
+    }
+
+    private function importStatisticValues(SymfonyStyle $io, array $transferStatisticValues)
+    {
+        /** @var TransferStatisticValue[] $transferStatisticValues */
+        $transferStatisticValues = $this->filterOutById($transferStatisticValues, $this->statisticValueRepository);
+
+        $statisticIds = Collections::pluck($transferStatisticValues, 'statistic.idString');
+        $this->statisticLoader->loadByIds($statisticIds);
+
+        $timeEntryIds = [];
+        $timestampIds = [];
+        foreach ($transferStatisticValues as $transferStatisticValue) {
+            if ($transferStatisticValue->timeEntryId) {
+                $timeEntryIds[] = $transferStatisticValue->timeEntryId;
+            } elseif ($transferStatisticValue->timestampId) {
+                $timestampIds[] = $transferStatisticValue->timestampId;
+            }
+        }
+
+        $this->timeEntryLoader->loadByIds($timeEntryIds);
+        $this->timestampLoader->loadByIds($timestampIds);
+
+        foreach ($transferStatisticValues as $transferStatisticValue) {
+            $statistic = $this->statisticLoader->findByIdOrException($transferStatisticValue->statisticId);
+            $statisticValue = $transferStatisticValue->toEntity($statistic);
+
+            if ($transferStatisticValue->timeEntryId) {
+                $timeEntry = $this->timeEntryLoader->findByIdOrException($transferStatisticValue->timeEntryId);
+                $statisticValue->setTimeEntry($timeEntry);
+            } elseif ($transferStatisticValue->timestampId) {
+                $timestamp = $this->timestampLoader->findByIdOrException($transferStatisticValue->timestampId);
+                $statisticValue->setTimestamp($timestamp);
+            }
+
+            $io->writeln("Importing Statistic Value with id '{$transferStatisticValue->id}'");
+            $this->entityManager->persist($statisticValue);
         }
 
         $this->entityManager->flush();

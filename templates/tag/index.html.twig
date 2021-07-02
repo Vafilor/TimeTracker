@@ -19,12 +19,21 @@
 
     {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
+    <div>
+        <div class="inline-form-header mb-2">Add Tag</div>
+        {{ form_start(form, {attr: {class: 'form-inline'}}) }}
+        {{ form_widget(form.name, {attr: {class: 'col', placeholder: 'name'}}) }}
+        {{ form_widget(form.color, {attr: {class: 'ml-2 w-p-50'}}) }}
+        <button type="submit" class="btn btn-primary ml-2">Create</button>
+        {{ form_end(form) }}
+    </div>
+
     <table class="table table-bordered table-hover mt-3">
         <thead>
             <tr>
                 <th>{{ knp_pagination_sortable(pagination, 'Name', 'tag.name') }}</th>
                 <th>Color</th>
-                <th>Created</th>
+                <th>{{ knp_pagination_sortable(pagination, 'Created', 'tag.createdAt') }}</th>
                 <th>Links</th>
                 <th>Actions</th>
             </tr>
@@ -52,16 +61,6 @@
     </table>
 
     {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
-
-    <div class="mb-3">
-        <div class="inline-form-header mb-2">Add Tag</div>
-        {{ form_start(form, {attr: {class: 'form-inline'}}) }}
-        {{ form_label(form.name) }}
-        {{ form_widget(form.name, {attr: {class: 'ml-2'}}) }}
-        {{ form_widget(form.color, {attr: {class: 'ml-2 w-p-50'}}) }}
-        <button type="submit" class="btn btn-primary ml-2">Create</button>
-        {{ form_end(form) }}
-    </div>
 </div>
 {% endblock %}
 

@@ -1,6 +1,7 @@
 {% extends 'sidebar.html.twig' %}
 {% import 'time/partials.html.twig' as time %}
 {% import 'components/autocomplete.html.twig' as autocomplete %}
+{% import 'components/statistic-value.html.twig' as statistics %}
 
 {% block content_class %}w-100{% endblock %}
 
@@ -19,10 +20,34 @@
 
         {{ form_start(form) }}
         {{ form_widget(form) }}
-        <button type="submit" class="btn btn-primary">Update</button>
-        <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#delete-modal">
-            Delete
-        </button>
+
+        <label>Data</label>
+        <div class="d-flex mt-2 js-add-statistic add-statistic">
+            {{ autocomplete.list('statistic', { search: { tabIndex: '1' } }) }}
+            <div class="ml-2">
+                <label class="sr-only" for="add-statistic-value">record value</label>
+                <input
+                        id="add-statistic-value"
+                        tabindex="2"
+                        type="number"
+                        class="js-statistic-input form-control"
+                        placeholder="value..."
+                        autocomplete="off"
+                />
+            </div>
+            <button type="button" class="ml-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
+                Add
+            </button>
+        </div>
+
+        {{ statistics.valueList(timestamp.statisticValues, {class: 'mt-2'}) }}
+
+        <div class="mt-2">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#delete-modal">
+                Delete
+            </button>
+        </div>
         {{ form_end(form) }}
     </div>
 

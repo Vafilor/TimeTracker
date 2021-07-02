@@ -7,6 +7,7 @@
 @import "partials/tags";
 @import "partials/filters";
 @import "partials/autocomplete";
+@import "partials/statistics";
 
 $sidebarWidth: 260px;
 $headerHeight: 58px;
@@ -318,4 +319,3 @@ input {
         transition: top 0.3s;
     }
 }
-

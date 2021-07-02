@@ -17,8 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TimestampController extends BaseController
 {
-    const codeTagNotAssociated = 'tag_not_associated';
-
     #[Route('/timestamp', name: 'timestamp_index')]
     public function index(
         Request $request,

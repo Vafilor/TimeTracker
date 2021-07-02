@@ -65,6 +65,12 @@ class TimeEntry
     private Collection $tagLinks;
 
     /**
+     * @ORM\OneToMany(targetEntity=StatisticValue::class, mappedBy="timeEntry")
+     * @var StatisticValue[]|Collection
+     */
+    private Collection $statisticValues;
+
+    /**
      * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="timeEntries")
      */
     private ?Task $task;
@@ -142,6 +148,10 @@ class TimeEntry
         }
 
         $this->endedAt = $endedAt;
+
+        foreach ($this->getStatisticValues() as $statisticValue) {
+            $statisticValue->setEndedAt($endedAt);
+        }
 
         return $this;
     }
@@ -228,5 +238,13 @@ class TimeEntry
         $this->tagLinks->add($tagLink);
 
         return $this;
+    }
+
+    /**
+     * @return StatisticValue[]|Collection
+     */
+    public function getStatisticValues(): Collection|array
+    {
+        return $this->statisticValues;
     }
 }

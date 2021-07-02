@@ -127,4 +127,30 @@ class BaseController extends AbstractController
     {
         return $this->json($data, $status, $headers, array_merge([AbstractObjectNormalizer::SKIP_NULL_VALUES => true, $context]));
     }
+
+    /**
+     * Checks to make sure the input keys exist in the array.
+     * If they do not, an ApiProblemException is thrown with status code 400.
+     *
+     * @param array $data
+     * @param string ...$keys
+     */
+    public function ensureKeysExist(array $data, string ...$keys): void
+    {
+        $missingKeys = [];
+
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $data)) {
+                $missingKeys[] = $key;
+            }
+        }
+
+        if (count($missingKeys) === 0) {
+            return;
+        }
+
+        $problem = ApiProblem::missingKeysInBody(...$missingKeys);
+
+        throw new ApiProblemException($problem);
+    }
 }

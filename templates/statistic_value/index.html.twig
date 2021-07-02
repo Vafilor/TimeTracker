@@ -1,0 +1,117 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}Records{% endblock %}
+
+{% block content_body %}
+    <div class="p-3">
+        <h1 class="text-center">Data Records</h1>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+        <label>Add record</label>
+        <form class="mt-2 js-add-statistic row no-gutters">
+            {{ autocomplete.list('statistic', { root: { class: 'col' }, search: { tabIndex: '1' }  }) }}
+            <div class="ml-2">
+                <label class="sr-only" for="statistic-value">value</label>
+                <input
+                        id="statistic-value"
+                        tabindex="2"
+                        type="number"
+                        class="js-statistic-input form-control"
+                        placeholder="value..."
+                        autocomplete="off"
+                />
+            </div>
+            <div class="ml-2">
+                <label class="sr-only" for="statistic-day">day</label>
+                <input
+                        id="statistic-day"
+                        tabindex="3"
+                        type="date"
+                        class="form-control js-day-input"
+                        name="day"
+                        value="{{ 'now'|date('Y-m-d', app.user.timezone) }}">
+            </div>
+            <button type="button" tabindex="4" class="ml-2 btn btn-primary js-add">
+                Add
+            </button>
+        </form>
+
+        <table class="table table-bordered table-hover mt-3">
+            <thead>
+            <tr>
+                <th>Start</th>
+                <th>Statistic</th>
+                <th>Value</th>
+                <th>Resource</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for date in data|keys %}
+                <tr>
+                    <td colspan="5" class="table-secondary font-weight-bold">{{ date }}</td>
+                </tr>
+                {% for value in data[date] %}
+                <tr>
+                    <td>
+                        {% if value.timestamp %}
+                            {{ time.user_datetime(value.startedAt, app.user) }}
+                        {% elseif value.timeEntry %}
+                            {{ time.user_datetime(value.startedAt, app.user) }} -
+                            {{ time.user_datetime(value.endedAt, app.user) }}
+                        {% else %}
+                            {{ time.user_date(value.startedAt, app.user) }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span style="color: {{ value.statistic.color }}">
+                            {% if value.statistic.icon %}
+                                <i class="{{ value.statistic.icon }}"></i>
+                            {% endif %}
+                        </span>
+                        <span class="ml-2">{{ value.statistic.name }}</span>
+                    </td>
+                    <td>{{ value.value }}</td>
+                    <td>
+                        {% if value.timestamp %}
+                            timestamp
+                        {% elseif value.timeEntry %}
+                            time entry
+                        {% else %}
+                            day
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('statistic_value_view', {id: value.idString}) }}" class="btn btn-primary">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td class="text-center" colspan="4">No results found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('statistic_value_index') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('statistic_value_index') }}
+{% endblock %}
+
