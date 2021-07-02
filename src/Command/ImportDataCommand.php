@@ -204,6 +204,9 @@ class ImportDataCommand extends Command
      */
     private function makeEntityMap(iterable $transfers): array
     {
+        $usernames = Collections::pluckNoDuplicates($transfers, 'assignedTo');
+        $this->userLoader->loadByKey('username', $usernames);
+
         $entities = [];
         foreach ($transfers as $transfer) {
             $user = $this->userLoader->findOneByKeyOrException('username', $transfer->assignedTo);
@@ -321,6 +324,7 @@ class ImportDataCommand extends Command
         $timestamps = $this->makeEntityMap($transferTimestamps);
 
         $tagIds = Collections::pluckNoDuplicates($this->pluckTagLinks($transferTimestamps), 'id');
+
         $this->tagLoader->loadByIds($tagIds);
 
         foreach ($transferTimestamps as $id => $transferTimestamp) {
@@ -416,8 +420,6 @@ class ImportDataCommand extends Command
     {
         /** @var TransferStatistic[] $transferStatistics */
         $transferStatistics = $this->filterOutById($transferStatistics, $this->statisticRepository);
-        $usernames = Collections::pluckNoDuplicates($transferStatistics, 'assignedTo');
-        $this->userLoader->loadByKey('username', $usernames);
 
         $statistics = $this->makeEntityMap($transferStatistics);
 
