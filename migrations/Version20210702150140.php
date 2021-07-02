@@ -55,13 +55,26 @@ final class Version20210702150140 extends AbstractMigration
     protected function upMysql(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        // do nothing
+        $this->addSql('CREATE TABLE statistic (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', assigned_to_id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', icon VARCHAR(255) DEFAULT NULL, name VARCHAR(255) NOT NULL, canonical_name VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, color VARCHAR(7) NOT NULL, unit VARCHAR(255) NOT NULL, time_type VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, INDEX IDX_649B469CF4BD7827 (assigned_to_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE statistic_value (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', statistic_id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', time_entry_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', timestamp_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', value DOUBLE PRECISION NOT NULL, started_at DATETIME NOT NULL, ended_at DATETIME DEFAULT NULL, created_at DATETIME NOT NULL, INDEX IDX_FC7CA2053B6268F (statistic_id), INDEX IDX_FC7CA201EB30A8E (time_entry_id), INDEX IDX_FC7CA202F202E84 (timestamp_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('ALTER TABLE statistic ADD CONSTRAINT FK_649B469CF4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES users (id)');
+        $this->addSql('ALTER TABLE statistic_value ADD CONSTRAINT FK_FC7CA2053B6268F FOREIGN KEY (statistic_id) REFERENCES statistic (id)');
+        $this->addSql('ALTER TABLE statistic_value ADD CONSTRAINT FK_FC7CA201EB30A8E FOREIGN KEY (time_entry_id) REFERENCES time_entry (id)');
+        $this->addSql('ALTER TABLE statistic_value ADD CONSTRAINT FK_FC7CA202F202E84 FOREIGN KEY (timestamp_id) REFERENCES timestamp (id)');
+        $this->addSql('ALTER TABLE tag_link ADD statistic_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE tag_link ADD CONSTRAINT FK_D8A3264753B6268F FOREIGN KEY (statistic_id) REFERENCES statistic (id)');
+        $this->addSql('CREATE INDEX IDX_D8A3264753B6268F ON tag_link (statistic_id)');
     }
 
     protected function downMysql(Schema $schema) : void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        // do nothing
+        $this->addSql('ALTER TABLE statistic_value DROP FOREIGN KEY FK_FC7CA2053B6268F');
+        $this->addSql('ALTER TABLE tag_link DROP FOREIGN KEY FK_D8A3264753B6268F');
+        $this->addSql('DROP TABLE statistic');
+        $this->addSql('DROP TABLE statistic_value');
+        $this->addSql('DROP INDEX IDX_D8A3264753B6268F ON tag_link');
+        $this->addSql('ALTER TABLE tag_link DROP statistic_id');
     }
 
     protected function upSqlite(Schema $schema) : void
