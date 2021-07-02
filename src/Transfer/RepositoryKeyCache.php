@@ -36,7 +36,8 @@ class RepositoryKeyCache
     {
         $item = $this->findOneByKey($key, $value);
         if (is_null($item)) {
-            throw new RuntimeException('Not found');
+            $className = TypeUtil::getClassName($this->repository);
+            throw new RuntimeException("$className did not find entity with key '$key' for value '$value'");
         }
 
         return $item;
