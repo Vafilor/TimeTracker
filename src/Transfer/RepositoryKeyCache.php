@@ -57,7 +57,15 @@ class RepositoryKeyCache
 
     public function loadByIds(array $ids): static
     {
-        return $this->loadByKey('id', $ids);
+        $items = $this->repository->findByKeys('id', $ids);
+
+        $this->keyToObject = [];
+
+        $this->keyToObject = [
+            'id' => Collections::mapByKeyUnique($items, 'idString')
+        ];
+
+        return $this;
     }
 
     public function findById(string $id)
