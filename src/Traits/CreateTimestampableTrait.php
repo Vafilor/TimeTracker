@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 trait CreateTimestampableTrait
 {
     /**
-     * @ORM\Column(type="datetimetz")
+     * @ORM\Column(type="datetime")
      * @var DateTime
      */
     protected $createdAt;
