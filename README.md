@@ -2,9 +2,7 @@
 
 Web App for tracking your time. Currently only locally deployable.
 
-<img src="readme_assets/today.png" width="100%" />
-
-<img src="readme_assets/active_entry.png" width="100%" />
+<img src="readme_assets/time_entries.png" width="100%" />
 
 ## Features
 
