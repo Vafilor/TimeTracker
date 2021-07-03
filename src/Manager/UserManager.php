@@ -45,4 +45,25 @@ class UserManager
 
         return $user;
     }
+
+    public function changePassword(string $username, string $newPassword)
+    {
+        $user = $this->userRepository->findOneByOrException(['username' => $username]);
+
+        $user->setPassword(
+            $this->passwordEncoder->encodePassword(
+                $user,
+                $newPassword
+            )
+        );
+
+        $this->entityManager->flush();
+    }
+
+    public function userExistsForUsername(string $username): bool
+    {
+        $user = $this->userRepository->findOneBy(['username' => $username]);
+
+        return !is_null($user);
+    }
 }
