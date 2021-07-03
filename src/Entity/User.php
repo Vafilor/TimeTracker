@@ -75,6 +75,11 @@ class User extends BaseUser
         $this->markCreated($createdAt);
     }
 
+    public function getUsername(): string
+    {
+        return $this->email;
+    }
+
     public function gravatarUrl(int $size = 30): string
     {
         $baseUrl = 'https://www.gravatar.com/avatar/';
