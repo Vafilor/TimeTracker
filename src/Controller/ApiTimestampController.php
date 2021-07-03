@@ -10,9 +10,12 @@ use App\Entity\TagLink;
 use App\Entity\Timestamp;
 use App\Manager\TagManager;
 use App\Manager\TimestampManager;
+use App\Repository\StatisticRepository;
+use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
+use App\Traits\HasStatisticDataTrait;
 use App\Traits\TaggableController;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
 use Knp\Component\Pager\PaginatorInterface;
@@ -24,6 +27,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTimestampController extends BaseController
 {
     use TaggableController;
+    use HasStatisticDataTrait;
 
     private DateTimeFormatter $dateTimeFormatter;
 
@@ -221,5 +225,47 @@ class ApiTimestampController extends BaseController
         }
 
         return $this->getTagsRequest($timestamp);
+    }
+
+    #[Route('/api/timestamp/{id}/statistic', name: 'api_timestamp_statistic_create', methods: ['POST'])]
+    #[Route('/json/timestamp/{id}/statistic', name: 'json_timestamp_statistic_create', methods: ['POST'])]
+    public function addStatisticValue(
+        Request $request,
+        TimestampRepository $timestampRepository,
+        StatisticRepository $statisticRepository,
+        StatisticValueRepository $statisticValueRepository,
+        string $id
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->addStatisticValueRequest(
+            $request,
+            $statisticRepository,
+            $statisticValueRepository,
+            $this->getUser(),
+            $timestamp
+        );
+    }
+
+    #[Route('/api/timestamp/{id}/statistic/{statisticId}', name: 'api_timestamp_statistic_delete', methods: ['DELETE'])]
+    #[Route('/json/timestamp/{id}/statistic/{statisticId}', name: 'json_timestamp_statistic_delete', methods: ['DELETE'])]
+    public function removeStatisticValue(
+        Request $request,
+        TimestampRepository $timestampRepository,
+        StatisticValueRepository $statisticValueRepository,
+        string $id,
+        string $statisticId,
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->removeStatisticValueRequest($statisticValueRepository, $statisticId);
     }
 }

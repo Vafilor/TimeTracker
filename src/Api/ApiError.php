@@ -15,6 +15,11 @@ class ApiError
         return ApiError::propertyError(ApiProblem::TYPE_VALIDATION_ERROR, 'Missing value', $property);
     }
 
+    public static function invalidPropertyValue(string $property): ApiError
+    {
+        return ApiError::propertyError(ApiProblem::TYPE_VALIDATION_ERROR, 'Invalid value', $property);
+    }
+
     public static function propertyError(string $code, string $message, string $property, array $extraData = []): ApiError
     {
         $extra = array_merge(['property' => $property], $extraData);

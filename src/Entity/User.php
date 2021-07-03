@@ -67,8 +67,8 @@ class User extends BaseUser
         $this->timeEntries = new ArrayCollection();
         $this->timezone = "America/Los_Angeles";
         $this->dateFormat = 'm/d/Y';
-        $this->dateFormat = 'm/d/Y h:i:s A';
-        $this->todayDateFormat = 'h:i:s A';
+        $this->dateTimeFormat = 'm/d/Y h:i:s A';
+        $this->todayDateTimeFormat = 'h:i:s A';
         $this->durationFormat = '%hh %Im %Ss';
         $this->tasks = new ArrayCollection();
 

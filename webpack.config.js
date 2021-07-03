@@ -29,6 +29,10 @@ Encore
     .addEntry('task_index', './assets/ts/task_index.ts')
     .addEntry('timestamp', './assets/ts/timestamp.ts')
     .addEntry('timestamp_index', './assets/ts/timestamp_index.ts')
+    .addEntry('statistic_value', './assets/ts/statistic_value.ts')
+    .addEntry('statistic', './assets/ts/statistic.ts')
+    .addEntry('statistic_index', './assets/ts/statistic_index.ts')
+    .addEntry('statistic_value_index', './assets/ts/statistic_value_index.ts')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')

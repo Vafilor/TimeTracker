@@ -43,6 +43,7 @@ class ApiTaskController extends BaseController
 
         $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
 
+        $this->createForm(TaskListFilterFormType::class, new TaskListFilterModel());
         $filterForm = $formFactory->createNamed(
             '',
             TaskListFilterFormType::class,

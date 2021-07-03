@@ -14,6 +14,8 @@
                     <li><a href="{{ path('task_index') }}" {% if path starts with '/task' %} class="active"{% endif %}>Tasks</a></li>
                     <li><a href="{{ path('timestamp_index') }}" {% if path starts with '/timestamp' %} class="active"{% endif %}>Timestamps</a></li>
                     <li><a href="{{ path('tag_index') }}" {% if path starts with '/tag' %} class="active" {% endif %}>Tags</a></li>
+                    <li><a href="{{ path('statistic_index') }}" {% if path starts with '/statistic' %} class="active" {% endif %}>Statistics</a></li>
+                    <li><a href="{{ path('statistic_value_index') }}" {% if path starts with '/record' %} class="active" {% endif %}>Records</a></li>
                 </ul>
             </div>
         {% endblock %}

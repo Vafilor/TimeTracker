@@ -8,9 +8,9 @@ use App\Entity\Tag;
 
 class TransferTagLink
 {
-    public string $id = '';
-    public string $name = '';
-    public string $assignedTo = '';
+    public string $id;
+    public string $name;
+    public string $assignedTo;
 
     /**
      * @param iterable|Tag[] $tags

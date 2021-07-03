@@ -1,40 +1,39 @@
-
 {% macro start(name, attr) %}
     {% set _attr = { class: '' } %}
     {% if attr %}
         {% set _attr = _attr|merge(attr) %}
     {% endif %}
-<div class="autocomplete js-autocomplete js-autocomplete-{{ name }} {{ _attr.class }}">
-    {% endmacro %}
+    <div class="autocomplete js-autocomplete js-autocomplete-{{ name }} {{ _attr.class }}">
+{% endmacro %}
 
-    {% macro search(name, attr) %}
-        {% set _attr = { class: '', value: '', placeholder: 'name'} %}
-        {% if attr %}
-            {% set _attr = _attr|merge(attr) %}
-        {% endif %}
+{% macro search(name, attr) %}
+    {% set _attr = { class: '', value: '', placeholder: 'name'} %}
+    {% if attr %}
+        {% set _attr = _attr|merge(attr) %}
+    {% endif %}
 
-        <div class="search {{ _attr.class }}">
-            <label class="sr-only" for="{{ name }}-name">name</label>
-            <input
-                    id="{{ name }}-name"
-                    {% if _attr.tabIndex is defined%}
-                        tabindex="{{ _attr.tabIndex }}"
-                    {% endif %}
-                    type="text"
-                    class="js-input form-control unset-height"
-                    placeholder="{{ _attr.placeholder }}"
-                    name="{{ name }}-name"
-                    value="{{ _attr.value }}"
-                    autocomplete="off">
-            <button type="button" class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-        </div>
-    {% endmacro %}
+    <div class="search {{ _attr.class }}">
+        <label class="sr-only" for="{{ name }}-name">name</label>
+        <input
+                id="{{ name }}-name"
+                {% if _attr.tabIndex is defined%}
+                    tabindex="{{ _attr.tabIndex }}"
+                {% endif %}
+                type="text"
+                class="js-input form-control unset-height"
+                placeholder="{{ _attr.placeholder }}"
+                name="{{ name }}-name"
+                value="{{ _attr.value }}"
+                autocomplete="off">
+        <button type="button" class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
+    </div>
+{% endmacro %}
 
-    {% macro search_results() %}
-        <div class="search-results d-none js-search-results"></div>
-    {% endmacro %}
+{% macro search_results() %}
+    <div class="search-results d-none js-search-results"></div>
+{% endmacro %}
 
-    {% macro end(name) %}
+{% macro end(name) %}
 </div>
 {% endmacro %}
 

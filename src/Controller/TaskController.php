@@ -85,9 +85,7 @@ class TaskController extends BaseController
         $form = $this->createForm(
             TaskFormType::class,
             new TaskModel(),
-            [
-                'timezone' => $this->getUser()->getTimezone()
-            ]
+            ['timezone' => $this->getUser()->getTimezone()]
         );
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

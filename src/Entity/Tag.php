@@ -12,6 +12,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -87,6 +88,10 @@ class Tag
 
         $this->canonicalName = $this->canonicalizeName($name);
 
+        if (strlen($this->canonicalName) === 0) {
+            throw new InvalidArgumentException('Name can not be blank once whitespace is removed.');
+        }
+
         return $this;
     }
 
@@ -99,5 +104,10 @@ class Tag
     public function getColor(): string
     {
         return $this->color;
+    }
+
+    public function getTagLinks(): Collection
+    {
+        return $this->tagLinks;
     }
 }

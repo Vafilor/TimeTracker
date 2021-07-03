@@ -36,8 +36,8 @@ class UserController extends BaseController
 
             $user->setTimezone($data->getTimezone());
             $user->setDurationFormat($data->getDurationFormat());
-            $user->setDateFormat($data->getDateFormat());
-            $user->setTodayDateFormat($data->getTodayDateFormat());
+            $user->setDateTimeFormat($data->getDateTimeFormat());
+            $user->setTodayDateTimeFormat($data->getTodayDateTimeFormat());
 
             $this->getDoctrine()->getManager()->flush();
 

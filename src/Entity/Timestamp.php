@@ -37,12 +37,19 @@ class Timestamp
      */
     private Collection $tagLinks;
 
+    /**
+     * @ORM\OneToMany(targetEntity=StatisticValue::class, mappedBy="timestamp")
+     * @var StatisticValue[]|Collection
+     */
+    private Collection $statisticValues;
+
     public function __construct(User $assignedTo)
     {
         $this->id = Uuid::uuid4();
         $this->markCreated();
         $this->assignTo($assignedTo);
         $this->tagLinks = new ArrayCollection();
+        $this->statisticValues = new ArrayCollection();
     }
 
     /**
@@ -58,5 +65,13 @@ class Timestamp
         $this->tagLinks->add($tagLink);
 
         return $this;
+    }
+
+    /**
+     * @return StatisticValue[]|Collection
+     */
+    public function getStatisticValues(): Collection|array
+    {
+        return $this->statisticValues;
     }
 }

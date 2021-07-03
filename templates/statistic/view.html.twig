@@ -1,0 +1,76 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}Stat: {{ statistic.name }}{% endblock %}
+
+{% block content_body %}
+    <div class="p-3 js-data"
+         data-statistic-id="{{ statistic.idString }}">
+
+        <h1 class="text-center">
+            <div class="d-inline-block js-statistic-icon-preview mr-2" style="color: {{ statistic.color }}">
+                {% if statistic.icon %}
+                    <i class="{{ statistic.icon }}"></i>
+                {% endif %}
+            </div>
+            {{ statistic.name }}
+        </h1>
+
+        <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
+            <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+
+            {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+        </div>
+
+        <div class="mb-2 mt-2">Created: {{ time.user_datetime(statistic.createdAt, app.user) }}</div>
+
+        {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.color, {attr: {class: 'w-p-50 js-color'}}) }}
+        {{ form_row(form.icon, {attr: {class: 'js-icon'}}) }}
+        {{ form_widget(form) }}
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#delete-modal">
+            Delete
+        </button>
+        {{ form_end(form) }}
+    </div>
+
+    <!-- Delete modal -->
+    <div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="delete-modal-label">Are you sure you want to delete?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    This will delete the statistic
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a href="{{ path('statistic_delete', {id: statistic.id}) }}" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('statistic') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('statistic') }}
+{% endblock %}
+

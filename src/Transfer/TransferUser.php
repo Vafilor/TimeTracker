@@ -71,6 +71,7 @@ class TransferUser
         $user->setDateFormat($this->dateFormat);
         $user->setDateTimeFormat($this->dateTimeFormat);
         $user->setTodayDateTimeFormat($this->todayDateTimeFormat);
+
         $user->setDurationFormat($this->durationFormat);
 
         return $user;

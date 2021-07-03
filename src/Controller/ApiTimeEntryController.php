@@ -9,6 +9,8 @@ use App\Api\ApiFormError;
 use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
+use App\Api\ApiStatisticValue;
+use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Api\ApiTimeEntry;
 use App\Entity\TagLink;
@@ -19,10 +21,13 @@ use App\Form\Model\TimeEntryModel;
 use App\Form\TimeEntryFormType;
 use App\Form\TimeEntryListFilterFormType;
 use App\Manager\TagManager;
+use App\Repository\StatisticRepository;
+use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
+use App\Traits\HasStatisticDataTrait;
 use App\Traits\TaggableController;
 use DateTime;
 use DateTimeZone;
@@ -38,6 +43,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTimeEntryController extends BaseController
 {
     use TaggableController;
+    use HasStatisticDataTrait;
 
     /**
      * @throws Exception
@@ -614,5 +620,47 @@ class ApiTimeEntryController extends BaseController
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
 
         return $this->jsonNoNulls($apiTimeEntry);
+    }
+
+    #[Route('/api/time-entry/{id}/statistic', name: 'api_time_entry_statistic_create', methods: ['POST'])]
+    #[Route('/json/time-entry/{id}/statistic', name: 'json_time_entry_statistic_create', methods: ['POST'])]
+    public function addStatisticValue(
+        Request $request,
+        TimeEntryRepository $timeEntryRepository,
+        StatisticRepository $statisticRepository,
+        StatisticValueRepository $statisticValueRepository,
+        string $id
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->addStatisticValueRequest(
+            $request,
+            $statisticRepository,
+            $statisticValueRepository,
+            $this->getUser(),
+            $timeEntry
+        );
+    }
+
+    #[Route('/api/time-entry/{id}/statistic/{statisticId}', name: 'api_time_entry_statistic_delete', methods: ['DELETE'])]
+    #[Route('/json/time-entry/{id}/statistic/{statisticId}', name: 'json_time_entry_statistic_delete', methods: ['DELETE'])]
+    public function removeStatisticValue(
+        Request $request,
+        TimeEntryRepository $timeEntryRepository,
+        StatisticValueRepository $statisticValueRepository,
+        string $id,
+        string $statisticId,
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->removeStatisticValueRequest($statisticValueRepository, $statisticId);
     }
 }
