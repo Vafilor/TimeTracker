@@ -26,7 +26,7 @@ class UserManager
         $this->entityManager = $objectManager;
     }
 
-    public function createUser(string $email, string $username, string $password)
+    public function createUser(string $email, string $username, string $password): User
     {
         $user = new User();
         $user->setEmail($email);
@@ -42,5 +42,7 @@ class UserManager
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+
+        return $user;
     }
 }
