@@ -148,6 +148,9 @@
             "config/packages/lexik_jwt_authentication.yaml"
         ]
     },
+    "mobiledetect/mobiledetectlib": {
+        "version": "2.8.37"
+    },
     "monolog/monolog": {
         "version": "2.2.0"
     },

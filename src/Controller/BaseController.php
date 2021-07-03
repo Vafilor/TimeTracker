@@ -10,6 +10,7 @@ use App\Entity\User;
 use App\Traits\DatabaseUtilitiesTrait;
 use DateTime;
 use DateTimeZone;
+use Detection\MobileDetect;
 use Doctrine\ORM\QueryBuilder;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -64,6 +65,12 @@ class BaseController extends AbstractController
             $request->query->getInt('page', 1),
             $itemsPerPage,
         );
+
+        // Decrease pagination range for mobile devices so the screen size fits better
+        $detect = new MobileDetect();
+        if ($detect->isMobile(null, $request->headers->all())) {
+            $pagination->setPageRange(2);
+        }
 
         if (!$request->query->has('sort')) {
             foreach ($defaultParams as $key => $value) {
