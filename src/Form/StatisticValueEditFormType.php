@@ -15,7 +15,9 @@ class StatisticValueEditFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('value', NumberType::class)
+            ->add('value', NumberType::class, [
+                'html5' => true
+            ])
         ;
     }
 
