@@ -8,7 +8,8 @@
 
 {% block content_body %}
     <div class="p-3 js-data"
-         data-timestamp-edit-url="{{ path('timestamp_view', { id: 'TIMESTAMP_ID' }) }}"
+         data-route-timestamp-view="timestamp_view;{{ path('timestamp_view', { id: 'TIMESTAMP_ID' }) }}"
+         data-datetime-format="{{ app.user.dateTimeFormat }}"
          {% if pagination.sort == 'timestamp.createdAt' %}
          data-created-at-sort="{{ pagination.direction }}"
          {% else %}
@@ -17,7 +18,6 @@
     >
 
         <h1 class="text-center">
-
             Timestamps
             <span class="pointer-hover help-button-title">
                 <i
@@ -37,40 +37,11 @@
             <a href="{{ path('timestamp_create') }}" class="btn btn-primary">Create</a>
         </div>
 
-        <table class="table table-hover table-bordered js-timestamp-list mt-3">
-            <thead>
-            <tr>
-                <th>Tags</th>
-                <th>{{ knp_pagination_sortable(pagination, 'Created', 'timestamp.createdAt') }}</th>
-                <th>Created at</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody class="js-timestamp-list-body">
+        <div class="timestamp-list js-timestamp-list mt-2">
             {% for timestamp in pagination.items %}
-                <tr data-timestamp-id="{{ timestamp.idString }}" data-created-at="{{ timestamp.createdAt.timestamp}}">
-                    <td>
-                        {% for tag in timestamp.tags %}
-                            {{ tags.view(tag.name, tag.color) }}
-                        {% endfor %}
-                    </td>
-                    <td class="js-timestamp-ago">{{ timestamp.createdAt | ago }}</td>
-                    <td>{{ time.user_datetime(timestamp.createdAt, app.user) }}</td>
-                    <td>
-                        <button type="button" class="btn btn-primary js-timestamp-repeat">
-                            <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
-                            Mark again
-                        </button>
-                        <a href="{{ path('timestamp_view', { id: timestamp.idString }) }}" class="btn btn-primary">View</a>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td class="text-center" colspan="4">No results found</td>
-                </tr>
+                {{ include('timestamp/partials/_timestamp.html.twig', {timestamp: timestamp }) }}
             {% endfor %}
-            </tbody>
-        </table>
+        </div>
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 {% endblock %}

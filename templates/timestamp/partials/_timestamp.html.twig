@@ -1,0 +1,31 @@
+{% import 'time/partials.html.twig' as time %}
+{% import 'tag/partials.html.twig' as tags %}
+
+<div
+    class="timestamp js-timestamp"
+    data-id="{{ timestamp.idString }}"
+>
+    <div class="tag-list js-tag-list many-rows mt-1" data-initial-tags-name="{{ timestamp.tagNames() }}">
+        <div class="js-tag-list-view">
+            {% for tag in timestamp.tags %}
+                {{ tags.view(tag.name, tag.color) }}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="mt-2">
+        <div
+            class="time-ago js-timestamp-ago"
+            data-created-at="{{ timestamp.createdAt.timestamp}}">
+            {{ timestamp.createdAt | ago }}
+        </div>
+        <div class="datetime">{{ time.user_datetime(timestamp.createdAt, app.user)}}</div>
+    </div>
+    <hr/>
+    <div class="d-flex justify-content-end js-actions">
+        <a href="{{ path('timestamp_view', {id: timestamp.idString}) }}" class="btn btn-primary js-view">View</a>
+        <button type="button" class="btn btn-secondary js-timestamp-repeat ml-2">
+            <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
+            Repeat
+        </button>
+    </div>
+</div>
