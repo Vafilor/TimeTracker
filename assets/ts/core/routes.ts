@@ -54,4 +54,12 @@ export default class TimeTrackerRoutes {
 
         return url;
     }
+
+    timestampView(id: string): string {
+        let url = this.getTemplateOrException('timestamp_view');
+
+        url = url.replace('TIMESTAMP_ID', id);
+
+        return url;
+    }
 }

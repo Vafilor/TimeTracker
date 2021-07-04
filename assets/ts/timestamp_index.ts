@@ -5,40 +5,48 @@ import { ApiTimestamp, TimestampApi } from "./core/api/timestamp_api";
 import { JsonResponse } from "./core/api/api";
 import { ApiTag } from "./core/api/tag_api";
 import LoadingButton from "./components/loading_button";
-import { timeAgo } from "./components/time";
+import { formatTimeDifference, timeAgo } from "./components/time";
+import { createTagView } from "./components/tags";
+import TimeTrackerRoutes from "./core/routes";
 
 class TimestampListPage {
-    public static createTag(tag: ApiTag): string {
-        return `<div class="tag" style="background-color: ${tag.color};">${tag.name}</div>`;
-    }
-
     // Get template from twig.
     // Make a macro out of it, one that takes all params and one that takes an API object and use {FIELD_NAME}.
-    public static createTableRow(timestamp: ApiTimestamp, urlTemplate: string): string {
-        const editUrl = urlTemplate.replace('TIMESTAMP_ID', timestamp.id);
+    public static createTableRow(timestamp: ApiTimestamp, dateTimeFormat: string, routes: TimeTrackerRoutes): string {
+        const nowMillis = (new Date()).getTime();
 
-        let data = `
-                <tr data-timestamp-id="${timestamp.id}" data-created-at="${timestamp.createdAtEpoch}">
-                    <td>`;
-
+        let tagHtml = '';
         for(const tag of timestamp.tags) {
-            data += TimestampListPage.createTag(tag) + ' ';
+            tagHtml += createTagView(tag.name, tag.color);
         }
 
-        data +=    `</td>
-                    <td class="js-timestamp-ago">${timestamp.createdAgo}</td>
-                    <td>${timestamp.createdAt}</td>
-                    <td>
-                        <button type="button" class="btn btn-primary js-timestamp-repeat">
-                            <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
-                            Mark again
-                        </button>
-                        <a href="${editUrl}" class="btn btn-primary">View</a>
-                    </td>
-                </tr>
-        `;
+        const html = `
+        <div
+            class="timestamp js-timestamp"
+            data-id="${timestamp.id}"
+        >
+            <div class="tag-list js-tag-list many-rows mt-1">
+                <div class="js-tag-list-view">${tagHtml}</div>
+            </div>
+            <div class="mt-2">
+                <div
+                    class="time-ago js-timestamp-ago"
+                    data-created-at="${timestamp.createdAtEpoch}">
+                    ${timeAgo(timestamp.createdAtEpoch * 1000, nowMillis)}
+                </div>
+                <div class="datetime">${timestamp.createdAt}</div>
+            </div>
+            <hr/>
+            <div class="d-flex justify-content-end js-actions">
+                <a href="${routes.timestampView(timestamp.id)}" class="btn btn-primary js-view">View</a>
+                <button type="button" class="btn btn-secondary js-timestamp-repeat ml-2">
+                    <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
+                    Repeat
+                </button>
+            </div>
+        </div>`;
 
-        return data;
+        return html;
     }
 
     static updateTimeAgo(when: Date) {
@@ -46,7 +54,7 @@ class TimestampListPage {
 
         $('.js-timestamp-ago').each((index: number, element: HTMLElement) => {
             const $element = $(element);
-            const startSeconds = $element.parent().data('created-at');
+            const startSeconds = $element.data('created-at');
 
             const agoString = timeAgo(startSeconds * 1000, endMillis);
 
@@ -57,24 +65,27 @@ class TimestampListPage {
 
 $(document).ready(() => {
     const $data = $('.js-data');
-    const editTemplateUrl = $data.data('timestamp-edit-url');
     const createdAtSort = $data.data('created-at-sort');
+    const dateTimeFormat = $data.data('datetime-format');
 
-    const $timestampList = $('.js-timestamp-list .js-timestamp-list-body');
+    const $timestampList = $('.js-timestamp-list');
 
-    $('.js-timestamp-list-body')
+    const routes = new TimeTrackerRoutes();
+    routes.addTemplateFromJoined($data.data('route-timestamp-view'));
+
+    $timestampList
         .on('click',
             '.js-timestamp-repeat',
             (event) => {
         const $currentTarget = $(event.currentTarget);
         const loadingButton = new LoadingButton($currentTarget);
-        const timestampId = $currentTarget.parent().parent().data('timestamp-id');
+        const timestampId = $currentTarget.closest('.js-timestamp').data('id');
 
         loadingButton.startLoading();
 
         TimestampApi.repeat(timestampId)
             .then((res: JsonResponse<ApiTimestamp>) => {
-                const newRow = TimestampListPage.createTableRow(res.data, editTemplateUrl);
+                const newRow = $(TimestampListPage.createTableRow(res.data, dateTimeFormat, routes));
 
                 if (createdAtSort === 'ASC') {
                     $timestampList.append(newRow);
