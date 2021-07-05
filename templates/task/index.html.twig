@@ -31,13 +31,19 @@
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
-        <form class="js-task-create d-flex align-baseline form-inline">
-            <input class="form-control js-form js-name flex-grow-1" placeholder="What do you want to achieve?" />
-            <button type="button" class="btn btn-primary js-button js-loading-button ml-1">
-                <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                <span class="js-loading sr-only">Loading...</span>
-                <span class="js-text">Create task</span>
-            </button>
+        <div class="inline-form-header mb-2">Add Task</div>
+        <form class="js-task-create form-row">
+            <div class="col">
+                <label class="sr-only" for="create-task-name">New task name</label>
+                <input type="text" id="create-task-name" class="form-control js-name" placeholder="What do you want to achieve?" />
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-primary js-button js-loading-button">
+                    <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <span class="js-loading sr-only">Loading...</span>
+                    <span class="js-text">Create task</span>
+                </button>
+            </div>
         </form>
 
         <table class="table table-bordered table-hover mt-2 js-task-table">

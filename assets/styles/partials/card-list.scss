@@ -1,0 +1,27 @@
+@import "colors";
+
+.card-list {
+  .card-list-item {
+    &:not(:first-child) {
+      margin-top: 20px;
+    }
+
+    transition: box-shadow 0.5s;
+
+    border-radius: 6px;
+    border: 1px solid $gray-300;
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 8%);
+
+    hr {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .datetime {
+      font-size: 13px;
+      color: $gray-gray;
+    }
+  }
+}
