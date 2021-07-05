@@ -29,7 +29,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class ExportDataCommand extends Command
 {
     protected static $defaultName = 'app:data:export';
-    protected static string $defaultDescription = 'Export the data in the database to several files';
+    protected static $defaultDescription = 'Export the data in the database to several files';
 
     private Serializer $serializer;
     private TagRepository $tagRepository;
