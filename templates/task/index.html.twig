@@ -8,7 +8,7 @@
 {% block content_body %}
     <div class="p-3 js-data"
          data-duration-format="{{ app.user.durationFormat }}"
-         data-date-format="today"
+         data-date-format="date_time_today"
          data-show-completed="{{ filterForm.showCompleted.vars.data }}"
          data-route-time-entry-index="time_entry_index;{{ path('time_entry_index') }}"
          data-route-task-view="task_view;{{ path('task_view', {id: 'TASK_ID'}) }}"

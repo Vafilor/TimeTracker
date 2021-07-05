@@ -22,7 +22,9 @@ class ApiDateTime
         } elseif ($format === DateFormatType::DATE_TIME_TODAY) {
             return $dateTz->format($user->getTodayDateTimeFormat());
         } else {
-            throw new Exception("Unknown date format. Only 'date' and 'today' are supported. '$format' was given");
+            $message = DateFormatType::invalidErrorMessage($format);
+
+            throw new Exception($message);
         }
     }
 }
