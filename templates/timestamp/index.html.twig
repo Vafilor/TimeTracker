@@ -31,6 +31,21 @@
             </span>
         </h1>
 
+        <div class="dropdown">
+            <label>Sort</label>
+            <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {% if pagination.isSorted('timestamp.createdAt') and pagination.direction == 'asc' %}
+                    Oldest
+                {% else %}
+                    Newest
+                {% endif %}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+                {{ knp_pagination_sortable(pagination, 'Newest', 'timestamp.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                {{ knp_pagination_sortable(pagination, 'Oldest', 'timestamp.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+            </div>
+        </div>
+
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
         <div>
