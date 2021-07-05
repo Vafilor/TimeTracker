@@ -37,7 +37,7 @@
             <a href="{{ path('timestamp_create') }}" class="btn btn-primary">Create</a>
         </div>
 
-        <div class="timestamp-list js-timestamp-list mt-2">
+        <div class="card-list js-timestamp-list mt-2">
             {% for timestamp in pagination.items %}
                 {{ include('timestamp/partials/_timestamp.html.twig', {timestamp: timestamp }) }}
             {% endfor %}

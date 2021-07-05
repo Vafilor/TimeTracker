@@ -2,9 +2,12 @@ $primary: #007bff;
 $primaryLight: lighten($primary, 30%);
 $light: #f8f9fa;
 $light-gray: #cdcdcd;
+$gray-300: #dee2e6;
 $gray: #ababab;
 $darkGray: #5d5d5d;
+$gray-gray: gray;
 $dark: #222;
+
 
 $theme-colors: (
   "light-gray": $light-gray,

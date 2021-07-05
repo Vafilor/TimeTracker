@@ -8,6 +8,7 @@
 @import "partials/filters";
 @import "partials/autocomplete";
 @import "partials/statistics";
+@import "partials/card-list";
 
 $sidebarWidth: 260px;
 $headerHeight: 58px;
@@ -181,7 +182,6 @@ body {
     font-size: 14px;
 }
 
-
 .header {
     font-size: 40px;
 }
@@ -244,11 +244,6 @@ body {
     }
 }
 
-// Hide text for JQuery UI autocomplete
-.ui-helper-hidden-accessible {
-    display: none;
-}
-
 .task-complete {
     padding: 0 5px;
     display: inline-block;
@@ -259,9 +254,7 @@ body {
     resize: none;
 }
 
-
 .input-with-indicators {
-
     .input-indicator {
         min-width: 35px;
         background-color: rgb(233, 236, 239);
@@ -283,12 +276,6 @@ body {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
         }
-    }
-}
-
-input {
-    &.js-form {
-        padding: 5px;
     }
 }
 

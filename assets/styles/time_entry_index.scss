@@ -1,41 +1,15 @@
-@import "partials/tags";
+.time-entry {
+  &.edit {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
+  }
 
-.time-entry-list {
-  .time-entry {
-    &:not(:first-child) {
-      margin-top: 20px;
-    }
+  .spinner {
+    display: inline-block;
+  }
 
-    transition: box-shadow 0.5s;
-
-    &.edit {
-      border-color: #80bdff;
-      outline: 0;
-      box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
-    }
-
-    .spinner {
-      display: inline-block;
-    }
-
-    .task {
-      display: inline-block;
-    }
-
-    border-radius: 6px;
-    border: 1px solid #dee2e6;
-    background-color: white;
-    padding: 1rem;
-    box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 8%);
-
-    .timestamp {
-      font-size: 13px;
-      color: gray;
-    }
-
-    hr {
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
+  .task {
+    display: inline-block;
   }
 }
