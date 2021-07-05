@@ -6,8 +6,11 @@ export interface ApiTask {
     name: string;
     description: string;
     createdAt: string;
+    createdAtEpoch: number;
     completedAt?: string;
+    completedAtEpoch?: number;
     url?: string;
+    tags: ApiTag[];
 }
 
 // The data required to assign a task to something.

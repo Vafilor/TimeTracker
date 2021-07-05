@@ -77,6 +77,8 @@ export class TimeEntryTaskAssigner {
             url: taskUrl,
             description: '',
             createdAt: '',
+            createdAtEpoch: 0,
+            tags: []
         };
 
         this.autocomplete.setQuery(name);

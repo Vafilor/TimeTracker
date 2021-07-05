@@ -52,4 +52,9 @@ trait TaggableTrait
 
         return implode(',', $tagNames);
     }
+
+    public function hasTags(): bool
+    {
+        return count($this->tagLinks) !== 0;
+    }
 }
