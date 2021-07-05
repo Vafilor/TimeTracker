@@ -35,6 +35,7 @@ class TaskController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $this->taskRepository->findByUserQueryBuilder($this->getUser());
+        $queryBuilder = $this->taskRepository->preloadTags($queryBuilder);
 
         $filterForm = $formFactory->createNamed(
             '',
