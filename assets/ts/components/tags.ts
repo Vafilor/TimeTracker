@@ -5,14 +5,14 @@ export function createTagViewRemovable(tagName: string, tagColor: string, extraC
 }
 
 export function createTagView(tagName: string, tagColor: string, extraClasses: string = ''): string {
-    return `<div class="tag mr-2 ${extraClasses}" style="background-color: ${tagColor}" data-name="${tagName}">${tagName}</div>`;
+    return `<div class="tag ${extraClasses}" style="background-color: ${tagColor}" data-name="${tagName}">${tagName}</div>`;
 }
 
 export function createTagsView(tags: ApiTag[]): string {
     let tagHtml = '';
 
     for(const tag of tags) {
-        tagHtml += createTagView(tag.name, tag.color);
+        tagHtml += createTagView(tag.name, tag.color) + ' ';
     }
 
     return tagHtml;
