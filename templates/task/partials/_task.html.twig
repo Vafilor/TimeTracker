@@ -17,7 +17,7 @@
                 type="checkbox"
                 class="form-check-input js-task-completed"
                 {% if task.completed %} checked="checked" {% endif%} />
-                <label class="js-name-label {% if task.completed %}completed{% endif %}" for="{{ task.idString }}">{{ task.name }}</label>
+                <label class="js-name-label text-break {% if task.completed %}completed{% endif %}" for="{{ task.idString }}">{{ task.name }}</label>
         </div>
         <div class="flex-shrink-0">
             <a href="{{ path('task_view', {id: task.idString}) }}">Time Entries</a>
