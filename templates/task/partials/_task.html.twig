@@ -2,22 +2,26 @@
 {% import 'tag/partials.html.twig' as tags %}
 
 <div
-    class="card-list-item js-task"
+    class="task-item js-task"
     data-id="{{ task.idString }}"
     data-name={{ task.name }}
 >
     <div class="d-flex align-items-baseline">
-        <div class="spinner spinner-border spinner-border-sm text-primary js-loading mr-2 d-none" role="status">
+        <div class="spinner spinner-border spinner-border-sm text-primary d-none js-loading  mr-2" role="status">
             <span class="sr-only">Loading...</span>
         </div>
-        <div class="form-check">
+        <div class="form-check flex-grow-1">
             <input
                 id="{{ task.idString }}"
                 data-task-id="{{ task.idString }}"
                 type="checkbox"
                 class="form-check-input js-task-completed"
                 {% if task.completed %} checked="checked" {% endif%} />
-            <label for="{{ task.idString }}">{{ task.name }}</label>
+                <label class="js-name-label {% if task.completed %}completed{% endif %}" for="{{ task.idString }}">{{ task.name }}</label>
+        </div>
+        <div class="flex-shrink-0">
+            <a href="{{ path('task_view', {id: task.idString}) }}">Time Entries</a>
+            <a href="{{ path('task_view', {id: task.idString}) }}" class="btn btn-primary js-view ml-2">View</a>
         </div>
     </div>
     <div class="tag-list js-tag-list many-rows {% if task.hasTags %}mt-1{% endif %}" data-initial-tags-name="{{ task.tagNames() }}">
@@ -26,36 +30,5 @@
                 {{ tags.view(tag.name, tag.color) }}
             {% endfor %}
         </div>
-    </div>
-    <div>
-        <div class="row no-gutters justify-content-between">
-            <div>
-                <strong>Created</strong>
-                <div
-                    class="time-ago js-task-ago ml-1"
-                    data-created-at="{{ task.createdAt.timestamp}}">
-                    {{ task.createdAt | ago }}
-                </div>
-                <div class="datetime ml-1">{{ time.user_datetime(task.createdAt, app.user)}}</div>
-            </div>
-            <div class="js-task-completed">
-                {% if task.completed %}
-                <div><strong>Completed</strong></div>
-                <div
-                        class="time-ago js-task-ago ml-1"
-                        data-created-at="{{ task.completedAt.timestamp}}">
-                    {{ task.completedAt | ago }}
-                </div>
-                <div class="ml-1 datetime js-completed-at">{{ time.user_datetime(task.completedAt, app.user) }}</div>
-                {% endif %}
-            </div>
-
-        </div>
-        <div class="mt-2 text-break">{{ task.description|markdown_to_html }}</div>
-    </div>
-    <hr/>
-    <div class="d-flex justify-content-end js-actions">
-        <a href="{{ path('task_view', {id: task.idString}) }}" class="btn btn-primary js-view">View</a>
-        <a href="{{ path('time_entry_index', {taskId: task.idString}) }}" class="btn btn-secondary ml-2">Time Entries</a>
     </div>
 </div>

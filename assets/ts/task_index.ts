@@ -24,57 +24,38 @@ class TaskTable {
     }
 
     public createListItem(task: ApiTask) {
-        const nowMillis = (new Date()).getTime();
-        const timeEntryRoute = this.routes.timeEntryIndex({taskId: task.id});
+        const timeEntriesViewRoute = this.routes.timeEntryIndex({taskId: task.id});
         const taskViewRoute = this.routes.taskView(task.id);
         const tagAdjustmentClass = task.tags.length !== 0 ? 'mt-1' : '';
 
         let tagHtml = createTagsView(task.tags);
 
-
         return `
         <div
-            class="card-list-item js-task"
+            class="task-item js-task"
             data-id="${task.id}"
         >
             <div class="d-flex align-items-baseline">
                 <div class="spinner spinner-border spinner-border-sm text-primary js-loading mr-2 d-none" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
-                <div class="form-check">
+                <div class="form-check flex-grow-1">
                     <input
                         id="${task.id}"
                         data-task-id="${task.id}"
                         type="checkbox"
-                        class="form-check-input js-task-completed"/>
-                    <label for="${task.id}">${task.name}</label>
+                        class="form-check-input js-task-completed"
+                    <label for="{{ task.idString }}">${task.name}</label>
+                </div>
+                <div class="flex-shrink-0">
+                    <a href="${timeEntriesViewRoute}">Time Entries</a>
+                    <a href="${taskViewRoute}" class="btn btn-primary js-view ml-2">View</a>
                 </div>
             </div>
             <div class="tag-list js-tag-list many-rows ${tagAdjustmentClass}">
                 <div class="js-tag-list-view">
                     ${tagHtml}
                 </div>
-            </div>
-            <div class="{% if not task.hasTags %}mt-2{% endif %}">
-                <div class="row no-gutters justify-content-between">
-                    <div>
-                        <strong>Created</strong>
-                        <div
-                            class="time-ago js-task-ago ml-1"
-                            data-created-at="{{ task.createdAt.timestamp}}">
-                            ${timeAgo(task.createdAtEpoch * 1000, nowMillis)}
-                        </div>
-                        <div class="datetime ml-1">${task.createdAt}</div>
-                    </div>
-                    <div class="js-task-completed">
-                    </div>
-                </div>
-                <div class="mt-2 text-break">${task.description}</div>
-            </div>
-            <hr/>
-            <div class="d-flex justify-content-end js-actions">
-                <a href="${taskViewRoute}" class="btn btn-primary js-view">View</a>
-                <a href="${timeEntryRoute}" class="btn btn-secondary ml-2">Time Entries</a>
             </div>
         </div>
         `;
@@ -182,6 +163,9 @@ $(document).ready(() => {
                 const $loading = $target.parent().parent().find('.js-loading');
                 $loading.removeClass('d-none');
 
+                const $nameLabel = $target.parent().parent().find('.js-name-label')
+                console.log($nameLabel);
+
                 TaskApi.check(taskId, checked)
                     .then((res: JsonResponse<ApiTask>) => {
                         if (!showCompleted) {
@@ -189,24 +173,12 @@ $(document).ready(() => {
                             return;
                         }
 
-                        if (res.data.completedAt && res.data.completedAtEpoch) {
-                            const now = (new Date()).getTime();
-                            const html = `
-                            <div><strong>Completed</strong></div>
-                                <div
-                                    class="time-ago js-task-ago ml-1"
-                                    data-created-at="${res.data.completedAtEpoch}">
-                                    ${timeAgo(res.data.completedAtEpoch * 1000, now)}
-                                </div>
-                            <div class="ml-1 datetime js-completed-at">${res.data.completedAt}</div>
-                            `;
-
-                            $target.parent().parent().parent().find('.js-task-completed').append($(html));
-                        } else {
-                            $target.parent().parent().parent().find('.js-task-completed').html('');
-                        }
-
                         $loading.addClass('d-none');
+                        if (res.data.completedAt) {
+                            $nameLabel.addClass('completed');
+                        } else {
+                            $nameLabel.removeClass('completed');
+                        }
                     })
                     .catch(() => {
                         $target.removeAttr('disabled');
