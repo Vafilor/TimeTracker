@@ -19,7 +19,7 @@ class TimestampListPage {
 
         const html = `
         <div
-            class="timestamp js-timestamp"
+            class="card-list-item js-timestamp"
             data-id="${timestamp.id}"
         >
             <div class="tag-list js-tag-list many-rows mt-1">
