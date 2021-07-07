@@ -30,13 +30,8 @@ class ApiTimestamp
         $apiModel->createdAt = ApiDateTime::formatUserDate($timestamp->getCreatedAt(), $user, $format);
         $apiModel->createdAtEpoch = $timestamp->getCreatedAt()->getTimestamp();
         $apiModel->createdAgo = $dateTimeFormatter->formatDiff($timestamp->getCreatedAt(), $now);
-        
-        $apiTags = array_map(
-            fn ($tag) => ApiTag::fromEntity($tag),
-            $timestamp->getTags()
-        );
 
-        $apiModel->tags = $apiTags;
+        $apiModel->tags = ApiTag::fromEntities($timestamp->getTags());
 
         return $apiModel;
     }

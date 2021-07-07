@@ -1,0 +1,34 @@
+{% import 'time/partials.html.twig' as time %}
+{% import 'tag/partials.html.twig' as tags %}
+
+<div
+    class="task-item js-task"
+    data-id="{{ task.idString }}"
+    data-name={{ task.name }}
+>
+    <div class="d-flex align-items-baseline">
+        <div class="spinner spinner-border spinner-border-sm text-primary d-none js-loading  mr-2" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div class="form-check flex-grow-1">
+            <input
+                id="{{ task.idString }}"
+                data-task-id="{{ task.idString }}"
+                type="checkbox"
+                class="form-check-input js-task-completed"
+                {% if task.completed %} checked="checked" {% endif%} />
+                <label class="js-name-label {% if task.completed %}completed{% endif %}" for="{{ task.idString }}">{{ task.name }}</label>
+        </div>
+        <div class="flex-shrink-0">
+            <a href="{{ path('task_view', {id: task.idString}) }}">Time Entries</a>
+            <a href="{{ path('task_view', {id: task.idString}) }}" class="btn btn-primary js-view ml-2">View</a>
+        </div>
+    </div>
+    <div class="tag-list js-tag-list many-rows {% if task.hasTags %}mt-1{% endif %}" data-initial-tags-name="{{ task.tagNames() }}">
+        <div class="js-tag-list-view">
+            {% for tag in task.tags %}
+                {{ tags.view(tag.name, tag.color) }}
+            {% endfor %}
+        </div>
+    </div>
+</div>

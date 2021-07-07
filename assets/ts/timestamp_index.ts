@@ -6,7 +6,7 @@ import { JsonResponse } from "./core/api/api";
 import { ApiTag } from "./core/api/tag_api";
 import LoadingButton from "./components/loading_button";
 import { formatTimeDifference, timeAgo } from "./components/time";
-import { createTagView } from "./components/tags";
+import { createTagsView, createTagView } from "./components/tags";
 import TimeTrackerRoutes from "./core/routes";
 
 class TimestampListPage {
@@ -15,10 +15,7 @@ class TimestampListPage {
     public static createTableRow(timestamp: ApiTimestamp, dateTimeFormat: string, routes: TimeTrackerRoutes): string {
         const nowMillis = (new Date()).getTime();
 
-        let tagHtml = '';
-        for(const tag of timestamp.tags) {
-            tagHtml += createTagView(tag.name, tag.color);
-        }
+        let tagHtml = createTagsView(timestamp.tags);
 
         const html = `
         <div

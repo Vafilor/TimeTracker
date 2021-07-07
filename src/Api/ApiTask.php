@@ -14,8 +14,11 @@ class ApiTask
     public string $name;
     public string $description;
     public string $createdAt;
+    public int $createdAtEpoch;
     public ?string $completedAt = null;
+    public ?int $completedAtEpoch = null;
     public ?string $url = null;
+    public array $tags;
 
     public static function fromEntity(Task $task, User $user, string $format = DateFormatType::DATE_TIME): ApiTask
     {
@@ -25,7 +28,11 @@ class ApiTask
         if ($task->completed()) {
             $completedAtString = ApiDateTime::formatUserDate($task->getCompletedAt(), $user, $format);
             $apiTask->completedAt = $completedAtString;
+            $apiTask->completedAtEpoch = $task->getCompletedAt()->getTimestamp();
         }
+
+        $apiTask->createdAtEpoch = $task->getCreatedAt()->getTimestamp();
+        $apiTask->tags = ApiTag::fromEntities($task->getTags());
 
         return $apiTask;
     }

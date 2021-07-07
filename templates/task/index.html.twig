@@ -29,6 +29,27 @@
             {{ form_end(filterForm) }}
         </div>
 
+        <div class="dropdown mb-2">
+            <label>Sort</label>
+            <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {% if pagination.isSorted('task.createdAt') and pagination.direction == 'desc' %}
+                    Newest
+                {% elseif pagination.isSorted('task.createdAt') and pagination.direction == 'asc'  %}
+                    Oldest
+                {% elseif pagination.isSorted('task.name') and pagination.direction == 'asc' %}
+                    Name - asc
+                {% elseif pagination.isSorted('task.name') and pagination.direction == 'desc' %}
+                    Name - desc
+                {% endif %}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+                {{ knp_pagination_sortable(pagination, 'Newest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                {{ knp_pagination_sortable(pagination, 'Oldest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                {{ knp_pagination_sortable(pagination, 'Name - asc', 'task.name', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                {{ knp_pagination_sortable(pagination, 'Name - desc', 'task.name', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+            </div>
+        </div>
+
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
         <div class="inline-form-header mb-2">Add Task</div>
@@ -46,48 +67,11 @@
             </div>
         </form>
 
-        <table class="table table-bordered table-hover mt-2 js-task-table">
-            <thead>
-                <tr>
-                    <th>{{ knp_pagination_sortable(pagination, 'Completed', 'task.completedAt') }}</th>
-                    <th>{{ knp_pagination_sortable(pagination, 'Name', 'task.name') }}</th>
-                    <th>{{ knp_pagination_sortable(pagination, 'Created', 'task.createdAt') }}</th>
-                    <th>Description</th>
-                    <th>Links</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for task in pagination %}
-                <tr data-name="{{ task.name }}">
-                    <td>
-                        <input data-task-id="{{ task.idString }}" type="checkbox" class="js-task-completed" {% if task.completed %} checked="true" {% endif%} />
-                        {% if task.completed %}
-                        <span class="ml-1 js-completed-at">{{ time.user_datetime(task.completedAt, app.user) }}</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ task.name }}</td>
-                    <td>{{ time.user_datetime(task.createdAt, app.user) }}</td>
-                    <td>
-                        {{ task.description | slice(0,50) }}
-                        {% if task.description | length > 50 %}
-                        ...
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ path('time_entry_index', {taskId: task.idString}) }}">Time Entries</a>
-                    </td>
-                    <td>
-                        <a href="{{ path('task_view', {id: task.id}) }}" class="btn btn-primary">View</a>
-                    </td>
-                </tr>
-                {% else %}
-                    <tr>
-                        <td class="text-center" colspan="6">No results found</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="task-list js-task-list mt-2 mb-2">
+            {% for task in pagination %}
+                {{ include('task/partials/_task.html.twig', {task: task }) }}
+            {% endfor %}
+        </div>
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
     </div>

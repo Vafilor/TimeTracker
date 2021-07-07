@@ -442,7 +442,7 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
         this.$searchContent.removeClass('d-none');
     }
 
-    public clear() {
+    public override clear() {
         super.clear();
         this._itemIndexFocused = undefined;
     }

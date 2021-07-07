@@ -113,4 +113,18 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
 
         return $queryBuilder->getQuery()->getOneOrNullResult();
     }
+
+    public function preloadTags(?QueryBuilder $queryBuilder): QueryBuilder
+    {
+        if (is_null($queryBuilder)) {
+            $queryBuilder = $this->createDefaultQueryBuilder();
+        }
+
+        $queryBuilder->addSelect('tag_link, tag')
+            ->leftJoin('task.tagLinks', 'tag_link')
+            ->leftJoin('tag_link.tag', 'tag')
+        ;
+
+        return $queryBuilder;
+    }
 }
