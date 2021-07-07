@@ -164,7 +164,6 @@ $(document).ready(() => {
                 $loading.removeClass('d-none');
 
                 const $nameLabel = $target.parent().parent().find('.js-name-label')
-                console.log($nameLabel);
 
                 TaskApi.check(taskId, checked)
                     .then((res: JsonResponse<ApiTask>) => {
