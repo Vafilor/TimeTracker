@@ -29,3 +29,22 @@
     }
   }
 }
+
+.stack-list {
+  border-radius: 6px;
+  border: 1px solid $gray-300;
+  background-color: white;
+
+  .stack-list-item {
+    padding: 1rem;
+
+    &:not(:first-child) {
+      border-top: 1px solid $gray-300;
+    }
+  }
+
+  .stack-list-item-separator {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}

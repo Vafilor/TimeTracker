@@ -1,25 +1,10 @@
 @import "partials/colors";
 
 .task-list {
-  border-radius: 6px;
-  border: 1px solid $gray-300;
-  background-color: white;
-
-  .task-item {
-    padding: 1rem;
-
-    &:not(:first-child) {
-      border-top: 1px solid $gray-300;
-    }
-
+  .task-list-item {
     .completed {
       text-decoration: line-through;
       color: $gray-gray;
     }
-  }
-
-  .task-list-item-separator {
-    margin-top: 0;
-    margin-bottom: 0;
   }
 }

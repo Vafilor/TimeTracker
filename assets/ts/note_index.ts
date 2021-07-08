@@ -115,7 +115,7 @@ class NoteList {
 
         return `
         <div
-            class="card-list-item js-note"
+            class="stack-list-item js-note"
             data-id="${note.id}"
         >
             <div class="d-flex justify-content-between">
