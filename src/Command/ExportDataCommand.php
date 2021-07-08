@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Repository\NoteRepository;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
 use App\Repository\TagRepository;
@@ -9,6 +10,7 @@ use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\TimestampRepository;
 use App\Repository\UserRepository;
+use App\Transfer\TransferNote;
 use App\Transfer\TransferStatistic;
 use App\Transfer\TransferStatisticValue;
 use App\Transfer\TransferTag;
@@ -39,6 +41,7 @@ class ExportDataCommand extends Command
     private TimeEntryRepository $timeEntryRepository;
     private StatisticRepository $statisticRepository;
     private StatisticValueRepository $statisticValueRepository;
+    private NoteRepository $noteRepository;
 
     public function __construct(
         string $name = null,
@@ -50,6 +53,7 @@ class ExportDataCommand extends Command
         TimeEntryRepository $timeEntryRepository,
         StatisticRepository $statisticRepository,
         StatisticValueRepository $statisticValueRepository,
+        NoteRepository $noteRepository
     ) {
         parent::__construct($name);
         $this->serializer = $serializer;
@@ -60,6 +64,7 @@ class ExportDataCommand extends Command
         $this->timeEntryRepository = $timeEntryRepository;
         $this->statisticRepository = $statisticRepository;
         $this->statisticValueRepository = $statisticValueRepository;
+        $this->noteRepository = $noteRepository;
     }
 
     protected function configure(): void
@@ -124,6 +129,9 @@ class ExportDataCommand extends Command
 
         $io->writeln("Exporting Statistic Values...");
         $fileExportOrder = array_merge($fileExportOrder, $this->exportStatisticValues($outputPath));
+
+        $io->writeln("Exporting Notes...");
+        $fileExportOrder = array_merge($fileExportOrder, $this->exportNotes($outputPath));
 
         $fileExportOrderPath = $outputPath . DIRECTORY_SEPARATOR . 'order.json';
 
@@ -246,5 +254,16 @@ class ExportDataCommand extends Command
         $filePrefix = $path . DIRECTORY_SEPARATOR . 'statistic_values';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferStatisticValue::fromEntities($items));
+    }
+
+    private function exportNotes(string $path): array
+    {
+        $queryBuilder = $this->noteRepository->createDefaultQueryBuilder()
+                                             ->orderBy('note.createdAt')
+        ;
+
+        $filePrefix = $path . DIRECTORY_SEPARATOR . 'notes';
+
+        return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferNote::fromEntities($items));
     }
 }

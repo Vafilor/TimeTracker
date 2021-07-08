@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\TagLink;
+use App\Repository\NoteRepository;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
 use App\Repository\TagRepository;
@@ -12,6 +13,7 @@ use App\Repository\TimestampRepository;
 use App\Repository\UserRepository;
 use App\Traits\FindByKeysInterface;
 use App\Transfer\RepositoryKeyCache;
+use App\Transfer\TransferNote;
 use App\Transfer\TransferStatistic;
 use App\Transfer\TransferStatisticValue;
 use App\Transfer\TransferTag;
@@ -49,6 +51,7 @@ class ImportDataCommand extends Command
     private RepositoryKeyCache $timeEntryLoader;
     private RepositoryKeyCache $timestampLoader;
     private StatisticValueRepository $statisticValueRepository;
+    private NoteRepository $noteRepository;
 
     public function __construct(
         string $name = null,
@@ -61,6 +64,7 @@ class ImportDataCommand extends Command
         StatisticValueRepository $statisticValueRepository,
         UserRepository $userRepository,
         EntityManagerInterface $entityManager,
+        NoteRepository $noteRepository
     ) {
         parent::__construct($name);
         $this->serializer = $serializer;
@@ -78,6 +82,7 @@ class ImportDataCommand extends Command
         $this->statisticLoader = new RepositoryKeyCache($statisticRepository);
         $this->timeEntryLoader = new RepositoryKeyCache($timeEntryRepository);
         $this->timestampLoader = new RepositoryKeyCache($timestampRepository);
+        $this->noteRepository = $noteRepository;
     }
 
     protected function configure(): void
@@ -151,6 +156,9 @@ class ImportDataCommand extends Command
             } elseif (str_starts_with($fileName, 'statistic_values')) {
                 $data = $this->serializer->deserialize($content, TransferStatisticValue::class . '[]', 'json');
                 $this->importStatisticValues($io, $data);
+            } elseif (str_starts_with($fileName, 'notes')) {
+                $data = $this->serializer->deserialize($content, TransferNote::class . '[]', 'json');
+                $this->importNotes($io, $data);
             } else {
                 $io->error("Unsupported import file '${filePath}'");
                 return Command::FAILURE;
@@ -478,6 +486,36 @@ class ImportDataCommand extends Command
 
             $io->writeln("Importing Statistic Value with id '{$transferStatisticValue->id}'");
             $this->entityManager->persist($statisticValue);
+        }
+
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @param SymfonyStyle $io
+     * @param TransferNote[] $transferNotes
+     */
+    private function importNotes(SymfonyStyle $io, array $transferNotes)
+    {
+        /** @var TransferNote[] $transferNotes */
+        $transferNotes = $this->filterOutById($transferNotes, $this->noteRepository);
+
+        $notes = $this->makeEntityMap($transferNotes);
+
+        $tagIds = Collections::pluckNoDuplicates($this->pluckTagLinks($transferNotes), 'id');
+        $this->tagLoader->loadByIds($tagIds);
+
+        foreach ($transferNotes as $id => $transferNote) {
+            $note = $notes[$id];
+
+            $io->writeln("Importing Note with id '$id'");
+            $this->entityManager->persist($note);
+
+            foreach ($transferNote->tags as $transferTagLink) {
+                $tag = $this->tagLoader->findByIdOrException($transferTagLink->id);
+                $tagLink = new TagLink($note, $tag);
+                $this->entityManager->persist($tagLink);
+            }
         }
 
         $this->entityManager->flush();
