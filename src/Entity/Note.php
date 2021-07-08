@@ -15,6 +15,7 @@ use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=NoteRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  */
 class Note
 {
