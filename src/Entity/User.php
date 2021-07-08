@@ -75,7 +75,7 @@ class User extends BaseUser
         $this->markCreated($createdAt);
     }
 
-    public function getUsername(): string
+    public function getUserIdentifier(): string
     {
         return $this->email;
     }
