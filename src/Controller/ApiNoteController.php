@@ -8,22 +8,16 @@ use App\Api\ApiFormError;
 use App\Api\ApiNote;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
-use App\Api\ApiTimeEntry;
 use App\Entity\Note;
 use App\Form\AddNoteFormType;
+use App\Form\EditNoteFormType;
 use App\Form\Model\AddNoteModel;
-use App\Form\Model\NoteEditModel;
-use App\Form\Model\TimeEntryModel;
-use App\Form\NoteEditFormType;
-use App\Form\TimeEntryFormType;
+use App\Form\Model\EditNoteModel;
 use App\Manager\TagManager;
 use App\Repository\NoteRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
-use App\Repository\TaskRepository;
-use App\Repository\TimeEntryRepository;
 use App\Traits\TaggableController;
-use App\Traits\TaggableTrait;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -114,7 +108,7 @@ class ApiNoteController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $form = $this->createForm(NoteEditFormType::class, NoteEditModel::fromEntity($note), [
+        $form = $this->createForm(EditNoteFormType::class, EditNoteModel::fromEntity($note), [
             'csrf_protection' => false,
         ]);
 
@@ -127,7 +121,7 @@ class ApiNoteController extends BaseController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var NoteEditModel $data */
+            /** @var EditNoteModel $data */
             $data = $form->getData();
             if ($data->hasTitle()) {
                 $note->setTitle($data->getTitle());

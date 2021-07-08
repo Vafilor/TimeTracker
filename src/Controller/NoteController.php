@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiTag;
+use App\Form\EditNoteFormType;
 use App\Form\FilterNoteFormType;
+use App\Form\Model\EditNoteModel;
 use App\Form\Model\FilterNoteModel;
-use App\Form\Model\NoteEditModel;
-use App\Form\NoteEditFormType;
 use App\Repository\NoteRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -73,16 +73,16 @@ class NoteController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $noteModel = NoteEditModel::fromEntity($note);
+        $noteModel = EditNoteModel::fromEntity($note);
 
         $form = $this->createForm(
-            NoteEditFormType::class,
+            EditNoteFormType::class,
             $noteModel,
         );
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var NoteEditModel $data */
+            /** @var EditNoteModel $data */
             $data = $form->getData();
 
             $note->setTitle($data->getTitle());
@@ -101,5 +101,25 @@ class NoteController extends BaseController
                 'tags' => ApiTag::fromEntities($note->getTags()),
             ]
         );
+    }
+
+    #[Route('/note/{id}/delete', name: 'note_delete')]
+    public function remove(
+        Request $request,
+        NoteRepository $noteRepository,
+        string $id
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $note = $noteRepository->findOrException($id);
+        if (!$note->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $this->doctrineRemove($note, true);
+
+        $this->addFlash('success', 'Note successfully removed');
+
+        return $this->redirectToRoute('note_index');
     }
 }

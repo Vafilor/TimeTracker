@@ -6,14 +6,14 @@ namespace App\Form\Model;
 
 use App\Entity\Note;
 
-class NoteEditModel
+class EditNoteModel
 {
     private ?string $title;
     private ?string $content;
 
     public static function fromEntity(Note $note): self
     {
-        return new NoteEditModel($note->getTitle(), $note->getContent());
+        return new EditNoteModel($note->getTitle(), $note->getContent());
     }
 
     public function __construct(string $title, string $content)
