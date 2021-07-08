@@ -33,6 +33,8 @@ Encore
     .addEntry('statistic', './assets/ts/statistic.ts')
     .addEntry('statistic_index', './assets/ts/statistic_index.ts')
     .addEntry('statistic_value_index', './assets/ts/statistic_value_index.ts')
+    .addEntry('note_index', './assets/ts/note_index.ts')
+    .addEntry('note', './assets/ts/note.ts')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')

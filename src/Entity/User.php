@@ -59,6 +59,12 @@ class User extends BaseUser
      */
     private Collection $timeEntries;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Note::class, mappedBy="assignedTo")
+     * @var TimeEntry[]|Collection
+     */
+    private Collection $notes;
+
     public function __construct(DateTime $createdAt = null)
     {
         parent::__construct();
@@ -71,6 +77,8 @@ class User extends BaseUser
         $this->todayDateTimeFormat = 'h:i:s A';
         $this->durationFormat = '%hh %Im %Ss';
         $this->tasks = new ArrayCollection();
+        $this->timeEntries = new ArrayCollection();
+        $this->notes = new ArrayCollection();
 
         $this->markCreated($createdAt);
     }

@@ -9,6 +9,7 @@ use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTag;
 use App\Controller\TagController;
+use App\Entity\Note;
 use App\Entity\Statistic;
 use App\Entity\TagLink;
 use App\Entity\Task;
@@ -45,7 +46,7 @@ trait TaggableController
         TagManager $tagManager,
         TagLinkRepository $tagLinkRepository,
         User $assignedTo,
-        TimeEntry|Timestamp|Task|Statistic $resource
+        TimeEntry|Timestamp|Task|Statistic|Note $resource
     ): JsonResponse {
         $form = $this->createForm(AddTagFormType::class, new AddTagModel(), [
             'csrf_protection' => false,
@@ -93,7 +94,7 @@ trait TaggableController
         TagLinkRepository $tagLinkRepository,
         User $assignedTo,
         string $tagName,
-        TimeEntry|Timestamp|Task|Statistic $resource
+        TimeEntry|Timestamp|Task|Statistic|Note $resource
     ): JsonResponse {
         $tag = $tagRepository->findWithUserName($assignedTo, $tagName);
         if (is_null($tag)) {

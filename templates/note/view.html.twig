@@ -1,0 +1,80 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}Note: {{ note.title }}{% endblock %}
+
+{% block content_body %}
+    <div class="p-3 js-data"
+         data-duration-format="{{ app.user.durationFormat }}"
+         data-note-id="{{ note.idString }}">
+
+        {{ form_start(form) }}
+        {{ form_row(form.title) }}
+
+        <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
+            <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+
+            {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+        </div>
+
+        <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active markdown-link" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">
+                    <i class="fas fa-sync-alt fa-spin mr-1 d-none js-loading"></i>
+                    Description
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="markdown-tab" data-toggle="tab" href="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="details-tab" data-toggle="tab" href="#details" role="tab" aria-selected="false">Details</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="description-content">
+            <div class="tab-pane fade show active" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
+                {{ form_widget(form.content, {attr: { rows: 10, class: 'js-description' }}) }}
+            </div>
+            <div class="tab-pane fade" id="preview" role="tabpanel" aria-labelledby="profile-tab">
+                <div id="preview-content" class="border rounded-bottom"></div>
+            </div>
+            <div class="tab-pane fade" id="details" role="tabpanel" aria-labelledby="details-tab">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Timestamp</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Created</td>
+                        <td>{{ time.user_datetime(note.createdAt, app.user) }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{ form_widget(form) }}
+        <div class="d-flex mt-3">
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('note') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('note') }}
+{% endblock %}

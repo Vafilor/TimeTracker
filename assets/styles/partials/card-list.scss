@@ -6,7 +6,7 @@
       margin-top: 20px;
     }
 
-    transition: box-shadow 0.5s;
+    transition: box-shadow 0.5s, opacity 0.3s;
 
     border-radius: 6px;
     border: 1px solid $gray-300;
@@ -22,6 +22,10 @@
     .datetime {
       font-size: 13px;
       color: $gray-gray;
+    }
+
+    &.disabled {
+      opacity: 0.6;
     }
   }
 }
