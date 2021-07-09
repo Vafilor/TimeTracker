@@ -80,7 +80,8 @@ class RepositoryKeyCache
         $item = $this->findById($id);
 
         if (is_null($item)) {
-            throw new RuntimeException('Not found');
+            $className = TypeUtil::getClassName($this->repository);
+            throw new RuntimeException("$className did not find entity with id '$id'");
         }
 
         return $item;

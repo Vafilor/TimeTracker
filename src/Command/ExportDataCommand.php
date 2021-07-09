@@ -225,7 +225,7 @@ class ExportDataCommand extends Command
 
     private function exportTimeEntries(string $path): array
     {
-        $queryBuilder = $this->timeEntryRepository->createDefaultQueryBuilder()
+        $queryBuilder = $this->timeEntryRepository->createDefaultQueryBuilder(true)
                                                   ->orderBy('time_entry.createdAt')
         ;
 
