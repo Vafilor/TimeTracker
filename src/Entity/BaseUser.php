@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * @ORM\MappedSuperclass()
  */
-class BaseUser implements UserInterface
+abstract class BaseUser implements UserInterface
 {
     /**
      * @ORM\Column(type="string", length=180, unique=true)
