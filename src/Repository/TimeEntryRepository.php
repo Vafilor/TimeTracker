@@ -34,10 +34,15 @@ class TimeEntryRepository extends ServiceEntityRepository implements FindByKeysI
         parent::__construct($registry, TimeEntry::class);
     }
 
-    public function createDefaultQueryBuilder(): QueryBuilder
+    public function createDefaultQueryBuilder(bool $includeDeleted = false): QueryBuilder
     {
-        return $this->createQueryBuilder('time_entry')
-                    ->andWhere('time_entry.deletedAt IS NULL');
+        $queryBuilder = $this->createQueryBuilder('time_entry');
+
+        if (!$includeDeleted) {
+            $queryBuilder = $queryBuilder->andWhere('time_entry.deletedAt IS NULL');
+        }
+
+        return $queryBuilder;
     }
 
     public function findForTaskQueryBuilder(string $taskId): QueryBuilder

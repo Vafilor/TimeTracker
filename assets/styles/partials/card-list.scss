@@ -6,7 +6,7 @@
       margin-top: 20px;
     }
 
-    transition: box-shadow 0.5s;
+    transition: box-shadow 0.5s, opacity 0.3s;
 
     border-radius: 6px;
     border: 1px solid $gray-300;
@@ -23,5 +23,28 @@
       font-size: 13px;
       color: $gray-gray;
     }
+
+    &.disabled {
+      opacity: 0.6;
+    }
+  }
+}
+
+.stack-list {
+  border-radius: 6px;
+  border: 1px solid $gray-300;
+  background-color: white;
+
+  .stack-list-item {
+    padding: 1rem;
+
+    &:not(:first-child) {
+      border-top: 1px solid $gray-300;
+    }
+  }
+
+  .stack-list-item-separator {
+    margin-top: 0;
+    margin-bottom: 0;
   }
 }

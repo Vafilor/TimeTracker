@@ -1,0 +1,86 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+{% import 'tag/partials.html.twig' as tags %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}Notes{% endblock %}
+
+{% block content_body %}
+    <div class="p-3 js-data"
+         data-duration-format="{{ app.user.durationFormat }}">
+        <h1 class="text-center">Notes</h1>
+
+        <div class="filter table-filter mb-3">
+            <div class="filter-title">Filter</div>
+            {{ form_start(filterForm) }}
+
+            {{ form_label(filterForm.tags) }}
+            <div class="js-tags-filter d-flex align-items-center mb-1">
+                {{ form_widget(filterForm.tags, {attr: {class: 'js-real-tag-input d-none'}}) }}
+                <div class="js-tags tag-list js-tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
+
+                {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'} }) }}
+            </div>
+
+            <div class="d-block">
+                <button type="submit" class="btn btn-primary mt-2">Search</button>
+            </div>
+            {{ form_end(filterForm) }}
+        </div>
+
+        <div class="dropdown mb-2">
+            <label>Sort</label>
+            <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {% if pagination.isSorted('note.createdAt') and pagination.direction == 'asc' %}
+                    Oldest
+                {% else %}
+                    Newest
+                {% endif %}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+                {{ knp_pagination_sortable(pagination, 'Newest', 'note.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                {{ knp_pagination_sortable(pagination, 'Oldest', 'note.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+            </div>
+        </div>
+
+        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+        <form class="row no-gutters mt-3 js-create-note">
+            <div>
+                <label class="sr-only" for="note-create-title"></label>
+                <input id="note-create-title" type="text" class="form-control" placeholder="title">
+            </div>
+
+            <div class="col ml-2">
+                <label class="sr-only" for="note-create-content"></label>
+                <input id="note-create-content" type="text" class="form-control" placeholder="content">
+            </div>
+
+            <button type="submit" class="btn btn-primary ml-2">Create</button>
+        </form>
+
+        <div class="stack-list js-note-list mt-2 mb-2">
+            {% for note in pagination.items %}
+                {{ include('note/partials/_note.html.twig', {note: note }) }}
+            {% else %}
+                <div class="text-center">No results found</div>
+            {% endfor %}
+        </div>
+
+        {{ knp_pagination_render(pagination, null, {}, {align: 'center'}) }}
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('note_index') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('note_index') }}
+{% endblock %}

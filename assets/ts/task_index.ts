@@ -7,7 +7,6 @@ import LoadingButton from "./components/loading_button";
 import TimeTrackerRoutes from "./core/routes";
 import Observable from "./components/observable";
 import { createTagsView } from "./components/tags";
-import { timeAgo } from "./components/time";
 
 class TaskTable {
     private $container: JQuery;

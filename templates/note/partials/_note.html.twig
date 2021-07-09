@@ -1,0 +1,23 @@
+{% import 'time/partials.html.twig' as time %}
+{% import 'tag/partials.html.twig' as tags %}
+
+<div
+    class="stack-list-item js-note"
+    data-id="{{ note.idString }}"
+>
+    <div class="d-flex justify-content-between">
+        <div>
+            {{ note.title }}
+        </div>
+        <div>
+            <a href="{{ path('note_view', {id: note.idString}) }}" class="btn btn-primary js-view ml-2">View</a>
+        </div>
+    </div>
+    <div class="tag-list js-tag-list many-rows {% if note.hasTags %}mt-1{% endif %}" data-initial-tags-name="{{ note.tagNames() }}">
+        <div class="js-tag-list-view">
+            {% for tag in note.tags %}
+                {{ tags.view(tag.name, tag.color) }}
+            {% endfor %}
+        </div>
+    </div>
+</div>
