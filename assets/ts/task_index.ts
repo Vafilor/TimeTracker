@@ -31,7 +31,7 @@ class TaskTable {
 
         return `
         <div
-            class="task-item js-task"
+            class="stack-list-item task-list-item js-task"
             data-id="${task.id}"
         >
             <div class="d-flex align-items-baseline">
