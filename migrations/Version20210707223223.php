@@ -6,6 +6,7 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
+use Exception;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
@@ -43,13 +44,20 @@ final class Version20210707223223 extends AbstractMigration
     protected function upMysql(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
-
+        $this->addSql('CREATE TABLE note (id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', assigned_to_id CHAR(36) NOT NULL COMMENT \'(DC2Type:uuid)\', title VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, INDEX IDX_CFBDFA14F4BD7827 (assigned_to_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('ALTER TABLE note ADD CONSTRAINT FK_CFBDFA14F4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES users (id)');
+        $this->addSql('ALTER TABLE tag_link ADD note_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\'');
+        $this->addSql('ALTER TABLE tag_link ADD CONSTRAINT FK_D8A3264726ED0855 FOREIGN KEY (note_id) REFERENCES note (id)');
+        $this->addSql('CREATE INDEX IDX_D8A3264726ED0855 ON tag_link (note_id)');
     }
 
     protected function downMysql(Schema $schema) : void
     {
         // this down() migration is auto-generated, please modify it to your needs
-
+        $this->addSql('ALTER TABLE tag_link DROP FOREIGN KEY FK_D8A3264726ED0855');
+        $this->addSql('DROP TABLE note');
+        $this->addSql('DROP INDEX IDX_D8A3264726ED0855 ON tag_link');
+        $this->addSql('ALTER TABLE tag_link DROP note_id');
     }
 
     protected function upSqlite(Schema $schema) : void
@@ -127,7 +135,7 @@ final class Version20210707223223 extends AbstractMigration
                 $this->upMysql($schema);
                 break;
             default:
-                throw new \Exception("Unsupported database '{$platformName}'");
+                throw new Exception("Unsupported database '{$platformName}'");
         }
     }
 
@@ -146,7 +154,7 @@ final class Version20210707223223 extends AbstractMigration
                 $this->downMysql($schema);
                 break;
             default:
-                throw new \Exception("Unsupported database '{$platformName}'");
+                throw new Exception("Unsupported database '{$platformName}'");
         }
     }
 }
