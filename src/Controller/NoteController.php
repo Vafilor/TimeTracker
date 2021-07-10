@@ -37,7 +37,6 @@ class NoteController extends BaseController
             [
                 'csrf_protection' => false,
                 'method' => 'GET',
-                'allow_extra_fields' => true
             ]
         );
 
