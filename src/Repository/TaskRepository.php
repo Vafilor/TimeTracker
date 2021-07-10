@@ -53,21 +53,30 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
 
     public function applyFilter(QueryBuilder $queryBuilder, TaskListFilterModel $filter): QueryBuilder
     {
-        if ($filter->hasName()) {
-            $name = strtolower($filter->getName());
-            $queryBuilder->andWhere('task.canonicalName LIKE :name')
-                ->setParameter('name', "%{$name}%")
-            ;
-        }
+        if ($filter->hasContent()) {
+            $canonicalContent = Task::canonicalizeName($filter->getContent());
 
-        if ($filter->hasDescription()) {
-            $queryBuilder->andWhere('task.description LIKE :description')
-                ->setParameter('description', "%{$filter->getDescription()}%")
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->orX(
+                    $queryBuilder->expr()->like('task.description', ':content'),
+                    $queryBuilder->expr()->like('task.canonicalName', ':canonicalContent')
+                )
+            );
+
+            $queryBuilder->setParameter('content', "%{$filter->getContent()}%")
+                         ->setParameter('canonicalContent', "%{$canonicalContent}%")
             ;
         }
 
         if (!$filter->getShowCompleted()) {
             $queryBuilder->andWhere('task.completedAt IS NULL');
+        }
+
+        if ($filter->hasTags()) {
+            $tags = $filter->getTagsArray();
+            $queryBuilder = $queryBuilder->andWhere('tag.name IN (:tags)')
+                                         ->setParameter('tags', $tags)
+            ;
         }
 
         return $queryBuilder;

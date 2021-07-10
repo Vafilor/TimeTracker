@@ -7,14 +7,14 @@ namespace App\Form\Model;
 class TaskListFilterModel
 {
     private bool $showCompleted;
-    private ?string $name;
-    private ?string $description;
+    private ?string $content;
+    private ?string $tags;
 
     public function __construct()
     {
         $this->showCompleted = false;
-        $this->name = null;
-        $this->description = null;
+        $this->content = null;
+        $this->tags = null;
     }
 
     public function getShowCompleted(): bool
@@ -28,35 +28,54 @@ class TaskListFilterModel
         return $this;
     }
 
-    public function getName(): ?string
+    public function getContent(): ?string
     {
-        return $this->name;
+        return $this->content;
     }
 
-    public function hasName(): bool
+    public function hasContent(): bool
     {
-        return !is_null($this->name);
+        return !is_null($this->content);
     }
 
-    public function setName(?string $name): self
+    public function setContent(?string $content): self
     {
-        $this->name = $name;
+        $this->content = $content;
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getTags(): string
     {
-        return $this->description;
+        return $this->tags;
     }
 
-    public function hasDescription(): bool
+    public function hasTags(): bool
     {
-        return !is_null($this->description);
+        return !is_null($this->tags) && $this->tags !== '';
     }
 
-    public function setDescription(?string $description): self
+    /**
+     * @return string[]
+     */
+    public function getTagsArray(): array
     {
-        $this->description = $description;
+        if (is_null($this->tags) || $this->tags === '') {
+            return [];
+        }
+
+        $results = explode(',', $this->tags);
+
+        $results = array_map(
+            fn ($tagRaw) => str_replace(' ', '', $tagRaw),
+            $results
+        );
+
+        return $results;
+    }
+
+    public function setTags(?string $tags): self
+    {
+        $this->tags = $tags;
         return $this;
     }
 }
