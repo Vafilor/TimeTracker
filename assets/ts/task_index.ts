@@ -7,6 +7,8 @@ import LoadingButton from "./components/loading_button";
 import TimeTrackerRoutes from "./core/routes";
 import Observable from "./components/observable";
 import { createTagsView } from "./components/tags";
+import Flashes from "./components/flashes";
+import { TagFilter } from "./components/tag_filter";
 
 class TaskTable {
     private $container: JQuery;
@@ -134,10 +136,25 @@ class CreateTaskForm {
     }
 }
 
+class TaskListFilter {
+    private $element: JQuery;
+    private flashes: Flashes;
+    private tagFilter: TagFilter;
+
+    constructor($element: JQuery, flashes: Flashes) {
+        this.$element = $element;
+        this.flashes = flashes;
+        this.tagFilter = new TagFilter($element);
+    }
+}
+
 $(document).ready(() => {
     const $data = $('.js-data');
     const showCompleted = $data.data('show-completed');
     const nameSort = $data.data('name-sort');
+
+    const flashes = new Flashes($('#fixed-flash-messages'));
+    const filter = new TaskListFilter($('.filter'), flashes);
 
     const routes = new TimeTrackerRoutes();
     routes.addTemplateFromJoined($data.data('route-time-entry-index'));

@@ -19,19 +19,17 @@ class TaskListFilterFormType extends AbstractType
             ->add('showCompleted', CheckboxType::class, [
                 'required' => false
             ])
-            ->add('description', TextType::class, [
+            ->add('content', TextType::class, [
                 'required' => false
             ])
-            ->add('name', TextType::class, [
-                'required' => false
+            ->add('tags', TextType::class, [
+                'required' => false,
             ])
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-                                   'data_class' => TaskListFilterModel::class,
-                               ]);
+        $resolver->setDefaults(['data_class' => TaskListFilterModel::class]);
     }
 }

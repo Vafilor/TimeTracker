@@ -15,6 +15,7 @@ use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -72,6 +73,11 @@ class Task
      */
     private User $assignedTo;
 
+    public static function canonicalizeName(string $name): string
+    {
+        return trim(strtolower($name));
+    }
+
     public function __construct(User $assignedTo, string $name)
     {
         $this->id = Uuid::uuid4();
@@ -84,11 +90,6 @@ class Task
         $this->completedAt = null;
         $this->priority = 0;
         $this->tagLinks = new ArrayCollection();
-    }
-
-    private function canonicalizeName(string $name): string
-    {
-        return trim(strtolower($name));
     }
 
     public function getName(): string
@@ -105,7 +106,7 @@ class Task
     {
         $this->name = $name;
 
-        $this->canonicalName = $this->canonicalizeName($name);
+        $this->canonicalName = self::canonicalizeName($name);
 
         if (strlen($this->canonicalName) === 0) {
             throw new InvalidArgumentException('Name can not be blank once whitespace is removed.');

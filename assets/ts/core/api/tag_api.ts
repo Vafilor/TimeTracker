@@ -5,6 +5,13 @@ export interface ApiTag {
     color: string;
 }
 
+export function ApiTagFromName(name: string): ApiTag {
+    return {
+        name,
+        color: '#5d5d5d'
+    };
+}
+
 export class TagApi {
     public static index(searchTerm: string, excludeTags: Array<string> = [] ) {
         let url = `/json/tag?searchTerm=${searchTerm}`;

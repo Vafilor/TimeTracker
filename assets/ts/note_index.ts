@@ -4,15 +4,9 @@ import $ from 'jquery';
 import Observable from "./components/observable";
 import { ApiNote, CreateNoteOptions, NoteApi } from "./core/api/note_api";
 import Flashes from "./components/flashes";
-import { ApiStatistic, CreateStatisticOptions, StatisticApi } from "./core/api/statistic_api";
 import { ApiErrorResponse } from "./core/api/api";
 import { createTagsView } from "./components/tags";
-import AutocompleteTags from "./components/autocomplete_tags";
-import AutocompleteTask from "./components/autocomplete_task";
-import { ApiTask } from "./core/api/task_api";
-import { AutocompleteEnterPressedEvent } from "./components/autocomplete";
-import TagList from "./components/tag_index";
-import { ApiTag } from "./core/api/tag_api";
+import { TagFilter } from "./components/tag_filter";
 
 class CreateNoteForm {
     private $title: JQuery;
@@ -59,49 +53,12 @@ class CreateNoteForm {
 class NoteListFilter {
     private $element: JQuery;
     private flashes: Flashes;
-    private autocompleteTags: AutocompleteTags;
+    private tagFilter: TagFilter;
 
     constructor($element: JQuery, flashes: Flashes) {
         this.$element = $element;
         this.flashes = flashes;
-
-        this.setUpTagFilter();
-    }
-
-    private setUpTagFilter() {
-        const $tagListFilter = this.$element.find('.js-tags-filter');
-        const tagList = new TagList($tagListFilter.find('.js-tag-list'));
-        this.autocompleteTags = new AutocompleteTags($tagListFilter.find('.js-autocomplete-tags'));
-
-        this.autocompleteTags.itemSelected.addObserver((apiTag: ApiTag) => {
-            tagList.add(apiTag);
-            setTimeout(() => {
-                this.autocompleteTags.positionSearchContent();
-            }, 10);
-        })
-
-        this.autocompleteTags.enterPressed.addObserver((event: AutocompleteEnterPressedEvent<ApiTag>) => {
-            if (event.data) {
-                tagList.add(event.data);
-            } else {
-                tagList.add({
-                    name: event.query,
-                    color: '#5d5d5d'
-                });
-            }
-
-            this.autocompleteTags.clear();
-
-            setTimeout(() => {
-                this.autocompleteTags.positionSearchContent();
-            }, 10);
-        })
-
-        const $realTagInput = this.$element.find('.js-real-tag-input');
-        tagList.tagsChanged.addObserver(() => {
-            this.autocompleteTags.setTagNames(tagList.getTagNames());
-            $realTagInput.val(tagList.getTagNamesCommaSeparated());
-        });
+        this.tagFilter = new TagFilter($element);
     }
 }
 

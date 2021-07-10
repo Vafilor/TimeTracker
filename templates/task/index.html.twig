@@ -1,5 +1,6 @@
 {% extends 'sidebar.html.twig' %}
 {% import 'time/partials.html.twig' as time %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
 
 {% block content_class %}w-100{% endblock %}
 
@@ -24,7 +25,17 @@
         <div class="filter table-filter mb-3">
             <div class="filter-title">Filter</div>
             {{ form_start(filterForm) }}
-            {{ form_widget(filterForm) }}
+            {{ form_row(filterForm.showCompleted) }}
+            {{ form_row(filterForm.content) }}
+
+            {{ form_label(filterForm.tags) }}
+            <div class="js-tags-filter d-flex align-items-center mb-2">
+                {{ form_widget(filterForm.tags, {attr: {class: 'js-real-tag-input d-none'}}) }}
+                <div class="js-tags tag-list js-tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
+
+                {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'} }) }}
+            </div>
+
             <button type="submit" class="btn btn-primary">Search</button>
             {{ form_end(filterForm) }}
         </div>
@@ -56,7 +67,13 @@
         <form class="js-task-create form-row">
             <div class="col">
                 <label class="sr-only" for="create-task-name">New task name</label>
-                <input type="text" id="create-task-name" class="form-control js-name" placeholder="What do you want to achieve?" />
+                <input
+                        id="create-task-name"
+                        type="text"
+                        class="form-control js-name"
+                        autocomplete="off"
+                        placeholder="What do you want to achieve?"
+                />
             </div>
             <div class="col-auto">
                 <button type="button" class="btn btn-primary js-button js-loading-button">
