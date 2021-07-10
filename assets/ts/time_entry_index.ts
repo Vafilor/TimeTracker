@@ -23,10 +23,10 @@ import { EditDateTime } from "./components/edit_date_time";
 import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
 import { TagAssigner } from "./components/tag_assigner";
 import TimerView from "./components/timer";
-import AutocompleteTags from "./components/autocomplete_tags";
 import AutocompleteTask from "./components/autocomplete_task";
 import MarkdownView from "./components/markdown_view";
 import { AutocompleteEnterPressedEvent } from "./components/autocomplete";
+import { TagFilter } from "./components/tag_filter";
 
 interface TimeEntryActionDelegate {
     continue(timeEntryId: string): Promise<any>;
@@ -635,14 +635,14 @@ class TimeEntryList {
 class TimeEntryListFilter {
     private $element: JQuery;
     private flashes: Flashes;
-    private autocompleteTags: AutocompleteTags;
+    private tagFilter: TagFilter;
 
     constructor($element: JQuery, flashes: Flashes) {
         this.$element = $element;
         this.flashes = flashes;
 
         this.setUpTaskFilter();
-        this.setUpTagFilter();
+        this.tagFilter = new TagFilter($element);
     }
 
     private setUpTaskFilter() {
@@ -662,10 +662,6 @@ class TimeEntryListFilter {
                 autocompleteTask.clearSearchContent();
                 $realTaskInput.val(event.data.id);
             }
-
-            setTimeout(() => {
-                this.autocompleteTags.positionSearchContent();
-            }, 10);
         })
 
         autocompleteTask.inputChange.addObserver(() => {
@@ -675,40 +671,6 @@ class TimeEntryListFilter {
         autocompleteTask.inputClear.addObserver(() => {
             $realTaskInput.val('');
         })
-    }
-
-    private setUpTagFilter() {
-        const $tagListFilter = this.$element.find('.js-tags-filter');
-        const tagList = new TagList($tagListFilter.find('.js-tag-list'));
-        this.autocompleteTags = new AutocompleteTags($tagListFilter.find('.js-autocomplete-tags'));
-
-        this.autocompleteTags.itemSelected.addObserver((apiTag: ApiTag) => {
-            tagList.add(apiTag);
-            setTimeout(() => {
-                this.autocompleteTags.positionSearchContent();
-            }, 10);
-        })
-
-        this.autocompleteTags.enterPressed.addObserver((event: AutocompleteEnterPressedEvent<ApiTag>) => {
-            if (event.data) {
-                tagList.add(event.data);
-            } else {
-                tagList.add({
-                    name: event.query,
-                    color: '#5d5d5d'
-                });
-            }
-
-            setTimeout(() => {
-                this.autocompleteTags.positionSearchContent();
-            }, 10);
-        })
-
-        const $realTagInput = this.$element.find('.js-real-tag-input');
-        tagList.tagsChanged.addObserver(() => {
-            this.autocompleteTags.setTagNames(tagList.getTagNames());
-            $realTagInput.val(tagList.getTagNamesCommaSeparated());
-        });
     }
 }
 
