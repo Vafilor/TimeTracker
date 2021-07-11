@@ -61,13 +61,15 @@
             <button type="submit" class="btn btn-primary ml-2">Create</button>
         </form>
 
-        <div class="stack-list js-note-list mt-2 mb-2">
-            {% for note in pagination.items %}
-                {{ include('note/partials/_note.html.twig', {note: note }) }}
-            {% else %}
-                <div class="text-center">No results found</div>
-            {% endfor %}
-        </div>
+        {% if pagination.count == 0 %}
+            <div class="text-center mt-2">No results found</div>
+        {% else %}
+            <div class="stack-list js-note-list mt-2 mb-2">
+                {% for note in pagination.items %}
+                    {{ include('note/partials/_note.html.twig', {note: note }) }}
+                {% endfor %}
+            </div>
+        {% endif %}
 
         {{ knp_pagination_render(pagination, null, {}, {align: 'center'}) }}
     </div>
