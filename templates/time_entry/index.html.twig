@@ -8,101 +8,101 @@
 {% block title %}Time Entries{% endblock %}
 
 {% block content_body %}
-    <div class="resource js-data"
-         data-duration-format="{{ app.user.durationFormat }}"
-         data-page="index">
-        <h1 class="text-center">Time Entries</h1>
+<div class="resource js-data"
+     data-duration-format="{{ app.user.durationFormat }}"
+     data-date-format="date_time">
+    <h1 class="text-center">Time Entries</h1>
 
-        <div class="filter table-filter mb-3">
-            <div class="filter-title">Filter</div>
-            {{ form_start(filterForm) }}
-            <div class="d-flex flex-wrap mb-2">
-                <div class="mr-3">
-                    <div>
-                    {{ form_label(filterForm.start) }}
-                    {% if filterForm.end.vars.errors|length != 0 %}
-                        &nbsp;
-                    {% endif %}
-                    </div>
-                    <div class="d-inline-flex mt-1">
-                        {{ form_widget(filterForm.start, {attr: {class: 'anti-form-control'}}) }}
-                        <button type="button" class="btn btn-danger js-clear-datetime ml-2">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-
+    <div class="filter table-filter mb-3">
+        <div class="filter-title">Filter</div>
+        {{ form_start(filterForm) }}
+        <div class="d-flex flex-wrap mb-2">
+            <div class="mr-3">
                 <div>
-                    <div>
-                    {{ form_label(filterForm.end) }}
-                    {% if filterForm.start.vars.errors|length != 0 %}
-                        &nbsp;
-                    {% endif %}
-                    </div>
-                    <div class="d-inline-flex mt-1">
-                        {{ form_widget(filterForm.end, {attr: {class: 'anti-form-control'}}) }}
-                        <button type="button" class="btn btn-danger js-clear-datetime ml-2">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+                {{ form_label(filterForm.start) }}
+                {% if filterForm.end.vars.errors|length != 0 %}
+                    &nbsp;
+                {% endif %}
+                </div>
+                <div class="d-inline-flex mt-1">
+                    {{ form_widget(filterForm.start, {attr: {class: 'anti-form-control'}}) }}
+                    <button type="button" class="btn btn-danger js-clear-datetime ml-2">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             </div>
 
-            {{ form_label(filterForm.tags) }}
-            <div class="js-tags-filter d-flex align-items-center mb-1">
-                {{ form_widget(filterForm.tags, {attr: {class: 'js-real-tag-input d-none'}}) }}
-                <div class="js-tags tag-list js-tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
-
-                {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'} }) }}
-            </div>
-
-            <div class="d-block">
-                {{ form_label(filterForm.taskId) }}
-            </div>
-
-            {{ autocomplete.list('task', { search: { value: task.name ?? '' } }) }}
-
-            {{ form_widget(filterForm.taskId, {attr: {class: 'd-none js-real-task-input'}}) }}
-
-            <div class="d-block">
-                <button type="submit" class="btn btn-primary mt-2">Search</button>
-            </div>
-            {{ form_end(filterForm) }}
-        </div>
-
-        <div class="dropdown">
-            <label>Sort</label>
-            <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {% if pagination.isSorted('time_entry.startedAt') and pagination.direction == 'asc' %}
-                    Oldest
-                {% else %}
-                    Newest
+            <div>
+                <div>
+                {{ form_label(filterForm.end) }}
+                {% if filterForm.start.vars.errors|length != 0 %}
+                    &nbsp;
                 {% endif %}
-            </button>
-            <div class="dropdown-menu" aria-labelledby="time-entry-sort">
-                {{ knp_pagination_sortable(pagination, 'Newest', 'time_entry.startedAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
-                {{ knp_pagination_sortable(pagination, 'Oldest', 'time_entry.startedAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                </div>
+                <div class="d-inline-flex mt-1">
+                    {{ form_widget(filterForm.end, {attr: {class: 'anti-form-control'}}) }}
+                    <button type="button" class="btn btn-danger js-clear-datetime ml-2">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+        {{ form_label(filterForm.tags) }}
+        <div class="js-tags-filter d-flex align-items-center mb-1">
+            {{ form_widget(filterForm.tags, {attr: {class: 'js-real-tag-input d-none'}}) }}
+            <div class="js-tags tag-list js-tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
 
-        <div class="mt-2 mb-3">
-            <button class="btn btn-primary js-create-time-entry">
-                <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
-                Create time entry
-            </button>
-        </div>
-        <div class="card-list js-time-entry-list mb-2">
-        {% for timeEntry in pagination.items %}
-            {{ include('time_entry/partials/_time-entry.html.twig', {timeEntry: timeEntry }) }}
-        {% else %}
-            <div class="text-center">No results found</div>
-        {% endfor %}
+            {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'} }) }}
         </div>
 
-        {{ knp_pagination_render(pagination, null, {}, {align: 'center'}) }}
+        <div class="d-block">
+            {{ form_label(filterForm.taskId) }}
+        </div>
+
+        {{ autocomplete.list('task', { search: { value: task.name ?? '' } }) }}
+
+        {{ form_widget(filterForm.taskId, {attr: {class: 'd-none js-real-task-input'}}) }}
+
+        <div class="d-block">
+            <button type="submit" class="btn btn-primary mt-2">Search</button>
+        </div>
+        {{ form_end(filterForm) }}
     </div>
+
+    <div class="dropdown mb-2">
+        <label>Sort</label>
+        <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {% if pagination.isSorted('time_entry.startedAt') and pagination.direction == 'asc' %}
+                Oldest
+            {% else %}
+                Newest
+            {% endif %}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+            {{ knp_pagination_sortable(pagination, 'Newest', 'time_entry.startedAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+            {{ knp_pagination_sortable(pagination, 'Oldest', 'time_entry.startedAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+        </div>
+    </div>
+
+    {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+    <div class="mt-2 mb-3">
+        <button class="btn btn-primary js-create-time-entry">
+            <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
+            Create time entry
+        </button>
+    </div>
+    <div class="card-list js-time-entry-list mb-2">
+    {% for timeEntry in pagination.items %}
+        {{ include('time_entry/partials/_time-entry-small.html.twig', {timeEntry: timeEntry }) }}
+    {% else %}
+        <div class="text-center">No results found</div>
+    {% endfor %}
+    </div>
+
+    {{ knp_pagination_render(pagination, null, {}, {align: 'center'}) }}
+</div>
 {% endblock %}
 
 {% block stylesheets %}

@@ -6,6 +6,12 @@
       margin-top: 20px;
     }
 
+    &.card-small-spacing {
+      &:not(:first-child) {
+        margin-top: 10px;
+      }
+    }
+
     transition: box-shadow 0.5s, opacity 0.3s;
 
     border-radius: 6px;

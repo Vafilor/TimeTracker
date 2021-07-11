@@ -1,0 +1,19 @@
+.time-entry {
+  &.edit {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
+  }
+
+  .spinner {
+    display: inline-block;
+  }
+
+  .task {
+    display: inline-block;
+  }
+
+  .description {
+    word-break: break-all;
+  }
+}
