@@ -1,7 +1,8 @@
-<header class="navbar navbar-dark bg-dark">
-    <button class="sidebar-visibility btn text-light {% if sidebarClass is defined %}{{ sidebarClass }}{% endif %}" type="button">
+<header class="navbar navbar-dark bg-dark sticky-top">
+    <button class="btn text-light d-md-none" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
         <i class="fas fa-bars"></i>
     </button>
+    <div class="text-light d-md-block d-sm-none"></div>
     <ul class="nav nav-pills">
         {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
             <li class="nav-item dropdown">
@@ -26,7 +27,6 @@
                             Logout
                         </a>
                     </div>
-
                 </div>
             </li>
         {% endif %}
