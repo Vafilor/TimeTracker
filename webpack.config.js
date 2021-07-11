@@ -22,6 +22,7 @@ Encore
      */
     .addEntry('app', './assets/ts/app.ts')
     .addEntry('login', './assets/ts/login.ts')
+    .addEntry('today', './assets/ts/today.ts')
     .addEntry('time_entry_index', './assets/ts/time_entry_index.ts')
     .addEntry('time_entry', './assets/ts/time_entry.ts')
     .addEntry('tag', './assets/ts/tag.ts')

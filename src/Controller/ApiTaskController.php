@@ -80,7 +80,7 @@ class ApiTaskController extends BaseController
     }
 
     #[Route('/api/task', name: 'api_task_create', methods: ["POST"])]
-    #[Route('/json/task', name: 'task_json_create', methods: ["POST"])]
+    #[Route('/json/task', name: 'json_task_create', methods: ["POST"])]
     public function create(
         Request $request
     ): JsonResponse {
