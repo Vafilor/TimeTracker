@@ -2,48 +2,40 @@
 
 {% extends 'base.html.twig' %}
 
+{% block header %}
+    {% include('header.html.twig') %}
+{% endblock %}
+
 {% block center %}
-    {% set path = app.request.pathInfo %}
+<div class="container-fluid">
+    <div class="row">
+        {% set path = app.request.pathInfo %}
 
-    <div class="center">
-        {% block sidebar %}
-            <div class="sidebar">
-                <ul class="list-unstyled">
-                    <li><a href="{{ path('time_entry_today') }}" {% if path == '/time-entry/today' %} class="active" {% endif %}>Today</a></li>
-                    <li><a href="{{ path('time_entry_index') }}" {% if (path != '/time-entry/today') and (path starts with '/time-entry') %} class="active" {% endif %}>Time Entries</a></li>
-                    <li><a href="{{ path('task_index') }}" {% if path starts with '/task' %} class="active"{% endif %}>Tasks</a></li>
-                    <li><a href="{{ path('timestamp_index') }}" {% if path starts with '/timestamp' %} class="active"{% endif %}>Timestamps</a></li>
-                    <li><a href="{{ path('tag_index') }}" {% if path starts with '/tag' %} class="active" {% endif %}>Tags</a></li>
-                    <li><a href="{{ path('statistic_index') }}" {% if path starts with '/statistic' %} class="active" {% endif %}>Statistics</a></li>
-                    <li><a href="{{ path('statistic_value_index') }}" {% if path starts with '/record' %} class="active" {% endif %}>Records</a></li>
-                    <li><a href="{{ path('note_index') }}" {% if path starts with '/note' %} class="active" {% endif %}>Notes</a></li>
-                </ul>
-            </div>
-        {% endblock %}
-
-        {% block content %}
-            <div class="content full-width-with-sidebar ml-sidebar {% block content_class %}{% endblock %}">
-                {% block content_header %}
-                    {% if app.request.hasPreviousSession %}
-                        {% block flash_messages %}
-                            <div id="flash-messages">
-                                {{ flashes.display() }}
-                            </div>
-                        {% endblock flash_messages %}
-                    {% endif %}
-                    <div id="fixed-flash-messages" class="sidebar-width-dependent full-width full-width-with-sidebar">
-{#                        <div class="alert alert-success alert-dismissible fade show flash">#}
-{#                            Wowie!#}
-{#                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">#}
-{#                                <span aria-hidden="true">&times;</span>#}
-{#                            </button>#}
-{#                        </div>#}
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+            <ul class="list-unstyled sidebar-sticky text-center text-md-left">
+                <li><a href="{{ path('time_entry_today') }}" {% if path == '/time-entry/today' %} class="active" {% endif %}>Today</a></li>
+                <li><a href="{{ path('time_entry_index') }}" {% if (path != '/time-entry/today') and (path starts with '/time-entry') %} class="active" {% endif %}>Time Entries</a></li>
+                <li><a href="{{ path('task_index') }}" {% if path starts with '/task' %} class="active"{% endif %}>Tasks</a></li>
+                <li><a href="{{ path('timestamp_index') }}" {% if path starts with '/timestamp' %} class="active"{% endif %}>Timestamps</a></li>
+                <li><a href="{{ path('tag_index') }}" {% if path starts with '/tag' %} class="active" {% endif %}>Tags</a></li>
+                <li><a href="{{ path('statistic_index') }}" {% if path starts with '/statistic' %} class="active" {% endif %}>Statistics</a></li>
+                <li><a href="{{ path('statistic_value_index') }}" {% if path starts with '/record' %} class="active" {% endif %}>Records</a></li>
+                <li><a href="{{ path('note_index') }}" {% if path starts with '/note' %} class="active" {% endif %}>Notes</a></li>
+            </ul>
+        </nav>
+        <main class="col-md-9 ml-sm-auto col-lg-10 bg-light">
+            {% if app.request.hasPreviousSession %}
+                {% block flash_messages %}
+                    <div id="flash-messages">
+                        {{ flashes.display() }}
                     </div>
-                {% endblock %}
-
-                {% block content_body %}
-                {% endblock %}
+                {% endblock flash_messages %}
+            {% endif %}
+            <div id="fixed-flash-messages" class="col-md-9 col-lg-10">
             </div>
-        {% endblock %}
+            {% block content_body %}
+            {% endblock %}
+        </main>
     </div>
+</div>
 {% endblock center %}

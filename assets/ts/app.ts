@@ -11,7 +11,6 @@ import '@fortawesome/fontawesome-free/js/all';
 
 // any CSS you import will output into a single css file (app.css in this case)
 import '../styles/app.scss';
-import { formatTimeDifference } from "./components/time";
 
 // start the Stimulus application
 // import './bootstrap';
@@ -24,16 +23,6 @@ $(document).ready(() => {
     $('.popover-dismiss').popover({
         trigger: 'focus'
     })
-
-    $('.sidebar-visibility').on('click', () => {
-        $('.sidebar').toggleClass('hide');
-
-        $('.content').toggleClass('full-width-with-sidebar')
-            .toggleClass('ml-sidebar')
-        ;
-
-        $('.sidebar-width-dependent').toggleClass('full-width-with-sidebar');
-    });
 
     $('.js-clear-datetime').on('click', (event) => {
         const $parent = $(event.currentTarget).parent();

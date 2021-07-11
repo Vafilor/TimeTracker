@@ -8,151 +8,17 @@
 @import "partials/filters";
 @import "partials/autocomplete";
 @import "partials/statistics";
-@import "partials/card-list";
+@import "partials/card_list";
 
-$sidebarWidth: 260px;
-$headerHeight: 58px;
+$headerHeight: 64px;
 $paddingFromHeader: 20px;
-
-.ml-sidebar {
-    margin-left: $sidebarWidth;
-}
 
 .full-width {
     width: 100vw;
 }
 
-.full-width-with-sidebar {
-    width: calc(100vw - #{$sidebarWidth});
-
-    @media (max-width: 768px) {
-        width: 100vw;
-    }
-}
-
-.full-height-with-elements {
-    height: calc(100vh - #{$headerHeight});
-}
-
-.full-height-no-footer-header {
-    height: calc(100vh - #{$headerHeight});
-}
-
-.under-header {
-    margin-top: $headerHeight;
-}
-
 .w-p-50 {
     width: 50px !important;
-}
-
-body {
-    height: 100vh;
-    background-color: $light;
-
-    header {
-        z-index: 900;
-
-        .sidebar-visibility {
-            margin-right: 20px;
-
-            &:focus {
-                box-shadow: none; // Clear bootstrap's button focus color
-            }
-        }
-
-        &.navbar {
-            position: fixed;
-            width: 100vw;
-            height: $headerHeight;
-        }
-    }
-
-    .center {
-        display: flex;
-        align-items: stretch;
-
-        .sidebar {
-            position: fixed;
-            width: $sidebarWidth;
-            height: 100vh;
-            top: $headerHeight;
-            transition: all 0.3s;
-            border-right: 1px darken($light, 10%) solid;
-            background-color: $dark;
-            left: 0;
-            z-index: 800;
-            overflow-y: scroll;
-
-            &.hide {
-                left: -$sidebarWidth;
-            }
-
-            a, a:hover, a:focus {
-                text-decoration: none;
-                transition: 0.3s all;
-            }
-
-            ul {
-                padding: 10px 0 0 0;
-
-                li {
-                    a {
-                        display: block;
-                        padding: 10px 10px 10px 20px;
-                        color: lighten($primary, 30%);
-
-                        &:hover, &.active {
-                            background-color: lighten($dark, 20%);
-                        }
-                    }
-                }
-            }
-        }
-
-        > .content {
-            padding-top: $headerHeight;
-            transition: 0.3s all;
-
-            // Rename to something else.
-            &.hide {
-                margin-left: 0;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                left: -$sidebarWidth;
-                border-right: none;
-
-                &.hide {
-                    left: 0;
-                    width: 100vw;
-                }
-
-                ul {
-                    padding: 10px 0 0 0;
-
-                    li {
-                        a {
-                            display: block;
-                            padding: 10px 10px 10px 20px;
-                            color: lighten($primary, 30%);
-                            text-align: center;
-
-                            &:hover {
-                                background-color: lighten($dark, 20%);
-                            }
-                        }
-                    }
-                }
-            }
-
-            .content {
-                margin-left: 0;
-            }
-        }
-    }
 }
 
 #user-profile, #notifications-icon {
@@ -244,12 +110,6 @@ body {
     }
 }
 
-.task-complete {
-    padding: 0 5px;
-    display: inline-block;
-    min-width: 30px;
-}
-
 .no-resize {
     resize: none;
 }
@@ -264,8 +124,8 @@ body {
     }
 
     .input-indicator-left {
-        border-left: solid 1px rgb(206, 212, 218);;
-        border-top: solid 1px rgb(206, 212, 218);;
+        border-left: solid 1px rgb(206, 212, 218);
+        border-top: solid 1px rgb(206, 212, 218);
         border-bottom: solid 1px rgb(206, 212, 218);
         border-top-left-radius: 0.25rem;
         border-bottom-left-radius: 0.25rem;
@@ -289,9 +149,71 @@ body {
     border-bottom-right-radius: 0 !important;
 }
 
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: $headerHeight 0 0;
+    box-shadow: inset -1px 0 0 rgb(0 0 0 / 10%);
+
+    background-color: $dark;
+    overflow-y: scroll;
+
+    a, a:hover, a:focus {
+        text-decoration: none;
+    }
+
+    ul {
+        li {
+            a {
+                display: block;
+                padding: 10px 10px 10px 20px;
+                color: lighten($primary, 30%);
+
+                &:hover, &.active {
+                    background-color: lighten($dark, 20%);
+                }
+            }
+        }
+    }
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - #{$headerHeight});
+    padding-top: .5rem;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+@supports ((position: -webkit-sticky) or (position: sticky)) {
+    .sidebar-sticky {
+        position: -webkit-sticky;
+        position: sticky;
+    }
+}
+
+header {
+    min-height: $headerHeight;
+}
+
+main {
+    .resource {
+        padding-top: 1rem;
+    }
+}
+
+#flash-messages {
+    margin-top: 10px;
+}
+
 #fixed-flash-messages {
     position: fixed;
-    top: $headerHeight;
+    top: $headerHeight + 10px;
+    margin-left: -15px;
     z-index: 500;
 
     .hide-top {
@@ -305,4 +227,10 @@ body {
     .alert {
         transition: top 0.3s;
     }
+}
+
+.task-complete {
+    padding: 0 5px;
+    display: inline-block;
+    min-width: 30px;
 }

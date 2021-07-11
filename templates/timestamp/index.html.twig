@@ -7,7 +7,7 @@
 {% block title %}Timestamps{% endblock %}
 
 {% block content_body %}
-    <div class="p-3 js-data"
+    <div class="resource js-data"
          data-route-timestamp-view="timestamp_view;{{ path('timestamp_view', { id: 'TIMESTAMP_ID' }) }}"
          data-datetime-format="{{ app.user.dateTimeFormat }}"
          {% if pagination.sort == 'timestamp.createdAt' %}

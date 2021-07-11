@@ -12,4 +12,8 @@
   .task {
     display: inline-block;
   }
+
+  .description {
+    word-break: break-all;
+  }
 }
