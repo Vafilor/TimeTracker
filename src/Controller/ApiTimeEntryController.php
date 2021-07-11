@@ -200,10 +200,25 @@ class ApiTimeEntryController extends BaseController
             'url' => $url
         ];
 
-        if (boolval($request->query->get('template', 'false'))) {
-            $data['template'] = $this->renderView('time_entry/partials/_time-entry.html.twig', [
-                'timeEntry' => $timeEntry
-            ]);
+        $template = $request->query->get('template', 'false');
+        if ($template !== 'false') {
+            if ($template === 'regular') {
+                $data['template'] = $this->renderView('time_entry/partials/_time-entry.html.twig', [
+                    'timeEntry' => $timeEntry
+                ]);
+            } elseif ($template === 'small') {
+                $data['template'] = $this->renderView('time_entry/partials/_time-entry-small.html.twig', [
+                    'timeEntry' => $timeEntry
+                ]);
+            } else {
+                $problem = ApiProblem::withErrors(
+                    Response::HTTP_BAD_REQUEST,
+                    ApiProblem::TYPE_VALIDATION_ERROR,
+                    ApiError::invalidPropertyValue('template')
+                );
+
+                throw new ApiProblemException($problem);
+            }
         }
 
         return $this->jsonNoNulls($data, Response::HTTP_CREATED);

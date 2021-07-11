@@ -51,7 +51,7 @@ export enum TimeEntryApiErrorCode {
 
 export interface CreateTimeEntryOptions {
     taskId?: string;
-    withHtmlTemplate?: boolean;
+    htmlTemplate?: string;
 }
 
 export interface ContinueTimeEntryOptions {
@@ -61,9 +61,9 @@ export interface ContinueTimeEntryOptions {
 export class TimeEntryApi {
     public static create(options: CreateTimeEntryOptions, format: DateFormat = 'date_time') {
         let url = '/json/time-entry';
-        if (options.withHtmlTemplate) {
-            url += '?template=true';
-            options.withHtmlTemplate = undefined;
+        if (options.htmlTemplate) {
+            url += `?template=${options.htmlTemplate}`;
+            options.htmlTemplate = undefined;
         }
 
         return CoreApi.post<CreateTimeEntryResponse>(url, {

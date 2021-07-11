@@ -96,7 +96,7 @@ class TodayIndexPage implements TimeEntryActionDelegate {
         const res = await TimeEntryApi.stop(timeEntryId, this.dateFormat);
         this.timeEntryList.stopTimeEntryUI(res.data);
 
-        const createResponse = await TimeEntryApi.create({withHtmlTemplate: true}, this.dateFormat);
+        const createResponse = await TimeEntryApi.create({htmlTemplate: 'regular'}, this.dateFormat);
 
         this.createTimeEntry(createResponse.data);
 
@@ -136,7 +136,7 @@ class TodayIndexPage implements TimeEntryActionDelegate {
         this.createTimeEntryButton.startLoading();
 
         try {
-            const res = await TimeEntryApi.create({withHtmlTemplate: true}, this.dateFormat);
+            const res = await TimeEntryApi.create({htmlTemplate: 'regular'}, this.dateFormat);
 
             this.createTimeEntry(res.data);
         } catch (e) {

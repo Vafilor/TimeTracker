@@ -10,7 +10,7 @@
 {% block content_body %}
 <div class="resource js-data"
      data-duration-format="{{ app.user.durationFormat }}"
-     data-page="index">
+     data-date-format="date_time">
     <h1 class="text-center">Time Entries</h1>
 
     <div class="filter table-filter mb-3">
@@ -70,7 +70,7 @@
         {{ form_end(filterForm) }}
     </div>
 
-    <div class="dropdown">
+    <div class="dropdown mb-2">
         <label>Sort</label>
         <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {% if pagination.isSorted('time_entry.startedAt') and pagination.direction == 'asc' %}
