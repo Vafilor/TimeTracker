@@ -1,0 +1,78 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+{% import 'tag/partials.html.twig' as tags %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}Today{% endblock %}
+
+{% block content_body %}
+<div class="resource js-data"
+     data-duration-format="{{ app.user.durationFormat }}"
+     data-date-format="date_time_today"
+     data-page="today">
+
+    <h1 class="text-center">Today</h1>
+
+    {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Entries</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('report_today') }}">Report</a>
+        </li>
+    </ul>
+
+    <div class="mt-2 mb-3">
+        <button class="btn btn-primary js-create-time-entry">
+            <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
+            Create time entry
+        </button>
+    </div>
+    <div class="card-list js-time-entry-list mb-2">
+        {% for timeEntry in pagination.items %}
+            {{ include('time_entry/partials/_time-entry.html.twig', {timeEntry: timeEntry }) }}
+        {% else %}
+            <div class="text-center">No results found</div>
+        {% endfor %}
+    </div>
+
+    {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+    {# Confirm create and stop modal #}
+    <div class="modal fade" id="confirm-stop-modal" tabindex="-1" aria-labelledby="confirm-stop-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirm-stop-modal-label">Stop running time entry?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    You have a running time entry, stop it and start a new one?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button class="btn btn-danger js-stop-running">Stop</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('today') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('today') }}
+{% endblock %}
+

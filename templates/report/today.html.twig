@@ -11,7 +11,7 @@
 
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link" href="{{ path('time_entry_today') }}">Entries</a>
+                <a class="nav-link" href="{{ path('today_index') }}">Entries</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link active" href="#">Report</a>
@@ -47,9 +47,13 @@
 
 {% block stylesheets %}
     {{ parent() }}
+
+    {{ encore_entry_link_tags('today') }}
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
+
+    {{ encore_entry_script_tags('today') }}
 {% endblock %}
 
