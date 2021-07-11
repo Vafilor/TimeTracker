@@ -212,7 +212,8 @@ main {
 
 #fixed-flash-messages {
     position: fixed;
-    top: $headerHeight;
+    top: $headerHeight + 10px;
+    margin-left: -15px;
     z-index: 500;
 
     .hide-top {
