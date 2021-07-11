@@ -227,3 +227,9 @@ main {
         transition: top 0.3s;
     }
 }
+
+.task-complete {
+    padding: 0 5px;
+    display: inline-block;
+    min-width: 30px;
+}
