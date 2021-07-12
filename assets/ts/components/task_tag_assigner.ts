@@ -20,7 +20,7 @@ export class TaskTagAssigner {
             <div class="d-flex">
                 <div class="search border-right-0 rounded-right-0">
                     <input
-                            type="text"
+                            type="search"
                             class="js-input"
                             placeholder="tag name..."
                             name="tag"

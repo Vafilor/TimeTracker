@@ -14,10 +14,7 @@ import { createPopper } from "@popperjs/core";
  * The expected html is:
  *
  * <div class="autocomplete js-autocomplete">
- *     <div class="search">
- *        <input class="js-input" />
- *        <button class="clear js-clear"><i class="fas fa-times"></i></button>
- *     </div>
+ *     <input class="js-input search" type="search" />
  *     <div class="search-results js-search-results d-none"></div>
  * </div>
  */
@@ -78,14 +75,6 @@ abstract class Autocomplete {
         this.$input = $element.find('.js-input');
         this.$input.on('input', (event) => this.onInput(event));
 
-        this.$input.on('focus', (event) => {
-            $(event.currentTarget).parent().addClass('fake-focus');
-        })
-
-        this.$input.on('blur', (event) => {
-            $(event.currentTarget).parent().removeClass('fake-focus');
-        })
-
         this.$input.on('keydown', (event) => {
             if (event.key === 'Tab') {
                 this.onClickOutside();
@@ -100,8 +89,6 @@ abstract class Autocomplete {
             // Don't propagate event to document so we don't close search results - which happens when document is clicked.
             event.stopPropagation();
         })
-
-        $element.find('.js-clear').on('click', () => this.clear());
     }
 
     /**
