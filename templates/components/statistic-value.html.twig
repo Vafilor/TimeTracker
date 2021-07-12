@@ -1,6 +1,6 @@
 {% macro value(value) %}
 <div
-    class="statistic-value-row js-statistic-item input-group"
+    class="statistic-value-row js-statistic-item input-group d-inline-flex"
     data-id="{{ value.idString }}"
     data-name="{{ value.statistic.name }}"
     data-value="{{ value.value }}"
@@ -44,7 +44,7 @@
         {% set _attr = _attr|merge(attr) %}
     {% endif %}
 
-    <div class="statistic-values {{ _attr.class }}">
+    <div class="statistic-values d-inline-flex flex-wrap flex-column {{ _attr.class }}">
         {% for item in items %}
             {{ _self.value(item) }}
         {% endfor %}
