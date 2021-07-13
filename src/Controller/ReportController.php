@@ -22,7 +22,8 @@ class ReportController extends BaseController
     public function today(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
-        PaginatorInterface $paginator): Response
+        PaginatorInterface $paginator
+    ): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -96,34 +97,23 @@ class ReportController extends BaseController
         $dateFormat = $this->getUser()->getDateFormat();
         $timezone = $this->getUser()->getTimezone();
 
+        $keyTimestamp = [];
+
         foreach ($timeEntries as $timeEntry) {
             $end = clone $timeEntry->getEndedAt();
             $start = clone $timeEntry->getStartedAt();
             $startedAt = $start->setTimezone(new DateTimeZone($timezone));
             $endedAt = $end->setTimezone(new DateTimeZone($timezone));
 
-            $endRange = DateRange::dayFromDateTime($endedAt);
-            $key = $endedAt->format($dateFormat);
+            foreach (DateRange::splitIntoDays($startedAt, $endedAt) as $dayRange) {
+                $key = $dayRange->getStart()->format($dateFormat);
+                if (!array_key_exists($key, $data)) {
+                    $data[$key] = 0;
+                    $keyTimestamp[$key] = $dayRange->getStart()->getTimestamp();
+                }
 
-            if (!array_key_exists($key, $data)) {
-                $data[$key] = 0;
+                $data[$key] += $dayRange->getEnd()->getTimestamp() - $dayRange->getStart()->getTimestamp();
             }
-
-            if ($endRange->contains($startedAt)) {
-                $data[$key] += $timeEntry->durationSeconds();
-                continue;
-            }
-
-            $data[$key] += $endedAt->getTimestamp() - $endRange->getStart()->getTimestamp();
-
-            $startRange = DateRange::dayFromDateTime($startedAt);
-            $keyStart = $startedAt->format($dateFormat);
-
-            if (!array_key_exists($keyStart, $data)) {
-                $data[$keyStart] = 0;
-            }
-
-            $data[$keyStart] += $startedAt->getTimestamp() - $startRange->getStart()->getTimestamp();
         }
 
         $totalSeconds = 0;
@@ -131,6 +121,8 @@ class ReportController extends BaseController
             $data[$key] = DateTimeUtil::dateIntervalFromSeconds($seconds);
             $totalSeconds += $seconds;
         }
+
+        uksort($data, fn ($keyA, $keyB) => $keyTimestamp[$keyB] - $keyTimestamp[$keyA]);
 
         return $this->render('report/tag_time_entries.html.twig', [
             'tag' => $tag,
