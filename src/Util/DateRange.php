@@ -39,4 +39,13 @@ class DateRange
     {
         return clone $this->end;
     }
+
+    public function contains(DateTime $when): bool
+    {
+        $whenTimestamp = $when->getTimestamp();
+
+        return $this->start->getTimestamp() <= $whenTimestamp &&
+               $whenTimestamp <= $this->end->getTimestamp()
+        ;
+    }
 }

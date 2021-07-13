@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\TimeEntry;
+use App\Repository\TagRepository;
 use App\Repository\TimeEntryRepository;
+use App\Util\DateRange;
+use App\Util\DateTimeUtil;
 use DateTime;
 use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
@@ -63,6 +67,75 @@ class ReportController extends BaseController
         return $this->render('report/today.html.twig', [
             'summary' => $summary,
             'totalTime' => $totalTime
+        ]);
+    }
+
+    #[Route('/report/tag/{id}/time-entry', name: 'report_tag_time_entry')]
+    public function reportTimeEntry(
+        Request $request,
+        TagRepository $tagRepository,
+        TimeEntryRepository $timeEntryRepository,
+        string $id
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $tag = $tagRepository->findOrException($id);
+        if (!$tag->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        /** @var TimeEntry[] $timeEntries */
+        $timeEntries = $timeEntryRepository->findForTagQueryBuilder($tag)
+            ->orderBy('time_entry.startedAt', 'desc')
+            ->getQuery()
+            ->getResult()
+        ;
+
+        $data = [];
+
+        $dateFormat = $this->getUser()->getDateFormat();
+        $timezone = $this->getUser()->getTimezone();
+
+        foreach ($timeEntries as $timeEntry) {
+            $end = clone $timeEntry->getEndedAt();
+            $start = clone $timeEntry->getStartedAt();
+            $startedAt = $start->setTimezone(new DateTimeZone($timezone));
+            $endedAt = $end->setTimezone(new DateTimeZone($timezone));
+
+            $endRange = DateRange::dayFromDateTime($endedAt);
+            $key = $endedAt->format($dateFormat);
+
+            if (!array_key_exists($key, $data)) {
+                $data[$key] = 0;
+            }
+
+            if ($endRange->contains($startedAt)) {
+                $data[$key] += $timeEntry->durationSeconds();
+                continue;
+            }
+
+            $data[$key] += $endedAt->getTimestamp() - $endRange->getStart()->getTimestamp();
+
+            $startRange = DateRange::dayFromDateTime($startedAt);
+            $keyStart = $startedAt->format($dateFormat);
+
+            if (!array_key_exists($keyStart, $data)) {
+                $data[$keyStart] = 0;
+            }
+
+            $data[$keyStart] += $startedAt->getTimestamp() - $startRange->getStart()->getTimestamp();
+        }
+
+        $totalSeconds = 0;
+        foreach ($data as $key => $seconds) {
+            $data[$key] = DateTimeUtil::dateIntervalFromSeconds($seconds);
+            $totalSeconds += $seconds;
+        }
+
+        return $this->render('report/tag_time_entries.html.twig', [
+            'tag' => $tag,
+            'data' => $data,
+            'total' => DateTimeUtil::dateIntervalFromSeconds($totalSeconds)
         ]);
     }
 }
