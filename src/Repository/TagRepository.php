@@ -99,4 +99,23 @@ class TagRepository extends ServiceEntityRepository implements FindByKeysInterfa
 
         return $timeEntryCount + $otherCount;
     }
+
+    public function getTimeEntryDuration(Tag $tag): int
+    {
+        $queryBuilder = $this->createDefaultQueryBuilder()
+                             ->select('total_seconds(time_entry.startedAt, time_entry.endedAt)')
+                             ->join('tag.tagLinks', 'tag_link')
+                             ->join('tag_link.timeEntry', 'time_entry')
+                             ->andWhere('tag = :inputTag')
+                             ->andWhere('time_entry.endedAt IS NOT NULL')
+                             ->setParameter('inputTag', $tag)
+        ;
+
+        $result = $queryBuilder->getQuery()->getSingleScalarResult();
+        if (is_null($result)) {
+            return 0;
+        }
+
+        return intval($result);
+    }
 }

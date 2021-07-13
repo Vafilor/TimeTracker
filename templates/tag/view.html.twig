@@ -10,13 +10,33 @@
 
     <h1 class="text-center">{{ tag.name }}</h1>
 
-    <h4 class="text-center">Referenced {{ references }} time(s)</h4>
+    <table class="table table-hover table-bordered">
+        <thead>
+        <tr>
+            <th>Type</th>
+            <th>Data</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Preview</td>
+            <td><div class="tag js-tag-preview" style="background-color: {{ tag.color }}">{{ tag.name }}</div></td>
+        </tr>
+        <tr>
+            <td>Created</td>
+            <td>{{ time.user_datetime(tag.createdAt, app.user) }}</td>
+        </tr>
+        <tr>
+            <td>References</td>
+            <td>{{ references }}</td>
+        </tr>
+        <tr>
+            <td>Total time</td>
+            <td>{{ time.user_duration(duration, app.user) }}</td>
+        </tr>
+        </tbody>
+    </table>
 
-    <div class="mt-2">Preview</div>
-    <div class="tag js-tag-preview" style="background-color: {{ tag.color }}">{{ tag.name }}</div>
-    <hr/>
-
-    <div class="mb-2">Created: {{ time.user_datetime(tag.createdAt, app.user) }}</div>
 
     {{ form_start(form) }}
     {{ form_label(form.color) }}

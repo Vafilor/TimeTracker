@@ -14,6 +14,7 @@ use App\Form\TagEditFormType;
 use App\Form\TagFormType;
 use App\Form\TagListFilterFormType;
 use App\Repository\TagRepository;
+use App\Util\DateTimeUtil;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -130,11 +131,13 @@ class TagController extends BaseController
         }
 
         $count = $tagRepository->getReferenceCount($tag);
+        $totalTime = $tagRepository->getTimeEntryDuration($tag);
 
         return $this->render('tag/view.html.twig', [
             'tag' => $tag,
             'form' => $form->createView(),
-            'references' => $count
+            'references' => $count,
+            'duration' => DateTimeUtil::dateIntervalFromSeconds($totalTime)
         ]);
     }
 
