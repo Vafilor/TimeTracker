@@ -21,17 +21,14 @@ export class TagAssigner {
         return `
         <div class="autocomplete js-autocomplete js-autocomplete-tags">
             <div class="autocomplete-search-group">
-                <div class="search border-right-0 rounded-right-0">
-                    <label class="sr-only" for="autocomplete-tag-${id}">name</label>
-                    <input
-                            id="autocomplete-tag-${id}"
-                            type="text"
-                            class="js-input form-control unset-height"
-                            placeholder="tag name..."
-                            name="tag"
-                            autocomplete="off">
-                    <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                </div>
+                <label class="sr-only" for="autocomplete-tag-${id}">name</label>
+                <input
+                        id="autocomplete-tag-${id}"
+                        type="search"
+                        class="js-input form-control search"
+                        placeholder="tag name..."
+                        name="tag"
+                        autocomplete="off">
                 <button type="button" class="btn js-add btn-outline-primary autocomplete-search-group-append">
                     Add
                 </button>   

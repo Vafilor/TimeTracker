@@ -24,17 +24,14 @@ export class TimeEntryTaskAssigner {
             data-task-name="${taskName}"
             data-task-url="${taskUrl}">
             <div class="autocomplete-search-group">
-                <div class="search">
-                    <label class="sr-only" for="autocomplete-task-${id}">name</label>
-                    <input
-                            id="autocomplete-task-${id}"
-                            type="text"
-                            class="js-input form-control unset-height"
-                            placeholder="task name"
-                            name="task"
-                            autocomplete="off">
-                    <button class="clear js-clear btn btn-sm"><i class="fas fa-times"></i></button>
-                </div>
+                <label class="sr-only" for="autocomplete-task-${id}">name</label>
+                <input
+                        id="autocomplete-task-${id}"
+                        type="search"
+                        class="js-input form-control search"
+                        placeholder="task name"
+                        name="task"
+                        autocomplete="off">
                 <button type="button" class="btn js-delete btn-outline-danger autocomplete-search-group-append">
                     <i class="fas fa-trash"></i>
                 </button>   
