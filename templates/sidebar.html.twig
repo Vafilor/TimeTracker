@@ -13,11 +13,11 @@
 
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
             <ul class="list-unstyled sidebar-sticky text-center text-md-left">
-                <li><a href="{{ path('today_index') }}" {% if path == '/today' %} class="active" {% endif %}>Today</a></li>
-                <li><a href="{{ path('time_entry_index') }}" {% if (path != '/time-entry/today') and (path starts with '/time-entry') %} class="active" {% endif %}>Time Entries</a></li>
+                <li><a href="{{ path('today_index') }}" {% if path == '/today' or path == '/' or path starts with '/report/today' %} class="active" {% endif %}>Today</a></li>
+                <li><a href="{{ path('time_entry_index') }}" {% if path starts with '/time-entry' %} class="active" {% endif %}>Time Entries</a></li>
                 <li><a href="{{ path('task_index') }}" {% if path starts with '/task' %} class="active"{% endif %}>Tasks</a></li>
                 <li><a href="{{ path('timestamp_index') }}" {% if path starts with '/timestamp' %} class="active"{% endif %}>Timestamps</a></li>
-                <li><a href="{{ path('tag_index') }}" {% if path starts with '/tag' %} class="active" {% endif %}>Tags</a></li>
+                <li><a href="{{ path('tag_index') }}" {% if path starts with '/tag' or path starts with '/report/tag' %} class="active" {% endif %}>Tags</a></li>
                 <li><a href="{{ path('statistic_index') }}" {% if path starts with '/statistic' %} class="active" {% endif %}>Statistics</a></li>
                 <li><a href="{{ path('statistic_value_index') }}" {% if path starts with '/record' %} class="active" {% endif %}>Records</a></li>
                 <li><a href="{{ path('note_index') }}" {% if path starts with '/note' %} class="active" {% endif %}>Notes</a></li>
