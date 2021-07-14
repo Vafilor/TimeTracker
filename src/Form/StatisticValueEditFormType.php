@@ -16,7 +16,10 @@ class StatisticValueEditFormType extends AbstractType
     {
         $builder
             ->add('value', NumberType::class, [
-                'html5' => true
+                'html5' => true,
+                'attr' => [
+                    'step' => 0.00001
+                ]
             ])
         ;
     }
