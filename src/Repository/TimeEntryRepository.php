@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Tag;
 use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Form\Model\TimeEntryListFilterModel;
@@ -152,6 +153,18 @@ class TimeEntryRepository extends ServiceEntityRepository implements FindByKeysI
                 ->setParameter('taskId', $filter->getTaskId())
             ;
         }
+
+        return $queryBuilder;
+    }
+
+    public function findForTagQueryBuilder(Tag $tag): QueryBuilder {
+        $queryBuilder = $this->createDefaultQueryBuilder()
+                             ->join('time_entry.tagLinks', 'tag_link')
+                             ->join('tag_link.tag', 'tag')
+                             ->andWhere('tag = :inputTag')
+                             ->andWhere('time_entry.endedAt IS NOT NULL')
+                             ->setParameter('inputTag', $tag)
+        ;
 
         return $queryBuilder;
     }

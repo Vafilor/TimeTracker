@@ -136,6 +136,16 @@ class TimeEntry
         return $this->endedAt->diff($this->startedAt);
     }
 
+    public function durationSeconds(): int
+    {
+        if (!$this->isOver()) {
+            $now = new DateTime('now', new DateTimeZone('UTC'));
+            return $now->getTimestamp() - $this->startedAt->getTimestamp();
+        }
+
+        return $this->endedAt->getTimestamp() - $this->startedAt->getTimestamp();
+    }
+
     public function stop(DateTime $endedAt = null): self
     {
         if (is_null($endedAt)) {

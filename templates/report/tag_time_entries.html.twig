@@ -1,0 +1,56 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'tag/partials.html.twig' as tags %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}Report: Today{% endblock %}
+
+{% block content_body %}
+<div class="resource">
+
+    <h1 class="text-center">{{ tag.name }}</h1>
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('tag_view', {id: tag.id}) }}">Tag</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Time Entry Report</a>
+        </li>
+    </ul>
+
+    <table class="table table-bordered table-hover mt-3">
+        <thead>
+        <tr>
+            <th>Day</th>
+            <th>Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for date in data|keys %}
+            <tr>
+                <td>{{ date }}</td>
+                <td>{{ data[date]|date('%hh %Im %Ss') }}</td>
+            </tr>
+        {% endfor %}
+            <tr>
+                <td class="font-weight-bold">Total</td>
+                <td>{{ total|date('%ad %hh %Im %Ss') }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ encore_entry_link_tags('today') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('today') }}
+{% endblock %}
+

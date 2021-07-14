@@ -10,6 +10,15 @@
 
     <h1 class="text-center">{{ tag.name }}</h1>
 
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Tag</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('report_tag_time_entry', {id: tag.id}) }}">Time Entry Report</a>
+        </li>
+    </ul>
+
     <table class="table table-hover table-bordered">
         <thead>
         <tr>
