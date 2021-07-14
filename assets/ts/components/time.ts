@@ -82,22 +82,24 @@ function leadingZeroize(value: number): string {
 
 function specialCharacterToValue(duration: any, char: string): string {
     switch (char) {
+        case 'a':
+            return `${duration.days}`;
         case 'D':
-            return leadingZeroize(duration.days);
+            return leadingZeroize(duration.days % 24);
         case 'd':
-            return duration.days;
+            return `${(duration.days % 24)}`;
         case 'H':
             return leadingZeroize(duration.hours);
         case 'h':
-            return duration.hours;
+            return `${duration.hours}`;
         case 'I':
             return leadingZeroize(duration.minutes);
         case 'i':
-            return duration.minutes;
+            return `${duration.minutes}`;
         case 'S':
             return leadingZeroize(duration.seconds);
         case 's':
-            return duration.seconds;
+            return `${duration.seconds}`;
     }
 
     return '';
