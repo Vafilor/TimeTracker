@@ -203,11 +203,16 @@ header {
 main {
     .resource {
         padding-top: 1rem;
+        padding-bottom: 1rem;
     }
 }
 
 #flash-messages {
-    margin-top: 10px;
+    .flash {
+        &:first-child {
+            margin-top: 1rem;
+        }
+    }
 }
 
 #fixed-flash-messages {
