@@ -33,17 +33,17 @@
     {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
     <form class="row no-gutters mt-3 js-create-statistic">
-        <div>
+        <div class="col col-md-3">
             <label class="sr-only" for="statistic-create-name"></label>
             <input id="statistic-create-name" type="text" class="form-control" placeholder="name">
         </div>
 
-        <div class="col ml-2">
+        <div class="d-none d-md-block col ml-2">
             <label class="sr-only" for="statistic-create-description"></label>
             <input id="statistic-create-description" type="text" class="form-control" placeholder="description">
         </div>
 
-        <div class="ml-2">
+        <div class="col-auto ml-2">
             <label class="sr-only" for="statistic-create-time-type"></label>
             <select id="statistic-create-time-type" class="form-control">
                 <option value="instant" selected="selected">instant</option>
