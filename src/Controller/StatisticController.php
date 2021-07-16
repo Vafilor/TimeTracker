@@ -31,10 +31,11 @@ class StatisticController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $statisticRepository->findWithUser($this->getUser());
+        $queryBuilder = $statisticRepository->preloadTags($queryBuilder);
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
-            'sort' => 'statistic.name',
-            'direction' => 'asc'
+            'sort' => 'statistic.createdAt',
+            'direction' => 'desc'
         ]);
 
         return $this->render('statistic/index.html.twig', [

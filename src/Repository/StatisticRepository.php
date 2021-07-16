@@ -76,6 +76,18 @@ class StatisticRepository extends ServiceEntityRepository implements FindByKeysI
         ;
     }
 
+    public function preloadTags(?QueryBuilder $queryBuilder = null): QueryBuilder
+    {
+        if (is_null($queryBuilder)) {
+            $queryBuilder = $this->createDefaultQueryBuilder();
+        }
+
+        return $queryBuilder->addSelect('tag, tag_link')
+            ->leftJoin('statistic.tagLinks', 'tag_link')
+            ->leftJoin('tag_link.tag', 'tag')
+        ;
+    }
+
     public function existsForUserName(User $user, string $name): bool
     {
         $result = $this->findWithUserName($user, $name);
