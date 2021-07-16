@@ -131,7 +131,12 @@ class ApiStatisticController extends BaseController
         $apiStatistic = ApiStatistic::fromEntity($statistic, $this->getUser());
 
         if (str_starts_with($request->getPathInfo(), '/json')) {
-            $apiStatistic->url = $this->generateUrl('statistic_view', ['id' => $statistic->getIdString()]);
+            $response = [
+                'statistic' => $apiStatistic,
+                'view' => $this->renderView('statistic/partials/_statistic.html.twig', ['statistic' => $statistic])
+            ];
+
+            return $this->jsonNoNulls($response, Response::HTTP_CREATED);
         }
 
         return $this->jsonNoNulls($apiStatistic, Response::HTTP_CREATED);

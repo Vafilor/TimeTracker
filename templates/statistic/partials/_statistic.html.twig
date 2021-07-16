@@ -7,12 +7,16 @@
 >
     <div class="d-flex align-items-center justify-content-between">
         <div>
+            <span>
             <a href="{{ path('statistic_view', {id: statistic.idString}) }}">
                 {% if statistic.hasIcon %}
                     <i class="{{ statistic.icon }}" style="color:{{ statistic.color }}"></i>
                 {% endif %}
-                {{ statistic.name }} {% if statistic.unit != '' %}({{ statistic.unit }}){% endif %}
+                {{ statistic.name }}
             </a>
+            {% if statistic.unit != '' %}({{ statistic.unit }}){% endif %}
+            ({{ statistic.timeType }})
+            </span>
             <div class="datetime">{{ time.user_datetime(statistic.createdAt, app.user) }}</div>
         </div>
         <a href="{{ path('statistic_view', {id: statistic.idString}) }}" class="btn btn-primary">View</a>
