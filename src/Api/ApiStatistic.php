@@ -17,7 +17,6 @@ class ApiStatistic
     public string $color;
     public string $unit;
     public ?string $icon;
-    public ?string $url;
 
     public static function fromEntity(Statistic $statistic, User $user, string $format = DateFormatType::DATE_TIME): ApiStatistic
     {

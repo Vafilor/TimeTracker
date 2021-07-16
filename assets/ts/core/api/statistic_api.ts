@@ -11,7 +11,6 @@ export interface ApiStatistic {
     color: string;
     unit: string;
     icon?: string;
-    url?: string;
 }
 
 export interface AddStatisticRequest {
@@ -25,6 +24,11 @@ export interface CreateStatisticOptions {
     timeType: TimeType;
 }
 
+export interface CreateStatisticResponse {
+    statistic: ApiStatistic;
+    view: string;
+}
+
 export class StatisticApi {
     public static index(searchTerm: string, timeType: TimeType = 'instant') {
         const url = `/json/statistic?searchTerm=${searchTerm}&timeType=${timeType}`;
@@ -35,7 +39,7 @@ export class StatisticApi {
     public static create(options: CreateStatisticOptions) {
         const url = `/json/statistic`;
 
-        return CoreApi.post<ApiStatistic>(url, options);
+        return CoreApi.post<CreateStatisticResponse>(url, options);
     }
 
     public static addTag(statisticId: string, tagName: string) {

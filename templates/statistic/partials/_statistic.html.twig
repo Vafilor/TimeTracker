@@ -1,0 +1,32 @@
+{% import 'time/partials.html.twig' as time %}
+{% import 'tag/partials.html.twig' as tags %}
+
+<div
+    class="card-list-item card-small-spacing js-statistic"
+    data-id="{{ statistic.idString }}"
+>
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <span>
+            <a href="{{ path('statistic_view', {id: statistic.idString}) }}">
+                {% if statistic.hasIcon %}
+                    <i class="{{ statistic.icon }}" style="color:{{ statistic.color }}"></i>
+                {% endif %}
+                {{ statistic.name }}
+            </a>
+            {% if statistic.unit != '' %}({{ statistic.unit }}){% endif %}
+            ({{ statistic.timeType }})
+            </span>
+            <div class="datetime">{{ time.user_datetime(statistic.createdAt, app.user) }}</div>
+        </div>
+        <a href="{{ path('statistic_view', {id: statistic.idString}) }}" class="btn btn-primary">View</a>
+    </div>
+
+    <div class="tag-list js-tag-list many-rows mt-1" data-initial-tags-name="{{ statistic.tagNames() }}">
+        <div class="js-tag-list-view">
+            {% for tag in statistic.tags %}
+                {{ tags.view(tag.name, tag.color) }}
+            {% endfor %}
+        </div>
+    </div>
+</div>
