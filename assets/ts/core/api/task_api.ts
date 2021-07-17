@@ -46,7 +46,7 @@ export class TaskApi {
             let params = new URLSearchParams();
 
             if (options.nameLike) {
-                params.append('name', options.nameLike);
+                params.append('content', options.nameLike);
             }
 
             if (options.showCompleted) {
