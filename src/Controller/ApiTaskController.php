@@ -60,6 +60,9 @@ class ApiTaskController extends BaseController
             $data = $filterForm->getData();
 
             $taskRepository->applyFilter($queryBuilder, $data);
+        } elseif (!$filterForm->isValid()) {
+            $formError = new ApiFormError($filterForm->getErrors(true));
+            throw new ApiProblemException($formError);
         } else {
             $queryBuilder = $taskRepository->applyNotCompleted($queryBuilder);
         }
