@@ -239,3 +239,12 @@ main {
     display: inline-block;
     min-width: 30px;
 }
+
+.tab-pane.contained {
+    background: $white;
+    border-bottom-right-radius: 0.25rem !important;
+    border-bottom-left-radius: 0.25rem !important;
+    border: 1px solid $gray-300 !important;
+    border-top: none !important;
+    overflow: hidden;
+}

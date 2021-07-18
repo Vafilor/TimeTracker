@@ -60,6 +60,9 @@ class ApiTaskController extends BaseController
             $data = $filterForm->getData();
 
             $taskRepository->applyFilter($queryBuilder, $data);
+        } elseif (!$filterForm->isValid()) {
+            $formError = new ApiFormError($filterForm->getErrors(true));
+            throw new ApiProblemException($formError);
         } else {
             $queryBuilder = $taskRepository->applyNotCompleted($queryBuilder);
         }
@@ -82,7 +85,8 @@ class ApiTaskController extends BaseController
     #[Route('/api/task', name: 'api_task_create', methods: ["POST"])]
     #[Route('/json/task', name: 'json_task_create', methods: ["POST"])]
     public function create(
-        Request $request
+        Request $request,
+        TaskRepository $taskRepository
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -103,28 +107,43 @@ class ApiTaskController extends BaseController
             throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
         }
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TaskModel $data */
-            $data = $form->getData();
+        if (!$form->isSubmitted()) {
+            throw new ApiProblemException(
+                ApiFormError::invalidAction('bad_data', 'Form not submitted')
+            );
+        }
 
-            $newTask = new Task($this->getUser(), $data->getName());
-            $newTask->setDescription($data->getDescription());
-
-            $manager = $this->getDoctrine()->getManager();
-            $manager->persist($newTask);
-            $manager->flush();
-
-            $apiTimeEntry = ApiTask::fromEntity($newTask, $this->getUser());
-
-            return $this->jsonNoNulls($apiTimeEntry);
-        } elseif (!$form->isValid()) {
+        if (!$form->isValid()) {
             $formError = new ApiFormError($form->getErrors(true));
             throw new ApiProblemException($formError);
         }
 
+        /** @var TaskModel $data */
+        $data = $form->getData();
 
-        $error = new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_ACTION);
-        throw new ApiProblemException($error);
+        $newTask = new Task($this->getUser(), $data->getName());
+        $newTask->setDescription($data->getDescription());
+        if ($data->hasParentTask()) {
+            $parentTask = $taskRepository->findOrException($data->getParentTask());
+            $newTask->setParent($parentTask);
+        }
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->persist($newTask);
+        $manager->flush();
+
+        $apiTask = ApiTask::fromEntity($newTask, $this->getUser());
+
+        if (str_starts_with($request->getPathInfo(), '/json')) {
+            $response = [
+                'task' => $apiTask,
+                'view' => $this->renderView('task/partials/_task.html.twig', ['task' => $newTask])
+            ];
+
+            return $this->jsonNoNulls($response, Response::HTTP_CREATED);
+        }
+
+        return $this->jsonNoNulls($apiTask, Response::HTTP_CREATED);
     }
 
     #[Route('/api/task/{id}', name: 'api_task_view', methods: ["GET"])]

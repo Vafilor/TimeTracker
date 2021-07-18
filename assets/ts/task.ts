@@ -12,6 +12,7 @@ import TagList, { TagListDelegate } from "./components/tag_index";
 import Flashes from "./components/flashes";
 import { ApiTag } from "./core/api/tag_api";
 import { TagAssigner } from "./components/tag_assigner";
+import { CreateTaskForm, TaskList, TaskListFilter } from "./components/task";
 
 class TaskApiAdapter implements TagListDelegate {
     constructor(private taskId: string, private flashes: Flashes) {
@@ -158,4 +159,10 @@ $(document).ready(() => {
     const $template = $('.js-autocomplete-tags-container');
 
     const tagEdit = new TagAssigner($template, tagList, flashes);
+
+    const taskTable = new TaskList($('.js-subtask-list'), true, flashes);
+    const createForm = new CreateTaskForm($('.js-subtask-create'), taskId);
+    createForm.taskCreated.addObserver((response) => {
+        taskTable.addTask(response.task, response.view);
+    });
 });

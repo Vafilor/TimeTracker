@@ -7,7 +7,9 @@
 
 import $ from 'jquery';
 import 'bootstrap'; // Adds functions to jQuery
-import '@fortawesome/fontawesome-free/js/all';
+import '@fortawesome/fontawesome-free/js/solid';
+import '@fortawesome/fontawesome-free/js/brands';
+import '@fortawesome/fontawesome-free/js/fontawesome';
 
 // any CSS you import will output into a single css file (app.css in this case)
 import '../styles/app.scss';

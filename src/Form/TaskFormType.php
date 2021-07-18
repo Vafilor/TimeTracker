@@ -28,6 +28,9 @@ class TaskFormType extends AbstractType
                 'time_widget' => 'single_text',
                 'view_timezone' => $options['timezone'],
             ])
+            ->add('parentTask', TextType::class, [
+                'required' => false
+            ])
         ;
     }
 

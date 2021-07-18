@@ -154,7 +154,8 @@ class TaskController extends BaseController
             [
                 'task' => $task,
                 'form' => $form->createView(),
-                'tags' => $apiTags
+                'tags' => $apiTags,
+                'subtasks' => $task->getSubtasks()
             ]
         );
     }

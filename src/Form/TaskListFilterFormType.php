@@ -25,6 +25,9 @@ class TaskListFilterFormType extends AbstractType
             ->add('tags', TextType::class, [
                 'required' => false,
             ])
+            ->add('parentTask', TextType::class, [
+                'required' => false
+            ])
         ;
     }
 

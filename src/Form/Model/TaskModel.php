@@ -12,6 +12,7 @@ class TaskModel
     private string $name;
     private ?string $description;
     private ?DateTime $completedAt;
+    private ?string $parentTask;
 
     public static function fromEntity(Task $task): TaskModel
     {
@@ -20,6 +21,10 @@ class TaskModel
         $model->setDescription($task->getDescription());
         $model->setCompletedAt($task->getCompletedAt());
 
+        if ($task->hasParent()) {
+            $model->setParentTask($task->getParent()->getIdString());
+        }
+
         return $model;
     }
 
@@ -27,6 +32,8 @@ class TaskModel
     {
         $this->name = '';
         $this->description = '';
+        $this->completedAt = null;
+        $this->parentTask = null;
     }
 
     public function getName(): string
@@ -63,6 +70,22 @@ class TaskModel
     public function setCompletedAt(?DateTime $completedAt): self
     {
         $this->completedAt = $completedAt;
+        return $this;
+    }
+
+    public function getParentTask(): ?string
+    {
+        return $this->parentTask;
+    }
+
+    public function hasParentTask(): bool
+    {
+        return !is_null($this->parentTask);
+    }
+
+    public function setParentTask(?string $parentTask): self
+    {
+        $this->parentTask = $parentTask;
         return $this;
     }
 }

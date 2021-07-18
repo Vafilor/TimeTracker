@@ -73,6 +73,21 @@ class Task
      */
     private User $assignedTo;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private ?DateTime $dueAt;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="tasks")
+     */
+    private ?Task $parent;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="parent")
+     */
+    private $tasks;
+
     public static function canonicalizeName(string $name): string
     {
         return trim(strtolower($name));
@@ -90,6 +105,8 @@ class Task
         $this->completedAt = null;
         $this->priority = 0;
         $this->tagLinks = new ArrayCollection();
+        $this->tasks = new ArrayCollection();
+        $this->parent = null;
     }
 
     public function getName(): string
@@ -176,5 +193,61 @@ class Task
     {
         $this->priority = $priority;
         return $this;
+    }
+
+    public function getDueAt(): ?DateTime
+    {
+        return $this->dueAt;
+    }
+
+    public function setDueAt(?DateTime $dueAt): self
+    {
+        $this->dueAt = $dueAt;
+
+        return $this;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function hasParent(): bool
+    {
+        return !is_null($this->parent);
+    }
+
+    public function setParent(?self $parent): self
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getSubtasks(): Collection
+    {
+        return $this->tasks;
+    }
+
+    /**
+     * The lineage of the task, starting with the upper-most. So,
+     * [Grandchild Task, Parent Task, Task]
+     *
+     * @return Task[]
+     */
+    public function getLineage(): array
+    {
+        $lineage = [$this];
+
+        $element = $this;
+        while ($element->hasParent()) {
+            array_unshift($lineage, $element->getParent());
+            $element = $element->getParent();
+        }
+
+        return $lineage;
     }
 }

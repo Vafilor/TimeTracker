@@ -27,6 +27,9 @@
             {{ form_start(filterForm) }}
             {{ form_row(filterForm.showCompleted) }}
             {{ form_row(filterForm.content) }}
+            <div class="d-none">
+                {{ form_row(filterForm.parentTask) }}
+            </div>
 
             {{ form_label(filterForm.tags) }}
             <div class="js-tags-filter d-flex align-items-center mb-2">

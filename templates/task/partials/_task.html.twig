@@ -2,21 +2,21 @@
 {% import 'tag/partials.html.twig' as tags %}
 
 <div
-    class="stack-list-item task-list-item js-task"
+    class="stack-list-item task-list-item js-task {% if task.completed %} completed {% endif %}"
     data-id="{{ task.idString }}"
-    data-name={{ task.name }}
+    data-name="{{ task.name }}"
+    data-completed="{{ task.completed }}"
 >
     <div class="d-flex align-items-baseline">
         <div class="spinner spinner-border spinner-border-sm text-primary d-none js-loading  mr-2" role="status">
             <span class="sr-only">Loading...</span>
         </div>
-        <div class="form-check flex-grow-1">
+        <div class="form-check flex-grow-1 complete-input">
             <input
                 id="{{ task.idString }}"
-                data-task-id="{{ task.idString }}"
                 type="checkbox"
                 class="form-check-input js-task-completed"
-                {% if task.completed %} checked="checked" {% endif%} />
+                {% if task.completed %} checked="checked" {% endif %} />
                 <label class="js-name-label text-break {% if task.completed %}completed{% endif %}" for="{{ task.idString }}">{{ task.name }}</label>
         </div>
         <div class="flex-shrink-0">

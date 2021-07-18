@@ -9,12 +9,14 @@ class TaskListFilterModel
     private bool $showCompleted;
     private ?string $content;
     private ?string $tags;
+    private ?string $parentTask;
 
     public function __construct()
     {
         $this->showCompleted = false;
         $this->content = null;
         $this->tags = null;
+        $this->parentTask = null;
     }
 
     public function getShowCompleted(): bool
@@ -76,6 +78,22 @@ class TaskListFilterModel
     public function setTags(?string $tags): self
     {
         $this->tags = $tags;
+        return $this;
+    }
+
+    public function getParentTask(): ?string
+    {
+        return $this->parentTask;
+    }
+
+    public function hasParentTask(): bool
+    {
+        return !is_null($this->parentTask);
+    }
+
+    public function setParentTask(?string $parentTask): self
+    {
+        $this->parentTask = $parentTask;
         return $this;
     }
 }

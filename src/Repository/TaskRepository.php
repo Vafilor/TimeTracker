@@ -79,6 +79,12 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
             ;
         }
 
+        if ($filter->hasParentTask()) {
+            $queryBuilder = $queryBuilder->andWhere('task.parent = :parent')
+                                         ->setParameter('parent', $filter->getParentTask())
+            ;
+        }
+
         return $queryBuilder;
     }
 

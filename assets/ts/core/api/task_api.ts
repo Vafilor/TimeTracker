@@ -26,6 +26,12 @@ export interface ApiUpdateTask {
 
 export interface CreateTaskOptions {
     name: string;
+    parentTask?: string;
+}
+
+export interface CreateTaskResponse {
+    task: ApiTask;
+    view: string;
 }
 
 export interface TaskTimeReport {
@@ -46,7 +52,7 @@ export class TaskApi {
             let params = new URLSearchParams();
 
             if (options.nameLike) {
-                params.append('name', options.nameLike);
+                params.append('content', options.nameLike);
             }
 
             if (options.showCompleted) {
@@ -60,7 +66,7 @@ export class TaskApi {
     }
 
     public static create(options: CreateTaskOptions) {
-        return CoreApi.post<ApiTask>(`/json/task`, options);
+        return CoreApi.post<CreateTaskResponse>(`/json/task`, options);
     }
 
     public static check(taskId: string, completed: boolean = true) {

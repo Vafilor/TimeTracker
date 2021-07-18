@@ -1,7 +1,6 @@
 import '../styles/today.scss';
 
 import $ from 'jquery';
-import 'bootstrap';
 import { TimeEntryActionDelegate, TimeEntryIndexItem } from "./components/time_entry";
 import {
     ApiTimeEntry,
