@@ -10,6 +10,8 @@ use App\Form\Model\FilterTaskModel;
 use App\Traits\FindByKeysInterface;
 use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
+use DateTime;
+use DateTimeZone;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -57,6 +59,9 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         return $queryBuilder->andWhere('task.completedAt IS NULL');
     }
 
+    /**
+     * @throws \Exception
+     */
     public function applyFilter(QueryBuilder $queryBuilder, FilterTaskModel $filter): QueryBuilder
     {
         if ($filter->hasContent()) {
@@ -76,6 +81,17 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
 
         if (!$filter->getShowCompleted()) {
             $queryBuilder->andWhere('task.completedAt IS NULL');
+        }
+
+        if (!$filter->getShowSubtasks()) {
+            $queryBuilder->andWhere('task.parent IS NULL');
+        }
+
+        if ($filter->getOnlyShowPastDue()) {
+            $now = new DateTime('now', new DateTimeZone('UTC'));
+            $queryBuilder->andWhere('task.dueAt < :now')
+                         ->setParameter('now', $now)
+            ;
         }
 
         if ($filter->hasTags()) {

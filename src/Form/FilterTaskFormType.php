@@ -7,6 +7,7 @@ namespace App\Form;
 use App\Form\Model\FilterTaskModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SearchType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -20,6 +21,12 @@ class FilterTaskFormType extends AbstractType
             ->add('showCompleted', CheckboxType::class, [
                 'required' => false
             ])
+            ->add('showSubtasks', CheckboxType::class, [
+                'required' => false
+            ])
+            ->add('onlyShowPastDue', CheckboxType::class, [
+                'required' => false
+            ])
             ->add('content', SearchType::class, [
                 'required' => false
             ])
@@ -28,6 +35,18 @@ class FilterTaskFormType extends AbstractType
             ])
             ->add('parentTask', TextType::class, [
                 'required' => false
+            ])
+            ->add('sort', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+            ])
+            ->add('direction', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
+            ])
+            ->add('page', HiddenType::class, [
+                'mapped' => false,
+                'required' => false,
             ])
         ;
     }

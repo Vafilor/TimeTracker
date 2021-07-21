@@ -34,7 +34,8 @@
             </table>
         </div>
         <div class="flex-shrink-0">
-            <a href="{{ path('task_view', {id: task.idString}) }}" class="btn btn-primary js-view">View</a>
+            <a href="{{ path('task_view', {id: task.idString}) }}" class="d-none d-md-inline-block">Time Entries</a>
+            <a href="{{ path('task_view', {id: task.idString}) }}" class="btn btn-primary js-view ml-md-2">View</a>
         </div>
     </div>
     <div class="tag-list js-tag-list many-rows {% if task.hasTags %}mt-1{% endif %}" data-initial-tags-name="{{ task.tagNames() }}">

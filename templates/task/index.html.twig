@@ -25,7 +25,15 @@
         <div class="filter table-filter mb-3">
             <div class="filter-title">Filter</div>
             {{ form_start(filterForm) }}
-            {{ form_row(filterForm.showCompleted) }}
+            <div class="d-flex flex-column flex-md-row">
+                {{ form_row(filterForm.showCompleted) }}
+                <div class="ml-md-4">
+                    {{ form_row(filterForm.showSubtasks) }}
+                </div>
+                <div class="ml-md-4">
+                    {{ form_row(filterForm.onlyShowPastDue) }}
+                </div>
+            </div>
             {{ form_row(filterForm.content) }}
             <div class="d-none">
                 {{ form_row(filterForm.parentTask) }}
@@ -50,6 +58,8 @@
                     Newest
                 {% elseif pagination.isSorted('task.createdAt') and pagination.direction == 'asc'  %}
                     Oldest
+                {% elseif pagination.isSorted('task.dueAt') and pagination.direction == 'asc' %}
+                    Due soon
                 {% elseif pagination.isSorted('task.name') and pagination.direction == 'asc' %}
                     Name - asc
                 {% elseif pagination.isSorted('task.name') and pagination.direction == 'desc' %}
@@ -59,6 +69,7 @@
             <div class="dropdown-menu" aria-labelledby="time-entry-sort">
                 {{ knp_pagination_sortable(pagination, 'Newest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
                 {{ knp_pagination_sortable(pagination, 'Oldest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                {{ knp_pagination_sortable(pagination, 'Due soon', 'task.dueAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
                 {{ knp_pagination_sortable(pagination, 'Name - asc', 'task.name', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
                 {{ knp_pagination_sortable(pagination, 'Name - desc', 'task.name', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
             </div>
