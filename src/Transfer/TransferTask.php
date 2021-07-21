@@ -96,8 +96,10 @@ class TransferTask
             $task->setDueAt(DateTimeUtil::dateFromTimestamp($this->dueAt));
         }
 
+        if ($this->deletedAt) {
+            $task->softDelete(DateTimeUtil::dateFromTimestamp($this->deletedAt));
+        }
+
         return $task;
     }
 }
-
-// TODO set parent task on import

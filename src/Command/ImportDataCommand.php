@@ -367,7 +367,7 @@ class ImportDataCommand extends Command
         $tagIds = Collections::pluckNoDuplicates($this->pluckTagLinks($transferTasks), 'id');
         $this->tagLoader->loadByIds($tagIds);
 
-        $parentTaskIds = Collections::pluckNoDuplicates($tasks, 'parent');
+        $parentTaskIds = Collections::pluckNoDuplicates($transferTasks, 'parentId');
         $this->taskLoader->loadByIds($parentTaskIds);
 
         foreach ($transferTasks as $id => $transferTask) {
