@@ -30,6 +30,8 @@ export class TaskList {
         const observer = (item) => { this.onTaskChecked(item) };
         this.observers.set(taskItem.taskId, observer);
         taskItem.checkedChange.addObserver(observer);
+
+        this.$container.find('.js-no-tasks').remove();
     }
 
     async onTaskChecked(taskListItem: TaskListItem) {

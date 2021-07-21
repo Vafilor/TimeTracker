@@ -90,6 +90,8 @@
         <div class="stack-list task-list js-task-list mt-2 mb-2">
             {% for task in pagination %}
                 {{ include('task/partials/_task.html.twig', {task: task }) }}
+            {% else %}
+                <div class="text-center mt-2 mb-2 js-no-tasks">No tasks found</div>
             {% endfor %}
         </div>
 

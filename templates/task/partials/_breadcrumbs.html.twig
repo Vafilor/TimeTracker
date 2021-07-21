@@ -1,0 +1,17 @@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li>
+            <span class="spinner-border spinner-border-sm text-primary js-loading mr-2 d-none" role="status" aria-hidden="true">
+                <span class="sr-only">Loading...</span>
+            </span>
+        </li>
+        <li class="breadcrumb-item"><a href="{{ path('task_index') }}">Tasks</a></li>
+        {% for task in tasks %}
+            {% if loop.last %}
+                <li class="breadcrumb-item active" aria-current="page">{{ task.name }}</li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{{ path('task_view', {id: task.id}) }}">{{ task.name }}</a></li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</nav>

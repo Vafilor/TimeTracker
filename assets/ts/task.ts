@@ -12,7 +12,9 @@ import TagList, { TagListDelegate } from "./components/tag_index";
 import Flashes from "./components/flashes";
 import { ApiTag } from "./core/api/tag_api";
 import { TagAssigner } from "./components/tag_assigner";
-import { CreateTaskForm, TaskList, TaskListFilter } from "./components/task";
+import { CreateTaskForm, TaskList } from "./components/task";
+import { Breadcrumbs } from "./components/breadcrumbs";
+import { ParentTaskAssigner } from "./components/parent_task_assigner";
 
 class TaskApiAdapter implements TagListDelegate {
     constructor(private taskId: string, private flashes: Flashes) {
@@ -126,7 +128,7 @@ $(document).ready(() => {
     const $data = $('.js-data');
     const taskId = $data.data('task-id');
     const durationFormat = $data.data('duration-format');
-    const flashes = new Flashes($('#flash-messages'));
+    const flashes = new Flashes($('#fixed-flash-messages'));
 
     const autoMarkdown = new TaskEntryAutoMarkdown(
         '.js-description',
@@ -160,9 +162,25 @@ $(document).ready(() => {
 
     const tagEdit = new TagAssigner($template, tagList, flashes);
 
-    const taskTable = new TaskList($('.js-subtask-list'), true, flashes);
-    const createForm = new CreateTaskForm($('.js-subtask-create'), taskId);
+    const taskTable = new TaskList($('.js-task-list'), true, flashes);
+    const createForm = new CreateTaskForm($('.js-task-create'), taskId);
     createForm.taskCreated.addObserver((response) => {
         taskTable.addTask(response.task, response.view);
     });
+
+    const breadcrumbs = new Breadcrumbs($('.js-breadcrumbs'));
+    const taskAssigner = new ParentTaskAssigner($('.js-autocomplete-task'), taskId, flashes);
+    taskAssigner.parentTaskAssigned.addObserver(async (taskId: string) => {
+        breadcrumbs.loader = true;
+        const html = await TaskApi.getLineageHtml(taskId);
+        breadcrumbs.setHtml(html);
+        breadcrumbs.loader = false;
+    });
+
+    taskAssigner.parentTaskRemoved.addObserver(async (taskId: string) => {
+        breadcrumbs.loader = true;
+        const html = await TaskApi.getLineageHtml(taskId);
+        breadcrumbs.setHtml(html);
+        breadcrumbs.loader = false;
+    })
 });

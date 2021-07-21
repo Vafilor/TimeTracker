@@ -1,4 +1,5 @@
 {% extends 'sidebar.html.twig' %}
+{% import 'flash/utilities.html.twig' as flashes %}
 {% import 'time/partials.html.twig' as time %}
 {% import 'components/autocomplete.html.twig' as autocomplete %}
 
@@ -7,161 +8,204 @@
 {% block title %}Task: {{ task.name }}{% endblock %}
 
 {% block content_body %}
-    <div class="resource js-data"
-         data-duration-format="{{ app.user.durationFormat }}"
-         data-task-id="{{ task.idString }}">
+<div class="resource js-data"
+     data-duration-format="{{ app.user.durationFormat }}"
+     data-task-id="{{ task.idString }}">
 
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ path('task_index') }}">Tasks</a></li>
-                {% for element in task.lineage %}
-                    {% if loop.last %}
-                    <li class="breadcrumb-item active" aria-current="page">{{ element.name }}</li>
-                    {% else %}
-                    <li class="breadcrumb-item"><a href="{{ path('task_view', {id: element.id}) }}">{{ element.name }}</a></li>
-                    {% endif %}
-                {% endfor %}
-            </ol>
-        </nav>
+    {% if task.deleted %}
+        {{ flashes.deleted_warning('This task has been deleted') }}
+    {% endif %}
 
-        {{ form_start(form) }}
-        {{ form_row(form.name) }}
+    <div class="js-breadcrumbs">
+        {{ include('task/partials/_breadcrumbs.html.twig', {tasks: task.lineage}) }}
+    </div>
+
+    {{ form_start(form) }}
+    {{ form_row(form.name) }}
+    <div class="d-none">
         {{ form_row(form.parentTask) }}
+    </div>
 
-        <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
-            <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+    {% set taskName = '' %}
+    {% if task.parent %}
+        {% set taskName = task.parent.name %}
+    {% endif %}
 
-            {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
-        </div>
+    <label class="d-block">Parent Task</label>
+    {{ autocomplete.removable('task', { button: { class: 'bg-weak-white btn-outline-danger'}, search: { value: taskName, placeholder: 'task name' } }) }}
 
-        {{ form_label(form.completedAt) }}
-        <div class="d-inline-flex mt-1">
-            {{ form_widget(form.completedAt) }}
-            <button type="button" class="btn btn-danger js-clear-datetime ml-2">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
+    <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
+        <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
 
-        <div class="js-task-time-entry border rounded shadow-sm mt-3">
-            <div class="js-content d-flex align-items-center mt-2">
-                <div class="d-inline-flex input-with-indicators flex-grow-1">
-                    <div class="input-indicator input-indicator-left d-flex">
-                        <div class="spinner-border spinner-border-sm text-primary js-loading d-none" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                    </div>
-                    <input class="form-control js-time-entry-description no-resize left" placeholder="Entry description" />
-                </div>
+        {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+    </div>
 
-                <div class="js-duration ml-1">{{ time.user_duration(zeroDuration(), app.user) }}</div>
-                <button type="button" class="btn btn-primary ml-2">
-                    <span class="js-task-time-entry-loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    <span class="js-task-time-entry-loading sr-only">Loading...</span>
-                    <span class="js-text"></span>
-                </button>
-            </div>
-        </div>
+    {{ form_label(form.completedAt) }}
+    <div class="d-inline-flex mt-1">
+        {{ form_widget(form.completedAt) }}
+        <button type="button" class="btn btn-danger js-clear-datetime ml-2">
+            <i class="fas fa-trash"></i>
+        </button>
+    </div>
 
-        <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link active activity-link" id="activity-tab" data-toggle="tab" href="#activity" role="tab" aria-controls="home" aria-selected="true">
-                    Activity
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link activity-link" id="activity-tab" data-toggle="tab" href="#subtasks" role="tab" aria-controls="home" aria-selected="true">
-                    Subtasks
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link markdown-link" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">
-                    <i class="fas fa-sync-alt fa-spin mr-1 d-none js-loading"></i>
-                    Description
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" id="markdown-tab" data-toggle="tab" href="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" id="details-tab" data-toggle="tab" href="#details" role="tab" aria-selected="false">Details</a>
-            </li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane fade show active contained" id="activity" role="tabpanel" aria-labelledby="activity-tab">
-                <div class="total-time js-total-time">
-                    <strong>Total Time:</strong>
-                    <span class="js-value"></span>
-                    <div class="js-loading spinner-border spinner-border-sm text-primary" role="status">
+    <div class="js-task-time-entry border rounded shadow-sm mt-3">
+        <div class="js-content d-flex align-items-center mt-2">
+            <div class="d-inline-flex input-with-indicators flex-grow-1">
+                <div class="input-indicator input-indicator-left d-flex">
+                    <div class="spinner-border spinner-border-sm text-primary js-loading d-none" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
-                    <hr/>
                 </div>
-                <div class="js-task-time-entry-activity mt-3">
-                </div>
+                <input class="form-control js-time-entry-description no-resize left" placeholder="Entry description" />
             </div>
-            <div class="tab-pane fade" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
-                {{ form_widget(form.description, {attr: { rows: 10, class: 'js-description border-top-0' }}) }}
-            </div>
-            <div class="tab-pane fade contained" id="preview" role="tabpanel" aria-labelledby="profile-tab">
-                <div id="preview-content"></div>
-            </div>
-            <div class="tab-pane fade contained" id="subtasks" role="tabpanel" aria-labelledby="subtasks-tab">
-                <div class="p-2">
-                    <div class="inline-form-header mb-2">Add subtask</div>
-                    <div class="js-subtask-create form-row">
-                        <div class="col">
-                            <label class="sr-only" for="create-task-name">New task name</label>
-                            <input
-                                    id="create-task-name"
-                                    type="text"
-                                    class="form-control js-name"
-                                    autocomplete="off"
-                                    placeholder="What do you want to achieve?"
-                            />
-                        </div>
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-primary js-button js-loading-button">
-                                <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                                <span class="js-loading sr-only">Loading...</span>
-                                <span class="js-text">Create task</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="stack-list task-list js-subtask-list mt-2 mb-2">
-                        {% for subtask in subtasks %}
-                            {{ include('task/partials/_task.html.twig', {task: subtask }) }}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="tab-pane fade bg-white" id="details" role="tabpanel" aria-labelledby="details-tab">
-                <table class="table table-hover table-bordered border-top-0 rounded-bottom">
-                    <thead>
-                    <tr>
-                        <th class="border-top-0">Type</th>
-                        <th class="border-top-0">Timestamp</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>Created</td>
-                        <td>{{ time.user_datetime(task.createdAt, app.user) }}</td>
-                    </tr>
-                    <tr>
-                        <td>Updated</td>
-                        <td>{{ time.user_datetime(task.updatedAt, app.user) }}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        {{ form_widget(form) }}
-        <div class="d-flex mt-3">
-            <button type="submit" class="btn btn-primary">Update</button>
+            <div class="js-duration ml-1">{{ time.user_duration(zeroDuration(), app.user) }}</div>
+            <button type="button" class="btn btn-primary ml-2">
+                <span class="js-task-time-entry-loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="js-task-time-entry-loading sr-only">Loading...</span>
+                <span class="js-text"></span>
+            </button>
         </div>
-        {{ form_end(form) }}
     </div>
+
+    <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active activity-link" id="activity-tab" data-toggle="tab" href="#activity" role="tab" aria-controls="home" aria-selected="true">
+                Activity
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link activity-link" id="activity-tab" data-toggle="tab" href="#subtasks" role="tab" aria-controls="home" aria-selected="true">
+                Subtasks
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link markdown-link" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">
+                <i class="fas fa-sync-alt fa-spin mr-1 d-none js-loading"></i>
+                Description
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="markdown-tab" data-toggle="tab" href="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="details-tab" data-toggle="tab" href="#details" role="tab" aria-selected="false">Details</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade show active contained" id="activity" role="tabpanel" aria-labelledby="activity-tab">
+            <div class="total-time js-total-time">
+                <strong>Total Time:</strong>
+                <span class="js-value"></span>
+                <div class="js-loading spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <hr/>
+            </div>
+            <div class="js-task-time-entry-activity mt-3">
+            </div>
+        </div>
+        <div class="tab-pane fade" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
+            {{ form_widget(form.description, {attr: { rows: 10, class: 'js-description border-top-0' }}) }}
+        </div>
+        <div class="tab-pane fade contained" id="preview" role="tabpanel" aria-labelledby="profile-tab">
+            <div id="preview-content"></div>
+        </div>
+        <div class="tab-pane fade contained" id="subtasks" role="tabpanel" aria-labelledby="subtasks-tab">
+            <div class="p-2">
+                <div class="inline-form-header mb-2">Add subtask</div>
+                <div class="js-task-create form-row">
+                    <div class="col">
+                        <label class="sr-only" for="create-task-name">New task name</label>
+                        <input
+                                id="create-task-name"
+                                type="text"
+                                class="form-control js-name"
+                                autocomplete="off"
+                                placeholder="What do you want to achieve?"
+                        />
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-primary js-button js-loading-button">
+                            <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            <span class="js-loading sr-only">Loading...</span>
+                            <span class="js-text">Create task</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="stack-list task-list js-task-list mt-2 mb-2">
+                    {% for subtask in subtasks %}
+                        {{ include('task/partials/_task.html.twig', {task: subtask }) }}
+                    {% else %}
+                        <div class="text-center mt-2 mb-2 js-no-tasks">No subtasks</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade bg-white" id="details" role="tabpanel" aria-labelledby="details-tab">
+            <table class="table table-hover table-bordered border-top-0 rounded-bottom">
+                <thead>
+                <tr>
+                    <th class="border-top-0">Type</th>
+                    <th class="border-top-0">Timestamp</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Created</td>
+                    <td>{{ time.user_datetime(task.createdAt, app.user) }}</td>
+                </tr>
+                <tr>
+                    <td>Updated</td>
+                    <td>{{ time.user_datetime(task.updatedAt, app.user) }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{ form_widget(form) }}
+    <div class="d-flex mt-3">
+        {% if not task.deleted %}
+            <button type="submit" class="btn btn-primary">Update</button>
+            {% if task.completed %}
+                <button type="button" class="btn btn-secondary ml-2">Uncomplete</button>
+            {% else %}
+                <button type="button" class="btn btn-secondary ml-2">Complete</button>
+            {% endif %}
+
+            <button
+                    type="button"
+                    class="btn btn-danger ml-2"
+                    data-toggle="modal"
+                    data-target="#delete-modal">
+                Delete
+            </button>
+        {% endif %}
+    </div>
+    {{ form_end(form) }}
+</div>
+
+<!-- Delete modal -->
+<div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="delete-modal-label">Are you sure you want to delete?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                This will delete the task and all of it's children
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{{ path('task_delete', {id: task.id}) }}" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block stylesheets %}

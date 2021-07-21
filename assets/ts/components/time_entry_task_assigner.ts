@@ -1,18 +1,14 @@
-import $ from "jquery";
 import Flashes from "./flashes";
-import { ApiTask } from "../core/api/task_api";
+import { TaskApi, TaskApiErrorCode } from "../core/api/task_api";
 import { TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 import { ApiErrorResponse } from "../core/api/api";
-import AutocompleteTask from "./autocomplete_task";
-import { AutocompleteEnterPressedEvent } from "./autocomplete";
 import IdGenerator from "./id_generator";
+import Observable from "./observable";
+import { TaskAssigner } from "./task_assigner";
 
-export class TimeEntryTaskAssigner {
+export class TimeEntryTaskAssigner extends TaskAssigner {
     private readonly timeEntryId: string;
-    private readonly $container: JQuery;
     private readonly flashes: Flashes;
-    private autocomplete: AutocompleteTask;
-    private task?: ApiTask;
 
     static template(taskId: string = '', taskName: string = '', taskUrl: string = ''): string {
         const id = IdGenerator.next();
@@ -41,47 +37,13 @@ export class TimeEntryTaskAssigner {
     }
 
     constructor($container: JQuery, timeEntryId: string, flashes: Flashes) {
-        this.$container = $container;
+        super($container);
+
         this.timeEntryId = timeEntryId;
         this.flashes = flashes;
-
-        this.autocomplete = new AutocompleteTask($container);
-
-        this.autocomplete.itemSelected.addObserver((item: ApiTask) => this.onItemSelected(item));
-
-        this.$container.find('.js-delete').on('click', () => this.clearTask());
-
-        this.autocomplete.enterPressed.addObserver((event: AutocompleteEnterPressedEvent<ApiTask>) => {
-            if (event.data) {
-                this.assignToTask(event.data.name, event.data.id);
-            } else {
-                this.assignToTask(event.query);
-            }
-        });
-
-        const taskId = $container.data('task-id') as string;
-        const taskName = $container.data('task-name') as string;
-        const taskUrl = $container.data('task-url') as string;
-        if (taskId && taskName && taskUrl) {
-            this.setTaskSimple(taskId, taskName, taskUrl);
-        }
     }
 
-    setTaskSimple(id: string, name: string, taskUrl = '') {
-        this.task = {
-            id,
-            name,
-            url: taskUrl,
-            description: '',
-            createdAt: '',
-            createdAtEpoch: 0,
-            tags: []
-        };
-
-        this.autocomplete.setQuery(name);
-    }
-
-    private async assignToTask(taskName: string, taskId?: string) {
+    protected override async assignToTask(taskName: string, taskId?: string) {
         this.autocomplete.clearSearchContent();
 
         const res = await TimeEntryApi.assignToTask(this.timeEntryId, taskName, taskId);
@@ -95,17 +57,7 @@ export class TimeEntryTaskAssigner {
         }
     }
 
-    private async onItemSelected(item: ApiTask) {
-        this.autocomplete.setQuery(item.name);
-        this.autocomplete.clearSearchContent();
-
-        const res = await TimeEntryApi.assignToTask(this.timeEntryId, item.name, item.id);
-        this.task = res.data;
-
-        this.flashes.append('success', `Assigned to task '${this.task.name}'`, true);
-    }
-
-    private async clearTask() {
+    protected override async clearTask() {
         try {
             await TimeEntryApi.unassignTask(this.timeEntryId);
             this.task = undefined;
@@ -119,17 +71,5 @@ export class TimeEntryTaskAssigner {
                 }
             }
         }
-    }
-
-    getTask(): ApiTask|undefined {
-        return this.task;
-    }
-
-    getContainer(): JQuery {
-        return this.$container;
-    }
-
-    dispose() {
-        this.$container.remove();
     }
 }

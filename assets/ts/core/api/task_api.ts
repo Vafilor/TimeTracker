@@ -1,6 +1,10 @@
 import { CoreApi, PaginatedResponse } from './api';
 import { ApiTag } from "./tag_api";
 
+export enum TaskApiErrorCode {
+    codeNoParentTask = 'code_no_parent_task',
+}
+
 export interface ApiTask {
     id: string;
     name: string;
@@ -70,15 +74,34 @@ export class TaskApi {
     }
 
     public static check(taskId: string, completed: boolean = true) {
-        let url = `/json/task/${taskId}/check`;
+        const url = `/json/task/${taskId}/check`;
 
         return CoreApi.put<ApiTask>(url, {
             completed
         });
     }
 
+    public static getLineage(taskId: string) {
+        return CoreApi.get<ApiTask[]>(`/json/task/${taskId}/lineage`);
+    }
+
+    public static async getLineageHtml(taskId: string) {
+        const response = await fetch(`/task/${taskId}/lineage`);
+        return await response.text()
+    }
+
     public static update(taskId: string, update: ApiUpdateTask) {
-        return CoreApi.put(`/json/task/${taskId}`, update);
+        return CoreApi.put<ApiTask>(`/json/task/${taskId}`, update);
+    }
+
+    public static setParentTask(taskId: string, parentTaskId: string) {
+        return CoreApi.put<ApiTask>(`/json/task/${taskId}/parent`, {
+            parentTaskId
+        });
+    }
+
+    public static removeParentTask(taskId: string) {
+        return CoreApi.delete(`/json/task/${taskId}/parent`);
     }
 
     public static reportForTask(taskId: string) {

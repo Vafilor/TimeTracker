@@ -11,5 +11,10 @@
 {% endmacro %}
 
 {% macro user_duration(input_duration, user) %}
-    {{ input_duration|date(user.durationFormat) }}
+    {% set format = user.durationFormat %}
+    {% if not input_duration.days and 'a' in format  %}
+        {% set format = format|replace({'a': 'd'})%}
+    {% endif %}
+
+    {{ input_duration|date(format) }}
 {% endmacro %}

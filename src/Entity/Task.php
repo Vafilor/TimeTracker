@@ -7,6 +7,7 @@ namespace App\Entity;
 use App\Repository\TaskRepository;
 use App\Traits\AssignableToUserTrait;
 use App\Traits\CreateTimestampableTrait;
+use App\Traits\SoftDeletableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
@@ -27,6 +28,7 @@ class Task
     use UUIDTrait;
     use CreateTimestampableTrait;
     use UpdateTimestampableTrait;
+    use SoftDeletableTrait;
     use TaggableTrait;
     use AssignableToUserTrait;
 
@@ -224,12 +226,19 @@ class Task
         return $this;
     }
 
+    public function removeParent(): self
+    {
+        $this->parent = null;
+
+        return $this;
+    }
+
     /**
      * @return Collection|self[]
      */
     public function getSubtasks(): Collection
     {
-        return $this->tasks;
+        return $this->tasks->filter(fn (Task $task) => !$task->isDeleted());
     }
 
     /**

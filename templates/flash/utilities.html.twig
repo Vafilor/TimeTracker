@@ -14,3 +14,10 @@
         </button>
     </div>
 {% endmacro %}
+
+{% macro deleted_warning(message) %}
+    <div class="alert alert-warning fade show flash">
+        <strong>Warning</strong>
+        {{ message }}
+    </div>
+{% endmacro %}

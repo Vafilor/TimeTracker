@@ -5,20 +5,26 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiTag;
+use App\Api\ApiTask;
 use App\Entity\Task;
 use App\Form\Model\TaskListFilterModel;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
 use App\Form\TaskListFilterFormType;
 use App\Repository\TaskRepository;
+use DateTime;
+use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TaskController extends BaseController
 {
+    const CODE_NO_PARENT_TASK = 'code_no_parent_task';
+
     private TaskRepository $taskRepository;
 
     public function __construct(TaskRepository $taskRepository)
@@ -158,5 +164,53 @@ class TaskController extends BaseController
                 'subtasks' => $task->getSubtasks()
             ]
         );
+    }
+
+    #[Route('/task/{id}/lineage', name: 'task_lineage', methods: ['GET'])]
+    public function getLineage(Request $request, TaskRepository $taskRepository, string $id): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $task = $taskRepository->findOrException($id);
+        if (!$task->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $lineage = $task->getLineage();
+
+        return $this->render('task/partials/_breadcrumbs.html.twig', [
+            'tasks' => $lineage
+        ]);
+    }
+
+    #[Route('/task/{id}/delete', name: 'task_delete')]
+    public function remove(Request $request, TaskRepository $taskRepository, string $id): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $task = $taskRepository->findOrException($id);
+        if (!$task->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $now = new DateTime('now');
+
+        $task->softDelete($now);
+        $parentIds = [$task->getIdString()];
+        while (count($parentIds) !== 0) {
+            $subtasks = $taskRepository->findByKeys('parent', $parentIds);
+            $parentIds = [];
+
+            foreach ($subtasks as $subtask) {
+                $parentIds[] = $subtask->getIdString();
+                $subtask->softDelete($now);
+            }
+        }
+
+        $this->flush();
+
+        $this->addFlash('success', "Task '{$task->getName()}' and it's children have been deleted");
+
+        return $this->redirectToRoute('task_index');
     }
 }
