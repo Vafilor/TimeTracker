@@ -4,7 +4,6 @@ import { ApiStatisticValue } from "../core/api/statistic_value_api";
 import IdGenerator from "./id_generator";
 import Flashes from "./flashes";
 import Observable from "./observable";
-import { TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 
 export interface AddStatisticValue {
     name: string;
