@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form\Model;
 
-class TaskListFilterModel
+class FilterTaskModel
 {
     private bool $showCompleted;
     private ?string $content;

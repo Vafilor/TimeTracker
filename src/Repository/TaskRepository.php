@@ -6,7 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Task;
 use App\Entity\User;
-use App\Form\Model\TaskListFilterModel;
+use App\Form\Model\FilterTaskModel;
 use App\Traits\FindByKeysInterface;
 use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
@@ -53,7 +53,7 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         return $queryBuilder->andWhere('task.completedAt IS NULL');
     }
 
-    public function applyFilter(QueryBuilder $queryBuilder, TaskListFilterModel $filter): QueryBuilder
+    public function applyFilter(QueryBuilder $queryBuilder, FilterTaskModel $filter): QueryBuilder
     {
         if ($filter->hasContent()) {
             $canonicalContent = Task::canonicalizeName($filter->getContent());

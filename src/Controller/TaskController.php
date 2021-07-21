@@ -7,10 +7,10 @@ namespace App\Controller;
 use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Entity\Task;
-use App\Form\Model\TaskListFilterModel;
+use App\Form\Model\FilterTaskModel;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
-use App\Form\TaskListFilterFormType;
+use App\Form\FilterTaskFormType;
 use App\Repository\TaskRepository;
 use DateTime;
 use DateTimeZone;
@@ -45,8 +45,8 @@ class TaskController extends BaseController
 
         $filterForm = $formFactory->createNamed(
             '',
-            TaskListFilterFormType::class,
-            new TaskListFilterModel(),
+            FilterTaskFormType::class,
+            new FilterTaskModel(),
             [
                 'csrf_protection' => false,
                 'method' => 'GET',
@@ -55,7 +55,7 @@ class TaskController extends BaseController
 
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
-            /** @var TaskListFilterModel $data */
+            /** @var FilterTaskModel $data */
             $data = $filterForm->getData();
 
             $this->taskRepository->applyFilter($queryBuilder, $data);
@@ -135,9 +135,7 @@ class TaskController extends BaseController
         $form = $this->createForm(
             TaskFormType::class,
             $taskModel,
-            [
-                'timezone' => $this->getUser()->getTimezone()
-            ]
+            ['timezone' => $this->getUser()->getTimezone()]
         );
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -147,6 +145,7 @@ class TaskController extends BaseController
             $task->setName($data->getName());
             $task->setDescription($data->getDescription());
             $task->setCompletedAt($data->getCompletedAt());
+            $task->setDueAt($data->getDueAt());
 
             $this->getDoctrine()->getManager()->flush();
 
@@ -181,6 +180,28 @@ class TaskController extends BaseController
         return $this->render('task/partials/_breadcrumbs.html.twig', [
             'tasks' => $lineage
         ]);
+    }
+
+    #[Route('/task/{id}/complete', name: 'task_complete')]
+    public function complete(Request $request, TaskRepository $taskRepository, string $id): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $task = $taskRepository->findOrException($id);
+        if (!$task->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $completed = $request->query->get('value', 'complete') === 'complete';
+        if ($completed && !$task->completed()) {
+            $task->complete();
+        } elseif (!$completed && $task->completed()) {
+            $task->clearCompleted();
+        }
+
+        $this->flush();
+
+        return $this->redirectToRoute('task_view', ['id' => $task->getIdString()]);
     }
 
     #[Route('/task/{id}/delete', name: 'task_delete')]

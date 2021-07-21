@@ -48,6 +48,14 @@
         </button>
     </div>
 
+    {{ form_label(form.dueAt) }}
+    <div class="d-inline-flex mt-1">
+        {{ form_widget(form.dueAt) }}
+        <button type="button" class="btn btn-danger js-clear-datetime ml-2">
+            <i class="fas fa-trash"></i>
+        </button>
+    </div>
+
     <div class="js-task-time-entry border rounded shadow-sm mt-3">
         <div class="js-content d-flex align-items-center mt-2">
             <div class="d-inline-flex input-with-indicators flex-grow-1">
@@ -169,9 +177,9 @@
         {% if not task.deleted %}
             <button type="submit" class="btn btn-primary">Update</button>
             {% if task.completed %}
-                <button type="button" class="btn btn-secondary ml-2">Uncomplete</button>
+                <a href="{{ path('task_complete', {id: task.id, value: 'uncomplete'}) }}" class="btn btn-secondary ml-2">Uncomplete</a>
             {% else %}
-                <button type="button" class="btn btn-secondary ml-2">Complete</button>
+                <a href="{{ path('task_complete', {id: task.id, value: 'complete'}) }}" class="btn btn-secondary ml-2">Complete</a>
             {% endif %}
 
             <button

@@ -11,10 +11,10 @@ use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTask;
 use App\Entity\Task;
-use App\Form\Model\TaskListFilterModel;
+use App\Form\Model\FilterTaskModel;
 use App\Form\Model\TaskModel;
 use App\Form\TaskFormType;
-use App\Form\TaskListFilterFormType;
+use App\Form\FilterTaskFormType;
 use App\Manager\TagManager;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
@@ -44,11 +44,11 @@ class ApiTaskController extends BaseController
 
         $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
 
-        $this->createForm(TaskListFilterFormType::class, new TaskListFilterModel());
+        $this->createForm(FilterTaskFormType::class, new FilterTaskModel());
         $filterForm = $formFactory->createNamed(
             '',
-            TaskListFilterFormType::class,
-            new TaskListFilterModel(),
+            FilterTaskFormType::class,
+            new FilterTaskModel(),
             [
                 'csrf_protection' => false,
                 'method' => 'GET',
@@ -57,7 +57,7 @@ class ApiTaskController extends BaseController
 
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
-            /** @var TaskListFilterModel $data */
+            /** @var FilterTaskModel $data */
             $data = $filterForm->getData();
 
             $taskRepository->applyFilter($queryBuilder, $data);

@@ -28,6 +28,12 @@ class TaskFormType extends AbstractType
                 'time_widget' => 'single_text',
                 'view_timezone' => $options['timezone'],
             ])
+            ->add('dueAt', DateTimeType::class, [
+                'required' => false,
+                'date_widget' => 'single_text',
+                'time_widget' => 'single_text',
+                'view_timezone' => $options['timezone'],
+            ])
             ->add('parentTask', TextType::class, [
                 'required' => false
             ])
@@ -36,9 +42,7 @@ class TaskFormType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-                                   'data_class' => TaskModel::class
-                               ]);
+        $resolver->setDefaults(['data_class' => TaskModel::class]);
 
         $resolver->setRequired('timezone');
     }

@@ -47,6 +47,11 @@
     &:not(:first-child) {
       border-top: 1px solid $gray-300;
     }
+
+    .text-small {
+      font-size: 13px;
+      color: $gray-gray;
+    }
   }
 
   .stack-list-item-separator {

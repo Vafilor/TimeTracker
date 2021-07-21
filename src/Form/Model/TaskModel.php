@@ -12,6 +12,7 @@ class TaskModel
     private string $name;
     private ?string $description;
     private ?DateTime $completedAt;
+    private ?DateTime $dueAt;
     private ?string $parentTask;
 
     public static function fromEntity(Task $task): TaskModel
@@ -20,6 +21,7 @@ class TaskModel
         $model->setName($task->getName());
         $model->setDescription($task->getDescription());
         $model->setCompletedAt($task->getCompletedAt());
+        $model->setDueAt($task->getDueAt());
 
         if ($task->hasParent()) {
             $model->setParentTask($task->getParent()->getIdString());
@@ -34,6 +36,7 @@ class TaskModel
         $this->description = '';
         $this->completedAt = null;
         $this->parentTask = null;
+        $this->dueAt = null;
     }
 
     public function getName(): string
@@ -86,6 +89,17 @@ class TaskModel
     public function setParentTask(?string $parentTask): self
     {
         $this->parentTask = $parentTask;
+        return $this;
+    }
+
+    public function getDueAt(): ?DateTime
+    {
+        return $this->dueAt;
+    }
+
+    public function setDueAt(?DateTime $dueAt): self
+    {
+        $this->dueAt = $dueAt;
         return $this;
     }
 }
