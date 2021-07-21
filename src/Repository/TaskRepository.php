@@ -33,11 +33,15 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         parent::__construct($registry, Task::class);
     }
 
-    public function createDefaultQueryBuilder(): QueryBuilder
+    public function createDefaultQueryBuilder(bool $includeDeleted = false): QueryBuilder
     {
-        return $this->createQueryBuilder('task')
-                    ->andWhere('task.deletedAt IS NULL')
-        ;
+        $queryBuilder =  $this->createQueryBuilder('task');
+
+        if (!$includeDeleted) {
+            $queryBuilder = $queryBuilder->andWhere('task.deletedAt IS NULL');
+        }
+
+        return $queryBuilder;
     }
 
     public function findByUserQueryBuilder(User $user): QueryBuilder

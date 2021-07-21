@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\TagLink;
+use App\Entity\Task;
 use App\Repository\NoteRepository;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
@@ -366,8 +367,18 @@ class ImportDataCommand extends Command
         $tagIds = Collections::pluckNoDuplicates($this->pluckTagLinks($transferTasks), 'id');
         $this->tagLoader->loadByIds($tagIds);
 
+        $parentTaskIds = Collections::pluckNoDuplicates($tasks, 'parent');
+        $this->taskLoader->loadByIds($parentTaskIds);
+
         foreach ($transferTasks as $id => $transferTask) {
+            /** @var Task $task */
             $task = $tasks[$id];
+
+            if ($transferTask->parentId) {
+                $parentTask = $this->taskLoader->findByIdOrException($transferTask->parentId);
+                $task->setParent($parentTask);
+            }
+
             $this->entityManager->persist($task);
 
             $io->writeln("Importing Task with id '$id'");

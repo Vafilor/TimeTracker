@@ -14,12 +14,15 @@ class TransferTask
     public string $id;
     public int $createdAt;
     public int $updatedAt;
+    public ?int $deletedAt = null;
+    public ?int $dueAt = null;
     public string $name;
     public string $canonicalName; // Technically not needed, but handy to see in json.
     public string $assignedTo;
     public string $description;
     public ?int $completedAt = null;
     public int $priority;
+    public ?string $parentId = null;
 
     /**
      * @var TransferTagLink[]
@@ -39,8 +42,20 @@ class TransferTask
         $transfer->priority = $task->getPriority();
         $transfer->canonicalName = $task->getCanonicalName();
 
+        if ($task->isDeleted()) {
+            $transfer->deletedAt = $task->getDeletedAt()->getTimestamp();
+        }
+
         if ($task->completed()) {
             $transfer->completedAt = $task->getCompletedAt()->getTimestamp();
+        }
+
+        if (!is_null($task->getDueAt())) {
+            $transfer->dueAt = $task->getDueAt()->getTimestamp();
+        }
+
+        if ($task->hasParent()) {
+            $transfer->parentId = $task->getParent()->getIdString();
         }
 
         $transfer->tags = TransferTagLink::fromTags($task->getTags());
@@ -77,6 +92,12 @@ class TransferTask
             $task->setCompletedAt(DateTimeUtil::dateFromTimestamp($this->completedAt));
         }
 
+        if ($this->dueAt) {
+            $task->setDueAt(DateTimeUtil::dateFromTimestamp($this->dueAt));
+        }
+
         return $task;
     }
 }
+
+// TODO set parent task on import
