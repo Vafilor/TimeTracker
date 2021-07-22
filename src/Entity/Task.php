@@ -58,6 +58,11 @@ class Task
     private int $priority;
 
     /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private ?DateTime $dueAt;
+
+    /**
      * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="task")
      * @var TimeEntry[]|Collection
      */
@@ -74,11 +79,6 @@ class Task
      * @ORM\JoinColumn(nullable=false)
      */
     private User $assignedTo;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?DateTime $dueAt;
 
     /**
      * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="tasks")
@@ -105,6 +105,7 @@ class Task
         $this->timeEntries = new ArrayCollection();
         $this->description = '';
         $this->completedAt = null;
+        $this->dueAt = null;
         $this->priority = 0;
         $this->tagLinks = new ArrayCollection();
         $this->tasks = new ArrayCollection();
