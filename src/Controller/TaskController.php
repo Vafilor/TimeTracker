@@ -62,6 +62,7 @@ class TaskController extends BaseController
             $this->taskRepository->applyFilter($queryBuilder, $data);
         } else {
             $queryBuilder = $this->taskRepository->applyNotCompleted($queryBuilder);
+            $queryBuilder = $this->taskRepository->applyNoSubtasks($queryBuilder);
         }
 
         $pagination = $this->populatePaginationData(

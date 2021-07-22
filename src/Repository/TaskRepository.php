@@ -59,6 +59,11 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         return $queryBuilder->andWhere('task.completedAt IS NULL');
     }
 
+    public function applyNoSubtasks(QueryBuilder $queryBuilder): QueryBuilder
+    {
+        return $queryBuilder->andWhere('task.parent IS NULL');
+    }
+
     /**
      * @throws \Exception
      */
@@ -84,7 +89,7 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         }
 
         if (!$filter->getShowSubtasks()) {
-            $queryBuilder->andWhere('task.parent IS NULL');
+            $queryBuilder = $this->applyNoSubtasks($queryBuilder);
         }
 
         if ($filter->getOnlyShowPastDue()) {
