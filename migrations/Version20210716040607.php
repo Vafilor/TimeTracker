@@ -6,6 +6,7 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
+use Exception;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
@@ -36,6 +37,22 @@ final class Version20210716040607 extends AbstractMigration
         $this->addSql('ALTER TABLE task DROP parent_id');
         $this->addSql('ALTER TABLE task DROP due_at');
         $this->addSql('ALTER TABLE task DROP deleted_at');
+    }
+
+    protected function upMysql(Schema $schema) : void
+    {
+        // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE task ADD parent_id CHAR(36) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', ADD due_at DATETIME DEFAULT NULL, ADD deleted_at DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE task ADD CONSTRAINT FK_527EDB25727ACA70 FOREIGN KEY (parent_id) REFERENCES task (id)');
+        $this->addSql('CREATE INDEX IDX_527EDB25727ACA70 ON task (parent_id)');
+    }
+
+    protected function downMysql(Schema $schema) : void
+    {
+        // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE task DROP FOREIGN KEY FK_527EDB25727ACA70');
+        $this->addSql('DROP INDEX IDX_527EDB25727ACA70 ON task');
+        $this->addSql('ALTER TABLE task DROP parent_id, DROP due_at, DROP deleted_at');
     }
 
     public function upSqlite(Schema $schema): void
