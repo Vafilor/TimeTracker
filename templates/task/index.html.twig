@@ -25,6 +25,7 @@
         <div class="filter table-filter mb-3">
             <div class="filter-title">Filter</div>
             {{ form_start(filterForm) }}
+            {{ form_errors(filterForm) }}
             <div class="d-flex flex-column flex-md-row">
                 {{ form_row(filterForm.showCompleted) }}
                 <div class="ml-md-4">

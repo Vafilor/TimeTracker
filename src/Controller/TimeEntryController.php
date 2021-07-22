@@ -50,6 +50,7 @@ class TimeEntryController extends BaseController
                 'timezone' => $this->getUser()->getTimezone(),
                 'csrf_protection' => false,
                 'method' => 'GET',
+                'allow_extra_fields' => true,
             ]
         );
 

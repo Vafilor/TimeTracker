@@ -36,18 +36,6 @@ class FilterTaskFormType extends AbstractType
             ->add('parentTask', TextType::class, [
                 'required' => false
             ])
-            ->add('sort', HiddenType::class, [
-                'mapped' => false,
-                'required' => false,
-            ])
-            ->add('direction', HiddenType::class, [
-                'mapped' => false,
-                'required' => false,
-            ])
-            ->add('page', HiddenType::class, [
-                'mapped' => false,
-                'required' => false,
-            ])
         ;
     }
 

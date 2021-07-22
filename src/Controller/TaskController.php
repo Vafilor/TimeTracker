@@ -8,8 +8,8 @@ use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Entity\Task;
 use App\Form\Model\FilterTaskModel;
-use App\Form\Model\TaskModel;
-use App\Form\TaskFormType;
+use App\Form\Model\EditTaskModel;
+use App\Form\EditTaskFormType;
 use App\Form\FilterTaskFormType;
 use App\Repository\TaskRepository;
 use DateTime;
@@ -50,6 +50,7 @@ class TaskController extends BaseController
             [
                 'csrf_protection' => false,
                 'method' => 'GET',
+                'allow_extra_fields' => true
             ]
         );
 
@@ -89,13 +90,13 @@ class TaskController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $form = $this->createForm(
-            TaskFormType::class,
-            new TaskModel(),
+            EditTaskFormType::class,
+            new EditTaskModel(),
             ['timezone' => $this->getUser()->getTimezone()]
         );
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TaskModel $data */
+            /** @var EditTaskModel $data */
             $data = $form->getData();
 
             $newTask = new Task($this->getUser(), $data->getName());
@@ -130,16 +131,16 @@ class TaskController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $taskModel = TaskModel::fromEntity($task);
+        $taskModel = EditTaskModel::fromEntity($task);
 
         $form = $this->createForm(
-            TaskFormType::class,
+            EditTaskFormType::class,
             $taskModel,
             ['timezone' => $this->getUser()->getTimezone()]
         );
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TaskModel $data */
+            /** @var EditTaskModel $data */
             $data = $form->getData();
 
             $task->setName($data->getName());

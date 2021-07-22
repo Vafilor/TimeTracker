@@ -11,9 +11,11 @@ use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTask;
 use App\Entity\Task;
+use App\Form\AddTaskFormType;
+use App\Form\Model\AddTaskModel;
 use App\Form\Model\FilterTaskModel;
-use App\Form\Model\TaskModel;
-use App\Form\TaskFormType;
+use App\Form\Model\EditTaskModel;
+use App\Form\EditTaskFormType;
 use App\Form\FilterTaskFormType;
 use App\Manager\TagManager;
 use App\Repository\TagLinkRepository;
@@ -92,8 +94,8 @@ class ApiTaskController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $form = $this->createForm(
-            TaskFormType::class,
-            new TaskModel(),
+            AddTaskFormType::class,
+            new AddTaskModel(),
             [
                 'timezone' => $this->getUser()->getTimezone(),
                 'csrf_protection' => false
@@ -119,7 +121,7 @@ class ApiTaskController extends BaseController
             throw new ApiProblemException($formError);
         }
 
-        /** @var TaskModel $data */
+        /** @var EditTaskModel $data */
         $data = $form->getData();
 
         $newTask = new Task($this->getUser(), $data->getName());

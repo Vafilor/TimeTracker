@@ -7,20 +7,18 @@ namespace App\Form\Model;
 use App\Entity\Task;
 use DateTime;
 
-class TaskModel
+class AddTaskModel
 {
     private string $name;
     private ?string $description;
-    private ?DateTime $completedAt;
     private ?DateTime $dueAt;
     private ?string $parentTask;
 
-    public static function fromEntity(Task $task): TaskModel
+    public static function fromEntity(Task $task): self
     {
-        $model = new TaskModel();
+        $model = new AddTaskModel();
         $model->setName($task->getName());
         $model->setDescription($task->getDescription());
-        $model->setCompletedAt($task->getCompletedAt());
         $model->setDueAt($task->getDueAt());
 
         if ($task->hasParent()) {
@@ -34,7 +32,6 @@ class TaskModel
     {
         $this->name = '';
         $this->description = '';
-        $this->completedAt = null;
         $this->parentTask = null;
         $this->dueAt = null;
     }
@@ -62,17 +59,6 @@ class TaskModel
         }
 
         $this->description = $description;
-        return $this;
-    }
-
-    public function getCompletedAt(): ?DateTime
-    {
-        return $this->completedAt;
-    }
-
-    public function setCompletedAt(?DateTime $completedAt): self
-    {
-        $this->completedAt = $completedAt;
         return $this;
     }
 
