@@ -7,18 +7,23 @@ namespace App\Form\Model;
 use App\Entity\Task;
 use DateTime;
 
-class TaskModel
+class AddTaskModel
 {
     private string $name;
     private ?string $description;
-    private ?DateTime $completedAt;
+    private ?DateTime $dueAt;
+    private ?string $parentTask;
 
-    public static function fromEntity(Task $task): TaskModel
+    public static function fromEntity(Task $task): self
     {
-        $model = new TaskModel();
+        $model = new AddTaskModel();
         $model->setName($task->getName());
         $model->setDescription($task->getDescription());
-        $model->setCompletedAt($task->getCompletedAt());
+        $model->setDueAt($task->getDueAt());
+
+        if ($task->hasParent()) {
+            $model->setParentTask($task->getParent()->getIdString());
+        }
 
         return $model;
     }
@@ -27,6 +32,8 @@ class TaskModel
     {
         $this->name = '';
         $this->description = '';
+        $this->parentTask = null;
+        $this->dueAt = null;
     }
 
     public function getName(): string
@@ -55,14 +62,30 @@ class TaskModel
         return $this;
     }
 
-    public function getCompletedAt(): ?DateTime
+    public function getParentTask(): ?string
     {
-        return $this->completedAt;
+        return $this->parentTask;
     }
 
-    public function setCompletedAt(?DateTime $completedAt): self
+    public function hasParentTask(): bool
     {
-        $this->completedAt = $completedAt;
+        return !is_null($this->parentTask);
+    }
+
+    public function setParentTask(?string $parentTask): self
+    {
+        $this->parentTask = $parentTask;
+        return $this;
+    }
+
+    public function getDueAt(): ?DateTime
+    {
+        return $this->dueAt;
+    }
+
+    public function setDueAt(?DateTime $dueAt): self
+    {
+        $this->dueAt = $dueAt;
         return $this;
     }
 }

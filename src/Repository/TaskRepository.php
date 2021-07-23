@@ -6,10 +6,12 @@ namespace App\Repository;
 
 use App\Entity\Task;
 use App\Entity\User;
-use App\Form\Model\TaskListFilterModel;
+use App\Form\Model\FilterTaskModel;
 use App\Traits\FindByKeysInterface;
 use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
+use DateTime;
+use DateTimeZone;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -33,9 +35,15 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         parent::__construct($registry, Task::class);
     }
 
-    public function createDefaultQueryBuilder(): QueryBuilder
+    public function createDefaultQueryBuilder(bool $includeDeleted = false): QueryBuilder
     {
-        return $this->createQueryBuilder('task');
+        $queryBuilder =  $this->createQueryBuilder('task');
+
+        if (!$includeDeleted) {
+            $queryBuilder = $queryBuilder->andWhere('task.deletedAt IS NULL');
+        }
+
+        return $queryBuilder;
     }
 
     public function findByUserQueryBuilder(User $user): QueryBuilder
@@ -51,7 +59,15 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         return $queryBuilder->andWhere('task.completedAt IS NULL');
     }
 
-    public function applyFilter(QueryBuilder $queryBuilder, TaskListFilterModel $filter): QueryBuilder
+    public function applyNoSubtasks(QueryBuilder $queryBuilder): QueryBuilder
+    {
+        return $queryBuilder->andWhere('task.parent IS NULL');
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function applyFilter(QueryBuilder $queryBuilder, FilterTaskModel $filter): QueryBuilder
     {
         if ($filter->hasContent()) {
             $canonicalContent = Task::canonicalizeName($filter->getContent());
@@ -72,10 +88,27 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
             $queryBuilder->andWhere('task.completedAt IS NULL');
         }
 
+        if (!$filter->getShowSubtasks()) {
+            $queryBuilder = $this->applyNoSubtasks($queryBuilder);
+        }
+
+        if ($filter->getOnlyShowPastDue()) {
+            $now = new DateTime('now', new DateTimeZone('UTC'));
+            $queryBuilder->andWhere('task.dueAt < :now')
+                         ->setParameter('now', $now)
+            ;
+        }
+
         if ($filter->hasTags()) {
             $tags = $filter->getTagsArray();
             $queryBuilder = $queryBuilder->andWhere('tag.name IN (:tags)')
                                          ->setParameter('tags', $tags)
+            ;
+        }
+
+        if ($filter->hasParentTask()) {
+            $queryBuilder = $queryBuilder->andWhere('task.parent = :parent')
+                                         ->setParameter('parent', $filter->getParentTask())
             ;
         }
 

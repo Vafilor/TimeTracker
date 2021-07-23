@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiError;
 use App\Api\ApiFormError;
 use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTask;
 use App\Entity\Task;
-use App\Form\Model\TaskListFilterModel;
-use App\Form\Model\TaskModel;
-use App\Form\TaskFormType;
-use App\Form\TaskListFilterFormType;
+use App\Form\AddTaskFormType;
+use App\Form\Model\AddTaskModel;
+use App\Form\Model\FilterTaskModel;
+use App\Form\Model\EditTaskModel;
+use App\Form\EditTaskFormType;
+use App\Form\FilterTaskFormType;
 use App\Manager\TagManager;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
@@ -43,11 +46,11 @@ class ApiTaskController extends BaseController
 
         $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
 
-        $this->createForm(TaskListFilterFormType::class, new TaskListFilterModel());
+        $this->createForm(FilterTaskFormType::class, new FilterTaskModel());
         $filterForm = $formFactory->createNamed(
             '',
-            TaskListFilterFormType::class,
-            new TaskListFilterModel(),
+            FilterTaskFormType::class,
+            new FilterTaskModel(),
             [
                 'csrf_protection' => false,
                 'method' => 'GET',
@@ -56,7 +59,7 @@ class ApiTaskController extends BaseController
 
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
-            /** @var TaskListFilterModel $data */
+            /** @var FilterTaskModel $data */
             $data = $filterForm->getData();
 
             $taskRepository->applyFilter($queryBuilder, $data);
@@ -85,13 +88,14 @@ class ApiTaskController extends BaseController
     #[Route('/api/task', name: 'api_task_create', methods: ["POST"])]
     #[Route('/json/task', name: 'json_task_create', methods: ["POST"])]
     public function create(
-        Request $request
+        Request $request,
+        TaskRepository $taskRepository
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $form = $this->createForm(
-            TaskFormType::class,
-            new TaskModel(),
+            AddTaskFormType::class,
+            new AddTaskModel(),
             [
                 'timezone' => $this->getUser()->getTimezone(),
                 'csrf_protection' => false
@@ -106,28 +110,43 @@ class ApiTaskController extends BaseController
             throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
         }
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TaskModel $data */
-            $data = $form->getData();
+        if (!$form->isSubmitted()) {
+            throw new ApiProblemException(
+                ApiFormError::invalidAction('bad_data', 'Form not submitted')
+            );
+        }
 
-            $newTask = new Task($this->getUser(), $data->getName());
-            $newTask->setDescription($data->getDescription());
-
-            $manager = $this->getDoctrine()->getManager();
-            $manager->persist($newTask);
-            $manager->flush();
-
-            $apiTimeEntry = ApiTask::fromEntity($newTask, $this->getUser());
-
-            return $this->jsonNoNulls($apiTimeEntry);
-        } elseif (!$form->isValid()) {
+        if (!$form->isValid()) {
             $formError = new ApiFormError($form->getErrors(true));
             throw new ApiProblemException($formError);
         }
 
+        /** @var EditTaskModel $data */
+        $data = $form->getData();
 
-        $error = new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_ACTION);
-        throw new ApiProblemException($error);
+        $newTask = new Task($this->getUser(), $data->getName());
+        $newTask->setDescription($data->getDescription());
+        if ($data->hasParentTask()) {
+            $parentTask = $taskRepository->findOrException($data->getParentTask());
+            $newTask->setParent($parentTask);
+        }
+
+        $manager = $this->getDoctrine()->getManager();
+        $manager->persist($newTask);
+        $manager->flush();
+
+        $apiTask = ApiTask::fromEntity($newTask, $this->getUser());
+
+        if (str_starts_with($request->getPathInfo(), '/json')) {
+            $response = [
+                'task' => $apiTask,
+                'view' => $this->renderView('task/partials/_task.html.twig', ['task' => $newTask])
+            ];
+
+            return $this->jsonNoNulls($response, Response::HTTP_CREATED);
+        }
+
+        return $this->jsonNoNulls($apiTask, Response::HTTP_CREATED);
     }
 
     #[Route('/api/task/{id}', name: 'api_task_view', methods: ["GET"])]
@@ -148,6 +167,27 @@ class ApiTaskController extends BaseController
         return $this->jsonNoNulls($apiTask);
     }
 
+    #[Route('/json/task/{id}/lineage', name: 'json_task_lineage', methods: ['GET'])]
+    #[Route('/api/task/{id}/lineage', name: 'api_task_lineage', methods: ['GET'])]
+    public function getLineage(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $task = $taskRepository->findOrException($id);
+        if (!$task->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $lineage = $task->getLineage();
+
+        $apiLineage = array_map(
+            fn (Task $task) => ApiTask::fromEntity($task, $this->getUser()),
+            $lineage
+        );
+
+        return $this->jsonNoNulls($apiLineage);
+    }
+
     /**
      * Change the completedAt status of a Task.
      * If the body has a json field of "checked", as in
@@ -159,7 +199,7 @@ class ApiTaskController extends BaseController
      */
     #[Route('/api/task/{id}/check', name: 'api_task_complete', methods: ['PUT'])]
     #[Route('/json/task/{id}/check', name: 'json_task_complete', methods: ['PUT'])]
-    public function jsonComplete(
+    public function complete(
         Request $request,
         TaskRepository $taskRepository,
         string $id
@@ -190,8 +230,9 @@ class ApiTaskController extends BaseController
         return $this->jsonNoNulls($apiTask);
     }
 
-    #[Route('/json/task/{id}', name: 'task_json_update', methods: ['PUT'])]
-    public function jsonUpdate(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
+    #[Route('/json/task/{id}', name: 'json_task_update', methods: ['PUT'])]
+    #[Route('/api/task/{id}', name: 'api_task_update', methods: ['PUT'])]
+    public function update(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -205,12 +246,83 @@ class ApiTaskController extends BaseController
         if (array_key_exists('description', $data)) {
             $task->setDescription($data['description']);
         }
+        if (array_key_exists('parentTaskId', $data)) {
+            $parent = $taskRepository->findOrException($data['parentTaskId']);
+            $task->setParent($parent);
+        }
 
         $this->getDoctrine()->getManager()->flush();
 
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
         return $this->jsonNoNulls($apiTask);
+    }
+
+    #[Route('/json/task/{id}/parent', name: 'json_task_parent_update', methods: ['PUT'])]
+    #[Route('/api/task/{id}/parent', name: 'api_task_parent_update', methods: ['PUT'])]
+    public function updateParentTask(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $task = $taskRepository->findOrException($id);
+        if (!$task->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($task->isDeleted()) {
+            $this->createNotFoundException();
+        }
+
+        $data = $this->getJsonBody($request);
+
+        if (!array_key_exists('parentTaskId', $data)) {
+            $problem = ApiProblem::withErrors(
+                Response::HTTP_BAD_REQUEST,
+                ApiProblem::TYPE_INVALID_REQUEST_BODY,
+                ApiError::missingProperty('parentTaskId')
+            );
+
+            throw new ApiProblemException($problem);
+        }
+
+        $parent = $taskRepository->findOrException($data['parentTaskId']);
+        $task->setParent($parent);
+
+        $this->getDoctrine()->getManager()->flush();
+
+        $apiTask = ApiTask::fromEntity($parent, $this->getUser());
+
+        if (str_starts_with($request->getPathInfo(), '/json')) {
+            $apiTask->url = $this->generateUrl('task_view', ['id' => $parent->getIdString()]);
+        }
+
+        return $this->jsonNoNulls($apiTask);
+    }
+
+    #[Route('/json/task/{id}/parent', name: 'json_task_parent_delete', methods: ['DELETE'])]
+    #[Route('/api/task/{id}/parent', name: 'api_task_parent_delete', methods: ['DELETE'])]
+    public function removeParentTask(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $task = $taskRepository->findOrException($id);
+        if (!$task->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$task->hasParent()) {
+            throw new ApiProblemException(
+                ApiProblem::invalidAction(
+                    TaskController::CODE_NO_PARENT_TASK,
+                    'Task has no parent task',
+                )
+            );
+        }
+
+        $task->removeParent();
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->jsonNoContent();
     }
 
     #[Route('/api/task/{id}/tag', name: 'api_task_tag_create', methods: ['POST'])]

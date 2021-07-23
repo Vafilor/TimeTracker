@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Form\Model\TaskListFilterModel;
+use App\Form\Model\FilterTaskModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\SearchType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TaskListFilterFormType extends AbstractType
+class FilterTaskFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -19,17 +21,26 @@ class TaskListFilterFormType extends AbstractType
             ->add('showCompleted', CheckboxType::class, [
                 'required' => false
             ])
-            ->add('content', TextType::class, [
+            ->add('showSubtasks', CheckboxType::class, [
+                'required' => false
+            ])
+            ->add('onlyShowPastDue', CheckboxType::class, [
+                'required' => false
+            ])
+            ->add('content', SearchType::class, [
                 'required' => false
             ])
             ->add('tags', TextType::class, [
                 'required' => false,
+            ])
+            ->add('parentTask', TextType::class, [
+                'required' => false
             ])
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(['data_class' => TaskListFilterModel::class]);
+        $resolver->setDefaults(['data_class' => FilterTaskModel::class]);
     }
 }

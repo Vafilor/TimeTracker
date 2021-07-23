@@ -7,6 +7,7 @@ namespace App\Entity;
 use App\Repository\TimeEntryRepository;
 use App\Traits\AssignableToUserTrait;
 use App\Traits\CreateTimestampableTrait;
+use App\Traits\SoftDeletableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
@@ -29,6 +30,7 @@ class TimeEntry
     use UUIDTrait;
     use CreateTimestampableTrait;
     use UpdateTimestampableTrait;
+    use SoftDeletableTrait;
     use TaggableTrait;
     use AssignableToUserTrait;
 
@@ -41,11 +43,6 @@ class TimeEntry
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected ?DateTime $endedAt;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    protected ?DateTime $deletedAt;
 
     /**
      * @ORM\Column(type="text")
@@ -181,27 +178,6 @@ class TimeEntry
     public function running(): bool
     {
         return !$this->isOver();
-    }
-
-    public function getDeletedAt(): ?DateTime
-    {
-        return $this->deletedAt;
-    }
-
-    public function isDeleted(): bool
-    {
-        return !is_null($this->deletedAt);
-    }
-
-    public function softDelete(DateTime $when = null): self
-    {
-        if (is_null($when)) {
-            $when = new DateTime('now', new DateTimeZone('UTC'));
-        }
-
-        $this->deletedAt = $when;
-
-        return $this;
     }
 
     public function setEndedAt(DateTime $endedAt): static

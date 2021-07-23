@@ -18,7 +18,9 @@ use App\Transfer\TransferTask;
 use App\Transfer\TransferTimeEntry;
 use App\Transfer\TransferTimestamp;
 use App\Transfer\TransferUser;
+use App\Util\Collections;
 use Doctrine\ORM\QueryBuilder;
+use Generator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -149,29 +151,54 @@ class ExportDataCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function exportChunk(string $path, QueryBuilder $queryBuilder, callable $transformer): array
+    /**
+     * Paginate through through a query using a Generator.
+     * You can use it in a foreach loop to paginate through the data, or use it as a Generator.
+     *
+     * Each result has key => value where key is the chunk index, starting from 1, and value is the results of the query.
+     * No empty results are output.
+     *
+     * @param QueryBuilder $queryBuilder
+     * @param int $chunkSize
+     * @return Generator
+     */
+    public static function paginate(QueryBuilder $queryBuilder, int $chunkSize = 500): Generator
     {
         $chunk = 1;
-        $chunkSize = 500;
-        $newFilePaths = [];
 
         $queryBuilder->setFirstResult(0);
         $queryBuilder->setMaxResults($chunkSize);
 
         $results = $queryBuilder->getQuery()->getResult();
         while (count($results) !== 0) {
-            $filePath = "{$path}_{$chunk}.json";
-            $transferItems = $transformer($results);
-
-            $content = $this->serializer->serialize($transferItems, 'json', [
-                AbstractObjectNormalizer::SKIP_NULL_VALUES => true
-            ]);
-
-            file_put_contents($filePath, $content);
+            yield $chunk => $results;
 
             $queryBuilder = $queryBuilder->setFirstResult($chunk * $chunkSize);
             $results = $queryBuilder->getQuery()->getResult();
             $chunk++;
+        }
+    }
+
+    private function writeObjectsToFile(string $path, mixed $items): false|int
+    {
+        $content = $this->serializer->serialize(
+            $items,
+            'json',
+            [AbstractObjectNormalizer::SKIP_NULL_VALUES => true]
+        );
+
+        return file_put_contents($path, $content);
+    }
+
+    private function exportChunk(string $path, QueryBuilder $queryBuilder, callable $transformer): array
+    {
+        $newFilePaths = [];
+
+        foreach (self::paginate($queryBuilder) as $chunk => $results) {
+            $filePath = "{$path}_{$chunk}.json";
+            $transferItems = $transformer($results);
+
+            $this->writeObjectsToFile($filePath, $transferItems);
 
             $newFilePaths[] = $filePath;
         }
@@ -212,15 +239,78 @@ class ExportDataCommand extends Command
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTimestamp::fromEntities($items));
     }
 
+    /**
+     * exportTasks will output the tasks to json files.
+     *
+     * Each file is safe to import one after the other in order.
+     *
+     * The order of the tasks is important because we have sub-tasks, and they need to have a valid parent
+     * to reference.
+     *
+     * Each file, in order, makes sure required parents are in the previous file.
+     *
+     * This does not mean the first few files are all parent-less tasks though.
+     *
+     * @param string $path
+     * @return array
+     */
     private function exportTasks(string $path): array
     {
-        $queryBuilder = $this->taskRepository->createDefaultQueryBuilder()
+        // This function is a little tricky. The general idea is a depth-first tree traversal.
+        // Start with tasks that have no parents. We want to make sure we don't use too much memory,
+        // so immediately find all tasks that are children of these - but paginate through them.
+        // On the first pagination, immediately find all tasks that are children of those - also paginated.
+        // Repeat until there are none, then being unwinding back up.
+        //
+        // This is accomplished by keeping track of each paginated query as a Generator
+
+        $filePrefix = $path . DIRECTORY_SEPARATOR . 'tasks';
+        $newFilePaths = [];
+
+        // Get tasks with no parents, sort by createdAt so there is a consistent ordering.
+        $queryBuilder = $this->taskRepository->createDefaultQueryBuilder(true)
+                                             ->andWhere('task.parent IS NULL')
                                              ->orderBy('task.createdAt')
         ;
 
-        $filePrefix = $path . DIRECTORY_SEPARATOR . 'tasks';
 
-        return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTask::fromEntities($items));
+        // Keep track of the chunk so we know what to number the files
+        $chunk = 1;
+
+        // Start with the no parents as a generator
+        $generators = [self::paginate($queryBuilder)];
+        while (count($generators) !== 0) {
+            // Get the first generator, take it off the Queue as it may be finished.
+            $generator = array_shift($generators);
+
+            // It is finished, so don't add it back on
+            if (!$generator->valid()) {
+                continue;
+            }
+
+            $filePath = "{$filePrefix}_{$chunk}.json";
+            $newFilePaths[] = $filePath;
+            $tasks = $generator->current();
+            $generator->next();
+            $transferItems = TransferTask::fromEntities($tasks);
+            $this->writeObjectsToFile($filePath, $transferItems);
+
+            // We're storing the parent ids now. To preserve memory,
+            // get the children and make that generator the next one we handle
+            $parentIds = Collections::pluckNoDuplicates($tasks, 'idString');
+            if (count($parentIds) !== 0) {
+                $childTaskQueryBuilder = $this->taskRepository->findByKeysQuery('parent', $parentIds);
+                $childTaskGenerator = self::paginate($childTaskQueryBuilder);
+                array_unshift($generators, $childTaskGenerator);
+            }
+
+            // Put the old generator back on, but at the end so we do it later
+            $generators[] = $generator;
+
+            $chunk++;
+        }
+
+        return $newFilePaths;
     }
 
     private function exportTimeEntries(string $path): array

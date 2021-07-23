@@ -41,7 +41,11 @@ class TagController extends BaseController
             '',
             TagListFilterFormType::class,
             new TagListFilterModel(),
-            ['csrf_protection' => false, 'method' => 'GET']
+            [
+                'csrf_protection' => false,
+                'method' => 'GET',
+                'allow_extra_fields' => true,
+            ]
         );
 
         $filterForm->handleRequest($request);

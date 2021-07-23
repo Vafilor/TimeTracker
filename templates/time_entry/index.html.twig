@@ -16,6 +16,7 @@
     <div class="filter table-filter mb-3">
         <div class="filter-title">Filter</div>
         {{ form_start(filterForm) }}
+        {{ form_errors(filterForm) }}
         <div class="d-flex flex-wrap mb-2">
             <div class="mr-3">
                 <div>
@@ -67,6 +68,7 @@
         <div class="d-block">
             <button type="submit" class="btn btn-primary mt-2">Search</button>
         </div>
+
         {{ form_end(filterForm) }}
     </div>
 

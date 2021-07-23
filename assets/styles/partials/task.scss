@@ -1,0 +1,18 @@
+@import "colors";
+
+.task-list {
+  .task-list-item {
+    &.completed {
+      .complete-input {
+        label {
+          text-decoration: line-through;
+          color: $gray-gray;
+        }
+      }
+    }
+
+    &.disabled {
+      opacity: 0.6;
+    }
+  }
+}

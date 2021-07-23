@@ -7,6 +7,7 @@ namespace App\Entity;
 use App\Repository\TaskRepository;
 use App\Traits\AssignableToUserTrait;
 use App\Traits\CreateTimestampableTrait;
+use App\Traits\SoftDeletableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
@@ -27,6 +28,7 @@ class Task
     use UUIDTrait;
     use CreateTimestampableTrait;
     use UpdateTimestampableTrait;
+    use SoftDeletableTrait;
     use TaggableTrait;
     use AssignableToUserTrait;
 
@@ -56,6 +58,11 @@ class Task
     private int $priority;
 
     /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private ?DateTime $dueAt;
+
+    /**
      * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="task")
      * @var TimeEntry[]|Collection
      */
@@ -73,6 +80,16 @@ class Task
      */
     private User $assignedTo;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="tasks")
+     */
+    private ?Task $parent;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="parent")
+     */
+    private $tasks;
+
     public static function canonicalizeName(string $name): string
     {
         return trim(strtolower($name));
@@ -88,8 +105,11 @@ class Task
         $this->timeEntries = new ArrayCollection();
         $this->description = '';
         $this->completedAt = null;
+        $this->dueAt = null;
         $this->priority = 0;
         $this->tagLinks = new ArrayCollection();
+        $this->tasks = new ArrayCollection();
+        $this->parent = null;
     }
 
     public function getName(): string
@@ -176,5 +196,68 @@ class Task
     {
         $this->priority = $priority;
         return $this;
+    }
+
+    public function getDueAt(): ?DateTime
+    {
+        return $this->dueAt;
+    }
+
+    public function setDueAt(?DateTime $dueAt): self
+    {
+        $this->dueAt = $dueAt;
+
+        return $this;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function hasParent(): bool
+    {
+        return !is_null($this->parent);
+    }
+
+    public function setParent(?self $parent): self
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    public function removeParent(): self
+    {
+        $this->parent = null;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|self[]
+     */
+    public function getSubtasks(): Collection
+    {
+        return $this->tasks->filter(fn (Task $task) => !$task->isDeleted());
+    }
+
+    /**
+     * The lineage of the task, starting with the upper-most. So,
+     * [Grandchild Task, Parent Task, Task]
+     *
+     * @return Task[]
+     */
+    public function getLineage(): array
+    {
+        $lineage = [$this];
+
+        $element = $this;
+        while ($element->hasParent()) {
+            array_unshift($lineage, $element->getParent());
+            $element = $element->getParent();
+        }
+
+        return $lineage;
     }
 }
