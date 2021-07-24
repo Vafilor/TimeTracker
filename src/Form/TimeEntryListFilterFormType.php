@@ -18,15 +18,13 @@ class TimeEntryListFilterFormType extends AbstractType
     {
         $builder
             ->add('start', DateTimeType::class, [
-                'date_widget' => 'single_text',
-                'time_widget' => 'single_text',
+                'widget' => 'single_text',
                 'view_timezone' => $options['timezone'],
                 'required' => false,
                 'invalid_message' => 'Not valid. Fill out both date and time.'
             ])
             ->add('end', DateTimeType::class, [
-                'date_widget' => 'single_text',
-                'time_widget' => 'single_text',
+                'widget' => 'single_text',
                 'view_timezone' => $options['timezone'],
                 'required' => false,
                 'invalid_message' => 'Not valid. Fill out both date and time.'

@@ -19,7 +19,7 @@
         </div>
 
         {{ form_start(form) }}
-        {{ form_widget(form) }}
+        {{ form_row(form.createdAt, {attr: {class: 'unset-width'}})}}
 
         <label>Data</label>
         <div class="d-flex mt-2 js-add-statistic add-statistic">

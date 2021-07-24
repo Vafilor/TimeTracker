@@ -517,12 +517,12 @@ export class TimeEntryIndexItem {
                 let updated = false;
 
                 if (this.data.startedAtEpoch !== newData.startedAtEpoch) {
-                    update['startedAt'] = EditDateTime.dateToParts(new Date(newData.startedAtEpoch));
+                    update['startedAt'] = new Date(newData.startedAtEpoch);
                     updated = true;
                 }
 
                 if (newData.endedAtEpoch && (this.data.endedAtEpoch !== newData.endedAtEpoch)) {
-                    update['endedAt'] = EditDateTime.dateToParts(new Date(newData.endedAtEpoch!));
+                    update['endedAt'] = new Date(newData.endedAtEpoch);
                     updated = true;
                 }
 

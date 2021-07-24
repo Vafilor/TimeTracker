@@ -3,13 +3,9 @@ import { ApiTag } from "./tag_api";
 import { ApiTask } from "./task_api";
 import { AddStatisticRequest } from "./statistic_api";
 import { ApiStatisticValue } from "./statistic_value_api";
+import { dateToISOLocal } from "../../components/time";
 
 export type DateFormat = 'date' | 'date_time' | 'date_time_today';
-
-export interface ApiDateTimeUpdate {
-    date: string;
-    time: string;
-}
 
 export interface ApiTimeEntry {
     id: string;
@@ -39,8 +35,8 @@ export interface CreateTimeEntryResponse {
 
 export interface ApiUpdateTimeEntry {
     description?: string;
-    startedAt?: ApiDateTimeUpdate;
-    endedAt?: ApiDateTimeUpdate;
+    startedAt?: Date;
+    endedAt?: Date;
 }
 
 export enum TimeEntryApiErrorCode {
@@ -138,7 +134,11 @@ export class TimeEntryApi {
     }
 
     public static update(timeEntryId: string, update: ApiUpdateTimeEntry) {
-        return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}`, update);
+        return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}`, {
+            description: update.description,
+            startedAt: update.startedAt ? dateToISOLocal(update.startedAt): undefined,
+            endedAt: update.endedAt ? dateToISOLocal(update.endedAt): undefined
+        });
     }
 
     public static getActive() {

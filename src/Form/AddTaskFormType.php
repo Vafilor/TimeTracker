@@ -23,8 +23,7 @@ class AddTaskFormType extends AbstractType
             ])
             ->add('dueAt', DateTimeType::class, [
                 'required' => false,
-                'date_widget' => 'single_text',
-                'time_widget' => 'single_text',
+                'widget' => 'single_text',
                 'view_timezone' => $options['timezone'],
             ])
             ->add('parentTask', TextType::class, [
