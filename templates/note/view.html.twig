@@ -66,7 +66,7 @@
     {{ form_widget(form) }}
     <div class="d-flex mt-2">
         <button type="submit" class="btn btn-primary">Update</button>
-        <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#delete-modal">
+        <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#delete-modal">
             Delete
         </button>
     </div>
@@ -79,15 +79,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="delete-modal-label">Are you sure you want to delete?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
             <div class="modal-body">
                 This will delete the note
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <a href="{{ path('note_delete', {id: note.id}) }}" class="btn btn-danger">Delete</a>
             </div>
         </div>
