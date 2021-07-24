@@ -30,7 +30,7 @@
             {% endif %}
 
             Duration
-            <span class="ml-1 js-timer {% if timeEntry.running %}js-running-timer{% endif %}"
+            <span class="ms-1 js-timer {% if timeEntry.running %}js-running-timer{% endif %}"
                   data-start="{{ timeEntry.startedAt.timestamp * 1000 }}"
                   data-duration-format="{{ app.user.durationFormat }}">
             {{ time.user_duration(timeEntry.duration, app.user) }}
@@ -59,7 +59,7 @@
             </div>
         </div>
 
-        <div class="ml-4">
+        <div class="ms-4">
             <div>
                 {{ form_label(form.endedAt) }}
                 {% if form.startedAt.vars.errors|length != 0 %}
@@ -130,7 +130,7 @@
                             autocomplete="off"
                     />
                 </div>
-                <button type="button" class="ml-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
+                <button type="button" class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
                     Add
                 </button>
             </div>
@@ -142,10 +142,10 @@
     <div class="d-flex mt-3">
         <button type="submit" class="btn btn-primary">Update</button>
         {% if not timeEntry.over %}
-            <a href="{{ path('time_entry_stop', {id: timeEntry.id}) }}" class="btn btn-secondary ml-2">Stop</a>
+            <a href="{{ path('time_entry_stop', {id: timeEntry.id}) }}" class="btn btn-secondary ms-2">Stop</a>
         {% else %}
-            <a href="{{ path('time_entry_resume', {id: timeEntry.idString}) }}" class="btn btn-secondary ml-2">Resume</a>
-            <a href="{{ path('time_entry_continue', {id: timeEntry.idString}) }}" class="btn btn-secondary ml-2">Continue</a>
+            <a href="{{ path('time_entry_resume', {id: timeEntry.idString}) }}" class="btn btn-secondary ms-2">Resume</a>
+            <a href="{{ path('time_entry_continue', {id: timeEntry.idString}) }}" class="btn btn-secondary ms-2">Continue</a>
         {% endif %}
 
         <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#delete-modal">

@@ -400,7 +400,7 @@ export class TimeEntryIndexItem {
 
     private addContinueButtonIfNotExist() {
         if (this.$container.find('.js-continue').length === 0) {
-            this.$continueButton = $(`<button type="button" class="btn btn-secondary js-continue ml-2">Continue</button>`);
+            this.$continueButton = $(`<button type="button" class="btn btn-secondary js-continue ms-2">Continue</button>`);
             this.$continueButton.on('click', () => this.delegate.continue(this.id));
             this.$container.find('.js-actions').append(this.$continueButton);
         }
@@ -485,7 +485,7 @@ export class TimeEntryIndexItem {
         const $timestamps = this.$container.find('.js-timestamps');
         const $startedEdit = $(EditDateTime.templateWithLabel('Started', 'js-edit-started-at'));
         $startedEdit.data('timestamp', data.startedAtEpoch);
-        const $endedEdit = $(EditDateTime.templateWithLabel('Ended', 'js-edit-ended-at ml-2'));
+        const $endedEdit = $(EditDateTime.templateWithLabel('Ended', 'js-edit-ended-at ms-2'));
         if (data.endedAtEpoch) {
             $endedEdit.data('timestamp', data.endedAtEpoch);
         }

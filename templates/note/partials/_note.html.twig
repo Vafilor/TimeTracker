@@ -10,7 +10,7 @@
             {{ note.title }}
         </div>
         <div>
-            <a href="{{ path('note_view', {id: note.idString}) }}" class="btn btn-primary js-view ml-2">View</a>
+            <a href="{{ path('note_view', {id: note.idString}) }}" class="btn btn-primary js-view ms-2">View</a>
         </div>
     </div>
     <div class="tag-list js-tag-list many-rows {% if note.hasTags %}mt-1{% endif %}" data-initial-tags-name="{{ note.tagNames() }}">

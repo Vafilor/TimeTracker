@@ -40,7 +40,7 @@
         <div class="datetime js-started-at" data-timestamp="{{ timeEntry.startedAt.timestamp * 1000 }}">{{ time.user_datetime(timeEntry.startedAt, app.user) }}</div>
 
         <div
-            class="ml-2 datetime js-ended-at"
+            class="ms-2 datetime js-ended-at"
             {% if timeEntry.over %}
             data-timestamp="{{ timeEntry.endedAt.timestamp * 1000 }}"
             {% endif %}>
@@ -62,14 +62,14 @@
     <hr/>
     <div class="d-flex justify-content-end js-actions">
         <a href="{{ path('time_entry_view', {id: timeEntry.idString}) }}" class="btn btn-primary js-view">View</a>
-        <button type="button" class="btn btn-primary js-edit ml-2">Edit</button>
+        <button type="button" class="btn btn-primary js-edit ms-2">Edit</button>
         {% if timeEntry.running %}
-        <button data-time-entry-id="{{ timeEntry.idString }}" class="btn btn-danger js-stop ml-2">
+        <button data-time-entry-id="{{ timeEntry.idString }}" class="btn btn-danger js-stop ms-2">
             <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
             Stop
         </button>
         {% else %}
-        <button type="button" class="btn btn-secondary js-continue ml-2">Continue</button>
+        <button type="button" class="btn btn-secondary js-continue ms-2">Continue</button>
         {% endif %}
     </div>
 </div>

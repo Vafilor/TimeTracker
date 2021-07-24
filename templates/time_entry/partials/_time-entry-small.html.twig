@@ -22,7 +22,7 @@
             <div class="d-flex js-timestamps mt-2">
                 <div class="datetime js-started-at" data-timestamp="{{ timeEntry.startedAt.timestamp * 1000 }}">{{ time.user_datetime(timeEntry.startedAt, app.user) }}</div>
                 <div
-                    class="duration datetime js-duration ml-3"
+                    class="duration datetime js-duration ms-3"
                     data-start="{{ timeEntry.startedAt.timestamp * 1000 }}"
                     data-duration-format="{{ app.user.durationFormat }}"
                     data-active="{{ timeEntry.running }}">
@@ -33,7 +33,7 @@
         <div>
             <a href="{{ path('time_entry_view', {id: timeEntry.idString}) }}" class="btn btn-primary js-view">View</a>
             {% if timeEntry.running %}
-                <button type="button" class="btn btn-danger js-stop ml-2">
+                <button type="button" class="btn btn-danger js-stop ms-2">
                     <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
                     Stop
                 </button>
