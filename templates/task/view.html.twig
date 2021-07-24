@@ -61,7 +61,7 @@
             <div class="d-inline-flex input-with-indicators flex-grow-1">
                 <div class="input-indicator input-indicator-left d-flex">
                     <div class="spinner-border spinner-border-sm text-primary js-loading d-none" role="status">
-                        <span class="sr-only">Loading...</span>
+                        <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
                 <input class="form-control js-time-entry-description no-resize left" placeholder="Entry description" />
@@ -70,7 +70,7 @@
             <div class="js-duration ml-1">{{ time.user_duration(zeroDuration(), app.user) }}</div>
             <button type="button" class="btn btn-primary ml-2">
                 <span class="js-task-time-entry-loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                <span class="js-task-time-entry-loading sr-only">Loading...</span>
+                <span class="js-task-time-entry-loading visually-hidden">Loading...</span>
                 <span class="js-text"></span>
             </button>
         </div>

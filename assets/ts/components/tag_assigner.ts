@@ -21,7 +21,7 @@ export class TagAssigner {
         return `
         <div class="autocomplete js-autocomplete js-autocomplete-tags">
             <div class="autocomplete-search-group">
-                <label class="sr-only" for="autocomplete-tag-${id}">name</label>
+                <label class="visually-hidden" for="autocomplete-tag-${id}">name</label>
                 <input
                         id="autocomplete-tag-${id}"
                         type="search"

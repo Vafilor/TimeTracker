@@ -61,7 +61,7 @@ class TimeEntryDescriptionSync {
 
         this.$status.html(`
                     <div class="spinner-border spinner-border-sm text-primary" role="status">
-                        <span class="sr-only">Loading...</span>
+                        <span class="visually-hidden">Loading...</span>
                     </div> Updating...`);
 
         await TimeEntryApi.update(this.timeEntryId, {
