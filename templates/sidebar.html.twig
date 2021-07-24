@@ -8,11 +8,17 @@
 
 {% block center %}
 <div class="container-fluid">
+
+    <div class="row">
+        <div id="fixed-flash-messages" class="col-md-9 col-lg-10 offset-md-3 offset-lg-2">
+        </div>
+    </div>
+
     <div class="row">
         {% set path = app.request.pathInfo %}
 
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-            <ul class="list-unstyled sidebar-sticky text-center text-md-left">
+            <ul class="list-unstyled sidebar-sticky text-center text-md-start">
                 <li><a href="{{ path('today_index') }}" {% if path == '/today' or path == '/' or path starts with '/report/today' %} class="active" {% endif %}>Today</a></li>
                 <li><a href="{{ path('time_entry_index') }}" {% if path starts with '/time-entry' %} class="active" {% endif %}>Time Entries</a></li>
                 <li><a href="{{ path('task_index') }}" {% if path starts with '/task' %} class="active"{% endif %}>Tasks</a></li>
@@ -23,7 +29,7 @@
                 <li><a href="{{ path('note_index') }}" {% if path starts with '/note' %} class="active" {% endif %}>Notes</a></li>
             </ul>
         </nav>
-        <main class="col-md-9 ml-sm-auto col-lg-10 bg-light">
+        <main class="col-md-9 ms-sm-auto col-lg-10 bg-light">
             {% if app.request.hasPreviousSession %}
                 {% block flash_messages %}
                     <div id="flash-messages">
@@ -31,8 +37,6 @@
                     </div>
                 {% endblock flash_messages %}
             {% endif %}
-            <div id="fixed-flash-messages" class="col-md-9 col-lg-10">
-            </div>
             {% block content_body %}
             {% endblock %}
         </main>
