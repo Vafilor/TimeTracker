@@ -36,11 +36,12 @@
                 </div>
             </div>
             {{ form_row(filterForm.content) }}
-            <div class="d-none">
-                {{ form_row(filterForm.parentTask) }}
-            </div>
+            {{ form_row(filterForm.parentTask, {
+                attr: {class: 'd-none'},
+                label_attr: {class: 'd-none'}
+            })}}
 
-            {{ form_label(filterForm.tags) }}
+            {{ form_label(filterForm.tags, null, {label_attr: {class: 'd-block'}}) }}
             <div class="js-tags-filter d-flex align-items-center mb-2">
                 {{ form_widget(filterForm.tags, {attr: {class: 'js-real-tag-input d-none'}}) }}
                 <div class="js-tags tag-list js-tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
@@ -54,7 +55,7 @@
 
         <div class="dropdown mb-2">
             <label>Sort</label>
-            <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button class="btn dropdown-toggle bg-white border border-gray ms-2" type="button" id="task-sort" data-bs-toggle="dropdown" aria-expanded="false">
                 {% if pagination.isSorted('task.createdAt') and pagination.direction == 'desc' %}
                     Newest
                 {% elseif pagination.isSorted('task.createdAt') and pagination.direction == 'asc'  %}
@@ -67,7 +68,7 @@
                     Name - desc
                 {% endif %}
             </button>
-            <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+            <div class="dropdown-menu" aria-labelledby="task-sort">
                 {{ knp_pagination_sortable(pagination, 'Newest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
                 {{ knp_pagination_sortable(pagination, 'Oldest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
                 {{ knp_pagination_sortable(pagination, 'Due soon', 'task.dueAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
@@ -79,9 +80,8 @@
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
         <div class="inline-form-header mb-2">Add Task</div>
-        <form class="js-task-create form-row">
+        <form class="js-task-create row g-2">
             <div class="col">
-                <label class="sr-only" for="create-task-name">New task name</label>
                 <input
                         id="create-task-name"
                         type="text"
@@ -93,7 +93,7 @@
             <div class="col-auto">
                 <button type="button" class="btn btn-primary js-button js-loading-button">
                     <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                    <span class="js-loading sr-only">Loading...</span>
+                    <span class="js-loading visually-hidden">Loading...</span>
                     <span class="js-text">Create task</span>
                 </button>
             </div>

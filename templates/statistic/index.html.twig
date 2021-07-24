@@ -32,30 +32,31 @@
 
     {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
-    <form class="row no-gutters mt-3 js-create-statistic">
+    <form class="row g-2 mt-3 js-create-statistic">
         <div class="col col-md-3">
-            <label class="sr-only" for="statistic-create-name"></label>
+            <label class="visually-hidden" for="statistic-create-name"></label>
             <input id="statistic-create-name" type="text" class="form-control" placeholder="name">
         </div>
 
-        <div class="d-none d-md-block col ml-2">
-            <label class="sr-only" for="statistic-create-description"></label>
+        <div class="d-none d-md-block col">
+            <label class="visually-hidden" for="statistic-create-description"></label>
             <input id="statistic-create-description" type="text" class="form-control" placeholder="description">
         </div>
 
-        <div class="col-auto ml-2">
-            <label class="sr-only" for="statistic-create-time-type"></label>
+        <div class="col-auto">
+            <label class="visually-hidden" for="statistic-create-time-type"></label>
             <select id="statistic-create-time-type" class="form-control">
                 <option value="instant" selected="selected">instant</option>
                 <option value="interval">interval</option>
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary js-loading-button ml-2">
-            <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-            <span class="js-loading sr-only">Loading...</span>
-            <span class="js-text">Create</span>
-        </button>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary js-loading-button">
+                <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                <span class="js-text">Create</span>
+            </button>
+        </div>
     </form>
 
     <div class="mt-3 mb-3 card-list js-statistic-list">
