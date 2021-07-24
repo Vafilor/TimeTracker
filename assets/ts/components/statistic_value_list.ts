@@ -4,6 +4,7 @@ import { ApiStatisticValue } from "../core/api/statistic_value_api";
 import IdGenerator from "./id_generator";
 import Flashes from "./flashes";
 import Observable from "./observable";
+import { Tooltip } from 'bootstrap';
 
 export interface AddStatisticValue {
     name: string;
@@ -120,7 +121,7 @@ export class StatisticValueItem {
         $nameIcon.css('color', value.color);
         $nameIcon.html(display);
         $nameIcon.attr('title', value.name);
-        $nameIcon.tooltip();
+        const nameIconToolTip = new Tooltip($nameIcon[0]);
     }
 
     public delete = new Observable<StatisticValueItemDeleteEvent>();
