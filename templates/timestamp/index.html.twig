@@ -21,19 +21,19 @@
             Timestamps
             <span class="pointer-hover help-button-title">
                 <i
-                        class="far fa-question-circle"
-                        tabindex="0"
-                        data-toggle="popover"
-                        title="What are timestamps?"
-                        data-trigger="focus"
-                        data-content="Timestamps keep track of when something happens. You can keep track of how often your server goes down, or the neighbor's dogs bark.">
+                    class="far fa-question-circle"
+                    tabindex="0"
+                    data-bs-toggle="popover"
+                    title="What are timestamps?"
+                    data-trigger="focus"
+                    data-bs-content="Timestamps keep track of when something happens. You can keep track of how often your server goes down, or the neighbor's dogs bark.">
                 </i>
             </span>
         </h1>
 
         <div class="dropdown mb-2">
             <label>Sort</label>
-            <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button class="btn dropdown-toggle bg-white border border-gray ms-2" type="button" id="time-entry-sort" data-bs-toggle="dropdown" aria-expanded="false">
                 {% if pagination.isSorted('timestamp.createdAt') and pagination.direction == 'asc' %}
                     Oldest
                 {% else %}
