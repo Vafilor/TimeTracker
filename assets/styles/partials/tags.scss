@@ -1,6 +1,4 @@
-@import "colors";
-
-$lighterGray: lighten($darkGray, 20%);
+@import "custom";
 
 .tag-list {
   &.many-rows {
