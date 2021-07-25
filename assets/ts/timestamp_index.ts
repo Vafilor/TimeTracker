@@ -44,19 +44,6 @@ class TimestampListPage {
 
         return html;
     }
-
-    static updateTimeAgo(when: Date) {
-        // const endMillis = when.getTime();
-        //
-        // $('.js-timestamp-ago').each((index: number, element: HTMLElement) => {
-        //     const $element = $(element);
-        //     const startSeconds = $element.data('created-at');
-        //
-        //     const agoString = timeAgo(startSeconds * 1000, endMillis);
-        //
-        //     $element.html(agoString);
-        // });
-    }
 }
 
 $(document).ready(() => {
@@ -92,9 +79,4 @@ $(document).ready(() => {
                 loadingButton.stopLoading();
             });
     });
-
-    setInterval(() => {
-        const now = new Date();
-        TimestampListPage.updateTimeAgo(now);
-    }, 1000);
 });
