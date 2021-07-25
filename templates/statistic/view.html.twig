@@ -10,6 +10,13 @@
     <div class="resource js-data"
          data-statistic-id="{{ statistic.idString }}">
 
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('statistic_index') }}">Statistics</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ statistic.name }}</li>
+            </ol>
+        </nav>
+
         <h1 class="text-center">
             <div class="d-inline-block js-statistic-icon-preview me-2" style="color: {{ statistic.color }}">
                 {% if statistic.icon %}

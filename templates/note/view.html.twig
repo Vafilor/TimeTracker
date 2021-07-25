@@ -11,6 +11,13 @@
      data-duration-format="{{ app.user.durationFormat }}"
      data-note-id="{{ note.idString }}">
 
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('note_index') }}">Notes</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ note.title }}</li>
+        </ol>
+    </nav>
+
     {{ form_start(form) }}
     {{ form_row(form.title) }}
 

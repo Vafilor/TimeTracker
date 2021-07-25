@@ -8,6 +8,13 @@
 {% block content_body %}
 <div class="resource">
 
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('tag_index') }}">Tags</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ tag.name }}</li>
+        </ol>
+    </nav>
+
     <h1 class="text-center">{{ tag.name }}</h1>
 
     <ul class="nav nav-tabs">

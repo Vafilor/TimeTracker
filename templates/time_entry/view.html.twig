@@ -13,8 +13,14 @@
      data-time-entry-id="{{ timeEntry.idString }}"
      data-assigned-task="{{ timeEntry.assignedToTask }}">
 
-    <div class="d-flex justify-content-between">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('time_entry_index') }}">Time entries</a></li>
+            <li class="breadcrumb-item active" aria-current="page">current</li>
+        </ol>
+    </nav>
 
+    <div class="d-flex justify-content-between">
         {% set taskName = '' %}
         {% if timeEntry.assignedToTask %}
             {% set taskName = timeEntry.task.name %}
