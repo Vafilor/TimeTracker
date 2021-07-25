@@ -60,6 +60,7 @@ export class StatisticValueItem {
                 data-icon="${value.icon}"
                 data-unit="${value.unit}">
                 <span 
+                    data-controller="bootstrap-tooltip"
                     class="input-group-text bg-white js-name-icon"
                     style="color: ${value.color}"
                     data-bs-toggle="tooltip" 

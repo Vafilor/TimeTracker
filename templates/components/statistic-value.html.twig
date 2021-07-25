@@ -8,6 +8,7 @@
     data-color="{{ value.statistic.color }}"
     data-unit="{{ value.statistic.unit }}">
     <span
+        {{ stimulus_controller('bootstrap-tooltip') }}
         class="input-group-text bg-white js-name-icon"
         style="color: {{ value.statistic.color }}"
         data-bs-toggle="tooltip"
