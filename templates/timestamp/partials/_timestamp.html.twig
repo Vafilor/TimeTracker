@@ -13,9 +13,10 @@
         </div>
     </div>
     <div class="mt-2">
-        <div
-            class="time-ago js-timestamp-ago"
-            data-created-at="{{ timestamp.createdAt.timestamp}}">
+        <div {{ stimulus_controller('timeago', {
+                start: timestamp.createdAt.timestamp
+             }) }}
+            class="time-ago">
             {{ timestamp.createdAt | ago }}
         </div>
         <div class="datetime">{{ time.user_datetime(timestamp.createdAt, app.user)}}</div>

@@ -3,10 +3,9 @@ import '../styles/timestamp_index.scss';
 import $ from 'jquery';
 import { ApiTimestamp, TimestampApi } from "./core/api/timestamp_api";
 import { JsonResponse } from "./core/api/api";
-import { ApiTag } from "./core/api/tag_api";
 import LoadingButton from "./components/loading_button";
-import { formatTimeDifference, timeAgo } from "./components/time";
-import { createTagsView, createTagView } from "./components/tags";
+import { timeAgo } from "./components/time";
+import { createTagsView } from "./components/tags";
 import TimeTrackerRoutes from "./core/routes";
 
 class TimestampListPage {
@@ -26,9 +25,9 @@ class TimestampListPage {
                 <div class="js-tag-list-view">${tagHtml}</div>
             </div>
             <div class="mt-2">
-                <div
+                <div data-controller="timeago"
                     class="time-ago js-timestamp-ago"
-                    data-created-at="${timestamp.createdAtEpoch}">
+                    data-timeago-start-value="${timestamp.createdAtEpoch}">
                     ${timeAgo(timestamp.createdAtEpoch * 1000, nowMillis)}
                 </div>
                 <div class="datetime">${timestamp.createdAt}</div>
@@ -47,16 +46,16 @@ class TimestampListPage {
     }
 
     static updateTimeAgo(when: Date) {
-        const endMillis = when.getTime();
-
-        $('.js-timestamp-ago').each((index: number, element: HTMLElement) => {
-            const $element = $(element);
-            const startSeconds = $element.data('created-at');
-
-            const agoString = timeAgo(startSeconds * 1000, endMillis);
-
-            $element.html(agoString);
-        });
+        // const endMillis = when.getTime();
+        //
+        // $('.js-timestamp-ago').each((index: number, element: HTMLElement) => {
+        //     const $element = $(element);
+        //     const startSeconds = $element.data('created-at');
+        //
+        //     const agoString = timeAgo(startSeconds * 1000, endMillis);
+        //
+        //     $element.html(agoString);
+        // });
     }
 }
 
