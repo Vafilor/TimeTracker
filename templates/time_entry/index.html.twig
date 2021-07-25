@@ -21,9 +21,13 @@
         <div class="d-flex flex-wrap mb-1">
             <div>
                 <div>{{ form_label(filterForm.start) }}</div>
-                <div class="d-inline-flex me-2">
-                    {{ form_widget(filterForm.start) }}
-                    <button type="button" class="btn btn-danger js-clear-datetime ms-2">
+                <div {{ stimulus_controller('clear-value')}}
+                    class="d-inline-flex me-2">
+                    {{ form_widget(filterForm.start, {attr: {'data-clear-value-target': 'clearable'}}) }}
+                    <button
+                            type="button"
+                            class="btn btn-danger ms-2"
+                            data-action="clear-value#clear">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
