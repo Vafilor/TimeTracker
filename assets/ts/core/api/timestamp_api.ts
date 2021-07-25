@@ -11,6 +11,11 @@ export interface ApiTimestamp {
     tags: ApiTag[];
 }
 
+export interface CreateTimestampResponse {
+    timestamp: ApiTimestamp;
+    view: string;
+}
+
 export class TimestampApi {
     public static addTag(timestampId: string, tagName: string) {
         return CoreApi.post<ApiTag>(`/json/timestamp/${timestampId}/tag`, {
@@ -29,7 +34,7 @@ export class TimestampApi {
     }
 
     public static repeat(timestampId: string) {
-        return CoreApi.post<ApiTimestamp>(`/json/timestamp/${timestampId}/repeat`, {});
+        return CoreApi.post<CreateTimestampResponse>(`/json/timestamp/${timestampId}/repeat`, {});
     }
 
     public static addStatistic(timestampId: string, request: AddStatisticRequest) {

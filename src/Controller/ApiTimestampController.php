@@ -84,6 +84,15 @@ class ApiTimestampController extends BaseController
 
         $apiTimestamp = ApiTimestamp::fromEntity($this->dateTimeFormatter, $timestamp, $this->getUser(), $now);
 
+        if (str_starts_with($request->getPathInfo(), '/json')) {
+            $response = [
+                'timestamp' => $apiTimestamp,
+                'view' => $this->renderView('timestamp/partials/_timestamp.html.twig', ['timestamp' => $timestamp])
+            ];
+
+            return $this->jsonNoNulls($response, Response::HTTP_CREATED);
+        }
+
         return $this->jsonNoNulls($apiTimestamp, Response::HTTP_CREATED);
     }
 
@@ -146,8 +155,6 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $now = $this->now();
-
         $newTimestamp = $timestampManager->repeat($timestamp);
 
         $this->getDoctrine()->getManager()->flush();
@@ -156,8 +163,17 @@ class ApiTimestampController extends BaseController
             $dateTimeFormatter,
             $newTimestamp,
             $this->getUser(),
-            $now
+            $this->now()
         );
+
+        if (str_starts_with($request->getPathInfo(), '/json')) {
+            $response = [
+                'timestamp' => $apiTimestamp,
+                'view' => $this->renderView('timestamp/partials/_timestamp.html.twig', ['timestamp' => $newTimestamp])
+            ];
+
+            return $this->jsonNoNulls($response, Response::HTTP_CREATED);
+        }
 
         return $this->jsonNoNulls($apiTimestamp, Response::HTTP_CREATED);
     }
