@@ -12,6 +12,13 @@
          data-duration-format="{{ app.user.durationFormat }}"
          data-timestamp-id="{{ timestamp.idString }}">
 
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('timestamp_index') }}">Timestamps</a></li>
+                <li class="breadcrumb-item active" aria-current="page">current</li>
+            </ol>
+        </nav>
+
         <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
             <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
 
