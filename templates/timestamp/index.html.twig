@@ -19,18 +19,19 @@
 
         <h1 class="text-center">
             Timestamps
-            <span
+            <a
                 {{ stimulus_controller('bootstrap-popover') }}
-                class="pointer-hover help-button-title"
+                href="#"
+                class="pointer-hover help-button-title text-dark"
                 data-bs-toggle="popover"
                 title="What are timestamps?"
-                data-trigger="focus"
+                data-bs-trigger="focus"
                 data-bs-content="Timestamps keep track of when something happens. You can keep track of how often your server goes down, or the neighbor's dogs bark.">
                 <i
                     class="far fa-question-circle"
                     tabindex="0">
                 </i>
-            </span>
+            </a>
         </h1>
 
         <div class="dropdown mb-2">
