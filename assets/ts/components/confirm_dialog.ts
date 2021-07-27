@@ -23,6 +23,7 @@ export class ConfirmDialog {
     private confirmButton?: LoadingButton;
     private readonly confirmClass: string = '';
     private $modal?: JQuery;
+    private modal?: Modal;
 
     constructor(confirmClass: string = 'btn-primary') {
         this.id = Math.floor(Math.random() * 100000).toString();
@@ -51,8 +52,8 @@ export class ConfirmDialog {
 
         $('body').append(this.$modal);
 
-        const modal = new Modal(this.$modal[0]);
-        modal.show();
+        this.modal = new Modal(this.$modal[0]);
+        this.modal.show();
     }
 
     startLoading() {
@@ -77,7 +78,9 @@ export class ConfirmDialog {
             this.$modal = undefined;
         })
 
-        this.$modal.modal('hide');
+        if (this.modal) {
+            this.modal.hide();
+        }
     }
 
     createTemplate(title: string, body: string, cancelText: string, confirmText: string) {
