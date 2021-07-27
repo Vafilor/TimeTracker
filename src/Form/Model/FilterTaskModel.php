@@ -36,6 +36,10 @@ class FilterTaskModel
 
     public function getContent(): ?string
     {
+        if ($this->content) {
+            return urldecode($this->content);
+        }
+
         return $this->content;
     }
 

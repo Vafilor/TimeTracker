@@ -38,12 +38,12 @@ class ApiTagController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $term = strtolower($request->query->get('searchTerm'));
+        $term = strtolower(urldecode($request->query->get('searchTerm')));
         $excludeString = $request->query->get('exclude', '');
         $excludeItems = [];
 
         if ($excludeString !== '') {
-            $excludeItems = explode(',', $excludeString);
+            $excludeItems = explode(',', urldecode($excludeString));
         }
 
         $queryBuilder = $tagRepository->findWithUser($this->getUser())
