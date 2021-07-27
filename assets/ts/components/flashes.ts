@@ -18,7 +18,7 @@ export default class Flashes {
             
             <a href="${url}">${urlText}</a>
             
-            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
             </button>
         </div>`;
     }
