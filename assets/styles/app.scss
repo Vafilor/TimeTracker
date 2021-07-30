@@ -1,9 +1,5 @@
-// customize some Bootstrap variables
-//$primary: darken(#428bca, 20%);
-
-@import "partials/colors";
-@import "~bootstrap";
-@import "~bootstrap/scss/variables";
+@import "partials/custom";
+@import "~bootstrap/scss/bootstrap";
 @import "partials/tags";
 @import "partials/filters";
 @import "partials/autocomplete";
@@ -12,6 +8,19 @@
 
 $headerHeight: 64px;
 $paddingFromHeader: 20px;
+
+// Make breadcrumbs look similar to bootstrap 4
+// The "link" effect from breadcrumb item is not removed.
+.breadcrumb {
+    padding: 0.75rem 1rem;
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+}
+
+.bg-weak-white {
+    background-color: white;
+}
+
 
 .full-width {
     width: 100vw;
@@ -86,7 +95,7 @@ $paddingFromHeader: 20px;
 }
 
 .unset-width {
-    width: unset;
+    width: unset !important;
 }
 
 .unset-height {
@@ -218,19 +227,18 @@ main {
 #fixed-flash-messages {
     position: fixed;
     top: $headerHeight + 10px;
-    margin-left: -15px;
     z-index: 500;
 
-    .hide-top {
-        top: -1000px;
+    .flash {
+        transition: top 0.3s;
+
+        &.hide-top {
+            top: -100px;
+        }
 
         &.unhide-top {
             top: 0;
         }
-    }
-
-    .alert {
-        transition: top 0.3s;
     }
 }
 

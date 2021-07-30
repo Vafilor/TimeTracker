@@ -42,10 +42,11 @@ $(document).ready(() => {
 
             window.location.reload();
         } catch (e) {
-            const err = e as ApiErrorResponse;
-            if (!err) {
-                return;
+            if (!(e instanceof ApiErrorResponse)) {
+                throw e;
             }
+
+            const err = e as ApiErrorResponse;
 
             if (err.response.status === 409) {
                 if (err.hasErrorCode('code_day_taken')) {

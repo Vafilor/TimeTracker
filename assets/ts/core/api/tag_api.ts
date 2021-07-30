@@ -14,12 +14,14 @@ export function ApiTagFromName(name: string): ApiTag {
 
 export class TagApi {
     public static index(searchTerm: string, excludeTags: Array<string> = [] ) {
-        let url = `/json/tag?searchTerm=${searchTerm}`;
+        const search = new URLSearchParams();
+        search.append('searchTerm', encodeURIComponent(searchTerm));
+
         if (excludeTags.length !== 0) {
-            const excludeTerms = excludeTags.join(",");
-            url += '&exclude=' + excludeTerms;
+            const excludeTerms = encodeURIComponent(excludeTags.join(','));
+            search.append('exclude', excludeTerms);
         }
 
-        return CoreApi.get<PaginatedResponse<ApiTag>>(url);
+        return CoreApi.get<PaginatedResponse<ApiTag>>(`/json/tag?${search.toString()}`);
     }
 }

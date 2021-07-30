@@ -1,4 +1,4 @@
-import { DateTimeParts } from "../core/datetime";
+import { dateToISOLocal } from "./time";
 
 export class EditDateTime {
     private readonly when?: Date;
@@ -10,8 +10,7 @@ export class EditDateTime {
     public static template(extraClass: string = ''): string {
         return `
         <div class="js-edit-date-time form-inline ${extraClass}">
-            <input class="form-control js-date" type="date" />
-            <input class="form-control js-time" type="time" />
+            <input class="form-control js-datetime" type="datetime-local" />
         </div>`;
     }
 
@@ -19,47 +18,10 @@ export class EditDateTime {
         return `
         <div class="${extraClass}">
             <div>${label}</div>
-            <div class="js-edit-date-time form-inline">
-                <input class="form-control js-date" type="date" />
-                <input class="form-control js-time" step="1" type="time" />
+            <div class="js-edit-date-time d-inline-flex">
+                <input class="form-control js-datetime" type="datetime-local" />
             </div>
         </div>`;
-    }
-
-    public static dateToParts(when: Date): DateTimeParts {
-        let month = `${when.getMonth() + 1}`;
-        if (when.getMonth() < 9) {
-            month = '0' + month;
-        }
-
-        let day = `${when.getDate()}`;
-        if (when.getDate() < 10) {
-            day = '0' + day;
-        }
-
-        const whenDate = `${when.getFullYear()}-${month}-${day}`;
-
-        let hours = `${when.getHours()}`;
-        if (when.getHours() < 10) {
-            hours = '0' + hours;
-        }
-
-        let minutes = `${when.getMinutes()}`;
-        if (when.getMinutes() < 10) {
-            minutes = '0' + minutes;
-        }
-
-        let seconds = `${when.getSeconds()}`;
-        if (when.getSeconds() < 10) {
-            seconds = '0' + seconds;
-        }
-
-        const whenTime = `${hours}:${minutes}:${seconds}`;
-
-        return {
-            date: whenDate,
-            time: whenTime,
-        }
     }
 
     constructor($container: JQuery) {
@@ -68,18 +30,15 @@ export class EditDateTime {
         const timestamp = $container.data('timestamp');
         if (timestamp) {
             this.when = new Date(timestamp);
-            const parts = EditDateTime.dateToParts(this.when);
-
-            $container.find('.js-date').val(parts.date);
-            $container.find('.js-time').val(parts.time);
+            const isoLocal = dateToISOLocal(this.when);
+            $container.find('.js-datetime').val(isoLocal);
         }
     }
 
     getDate(): Date|undefined {
-        const date = this.$container.find('.js-date').val();
-        const time = this.$container.find('.js-time').val();
+        const datetime = this.$container.find('.js-datetime').val() as string;
 
-        return new Date(`${date} ${time}`);
+        return new Date(datetime);
     }
 
     dispose() {

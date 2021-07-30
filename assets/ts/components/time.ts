@@ -149,3 +149,36 @@ export function timeAgo(startMillis: number, endMillis?: number): string {
 
     return 'now';
 }
+
+export function dateToISOLocal(when: Date): string {
+    let month = `${when.getMonth() + 1}`;
+    if (when.getMonth() < 9) {
+        month = '0' + month;
+    }
+
+    let day = `${when.getDate()}`;
+    if (when.getDate() < 10) {
+        day = '0' + day;
+    }
+
+    const whenDate = `${when.getFullYear()}-${month}-${day}`;
+
+    let hours = `${when.getHours()}`;
+    if (when.getHours() < 10) {
+        hours = '0' + hours;
+    }
+
+    let minutes = `${when.getMinutes()}`;
+    if (when.getMinutes() < 10) {
+        minutes = '0' + minutes;
+    }
+
+    let seconds = `${when.getSeconds()}`;
+    if (when.getSeconds() < 10) {
+        seconds = '0' + seconds;
+    }
+
+    const whenTime = `${hours}:${minutes}:${seconds}`;
+
+    return `${whenDate}T${whenTime}`;
+}

@@ -22,36 +22,38 @@
 
     {{ form_start(form) }}
     {{ form_row(form.name) }}
-    <div class="d-none">
-        {{ form_row(form.parentTask) }}
-    </div>
+    {{ form_row(form.parentTask, {
+        attr: {class: 'd-none'},
+        label_attr: {class: 'd-none'}
+    })}}
 
     {% set taskName = '' %}
     {% if task.parent %}
         {% set taskName = task.parent.name %}
     {% endif %}
 
-    <label class="d-block">Parent Task</label>
+    <label class="d-block form-label">Parent Task</label>
     {{ autocomplete.removable('task', { button: { class: 'bg-weak-white btn-outline-danger'}, search: { value: taskName, placeholder: 'task name' } }) }}
 
+    <label class="d-block form-label mt-3">Tags</label>
     <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
         <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
 
         {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
     </div>
 
-    {{ form_label(form.completedAt) }}
-    <div class="d-inline-flex mt-1">
+    {{ form_label(form.completedAt, null, {label_attr: {class: 'd-block mt-3'}}) }}
+    <div class="d-inline-flex">
         {{ form_widget(form.completedAt) }}
-        <button type="button" class="btn btn-danger js-clear-datetime ml-2">
+        <button type="button" class="btn btn-danger js-clear-datetime ms-2">
             <i class="fas fa-trash"></i>
         </button>
     </div>
 
-    {{ form_label(form.dueAt) }}
-    <div class="d-inline-flex mt-1">
+    {{ form_label(form.dueAt, null, {label_attr: {class: 'd-block mt-3'}}) }}
+    <div class="d-inline-flex">
         {{ form_widget(form.dueAt) }}
-        <button type="button" class="btn btn-danger js-clear-datetime ml-2">
+        <button type="button" class="btn btn-danger js-clear-datetime ms-2">
             <i class="fas fa-trash"></i>
         </button>
     </div>
@@ -61,16 +63,16 @@
             <div class="d-inline-flex input-with-indicators flex-grow-1">
                 <div class="input-indicator input-indicator-left d-flex">
                     <div class="spinner-border spinner-border-sm text-primary js-loading d-none" role="status">
-                        <span class="sr-only">Loading...</span>
+                        <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
                 <input class="form-control js-time-entry-description no-resize left" placeholder="Entry description" />
             </div>
 
-            <div class="js-duration ml-1">{{ time.user_duration(zeroDuration(), app.user) }}</div>
-            <button type="button" class="btn btn-primary ml-2">
+            <div class="js-duration ms-1">{{ time.user_duration(zeroDuration(), app.user) }}</div>
+            <button type="button" class="btn btn-primary ms-2">
                 <span class="js-task-time-entry-loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                <span class="js-task-time-entry-loading sr-only">Loading...</span>
+                <span class="js-task-time-entry-loading visually-hidden">Loading...</span>
                 <span class="js-text"></span>
             </button>
         </div>
@@ -78,26 +80,26 @@
 
     <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active activity-link" id="activity-tab" data-toggle="tab" href="#activity" role="tab" aria-controls="home" aria-selected="true">
+            <button type="button" class="nav-link active activity-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" role="tab" aria-controls="home" aria-selected="true">
                 Activity
-            </a>
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link activity-link" id="activity-tab" data-toggle="tab" href="#subtasks" role="tab" aria-controls="home" aria-selected="true">
+            <button type="button" class="nav-link activity-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#subtasks" role="tab" aria-controls="home" aria-selected="true">
                 Subtasks
-            </a>
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link markdown-link" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">
-                <i class="fas fa-sync-alt fa-spin mr-1 d-none js-loading"></i>
+            <button type="button" class="nav-link markdown-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#markdown" role="tab" aria-controls="home" aria-selected="true">
+                <i class="fas fa-sync-alt fa-spin me-1 d-none js-loading"></i>
                 Description
-            </a>
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="markdown-tab" data-toggle="tab" href="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</a>
+            <button type="button" class="nav-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</button>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="details-tab" data-toggle="tab" href="#details" role="tab" aria-selected="false">Details</a>
+            <button type="button" class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" role="tab" aria-selected="false">Details</button>
         </li>
     </ul>
     <div class="tab-content">
@@ -106,7 +108,7 @@
                 <strong>Total Time:</strong>
                 <span class="js-value"></span>
                 <div class="js-loading spinner-border spinner-border-sm text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
+                    <span class="visually-hidden">Loading...</span>
                 </div>
                 <hr/>
             </div>
@@ -122,9 +124,9 @@
         <div class="tab-pane fade contained" id="subtasks" role="tabpanel" aria-labelledby="subtasks-tab">
             <div class="p-2">
                 <div class="inline-form-header mb-2">Add subtask</div>
-                <div class="js-task-create form-row">
+                <div class="js-task-create row g-2">
                     <div class="col">
-                        <label class="sr-only" for="create-task-name">New task name</label>
+                        <label class="visually-hidden" for="create-task-name">New task name</label>
                         <input
                                 id="create-task-name"
                                 type="text"
@@ -136,7 +138,7 @@
                     <div class="col-auto">
                         <button type="button" class="btn btn-primary js-button js-loading-button">
                             <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                            <span class="js-loading sr-only">Loading...</span>
+                            <span class="js-loading visually-hidden">Loading...</span>
                             <span class="js-text">Create task</span>
                         </button>
                     </div>
@@ -151,22 +153,22 @@
             </div>
         </div>
         <div class="tab-pane fade bg-white" id="details" role="tabpanel" aria-labelledby="details-tab">
-            <table class="table table-hover table-bordered border-top-0 rounded-bottom">
+            <table class="table table-hover table-bordered">
                 <thead>
-                <tr>
-                    <th class="border-top-0">Type</th>
-                    <th class="border-top-0">Timestamp</th>
-                </tr>
+                    <tr class="border-top-0">
+                        <th class="border-top-0">Type</th>
+                        <th class="border-top-0">Timestamp</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>Created</td>
-                    <td>{{ time.user_datetime(task.createdAt, app.user) }}</td>
-                </tr>
-                <tr>
-                    <td>Updated</td>
-                    <td>{{ time.user_datetime(task.updatedAt, app.user) }}</td>
-                </tr>
+                    <tr>
+                        <td>Created</td>
+                        <td>{{ time.user_datetime(task.createdAt, app.user) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Updated</td>
+                        <td>{{ time.user_datetime(task.updatedAt, app.user) }}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -177,16 +179,16 @@
         {% if not task.deleted %}
             <button type="submit" class="btn btn-primary">Update</button>
             {% if task.completed %}
-                <a href="{{ path('task_complete', {id: task.id, value: 'uncomplete'}) }}" class="btn btn-secondary ml-2">Uncomplete</a>
+                <a href="{{ path('task_complete', {id: task.id, value: 'uncomplete'}) }}" class="btn btn-secondary ms-2">Uncomplete</a>
             {% else %}
-                <a href="{{ path('task_complete', {id: task.id, value: 'complete'}) }}" class="btn btn-secondary ml-2">Complete</a>
+                <a href="{{ path('task_complete', {id: task.id, value: 'complete'}) }}" class="btn btn-secondary ms-2">Complete</a>
             {% endif %}
 
             <button
                     type="button"
-                    class="btn btn-danger ml-2"
-                    data-toggle="modal"
-                    data-target="#delete-modal">
+                    class="btn btn-danger ms-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#delete-modal">
                 Delete
             </button>
         {% endif %}
@@ -200,15 +202,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="delete-modal-label">Are you sure you want to delete?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
             <div class="modal-body">
                 This will delete the task and all of it's children
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <a href="{{ path('task_delete', {id: task.id}) }}" class="btn btn-danger">Delete</a>
             </div>
         </div>

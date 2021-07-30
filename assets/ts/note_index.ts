@@ -80,7 +80,7 @@ class NoteList {
                     ${note.title}
                 </div>
                 <div>
-                    <a href="${url}" class="btn btn-primary js-view ml-2">View</a>
+                    <a href="${url}" class="btn btn-primary js-view ms-2">View</a>
                 </div>
             </div>
             <div class="tag-list js-tag-list many-rows ${tagAdjustmentClass}">

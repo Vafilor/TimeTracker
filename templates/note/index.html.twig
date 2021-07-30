@@ -32,7 +32,7 @@
 
         <div class="dropdown mb-2">
             <label>Sort</label>
-            <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button class="btn dropdown-toggle bg-white border-gray ms-2" type="button" id="time-entry-sort" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {% if pagination.isSorted('note.createdAt') and pagination.direction == 'asc' %}
                     Oldest
                 {% else %}
@@ -47,18 +47,21 @@
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
-        <form class="row no-gutters mt-3 js-create-note">
-            <div>
-                <label class="sr-only" for="note-create-title"></label>
+        <label class="form-label"><strong>Add note</strong></label>
+        <form class="row g-2 js-create-note">
+            <div class="col-auto">
+                <label class="visually-hidden" for="note-create-title"></label>
                 <input id="note-create-title" type="text" class="form-control" placeholder="title">
             </div>
 
-            <div class="col ml-2">
-                <label class="sr-only" for="note-create-content"></label>
+            <div class="col">
+                <label class="visually-hidden" for="note-create-content"></label>
                 <input id="note-create-content" type="text" class="form-control" placeholder="content">
             </div>
 
-            <button type="submit" class="btn btn-primary ml-2">Create</button>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
         </form>
 
         {% if pagination.count == 0 %}

@@ -4,6 +4,7 @@ import { ApiStatisticValue } from "../core/api/statistic_value_api";
 import IdGenerator from "./id_generator";
 import Flashes from "./flashes";
 import Observable from "./observable";
+import { Tooltip } from 'bootstrap';
 
 export interface AddStatisticValue {
     name: string;
@@ -52,36 +53,32 @@ export class StatisticValueItem {
 
         return `
             <div
-                class="statistic-value-row js-statistic-item input-group"
+                class="statistic-value-row js-statistic-item input-group d-inline-flex"
                 data-id="${value.id}"
                 data-name="${value.name}"
                 data-value="${value.value}"
                 data-icon="${value.icon}"
                 data-unit="${value.unit}">
-                <div class="input-group-prepend">
-                    <span 
-                        class="input-group-text bg-white js-name-icon"
-                        style="color: ${value.color}"
-                        data-toggle="tooltip" 
-                        data-placement="top" 
-                        title="${value.name} (${value.unit})">
-                        ${display}
-                    </span>
-                </div>
+                <span 
+                    class="input-group-text bg-white js-name-icon"
+                    style="color: ${value.color}"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top" 
+                    title="${value.name} (${value.unit})">
+                    ${display}
+                </span>
                 <input type="number" class="form-control input-value js-input-value" placeholder="value" value="${value.value}">
-                <div class="input-group-append">
-                    <div class="upload-status js-upload-status">
-                        <div class="spinner-border spinner-border-sm text-primary d-none js-loading" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="js-uploaded">
-                            <i class="fas fa-cloud"></i>
-                        </div>
+                <div class="upload-status js-upload-status input-group-text bg-white">
+                    <div class="spinner-border spinner-border-sm text-primary d-none js-loading" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-                    <button class="btn btn-outline-danger bg-weak-white js-delete" type="button">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <div class="js-uploaded">
+                        <i class="fas fa-cloud"></i>
+                    </div>
                 </div>
+                <button class="btn btn-outline-danger bg-weak-white js-delete" type="button">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>  
         `;
     }
@@ -120,7 +117,7 @@ export class StatisticValueItem {
         $nameIcon.css('color', value.color);
         $nameIcon.html(display);
         $nameIcon.attr('title', value.name);
-        $nameIcon.tooltip();
+        const nameIconToolTip = new Tooltip($nameIcon[0]);
     }
 
     public delete = new Observable<StatisticValueItemDeleteEvent>();

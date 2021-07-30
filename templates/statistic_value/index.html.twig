@@ -12,11 +12,11 @@
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
-        <label>Add record</label>
-        <form class="mt-2 js-add-statistic row no-gutters">
+        <label class="form-label"><strong>Add record</strong></label>
+        <form class="js-add-statistic row g-2">
             {{ autocomplete.list('statistic', { root: { class: 'col' }, search: { tabIndex: '1' }  }) }}
-            <div class="ml-2">
-                <label class="sr-only" for="statistic-value">value</label>
+            <div class="col-auto">
+                <label class="visually-hidden" for="statistic-value">value</label>
                 <input
                         id="statistic-value"
                         tabindex="2"
@@ -26,8 +26,8 @@
                         autocomplete="off"
                 />
             </div>
-            <div class="ml-2">
-                <label class="sr-only" for="statistic-day">day</label>
+            <div class="col-auto">
+                <label class="visually-hidden" for="statistic-day">day</label>
                 <input
                         id="statistic-day"
                         tabindex="3"
@@ -36,9 +36,11 @@
                         name="day"
                         value="{{ 'now'|date('Y-m-d', app.user.timezone) }}">
             </div>
-            <button type="button" tabindex="4" class="ml-2 btn btn-primary js-add">
-                Add
-            </button>
+            <div class="col-auto">
+                <button type="button" tabindex="4" class="btn btn-primary js-add">
+                    Add
+                </button>
+            </div>
         </form>
 
         <table class="table table-bordered table-hover mt-3">
@@ -74,7 +76,7 @@
                                 <i class="{{ value.statistic.icon }}"></i>
                             {% endif %}
                         </span>
-                        <span class="ml-2">{{ value.statistic.name }}</span>
+                        <span class="ms-2">{{ value.statistic.name }}</span>
                     </td>
                     <td>{{ value.value }}</td>
                     <td>

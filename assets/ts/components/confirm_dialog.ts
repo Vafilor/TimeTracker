@@ -1,6 +1,7 @@
 import $ from "jquery";
 import Observable from "./observable";
 import LoadingButton from "./loading_button";
+import { Modal } from 'bootstrap';
 
 export type ConfirmButtonClicked = 'confirm' | 'cancel';
 
@@ -22,6 +23,7 @@ export class ConfirmDialog {
     private confirmButton?: LoadingButton;
     private readonly confirmClass: string = '';
     private $modal?: JQuery;
+    private modal?: Modal;
 
     constructor(confirmClass: string = 'btn-primary') {
         this.id = Math.floor(Math.random() * 100000).toString();
@@ -49,7 +51,9 @@ export class ConfirmDialog {
         this.confirmButton = new LoadingButton(this.$modal.find('.js-confirm'));
 
         $('body').append(this.$modal);
-        this.$modal.modal('show');
+
+        this.modal = new Modal(this.$modal[0]);
+        this.modal.show();
     }
 
     startLoading() {
@@ -74,7 +78,9 @@ export class ConfirmDialog {
             this.$modal = undefined;
         })
 
-        this.$modal.modal('hide');
+        if (this.modal) {
+            this.modal.hide();
+        }
     }
 
     createTemplate(title: string, body: string, cancelText: string, confirmText: string) {
@@ -84,15 +90,13 @@ export class ConfirmDialog {
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="confirmModalLabel">${title}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
                 ${body}
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" data-button-id="cancel">${cancelText}</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-button-id="cancel">${cancelText}</button>
                 <button type="button" class="btn js-confirm ${this.confirmClass}" data-button="confirm" data-button-id="confirm">
                     <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
                     ${confirmText}

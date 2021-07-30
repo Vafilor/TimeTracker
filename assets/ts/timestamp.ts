@@ -74,10 +74,11 @@ $(document).ready(() => {
                 value: event.value
             });
         } catch (e) {
-            const err = e as ApiErrorResponse;
-            if (!err) {
-                return;
+            if (!(e instanceof ApiErrorResponse)) {
+                throw e;
             }
+
+            const err = e as ApiErrorResponse;
 
             if (err.response.status === 409) {
                 flashes.append('danger', `Unable to add record, a record with name '${event.name}' already exists for ${event.day}`);

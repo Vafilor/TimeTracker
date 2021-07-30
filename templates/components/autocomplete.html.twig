@@ -12,7 +12,7 @@
         {% set _attr = _attr|merge(attr) %}
     {% endif %}
 
-    <label class="sr-only" for="{{ name }}-name">name</label>
+    <label class="visually-hidden" for="{{ name }}-name">name</label>
     <input
             id="{{ name }}-name"
             {% if _attr.tabIndex is defined%}

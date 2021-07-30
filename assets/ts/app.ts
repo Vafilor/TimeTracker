@@ -6,7 +6,6 @@
  */
 
 import $ from 'jquery';
-import 'bootstrap'; // Adds functions to jQuery
 import '@fortawesome/fontawesome-free/js/solid';
 import '@fortawesome/fontawesome-free/js/brands';
 import '@fortawesome/fontawesome-free/js/regular';
@@ -16,20 +15,25 @@ import '@fortawesome/fontawesome-free/js/fontawesome';
 import '../styles/app.scss';
 
 // start the Stimulus application
+import '../bootstrap';
+
+import { Popover, Tooltip } from 'bootstrap';
 
 $(document).ready(() => {
-    // @ts-ignore
-    $('[data-toggle="tooltip"]').tooltip();
-    $('[data-toggle="popover"]').popover();
+    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle=popover]'));
+    const popoverList = popoverTriggerList.map((popoverTriggerElement) => {
+        return new Popover(popoverTriggerElement);
+    });
 
-    $('.popover-dismiss').popover({
-        trigger: 'focus'
-    })
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle=tooltip]'))
+    const tooltipList = tooltipTriggerList.map((tooltipTriggerElement) => {
+        return new Tooltip(tooltipTriggerElement);
+    });
 
     $('.js-clear-datetime').on('click', (event) => {
         const $parent = $(event.currentTarget).parent();
 
         $parent.find('input').val('');
     })
-});
 
+});

@@ -171,8 +171,8 @@ abstract class Autocomplete {
 
         this.$searchContent.html(`
             <div class="searching">
-                <div class="spinner-border spinner-border-sm text-primary mr-1" role="status">
-                    <span class="sr-only">Loading...</span>
+                <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
                  Searching...
             </div>

@@ -166,3 +166,19 @@ For example,
 ```
 
 Will result in: `04/16/2021 01:33:01 PM`
+
+## Code
+
+Javascript is analyzed using webpack-bundle-analyzer
+
+To check it out, run:
+
+```bash
+yarn run --silent build --json &gt; stats.json
+```
+
+Then
+
+```bash
+yarn webpack-bundle-analyzer stats.json public/build
+```

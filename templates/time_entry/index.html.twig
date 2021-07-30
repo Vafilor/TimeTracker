@@ -17,39 +17,29 @@
         <div class="filter-title">Filter</div>
         {{ form_start(filterForm) }}
         {{ form_errors(filterForm) }}
-        <div class="d-flex flex-wrap mb-2">
-            <div class="mr-3">
-                <div>
-                {{ form_label(filterForm.start) }}
-                {% if filterForm.end.vars.errors|length != 0 %}
-                    &nbsp;
-                {% endif %}
-                </div>
-                <div class="d-inline-flex mt-1">
-                    {{ form_widget(filterForm.start, {attr: {class: 'anti-form-control'}}) }}
-                    <button type="button" class="btn btn-danger js-clear-datetime ml-2">
+
+        <div class="d-flex flex-wrap mb-1">
+            <div>
+                <div>{{ form_label(filterForm.start) }}</div>
+                <div class="d-inline-flex me-2">
+                    {{ form_widget(filterForm.start) }}
+                    <button type="button" class="btn btn-danger js-clear-datetime ms-2">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
-
             <div>
-                <div>
-                {{ form_label(filterForm.end) }}
-                {% if filterForm.start.vars.errors|length != 0 %}
-                    &nbsp;
-                {% endif %}
-                </div>
-                <div class="d-inline-flex mt-1">
-                    {{ form_widget(filterForm.end, {attr: {class: 'anti-form-control'}}) }}
-                    <button type="button" class="btn btn-danger js-clear-datetime ml-2">
+                <div>{{ form_label(filterForm.end) }}</div>
+                <div class="d-inline-flex">
+                    {{ form_widget(filterForm.end) }}
+                    <button type="button" class="btn btn-danger js-clear-datetime ms-2">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
         </div>
 
-        {{ form_label(filterForm.tags) }}
+        {{ form_label(filterForm.tags, null, {label_attr: {class: 'd-block'}}) }}
         <div class="js-tags-filter d-flex align-items-center mb-1">
             {{ form_widget(filterForm.tags, {attr: {class: 'js-real-tag-input d-none'}}) }}
             <div class="js-tags tag-list js-tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
@@ -57,9 +47,7 @@
             {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'} }) }}
         </div>
 
-        <div class="d-block">
-            {{ form_label(filterForm.taskId) }}
-        </div>
+        {{ form_label(filterForm.taskId, null, {label_attr: {class: 'd-block'}}) }}
 
         {{ autocomplete.list('task', { search: { value: task.name ?? '' } }) }}
 
@@ -74,7 +62,7 @@
 
     <div class="dropdown mb-2">
         <label>Sort</label>
-        <button class="btn dropdown-toggle bg-white border-gray ml-2" type="button" id="time-entry-sort" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="btn dropdown-toggle bg-white border border-gray ms-2" type="button" id="time-entry-sort" data-bs-toggle="dropdown" aria-expanded="false">
             {% if pagination.isSorted('time_entry.startedAt') and pagination.direction == 'asc' %}
                 Oldest
             {% else %}

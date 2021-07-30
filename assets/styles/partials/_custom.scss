@@ -1,0 +1,29 @@
+// Required
+@import "../../../node_modules/bootstrap/scss/functions";
+
+// Default variable overrides
+// -- I have none
+
+// Required
+@import "../../../node_modules/bootstrap/scss/variables";
+@import "../../../node_modules/bootstrap/scss/mixins";
+
+$primaryLight: lighten($primary, 30%);
+$light: #f8f9fa;
+$light-gray: #cdcdcd;
+$gray-300: #dee2e6;
+$gray: #ababab;
+$darkGray: #5d5d5d;
+$lighterGray: lighten($darkGray, 20%);
+$gray-gray: gray;
+$dark: #222;
+
+// Add to the color map
+$app-colors: (
+    "gray": $gray,
+    "light-gray": $light-gray,
+    "gray-gray": $gray-gray,
+    "dark": $dark
+);
+
+$theme-colors: map-merge($theme-colors, $app-colors);

@@ -22,29 +22,29 @@
 
     <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active markdown-link" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">
-                <i class="fas fa-sync-alt fa-spin mr-1 d-none js-loading"></i>
+            <button type="button" class="nav-link active markdown-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#markdown" role="tab" aria-controls="markdown" aria-selected="true">
+                <i class="fas fa-sync-alt fa-spin me-1 d-none js-loading"></i>
                 Description
-            </a>
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="markdown-tab" data-toggle="tab" href="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</a>
+            <button type="button" class="nav-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</button>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="details-tab" data-toggle="tab" href="#details" role="tab" aria-selected="false">Details</a>
+            <button type="button" class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" role="tab" aria-selected="false">Details</button>
         </li>
     </ul>
     <div class="tab-content" id="description-content">
         <div class="tab-pane fade show active" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
-            {{ form_widget(form.content, {attr: { rows: 10, class: 'js-description' }}) }}
+            {{ form_widget(form.content, {attr: { rows: 10, class: 'border-top-0 js-description' }}) }}
         </div>
-        <div class="tab-pane fade" id="preview" role="tabpanel" aria-labelledby="profile-tab">
-            <div id="preview-content" class="border rounded-bottom"></div>
+        <div class="tab-pane contained fade" id="preview" role="tabpanel" aria-labelledby="profile-tab">
+            <div id="preview-content"></div>
         </div>
-        <div class="tab-pane fade" id="details" role="tabpanel" aria-labelledby="details-tab">
+        <div class="tab-pane fade bg-white" id="details" role="tabpanel" aria-labelledby="details-tab">
             <table class="table table-hover table-bordered">
                 <thead>
-                <tr>
+                <tr class="border-top-0">
                     <th>Type</th>
                     <th>Timestamp</th>
                 </tr>
@@ -66,7 +66,7 @@
     {{ form_widget(form) }}
     <div class="d-flex mt-2">
         <button type="submit" class="btn btn-primary">Update</button>
-        <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#delete-modal">
+        <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#delete-modal">
             Delete
         </button>
     </div>
@@ -79,15 +79,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="delete-modal-label">Are you sure you want to delete?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
             <div class="modal-body">
                 This will delete the note
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <a href="{{ path('note_delete', {id: note.id}) }}" class="btn btn-danger">Delete</a>
             </div>
         </div>

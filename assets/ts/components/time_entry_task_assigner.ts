@@ -20,7 +20,7 @@ export class TimeEntryTaskAssigner extends TaskAssigner {
             data-task-name="${taskName}"
             data-task-url="${taskUrl}">
             <div class="autocomplete-search-group">
-                <label class="sr-only" for="autocomplete-task-${id}">name</label>
+                <label class="visually-hidden" for="autocomplete-task-${id}">name</label>
                 <input
                         id="autocomplete-task-${id}"
                         type="search"

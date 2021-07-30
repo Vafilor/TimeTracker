@@ -24,13 +24,13 @@
 
         <div class="mt-2">
             {% if not timeEntry.over %}
-                <div class="spinner-border spinner-border-sm text-primary mr-1" role="status">
-                    <span class="sr-only">Loading...</span>
+                <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
             {% endif %}
 
             Duration
-            <span class="ml-1 js-timer {% if timeEntry.running %}js-running-timer{% endif %}"
+            <span class="ms-1 js-timer {% if timeEntry.running %}js-running-timer{% endif %}"
                   data-start="{{ timeEntry.startedAt.timestamp * 1000 }}"
                   data-duration-format="{{ app.user.durationFormat }}">
             {{ time.user_duration(timeEntry.duration, app.user) }}
@@ -59,7 +59,7 @@
             </div>
         </div>
 
-        <div class="ml-4">
+        <div class="ms-4">
             <div>
                 {{ form_label(form.endedAt) }}
                 {% if form.startedAt.vars.errors|length != 0 %}
@@ -74,32 +74,32 @@
 
     <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active markdown-link" id="home-tab" data-toggle="tab" href="#markdown" role="tab" aria-controls="home" aria-selected="true">
-                <i class="fas fa-sync-alt fa-spin mr-1 d-none js-loading"></i>
+            <button type="button" class="nav-link active markdown-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#markdown" role="tab" aria-controls="markdown" aria-selected="true">
+                <i class="fas fa-sync-alt fa-spin me-1 d-none js-loading"></i>
                 Markdown
-            </a>
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="markdown-tab" data-toggle="tab" href="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</a>
+            <button type="button" class="nav-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</button>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="details-tab" data-toggle="tab" href="#details" role="tab" aria-selected="false">Details</a>
+            <button type="button" class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" role="tab" aria-selected="false">Details</button>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="data-tab" data-toggle="tab" href="#data" role="tab" aria-selected="false">Data</a>
+            <button type="button" class="nav-link" id="data-tab" data-bs-toggle="tab" data-bs-target="#data" role="tab" aria-selected="false">Data</button>
         </li>
     </ul>
     <div class="tab-content" id="description-content">
-        <div class="tab-pane fade show active " id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
-            {{ form_widget(form.description, {attr: { rows: 10, class: 'js-description' }}) }}
+        <div class="tab-pane fade show active" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
+            {{ form_widget(form.description, {attr: { rows: 10, class: 'border-top-0 js-description' }}) }}
         </div>
-        <div class="tab-pane fade" id="preview" role="tabpanel" aria-labelledby="profile-tab">
-            <div id="preview-content" class="border rounded-bottom"></div>
+        <div class="tab-pane contained fade" id="preview" role="tabpanel" aria-labelledby="profile-tab">
+            <div id="preview-content"></div>
         </div>
-        <div class="tab-pane fade" id="details" role="tabpanel" aria-labelledby="details-tab">
+        <div class="tab-pane fade bg-white" id="details" role="tabpanel" aria-labelledby="details-tab">
             <table class="table table-hover table-bordered">
                 <thead>
-                    <tr>
+                    <tr class="border-top-0">
                         <th>Type</th>
                         <th>Timestamp</th>
                     </tr>
@@ -119,8 +119,8 @@
         <div class="tab-pane fade" id="data" role="tabpanel" aria-labelledby="data-tab">
             <div class="d-flex mt-2 js-add-statistic add-statistic">
                 {{ autocomplete.list('statistic', { search: { tabIndex: '1' } }) }}
-                <div class="ml-2">
-                    <label class="sr-only" for="add-statistic-value">record value</label>
+                <div class="ms-2">
+                    <label class="visually-hidden" for="add-statistic-value">record value</label>
                     <input
                             id="add-statistic-value"
                             tabindex="2"
@@ -130,7 +130,7 @@
                             autocomplete="off"
                     />
                 </div>
-                <button type="button" class="ml-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
+                <button type="button" class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
                     Add
                 </button>
             </div>
@@ -142,13 +142,13 @@
     <div class="d-flex mt-3">
         <button type="submit" class="btn btn-primary">Update</button>
         {% if not timeEntry.over %}
-            <a href="{{ path('time_entry_stop', {id: timeEntry.id}) }}" class="btn btn-secondary ml-2">Stop</a>
+            <a href="{{ path('time_entry_stop', {id: timeEntry.id}) }}" class="btn btn-secondary ms-2">Stop</a>
         {% else %}
-            <a href="{{ path('time_entry_resume', {id: timeEntry.idString}) }}" class="btn btn-secondary ml-2">Resume</a>
-            <a href="{{ path('time_entry_continue', {id: timeEntry.idString}) }}" class="btn btn-secondary ml-2">Continue</a>
+            <a href="{{ path('time_entry_resume', {id: timeEntry.idString}) }}" class="btn btn-secondary ms-2">Resume</a>
+            <a href="{{ path('time_entry_continue', {id: timeEntry.idString}) }}" class="btn btn-secondary ms-2">Continue</a>
         {% endif %}
 
-        <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#delete-modal">
+        <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#delete-modal">
             Delete
         </button>
     </div>
@@ -160,15 +160,14 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="delete-modal-label">Are you sure you want to delete?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                     </button>
                 </div>
                 <div class="modal-body">
                     This will delete the time entry.
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <a href="{{ path('time_entry_delete', {id: timeEntry.id}) }}" class="btn btn-danger">Delete</a>
                 </div>
             </div>

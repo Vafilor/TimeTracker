@@ -36,7 +36,7 @@ class TimestampListPage {
             <hr/>
             <div class="d-flex justify-content-end js-actions">
                 <a href="${routes.timestampView(timestamp.id)}" class="btn btn-primary js-view">View</a>
-                <button type="button" class="btn btn-secondary js-timestamp-repeat ml-2">
+                <button type="button" class="btn btn-secondary js-timestamp-repeat ms-2">
                     <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
                     Repeat
                 </button>
