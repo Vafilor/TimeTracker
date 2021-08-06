@@ -10,7 +10,11 @@
 <div class="container-fluid">
 
     <div class="row">
-        <div id="fixed-flash-messages" class="col-md-9 col-lg-10 offset-md-3 offset-lg-2">
+        <div
+            id="fixed-flash-messages"
+            class="col-md-9 col-lg-10 offset-md-3 offset-lg-2"
+            {{ stimulus_controller('flashes') }}
+            data-action="flash:add@window->flashes#addFlash">
         </div>
     </div>
 
