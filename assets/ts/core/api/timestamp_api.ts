@@ -1,7 +1,7 @@
 import { CoreApi } from "./api";
 import { ApiTag } from "./tag_api";
 import { AddStatisticRequest } from "./statistic_api";
-import { ApiStatisticValue } from "./statistic_value_api";
+import { CreateStatisticValueResponse } from "./statistic_value_api";
 
 export interface ApiTimestamp {
     id: string;
@@ -38,7 +38,7 @@ export class TimestampApi {
     }
 
     public static addStatistic(timestampId: string, request: AddStatisticRequest) {
-        return CoreApi.post<ApiStatisticValue>(`/json/timestamp/${timestampId}/statistic`, request);
+        return CoreApi.post<CreateStatisticValueResponse>(`/json/timestamp/${timestampId}/statistic`, request);
     }
 
     public static removeStatistic(timestampId: string, statisticId: string) {

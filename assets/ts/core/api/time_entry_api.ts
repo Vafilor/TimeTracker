@@ -2,7 +2,7 @@ import { CoreApi, JsonResponse } from "./api";
 import { ApiTag } from "./tag_api";
 import { ApiTask } from "./task_api";
 import { AddStatisticRequest } from "./statistic_api";
-import { ApiStatisticValue } from "./statistic_value_api";
+import { CreateStatisticValueResponse } from "./statistic_value_api";
 import { dateToISOLocal } from "../../components/time";
 
 export type DateFormat = 'date' | 'date_time' | 'date_time_today';
@@ -147,7 +147,7 @@ export class TimeEntryApi {
     }
 
     public static addStatistic(timeEntryId: string, request: AddStatisticRequest) {
-        return CoreApi.post<ApiStatisticValue>(`/json/time-entry/${timeEntryId}/statistic`, request);
+        return CoreApi.post<CreateStatisticValueResponse>(`/json/time-entry/${timeEntryId}/statistic`, request);
     }
 
     public static removeStatistic(timeEntryId: string, statisticId: string) {

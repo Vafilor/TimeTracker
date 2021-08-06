@@ -1,17 +1,9 @@
-import { CoreApi, PaginatedResponse } from './api';
+import { ApiStatistic, ApiStatisticValue, TimeType } from "./types";
+import { AxiosResponse } from "axios";
 import { ApiTag } from "./tag_api";
+import { CoreApi, JsonResponse, PaginatedResponse } from "./api";
 
-export type TimeType = 'instant' | 'interval';
-
-export interface ApiStatistic {
-    name: string;
-    canonicalName: string;
-    createdAt: string;
-    createAtEpoch: number;
-    color: string;
-    unit: string;
-    icon?: string;
-}
+const axios = require('axios').default;
 
 export interface AddStatisticRequest {
     statisticName: string;
@@ -30,31 +22,39 @@ export interface CreateStatisticResponse {
 }
 
 export class StatisticApi {
-    public static index(searchTerm: string, timeType: TimeType = 'instant') {
+    // TODO remove
+    public static indexV1(searchTerm: string, timeType: TimeType = 'instant') {
         const url = `/json/statistic?searchTerm=${searchTerm}&timeType=${timeType}`;
 
         return CoreApi.get<PaginatedResponse<ApiStatistic>>(url);
     }
 
-    public static create(options: CreateStatisticOptions) {
-        const url = `/json/statistic`;
-
-        return CoreApi.post<CreateStatisticResponse>(url, options);
+    public static index(searchTerm: string, timeType: TimeType = 'instant'): Promise<AxiosResponse<PaginatedResponse<ApiStatistic>>> {
+        return axios.get('/json/statistic', {
+            params: {
+                searchTerm,
+                timeType
+            }
+        })
     }
 
-    public static addTag(statisticId: string, tagName: string) {
-        return CoreApi.post<ApiTag>(`/json/statistic/${statisticId}/tag`, {
+    public static create(options: CreateStatisticOptions): Promise<AxiosResponse<CreateStatisticResponse>> {
+        return axios.post(`/json/statistic`, options);
+    }
+
+    public static addTag(statisticId: string, tagName: string): Promise<AxiosResponse<ApiTag>> {
+        return axios.post(`/json/statistic/${statisticId}/tag`, {
             name: tagName
         });
     }
 
-    public static getTags(statisticId: string) {
-        return CoreApi.get<ApiTag[]>(`/json/statistic/${statisticId}/tags`);
+    public static getTags(statisticId: string): Promise<AxiosResponse<ApiTag[]>> {
+        return axios.get(`/json/statistic/${statisticId}/tags`);
     }
 
-    public static removeTag(statisticId: string, tagName: string) {
+    public static removeTag(statisticId: string, tagName: string): Promise<AxiosResponse<void>> {
         tagName = encodeURIComponent(tagName);
 
-        return CoreApi.delete(`/json/statistic/${statisticId}/tag/${tagName}`);
+        return axios.delete(`/json/statistic/${statisticId}/tag/${tagName}`);
     }
 }
