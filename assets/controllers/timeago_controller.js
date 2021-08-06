@@ -11,7 +11,6 @@ export default class extends Controller {
     interval = null;
 
     startValueChanged() {
-        console.log('startValueChanged');
         this._start = this.startValue * 1000;
     }
 
