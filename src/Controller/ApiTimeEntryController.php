@@ -651,13 +651,25 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        return $this->addStatisticValueRequest(
+        $statisticValue = $this->addStatisticValueRequest(
             $request,
             $statisticRepository,
             $statisticValueRepository,
             $this->getUser(),
             $timeEntry
         );
+
+        $apiStatisticValue = ApiStatisticValue::fromEntity($statisticValue, $this->getUser());
+        if (str_starts_with($request->getPathInfo(), '/json')) {
+            $response = [
+                'statisticValue' => $apiStatisticValue,
+                'view' => $this->renderView('statistic_value/partials/_statistic-value.html.twig', ['value' => $statisticValue])
+            ];
+
+            return $this->jsonNoNulls($response, Response::HTTP_CREATED);
+        }
+
+        return $this->jsonNoNulls($apiStatisticValue, Response::HTTP_CREATED);
     }
 
     #[Route('/api/time-entry/{id}/statistic/{statisticId}', name: 'api_time_entry_statistic_delete', methods: ['DELETE'])]

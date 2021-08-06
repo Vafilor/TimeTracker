@@ -12,6 +12,7 @@ use App\Form\Model\TimeEntryListFilterModel;
 use App\Form\Model\TimeEntryModel;
 use App\Form\TimeEntryFormType;
 use App\Form\TimeEntryListFilterFormType;
+use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
@@ -255,5 +256,27 @@ class TimeEntryController extends BaseController
         $this->addFlash('success', 'Time entry deleted');
 
         return $this->redirectToRoute('time_entry_index');
+    }
+
+    #[Route('/time-entry/{id}/records', name: 'time_entry_record_index')]
+    public function _recordIndex(
+        Request $request,
+        TimeEntryRepository $timeEntryRepository,
+        StatisticValueRepository $statisticValueRepository,
+        PaginatorInterface $paginator,
+        string $id
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $timeEntry = $timeEntryRepository->findOrException($id);
+        if (!$timeEntry->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $statisticValues = $statisticValueRepository->findForResource($timeEntry);
+
+        return $this->render('statistic_value/partials/_statistic-value-index.html.twig', [
+            'values' => $statisticValues
+        ]);
     }
 }

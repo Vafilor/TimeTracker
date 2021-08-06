@@ -8,6 +8,7 @@ use App\Api\ApiTag;
 use App\Entity\Timestamp;
 use App\Form\Model\TimestampEditModel;
 use App\Form\TimestampEditFormType;
+use App\Repository\StatisticValueRepository;
 use App\Repository\TimestampRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Knp\Component\Pager\PaginatorInterface;
@@ -117,5 +118,27 @@ class TimestampController extends BaseController
         $this->addFlash('success', 'Timestamp was removed');
 
         return $this->redirectToRoute('timestamp_index');
+    }
+
+    #[Route('/timestamp/{id}/records', name: 'timestamp_record_index')]
+    public function _recordIndex(
+        Request $request,
+        TimestampRepository $timestampRepository,
+        StatisticValueRepository $statisticValueRepository,
+        PaginatorInterface $paginator,
+        string $id
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $statisticValues = $statisticValueRepository->findForResource($timestamp);
+
+        return $this->render('statistic_value/partials/_statistic-value-index.html.twig', [
+            'values' => $statisticValues
+        ]);
     }
 }

@@ -21,7 +21,8 @@ class StatisticValueController extends BaseController
     public function index(
         Request $request,
         StatisticValueRepository $statisticValueRepository,
-        PaginatorInterface $paginator): Response
+        PaginatorInterface $paginator
+    ): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -41,7 +42,7 @@ class StatisticValueController extends BaseController
         $timezone = $this->getUser()->getTimezone();
 
         /** @var StatisticValue $statisticValue */
-        foreach($pagination->getItems() as $statisticValue) {
+        foreach ($pagination->getItems() as $statisticValue) {
             $start = clone $statisticValue->getStartedAt();
             $startedAt = $start->setTimezone(new DateTimeZone($timezone));
             $key = $startedAt->format($dateFormat);
@@ -102,7 +103,8 @@ class StatisticValueController extends BaseController
     public function remove(
         Request $request,
         StatisticValueRepository $statisticValueRepository,
-        string $id): Response
+        string $id
+    ): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 

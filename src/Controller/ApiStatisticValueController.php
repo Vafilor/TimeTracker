@@ -122,6 +122,15 @@ class ApiStatisticValueController extends BaseController
 
         $apiModel = ApiStatisticValue::fromEntity($statisticValue, $this->getUser());
 
+        if (str_starts_with($request->getPathInfo(), '/json')) {
+            $response = [
+                'statisticValue' => $apiModel,
+                'view' => $this->renderView('statistic_value/partials/_statistic-value.html.twig', ['value' => $statisticValue])
+            ];
+
+            return $this->jsonNoNulls($response, Response::HTTP_CREATED);
+        }
+
         return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
     }
 

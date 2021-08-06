@@ -8,7 +8,6 @@ use App\Api\ApiError;
 use App\Api\ApiFormError;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
-use App\Api\ApiStatisticValue;
 use App\Controller\StatisticController;
 use App\Entity\Statistic;
 use App\Entity\StatisticValue;
@@ -40,8 +39,7 @@ trait HasStatisticDataTrait
         StatisticValueRepository $statisticValueRepository,
         User $assignedTo,
         Timestamp|TimeEntry $resource
-    )
-    {
+    ): StatisticValue {
         $timeType = TimeType::INSTANT;
         if ($resource instanceof TimeEntry) {
             $timeType = TimeType::INTERVAL;
@@ -99,9 +97,7 @@ trait HasStatisticDataTrait
 
         $this->persist($statisticValue, true);
 
-        $apiModel = ApiStatisticValue::fromEntity($statisticValue, $assignedTo);
-
-        return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
+        return $statisticValue;
     }
 
     public function removeStatisticValueRequest(
