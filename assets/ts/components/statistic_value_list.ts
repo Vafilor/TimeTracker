@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import { ApiErrorResponse, JsonResponse } from "../core/api/api";
-import { ApiStatisticValue } from "../core/api/statistic_value_api";
-import IdGenerator from "./id_generator";
+import { CreateStatisticValueResponse } from "../core/api/statistic_value_api";
 import Flashes from "./flashes";
 import Observable from "./observable";
 import { Tooltip } from 'bootstrap';
+import { ApiStatisticValue } from "../core/api/types";
 
 export interface AddStatisticValue {
     name: string;
@@ -14,7 +14,7 @@ export interface AddStatisticValue {
 }
 
 export interface StatisticValueListDelegate {
-    add(value: AddStatisticValue): Promise<JsonResponse<ApiStatisticValue>>;
+    add(value: AddStatisticValue): Promise<JsonResponse<CreateStatisticValueResponse>>;
     update(id: string, value: number): Promise<JsonResponse<ApiStatisticValue>>;
     remove(id: string): Promise<JsonResponse<void>>;
 }
@@ -193,17 +193,6 @@ export class StatisticValueItem {
 }
 
 export default class StatisticValueList {
-    private static fakeElement(data: AddStatisticValue): StatisticValue {
-        return {
-            id: IdGenerator.next(),
-            value: data.value,
-            name: data.name,
-            color: '#000000',
-            icon: data.icon,
-            unit: '',
-        };
-    }
-
     private items = new Array<StatisticValueItem>();
 
     constructor(
@@ -232,13 +221,13 @@ export default class StatisticValueList {
     private statisticItemFromData($element: JQuery, data: StatisticValue): StatisticValueItem {
         const newItem = new StatisticValueItem($element, data);
 
-        newItem.valueChanged.addObserver((event: StatisticValueItemChangeEvent) => {
-            this.updateValue(event.source, event.newValue);
-        })
-
-        newItem.delete.addObserver((event: StatisticValueItemDeleteEvent) => {
-            this.delete(event.source);
-        })
+        // newItem.valueChanged.addObserver((event: StatisticValueItemChangeEvent) => {
+        //     this.updateValue(event.source, event.newValue);
+        // })
+        //
+        // newItem.delete.addObserver((event: StatisticValueItemDeleteEvent) => {
+        //     this.delete(event.source);
+        // })
 
         return newItem;
     }
@@ -293,23 +282,17 @@ export default class StatisticValueList {
             }
         }
 
-        const fake = StatisticValueList.fakeElement(value);
-        const $html = $(StatisticValueItem.createItemHtml(fake));
 
-        const newItem = this.statisticItemFromData($html, fake)
-        newItem.disable();
-        newItem.markLoading();
 
-        this.insertNewElement(newItem);
-
-        try {
-            const res = await this.delegate.add(value);
-            this.addSuccess(newItem, res.data);
-        } catch (e) {
-            this.addFailure(newItem);
-
-            throw e;
-        }
+        // try {
+        //     const res = await this.delegate.add(value);
+        //     this.statisticItemFromData($(res.data.view), res.data.statisticValue);
+        //     this.addSuccess(newItem, res.data);
+        // } catch (e) {
+        //     this.addFailure(newItem);
+        //
+        //     throw e;
+        // }
     }
 
     private addSuccess(item: StatisticValueItem, value: ApiStatisticValue) {

@@ -15,13 +15,13 @@
     <label class="visually-hidden" for="{{ name }}-name">name</label>
     <input
             id="{{ name }}-name"
-            {% if _attr.tabIndex is defined%}
-            tabindex="{{ _attr.tabIndex }}"
-            {% endif %}
+            {% for key, value in _attr %}
+                {% if key != 'class' %}
+                {{ key }}="{{ value }}"
+                {% endif %}
+            {% endfor %}
             type="search"
             class="js-input form-control search {{ _attr.class }}"
-            placeholder="{{ _attr.placeholder }}"
-            value="{{ _attr.value }}"
             autocomplete="off">
 {% endmacro %}
 

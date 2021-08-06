@@ -29,25 +29,46 @@
         {{ form_row(form.createdAt, {attr: {class: 'unset-width'}})}}
 
         <label>Data</label>
-        <div class="d-flex mt-2 js-add-statistic add-statistic">
-            {{ autocomplete.list('statistic', { search: { tabIndex: '1' } }) }}
+        <div
+            {{ stimulus_controller('create-statistic-value', {
+                createUrl: path('json_timestamp_statistic_create', { id: timestamp.id })
+            }) }}
+            class="d-flex mt-2 js-add-statistic add-statistic">
+            {{ autocomplete.list('statistic', {
+                search: {
+                    tabIndex: '1',
+                    'data-create-statistic-value-target': 'name'
+                }
+            }) }}
             <div class="ms-2">
                 <label class="visually-hidden" for="add-statistic-value">record value</label>
                 <input
                         id="add-statistic-value"
+                        data-create-statistic-value-target="value"
                         tabindex="2"
                         type="number"
-                        class="js-statistic-input form-control"
+                        class="form-control"
                         placeholder="value..."
                         autocomplete="off"
                 />
             </div>
-            <button type="button" class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
+            <button
+                type="button"
+                class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary"
+                data-action="create-statistic-value#create">
+                <span
+                    class="spinner-border spinner-border-sm d-none"
+                    role="status"
+                    aria-hidden="true"
+                    data-create-statistic-value-target="loading"></span>
+                <span
+                    class="visually-hidden"
+                    data-create-statistic-value-target="loading">Loading...</span>
                 Add
             </button>
         </div>
 
-        {{ statistics.valueList(timestamp.statisticValues, {class: 'mt-2'}) }}
+        {{ statistics.valueList(timestamp.statisticValues, path('timestamp_record_index', {id: timestamp.idString}), {class: 'mt-2'}) }}
 
         <div class="mt-2">
             <button type="submit" class="btn btn-primary">Update</button>

@@ -6,7 +6,7 @@ import Observable from "./observable";
 
 export interface TagListDelegate {
     addTag(tag: ApiTag): Promise<ApiTag>;
-    removeTag(tagName: string): Promise<void>;
+    removeTag(tagName: string): Promise<any>;
 }
 
 class DefaultDelegate implements TagListDelegate{

@@ -2,16 +2,15 @@ import '../styles/statistic_index.scss';
 
 import $ from "jquery";
 import {
-    ApiStatistic,
     CreateStatisticOptions,
     CreateStatisticResponse,
     StatisticApi,
-    TimeType
 } from "./core/api/statistic_api";
 import Observable from "./components/observable";
 import Flashes from "./components/flashes";
 import { ApiErrorResponse } from "./core/api/api";
 import LoadingButton from "./components/loading_button";
+import { ApiStatistic, TimeType } from "./core/api/types";
 
 class CreateStatisticForm {
     private $name: JQuery;

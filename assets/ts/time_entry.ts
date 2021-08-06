@@ -11,10 +11,7 @@ import { TimeEntryTaskAssigner } from "./components/time_entry_task_assigner";
 import { TimeEntryApiAdapter } from "./components/time_entry_api_adapater";
 import { TagAssigner } from "./components/tag_assigner";
 import TimerView from "./components/timer";
-import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/statistic_value_list";
-import { ApiErrorResponse, JsonResponse } from "./core/api/api";
-import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/statistic_value_picker";
-import { ApiStatisticValue, StatisticValueApi } from "./core/api/statistic_value_api";
+import StatisticValuePicker from "./components/statistic_value_picker";
 
 class TimeEntryAutoMarkdown extends AutoMarkdown {
     private readonly timeEntryId: string;
@@ -32,26 +29,6 @@ class TimeEntryAutoMarkdown extends AutoMarkdown {
         return TimeEntryApi.update(this.timeEntryId, {
             description: body,
         });
-    }
-}
-
-class TimeEntryStatisticDelegate implements StatisticValueListDelegate{
-    constructor(private timeEntryId: string) {
-    }
-
-    add(value: AddStatisticValue): Promise<JsonResponse<ApiStatisticValue>> {
-        return TimeEntryApi.addStatistic(this.timeEntryId, {
-            statisticName: value.name,
-            value: value.value
-        });
-    }
-
-    update(id: string, value: number): Promise<JsonResponse<ApiStatisticValue>> {
-        return StatisticValueApi.update(id, value);
-    }
-
-    remove(id: string): Promise<JsonResponse<void>> {
-        return TimeEntryApi.removeStatistic(this.timeEntryId, id);
     }
 }
 
@@ -98,29 +75,7 @@ class TimeEntryPage {
     }
 
     private addStatisticData() {
-        const statisticValueList = new StatisticValueList($('.statistic-values'), new TimeEntryStatisticDelegate(this.timeEntryId), this.flashes);
-
         const statisticValuePicker = new StatisticValuePicker($('.js-add-statistic'), 'interval');
-        statisticValuePicker.valuePicked.addObserver(async (event: StatisticValuePickedEvent) => {
-            try {
-                await statisticValueList.add({
-                    name: event.name,
-                    value: event.value
-                });
-            } catch (e) {
-                if (!(e instanceof ApiErrorResponse)) {
-                    throw e;
-                }
-
-                const err = e as ApiErrorResponse;
-
-                if (err.response.status === 409) {
-                    this.flashes.append('danger', `Unable to add record, a record with name '${event.name}' already exists for ${event.day}`);
-                } else {
-                    this.flashes.append('danger', 'Unable to add record');
-                }
-            }
-        });
     }
 }
 

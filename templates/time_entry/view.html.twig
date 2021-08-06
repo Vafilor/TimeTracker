@@ -123,24 +123,45 @@
             </table>
         </div>
         <div class="tab-pane fade" id="data" role="tabpanel" aria-labelledby="data-tab">
-            <div class="d-flex mt-2 js-add-statistic add-statistic">
-                {{ autocomplete.list('statistic', { search: { tabIndex: '1' } }) }}
+            <div
+                class="d-flex mt-2 js-add-statistic add-statistic"
+                {{ stimulus_controller('create-statistic-value', {
+                    createUrl: path('json_time_entry_statistic_create', { id: timeEntry.idString })
+                }) }}>
+                {{ autocomplete.list('statistic', {
+                    search: {
+                        tabIndex: '1',
+                        'data-create-statistic-value-target': 'name'
+                    }
+                }) }}
                 <div class="ms-2">
                     <label class="visually-hidden" for="add-statistic-value">record value</label>
                     <input
                             id="add-statistic-value"
                             tabindex="2"
                             type="number"
-                            class="js-statistic-input form-control"
+                            class="form-control"
+                            data-create-statistic-value-target="value"
                             placeholder="value..."
                             autocomplete="off"
                     />
                 </div>
-                <button type="button" class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
+                <button
+                        type="button"
+                        class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary"
+                        data-action="create-statistic-value#create">
+                    <span
+                        class="spinner-border spinner-border-sm d-none"
+                        role="status"
+                        aria-hidden="true"
+                        data-create-statistic-value-target="loading"></span>
+                    <span
+                        class="visually-hidden"
+                        data-create-statistic-value-target="loading">Loading...</span>
                     Add
                 </button>
             </div>
-            {{ statistics.valueList(timeEntry.statisticValues, {class: 'mt-2'}) }}
+            {{ statistics.valueList(timeEntry.statisticValues, path('time_entry_record_index', {id: timeEntry.idString}), {class: 'mt-2'}) }}
         </div>
     </div>
 

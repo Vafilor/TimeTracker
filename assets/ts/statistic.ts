@@ -22,7 +22,7 @@ class StatisticApiAdapter implements TagListDelegate {
             });
     }
 
-    removeTag(tagName: string): Promise<void> {
+    removeTag(tagName: string) {
         return StatisticApi.removeTag(this.statisticId, tagName)
             .catch(res => {
                 this.flashes.append('danger', `Unable to add remove tag '${tagName}'`)
@@ -37,23 +37,7 @@ $(document).ready(() => {
     const flashes = new Flashes($('#fixed-flash-messages'));
     const $previewContainer = $('.js-statistic-icon-preview');
 
-    $('.js-color').on('input', (event) => {
-        const hexColor = $(event.currentTarget).val() as string;
-
-        $previewContainer.css('color', hexColor);
-    })
-
     let timeout: any = undefined;
-
-
-    $('.js-icon').on('input', (event) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            const val = $(event.currentTarget).val() as string;
-
-            $previewContainer.html(`<i class="${val}"></i>`);
-        }, 300);
-    })
 
     const tagList = new TagList($('.js-tags'), new StatisticApiAdapter(statisticId, flashes));
     const autocomplete = new TagAssigner($('.js-autocomplete-tags-container'), tagList, flashes);

@@ -1,6 +1,7 @@
 import { JsonResponse, PaginatedResponse } from "../core/api/api";
 import { PaginatedAutocomplete } from "./autocomplete";
-import { ApiStatistic, StatisticApi, TimeType } from "../core/api/statistic_api";
+import { StatisticApi } from "../core/api/statistic_api";
+import { ApiStatistic, TimeType } from "../core/api/types";
 
 export default class AutocompleteStatistics extends PaginatedAutocomplete<ApiStatistic> {
     constructor($element: JQuery, private timeType: TimeType = 'instant') {
@@ -16,7 +17,8 @@ export default class AutocompleteStatistics extends PaginatedAutocomplete<ApiSta
         return `<div><span class="autocomplete-statistic-icon">${icon}</span>${item.name}</div>`;
     }
 
+    // TODO
     protected queryApi(query: string): Promise<JsonResponse<PaginatedResponse<ApiStatistic>>> {
-        return StatisticApi.index(query, this.timeType);
+        return StatisticApi.indexV1(query, this.timeType);
     }
 }

@@ -1,49 +1,16 @@
-{% macro value(value) %}
-<div
-    class="statistic-value-row js-statistic-item input-group d-inline-flex"
-    data-id="{{ value.idString }}"
-    data-name="{{ value.statistic.name }}"
-    data-value="{{ value.value }}"
-    data-icon="{{ value.statistic.icon }}"
-    data-color="{{ value.statistic.color }}"
-    data-unit="{{ value.statistic.unit }}">
-    <span
-        {{ stimulus_controller('bootstrap-tooltip') }}
-        class="input-group-text bg-white js-name-icon"
-        style="color: {{ value.statistic.color }}"
-        data-bs-toggle="tooltip"
-        data-bs-placement="top"
-        title="{{ value.statistic.name }} ({{ value.statistic.unit }})">
-        {% if value.statistic.hasIcon %}
-        <i class="{{ value.statistic.icon }}"></i>
-        {% else %}
-        {{ value.statistic.name }}
-        {% endif %}
-    </span>
-    <input type="number" class="form-control input-value js-input-value" placeholder="value" value="{{ value.value }}">
-    <div class="upload-status js-upload-status input-group-text bg-white">
-        <div class="spinner-border spinner-border-sm text-primary d-none js-loading" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <div class="js-uploaded">
-            <i class="fas fa-cloud"></i>
-        </div>
-    </div>
-    <button class="btn btn-outline-danger bg-weak-white js-delete" type="button">
-        <i class="fas fa-trash"></i>
-    </button>
-</div>
-{% endmacro %}
-
-{% macro valueList(items, attr) %}
+{% macro valueList(items, refreshUrl, attr) %}
     {% set _attr = { class: ''} %}
     {% if attr %}
         {% set _attr = _attr|merge(attr) %}
     {% endif %}
 
-    <div class="statistic-values d-inline-flex flex-wrap flex-column {{ _attr.class }}">
-        {% for item in items %}
-            {{ _self.value(item) }}
-        {% endfor %}
+    <div
+        class="statistic-values d-inline-flex flex-wrap flex-column {{ _attr.class }}"
+        {{ stimulus_controller('statistic-value-list', {
+            refreshUrl: refreshUrl,
+        }) }}
+        data-action="create-statistic-value:created@window->statistic-value-list#addValue statistic-value:remove->statistic-value-list#removeValue">
+
+        {{ include('statistic_value/partials/_statistic-value-index.html.twig', { values: items }) }}
     </div>
 {% endmacro %}
