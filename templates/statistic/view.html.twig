@@ -18,7 +18,13 @@
         </nav>
 
         <h1 class="text-center">
-            <div class="d-inline-block js-statistic-icon-preview me-2" style="color: {{ statistic.color }}">
+            <div
+                {{ stimulus_controller({
+                    'color-setter': { key: statistic.idString ~ '-color' },
+                    'icon-setter': { key: statistic.idString ~ '-icon' }
+                }) }}
+                data-action="value-emitter:change@window->color-setter#setColor value-emitter:change@window->icon-setter#setIcon"
+                class="d-inline-block me-2" style="color: {{ statistic.color }}">
                 {% if statistic.icon %}
                     <i class="{{ statistic.icon }}"></i>
                 {% endif %}
@@ -36,8 +42,23 @@
 
         {{ form_start(form) }}
         {{ form_row(form.name) }}
-        {{ form_row(form.color, {attr: {class: 'w-p-50 js-color'}}) }}
-        {{ form_row(form.icon, {attr: {class: 'js-icon'}}) }}
+        {{ form_row(form.color, {
+            attr: {
+                class: 'w-p-50 js-color',
+                'data-controller': 'value-emitter',
+                'data-value-emitter-debounce-value': 300,
+                'data-value-emitter-key-value': statistic.idString ~ '-color',
+                'data-action': 'value-emitter#valueChanged'
+            }
+        }) }}
+        {{ form_row(form.icon, {
+            attr: {
+                class: 'js-icon',
+                'data-controller': 'value-emitter',
+                'data-value-emitter-key-value': statistic.idString ~ '-icon',
+                'data-action': 'value-emitter#valueChanged'
+            }
+        }) }}
         {{ form_widget(form) }}
 
         <button type="submit" class="btn btn-primary">Update</button>
