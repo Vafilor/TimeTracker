@@ -2,10 +2,11 @@ import { Controller } from 'stimulus';
 
 export default class extends Controller {
     static values = {
-        key: String
+        key: String,
+        property: String,
     }
 
-    setColor(event) {
+    setProperty(event) {
         const { value, key } = event.detail;
 
         // Only change the color value if the event key matches.
@@ -13,6 +14,6 @@ export default class extends Controller {
             return;
         }
 
-        this.element.style.color = value;
+        this.element.style[this.propertyValue] = value;
     }
 }

@@ -36,7 +36,17 @@
         <tbody>
         <tr>
             <td>Preview</td>
-            <td><div class="tag js-tag-preview" style="background-color: {{ tag.color }}">{{ tag.name }}</div></td>
+            <td>
+                <div
+                    {{ stimulus_controller({
+                        'style-setter': { key: tag.idString ~ '-color', property: 'backgroundColor' },
+                    }) }}
+                    data-action="value-emitter:change@window->style-setter#setProperty"
+                    class="tag js-tag-preview"
+                    style="background-color: {{ tag.color }}">
+                    {{ tag.name }}
+                </div>
+            </td>
         </tr>
         <tr>
             <td>Created</td>
@@ -56,10 +66,17 @@
 
     {{ form_start(form) }}
     {{ form_label(form.color) }}
-    {{ form_widget(form.color, {attr: {class: 'w-p-50 js-tag-color'}}) }}
+    {{ form_widget(form.color, {
+        attr: {
+            class: 'w-p-50 js-tag-color',
+            'data-controller': 'value-emitter',
+            'data-value-emitter-debounce-value': 100,
+            'data-value-emitter-key-value': tag.idString ~ '-color',
+            'data-action': 'value-emitter#valueChanged'
+        }})
+    }}
 
     {{ form_widget(form) }}
-
 
     <div class="mt-2">
         <button type="submit" class="btn btn-primary">Update</button>

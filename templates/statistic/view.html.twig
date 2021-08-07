@@ -20,10 +20,10 @@
         <h1 class="text-center">
             <div
                 {{ stimulus_controller({
-                    'color-setter': { key: statistic.idString ~ '-color' },
+                    'style-setter': { key: statistic.idString ~ '-color', property: 'color' },
                     'icon-setter': { key: statistic.idString ~ '-icon' }
                 }) }}
-                data-action="value-emitter:change@window->color-setter#setColor value-emitter:change@window->icon-setter#setIcon"
+                data-action="value-emitter:change@window->style-setter#setProperty value-emitter:change@window->icon-setter#setIcon"
                 class="d-inline-block me-2" style="color: {{ statistic.color }}">
                 {% if statistic.icon %}
                     <i class="{{ statistic.icon }}"></i>
