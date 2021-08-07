@@ -3,9 +3,9 @@ import '../styles/statistic.scss';
 import $ from "jquery";
 import TagList, { TagListDelegate } from "./components/tag_index";
 import Flashes from "./components/flashes";
-import { ApiTag } from "./core/api/tag_api";
 import { TagAssigner } from "./components/tag_assigner";
 import { StatisticApi } from "./core/api/statistic_api";
+import { ApiTag } from "./core/api/types";
 
 class StatisticApiAdapter implements TagListDelegate {
     constructor(private statisticId: string, private flashes: Flashes) {

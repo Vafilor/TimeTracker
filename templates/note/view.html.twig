@@ -30,12 +30,20 @@
     <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
         <li class="nav-item" role="presentation">
             <button type="button" class="nav-link active markdown-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#markdown" role="tab" aria-controls="markdown" aria-selected="true">
-                <i class="fas fa-sync-alt fa-spin me-1 d-none js-loading"></i>
+                <span
+                    {{ stimulus_controller('toggle-class', {
+                        className: 'd-none',
+                        key: note.idString
+                    }) }}
+                    data-action="upload-field:update:start@window->toggle-class#remove upload-field:update:finish@window->toggle-class#add"
+                    class="me-1 d-none">
+                    <i class="fas fa-sync-alt fa-spin"></i>
+                </span>
                 Description
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button type="button" class="nav-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</button>
+            <button type="button" class="nav-link" id="markdown-preview-tab" data-bs-toggle="tab" data-bs-target="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</button>
         </li>
         <li class="nav-item" role="presentation">
             <button type="button" class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" role="tab" aria-selected="false">Details</button>
@@ -43,10 +51,28 @@
     </ul>
     <div class="tab-content" id="description-content">
         <div class="tab-pane fade show active" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
-            {{ form_widget(form.content, {attr: { rows: 10, class: 'border-top-0 js-description' }}) }}
+            {{ form_widget(form.content, {
+                attr: {
+                    rows: 10,
+                    class: 'border-top-0 js-description',
+                    'data-controller': 'upload-field',
+                    'data-action': 'upload-field#update',
+                    'data-upload-field-key-value': note.idString,
+                    'data-upload-field-field-name-value': 'content',
+                    'data-upload-field-url-value': path('json_note_update', {id: note.idString} )
+                }})
+            }}
         </div>
         <div class="tab-pane contained fade" id="preview" role="tabpanel" aria-labelledby="profile-tab">
-            <div id="preview-content"></div>
+            <div
+                id="preview-content"
+                {{ stimulus_controller('markdown-updater', {
+                    field: 'value',
+                    key: note.idString
+                }) }}
+                data-action="upload-field:update:finish@window->markdown-updater#convert">
+                {{ note.content|markdown_to_html }}
+            </div>
         </div>
         <div class="tab-pane fade bg-white" id="details" role="tabpanel" aria-labelledby="details-tab">
             <table class="table table-hover table-bordered">

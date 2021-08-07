@@ -2,19 +2,18 @@ import '../styles/task.scss';
 import '../styles/partials/task_time_entry.scss';
 
 import $ from "jquery";
-import AutoMarkdown from "./components/automarkdown";
 import { TaskApi } from "./core/api/task_api";
 import TaskTimeEntry from "./components/task_time_entry";
-import { ApiTimeEntry, TimeEntryApi } from "./core/api/time_entry_api";
+import { TimeEntryApi } from "./core/api/time_entry_api";
 import { formatShortTimeDifference, timeAgo } from "./components/time";
 import { createTagView } from "./components/tags";
 import TagList, { TagListDelegate } from "./components/tag_index";
 import Flashes from "./components/flashes";
-import { ApiTag } from "./core/api/tag_api";
 import { TagAssigner } from "./components/tag_assigner";
 import { CreateTaskForm, TaskList } from "./components/task";
 import { Breadcrumbs } from "./components/breadcrumbs";
 import { ParentTaskAssigner } from "./components/parent_task_assigner";
+import { ApiTag, ApiTimeEntry } from "./core/api/types";
 
 class TaskApiAdapter implements TagListDelegate {
     constructor(private taskId: string, private flashes: Flashes) {
@@ -31,31 +30,12 @@ class TaskApiAdapter implements TagListDelegate {
             });
     }
 
-    removeTag(tagName: string): Promise<void> {
+    removeTag(tagName: string): Promise<any> {
         return TaskApi.removeTag(this.taskId, tagName)
             .catch(res => {
                 this.flashes.append('danger', `Unable to add remove tag '${tagName}'`)
                 throw res;
             });
-    }
-}
-
-class TaskEntryAutoMarkdown extends AutoMarkdown {
-    private readonly taskId: string;
-
-    constructor(
-        inputSelector: string,
-        markdownSelector: string,
-        loadingSelector: string,
-        taskId: string) {
-        super(inputSelector, markdownSelector, loadingSelector);
-        this.taskId = taskId;
-    }
-
-    protected update(body: string): Promise<any> {
-        return TaskApi.update(this.taskId, {
-            description: body,
-        });
     }
 }
 
@@ -129,13 +109,6 @@ $(document).ready(() => {
     const taskId = $data.data('task-id');
     const durationFormat = $data.data('duration-format');
     const flashes = new Flashes($('#fixed-flash-messages'));
-
-    const autoMarkdown = new TaskEntryAutoMarkdown(
-        '.js-description',
-        '#preview-content',
-        '.markdown-link',
-        taskId
-    );
 
     const timeEntryActivity = new TimeEntryActivity('.js-task-time-entry-activity');
 

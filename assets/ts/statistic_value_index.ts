@@ -1,12 +1,7 @@
 import $ from 'jquery';
 
 import '../styles/statistic_value_index.scss';
-import StatisticValueList, { AddStatisticValue, StatisticValueListDelegate } from "./components/statistic_value_list";
-import { ApiErrorResponse, JsonResponse } from "./core/api/api";
-import Flashes from "./components/flashes";
-import StatisticValuePicker, { StatisticValuePickedEvent } from "./components/statistic_value_picker";
-import { CreateStatisticValueResponse, StatisticValueApi } from "./core/api/statistic_value_api";
-import { ApiStatisticValue } from "./core/api/types";
+
 //
 // class StatisticValueDayDelegate implements StatisticValueListDelegate {
 //     constructor() {
@@ -26,9 +21,9 @@ import { ApiStatisticValue } from "./core/api/types";
 // }
 
 $(document).ready(() => {
-    const $data = $('.js-data');
+    // const $data = $('.js-data');
 
-    const flashes = new Flashes($('#fixed-flash-messages'));
+    // const flashes = new Flashes($('#fixed-flash-messages'));
 
     // const statisticValueList = new StatisticValueList($('.statistic-values'), new StatisticValueDayDelegate(), flashes);
     //
