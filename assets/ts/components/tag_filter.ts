@@ -1,7 +1,7 @@
 import TagList from "./tag_index";
 import AutocompleteTags from "./autocomplete_tags";
-import { ApiTag, ApiTagFromName } from "../core/api/tag_api";
 import { AutocompleteEnterPressedEvent } from "./autocomplete";
+import { ApiTag, ApiTagFromName } from "../core/api/types";
 
 export class TagFilter {
     private tagList: TagList;

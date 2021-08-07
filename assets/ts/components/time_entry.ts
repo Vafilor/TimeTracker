@@ -1,9 +1,8 @@
+import $ from "jquery";
 import { SyncInput, SyncStatus } from "./sync_input";
-import { ApiTimeEntry, DateFormat, TimeEntryApi } from "../core/api/time_entry_api";
-import { ApiTag } from "../core/api/tag_api";
+import { DateFormat, TimeEntryApi } from "../core/api/time_entry_api";
 import MarkdownView from "./markdown_view";
 import TagList from "./tag_index";
-import $ from "jquery";
 import { TagAssigner } from "./tag_assigner";
 import { TimeEntryTaskAssigner } from "./time_entry_task_assigner";
 import { EditDateTime } from "./edit_date_time";
@@ -11,7 +10,7 @@ import Flashes from "./flashes";
 import { TimeEntryApiAdapter } from "./time_entry_api_adapater";
 import LoadingButton from "./loading_button";
 import TimerView from "./timer";
-import { JsonResponse } from "../core/api/api";
+import { ApiTag, ApiTimeEntry } from "../core/api/types";
 
 export interface TimeEntryActionDelegate {
     continue(timeEntryId: string): Promise<any>;
@@ -529,12 +528,10 @@ export class TimeEntryIndexItem {
                 if (updated) {
                     const res = await TimeEntryApi.update(this.id, update);
 
-                    const jsonRes = res as JsonResponse<ApiTimeEntry>;
-                    newData.startedAt = jsonRes.data.startedAt;
-                    newData.endedAt = jsonRes.data.endedAt;
+                    newData.startedAt = res.data.startedAt;
+                    newData.endedAt = res.data.endedAt;
 
-
-                    if (jsonRes && jsonRes.data.endedAt && !this.data.endedAt) {
+                    if (res.data.endedAt && !this.data.endedAt) {
                         this.durationTimer.stop();
                         this.view.removeActivityIndicator();
                     }
@@ -542,8 +539,8 @@ export class TimeEntryIndexItem {
                     this.durationTimer.startedAt = newData.startedAtEpoch;
                     this.durationTimer.update();
 
-                    if (jsonRes.data.duration) {
-                        this.durationTimer.setText(jsonRes.data.duration);
+                    if (res.data.duration) {
+                        this.durationTimer.setText(res.data.duration);
                     }
                 }
             } catch (e) {

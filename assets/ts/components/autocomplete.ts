@@ -1,7 +1,8 @@
 import $ from "jquery";
 import Observable from "./observable";
-import { JsonResponse, PaginatedResponse } from "../core/api/api";
+import { PaginatedResponse } from "../core/api/api";
 import { createPopper } from "@popperjs/core";
+import { AxiosResponse } from "axios";
 
 /**
  * Autocomplete provides a basic autocomplete for an input/search results set of elements.
@@ -367,7 +368,7 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
      * queryApi is the network request made to get a response given the query.
      * @param query
      */
-    protected abstract queryApi(query: string): Promise<JsonResponse<PaginatedResponse<T>>>;
+    protected abstract queryApi(query: string): Promise<AxiosResponse<PaginatedResponse<T>>>;
 
     /**
      * noResultsTemplate is the element returned to display that there are no results.

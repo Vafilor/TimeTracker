@@ -3,10 +3,10 @@ import '../styles/timestamp.scss';
 import $ from "jquery";
 import TagList, { TagListDelegate } from "./components/tag_index";
 import Flashes from "./components/flashes";
-import { ApiTag } from "./core/api/tag_api";
 import { TimestampApi } from "./core/api/timestamp_api";
 import { TagAssigner } from "./components/tag_assigner";
 import StatisticValuePicker from "./components/statistic_value_picker";
+import { ApiTag } from "./core/api/types";
 
 class TimestampApiAdapter implements TagListDelegate {
     constructor(private timestampId: string, private flashes: Flashes) {
@@ -23,7 +23,7 @@ class TimestampApiAdapter implements TagListDelegate {
             });
     }
 
-    removeTag(tagName: string): Promise<void> {
+    removeTag(tagName: string): Promise<any> {
         return TimestampApi.removeTag(this.timestampId, tagName)
             .catch(res => {
                 this.flashes.append('danger', `Unable to add remove tag '${tagName}'`)

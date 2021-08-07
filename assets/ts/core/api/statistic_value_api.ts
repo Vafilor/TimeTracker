@@ -1,7 +1,6 @@
 import { ApiStatisticValue } from "./types";
 import { AxiosResponse } from "axios";
 import { AddStatisticRequest } from "./statistic_api";
-import { CoreApi } from "./api";
 
 const axios = require('axios').default;
 

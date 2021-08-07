@@ -1,8 +1,9 @@
 import $ from "jquery";
-import { ApiTimeEntry, TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 import Observable from "./observable";
+import { TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 import { ConfirmClickEvent, ConfirmDialog } from "./confirm_dialog";
 import { ApiErrorResponse, ApiResourceError } from "../core/api/api";
+import { ApiTimeEntry } from "../core/api/types";
 import TimerView from "./timer";
 
 abstract class SyncInputInternal {

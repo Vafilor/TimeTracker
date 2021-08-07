@@ -1,7 +1,6 @@
-import { ApiStatistic, ApiStatisticValue, TimeType } from "./types";
+import { ApiStatistic, ApiTag, TimeType } from "./types";
 import { AxiosResponse } from "axios";
-import { ApiTag } from "./tag_api";
-import { CoreApi, JsonResponse, PaginatedResponse } from "./api";
+import { PaginatedResponse } from "./api";
 
 const axios = require('axios').default;
 
@@ -22,13 +21,6 @@ export interface CreateStatisticResponse {
 }
 
 export class StatisticApi {
-    // TODO remove
-    public static indexV1(searchTerm: string, timeType: TimeType = 'instant') {
-        const url = `/json/statistic?searchTerm=${searchTerm}&timeType=${timeType}`;
-
-        return CoreApi.get<PaginatedResponse<ApiStatistic>>(url);
-    }
-
     public static index(searchTerm: string, timeType: TimeType = 'instant'): Promise<AxiosResponse<PaginatedResponse<ApiStatistic>>> {
         return axios.get('/json/statistic', {
             params: {

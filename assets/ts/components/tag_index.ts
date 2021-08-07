@@ -1,8 +1,8 @@
 import $ from 'jquery';
 
-import { ApiTag } from "../core/api/tag_api";
 import { createTagViewRemovable } from "./tags";
 import Observable from "./observable";
+import { ApiTag } from "../core/api/types";
 
 export interface TagListDelegate {
     addTag(tag: ApiTag): Promise<ApiTag>;

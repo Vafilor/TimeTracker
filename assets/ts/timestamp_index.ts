@@ -2,9 +2,9 @@ import '../styles/timestamp_index.scss';
 
 import $ from 'jquery';
 import { CreateTimestampResponse, TimestampApi } from "./core/api/timestamp_api";
-import { JsonResponse } from "./core/api/api";
 import LoadingButton from "./components/loading_button";
 import TimeTrackerRoutes from "./core/routes";
+import { AxiosResponse } from "axios";
 
 $(document).ready(() => {
     const $data = $('.js-data');
@@ -26,7 +26,7 @@ $(document).ready(() => {
         loadingButton.startLoading();
 
         TimestampApi.repeat(timestampId)
-            .then((res: JsonResponse<CreateTimestampResponse>) => {
+            .then((res: AxiosResponse<CreateTimestampResponse>) => {
                 if (createdAtSort === 'ASC') {
                     $timestampList.append(res.data.view);
                 } else {

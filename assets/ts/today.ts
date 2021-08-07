@@ -3,7 +3,6 @@ import '../styles/today.scss';
 import $ from 'jquery';
 import { TimeEntryActionDelegate, TimeEntryIndexItem } from "./components/time_entry";
 import {
-    ApiTimeEntry,
     CreateTimeEntryResponse,
     DateFormat,
     TimeEntryApi,
@@ -12,7 +11,8 @@ import {
 import Flashes from "./components/flashes";
 import LoadingButton from "./components/loading_button";
 import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
-import { ApiErrorResponse, ApiResourceError } from "./core/api/api"; // Adds functions to jQuery
+import { ApiErrorResponse, ApiResourceError } from "./core/api/api";
+import { ApiTimeEntry } from "./core/api/types"; // Adds functions to jQuery
 
 class TimeEntryList {
     private readonly $container: JQuery;

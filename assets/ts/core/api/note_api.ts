@@ -1,16 +1,7 @@
-import { CoreApi } from './api';
-import { ApiTag } from "./tag_api";
-import { ApiUpdateTask } from "./task_api";
+import { AxiosResponse } from "axios";
+import { ApiNote, ApiTag } from "./types";
 
-export interface ApiNote {
-    id: string;
-    title: string;
-    content: string;
-    createdAt: string;
-    createAtEpoch: number;
-    tags: ApiTag[];
-    url?: string;
-}
+const axios = require('axios').default;
 
 export interface CreateNoteOptions {
     title: string;
@@ -22,29 +13,29 @@ export interface UpdateNoteOptions {
 }
 
 export class NoteApi {
-    public static create(options: CreateNoteOptions) {
+    public static create(options: CreateNoteOptions): Promise<AxiosResponse<ApiNote>> {
         const url = `/json/note`;
 
-        return CoreApi.post<ApiNote>(url, options);
+        return axios.post(url, options);
     }
 
-    public static update(noteId: string, update: UpdateNoteOptions) {
-        return CoreApi.put(`/json/note/${noteId}`, update);
+    public static update(noteId: string, update: UpdateNoteOptions): Promise<AxiosResponse<ApiNote>> {
+        return axios.put(`/json/note/${noteId}`, update);
     }
 
-    public static addTag(noteId: string, tagName: string) {
-        return CoreApi.post<ApiTag>(`/json/note/${noteId}/tag`, {
+    public static addTag(noteId: string, tagName: string): Promise<AxiosResponse<ApiTag>> {
+        return axios.post(`/json/note/${noteId}/tag`, {
             name: tagName
         });
     }
 
-    public static getTags(noteId: string) {
-        return CoreApi.get<ApiTag[]>(`/json/note/${noteId}/tags`);
+    public static getTags(noteId: string): Promise<AxiosResponse<ApiTag[]>> {
+        return axios.get(`/json/note/${noteId}/tags`);
     }
 
-    public static removeTag(noteId: string, tagName: string) {
+    public static removeTag(noteId: string, tagName: string): Promise<AxiosResponse> {
         tagName = encodeURIComponent(tagName);
 
-        return CoreApi.delete(`/json/note/${noteId}/tag/${tagName}`);
+        return axios.delete(`/json/note/${noteId}/tag/${tagName}`);
     }
 }

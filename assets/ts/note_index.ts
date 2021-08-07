@@ -2,11 +2,12 @@ import '../styles/note_index.scss';
 
 import $ from 'jquery';
 import Observable from "./components/observable";
-import { ApiNote, CreateNoteOptions, NoteApi } from "./core/api/note_api";
+import { CreateNoteOptions, NoteApi } from "./core/api/note_api";
 import Flashes from "./components/flashes";
 import { ApiErrorResponse } from "./core/api/api";
 import { createTagsView } from "./components/tags";
 import { TagFilter } from "./components/tag_filter";
+import { ApiNote } from "./core/api/types";
 
 class CreateNoteForm {
     private $title: JQuery;

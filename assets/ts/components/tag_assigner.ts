@@ -1,9 +1,9 @@
 import Flashes from "./flashes";
 import TagList from "./tag_index";
-import { ApiTag } from "../core/api/tag_api";
 import AutocompleteTags from "./autocomplete_tags";
 import { AutocompleteEnterPressedEvent } from "./autocomplete";
 import IdGenerator from "./id_generator";
+import { ApiTag } from "../core/api/types";
 
 export class TagAssigner {
     private readonly _$container: JQuery;

@@ -1,20 +1,11 @@
-import { CoreApi, PaginatedResponse } from './api';
-import { ApiTag } from "./tag_api";
+import { PaginatedResponse } from './api';
+import { ApiTag, ApiTask } from "./types";
+import { AxiosResponse } from "axios";
+
+const axios = require('axios').default;
 
 export enum TaskApiErrorCode {
     codeNoParentTask = 'code_no_parent_task',
-}
-
-export interface ApiTask {
-    id: string;
-    name: string;
-    description: string;
-    createdAt: string;
-    createdAtEpoch: number;
-    completedAt?: string;
-    completedAtEpoch?: number;
-    url?: string;
-    tags: ApiTag[];
 }
 
 // The data required to assign a task to something.
@@ -49,7 +40,7 @@ export interface IndexOptions {
 }
 
 export class TaskApi {
-    public static index(options?: IndexOptions) {
+    public static index(options?: IndexOptions): Promise<AxiosResponse<PaginatedResponse<ApiTask>>> {
         let url = `/json/task`;
 
         if (options) {
@@ -66,61 +57,64 @@ export class TaskApi {
             url = url + '?' + params.toString();
         }
 
-        return CoreApi.get<PaginatedResponse<ApiTask>>(url);
+        return axios.get(url);
     }
 
-    public static create(options: CreateTaskOptions) {
-        return CoreApi.post<CreateTaskResponse>(`/json/task`, options);
+    public static create(options: CreateTaskOptions): Promise<AxiosResponse<CreateTaskResponse>> {
+        return axios.post(`/json/task`, options);
     }
 
-    public static check(taskId: string, completed: boolean = true) {
-        const url = `/json/task/${taskId}/check`;
-
-        return CoreApi.put<ApiTask>(url, {
+    public static check(taskId: string, completed: boolean = true): Promise<AxiosResponse<ApiTask>> {
+        return axios.put(`/json/task/${taskId}/check`, {
             completed
         });
     }
 
-    public static getLineage(taskId: string) {
-        return CoreApi.get<ApiTask[]>(`/json/task/${taskId}/lineage`);
+    public static getLineage(taskId: string): Promise<AxiosResponse<ApiTask[]>> {
+        return axios.get(`/json/task/${taskId}/lineage`);
     }
 
-    public static async getLineageHtml(taskId: string) {
+    // TODO redo
+    public static async getLineageHtml(taskId: string): Promise<string> {
+        axios.get(`/task/${taskId}/lineage`).then((res) => {
+            console.log(res);
+        });
+
         const response = await fetch(`/task/${taskId}/lineage`);
         return await response.text()
     }
 
-    public static update(taskId: string, update: ApiUpdateTask) {
-        return CoreApi.put<ApiTask>(`/json/task/${taskId}`, update);
+    public static update(taskId: string, update: ApiUpdateTask): Promise<AxiosResponse<ApiTask>> {
+        return axios.put(`/json/task/${taskId}`, update);
     }
 
-    public static setParentTask(taskId: string, parentTaskId: string) {
-        return CoreApi.put<ApiTask>(`/json/task/${taskId}/parent`, {
+    public static setParentTask(taskId: string, parentTaskId: string): Promise<AxiosResponse<ApiTask>> {
+        return axios.put(`/json/task/${taskId}/parent`, {
             parentTaskId
         });
     }
 
-    public static removeParentTask(taskId: string) {
-        return CoreApi.delete(`/json/task/${taskId}/parent`);
+    public static removeParentTask(taskId: string): Promise<AxiosResponse> {
+        return axios.delete(`/json/task/${taskId}/parent`);
     }
 
-    public static reportForTask(taskId: string) {
-        return CoreApi.get<TaskTimeReport>(`/json/report/task/${taskId}`);
+    public static reportForTask(taskId: string): Promise<AxiosResponse<TaskTimeReport>> {
+        return axios.get(`/json/report/task/${taskId}`);
     }
 
-    public static addTag(taskId: string, tagName: string) {
-        return CoreApi.post<ApiTag>(`/json/task/${taskId}/tag`, {
+    public static addTag(taskId: string, tagName: string): Promise<AxiosResponse<ApiTag>> {
+        return axios.post(`/json/task/${taskId}/tag`, {
             name: tagName
         });
     }
 
-    public static getTags(taskId: string) {
-        return CoreApi.get<ApiTag[]>(`/json/task/${taskId}/tags`);
+    public static getTags(taskId: string): Promise<AxiosResponse<ApiTag[]>> {
+        return axios.get(`/json/task/${taskId}/tags`);
     }
 
-    public static removeTag(taskId: string, tagName: string) {
+    public static removeTag(taskId: string, tagName: string): Promise<AxiosResponse> {
         tagName = encodeURIComponent(tagName);
 
-        return CoreApi.delete(`/json/task/${taskId}/tag/${tagName}`);
+        return axios.delete(`/json/task/${taskId}/tag/${tagName}`);
     }
 }

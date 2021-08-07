@@ -1,4 +1,4 @@
-import { ApiTag } from "../core/api/tag_api";
+import { ApiTag } from "../core/api/types";
 
 export function createTagViewRemovable(tagName: string, tagColor: string, extraClasses: string = ''): string {
     return `<div class="tag me-2 ${extraClasses}" style="background-color: ${tagColor}" data-name="${tagName}"><span class="label">${tagName}</span> <span class="remove js-tag-remove"><i class="fas fa-times"></i></span></div>`;

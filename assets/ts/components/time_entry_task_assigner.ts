@@ -1,9 +1,7 @@
 import Flashes from "./flashes";
-import { TaskApi, TaskApiErrorCode } from "../core/api/task_api";
+import IdGenerator from "./id_generator";
 import { TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 import { ApiErrorResponse } from "../core/api/api";
-import IdGenerator from "./id_generator";
-import Observable from "./observable";
 import { TaskAssigner } from "./task_assigner";
 
 export class TimeEntryTaskAssigner extends TaskAssigner {
@@ -50,9 +48,9 @@ export class TimeEntryTaskAssigner extends TaskAssigner {
         this.task = res.data;
         this.autocomplete.setQuery(taskName);
 
-        if (res.source.status === 201 && res.data.url) {
+        if (res.status === 201 && res.data.url) {
             this.flashes.appendWithLink('success', `Created new task`, res.data.url, res.data.name);
-        } else if (res.source.status === 200 && res.data.url) {
+        } else if (res.status === 200 && res.data.url) {
             this.flashes.appendWithLink('success', `Assigned to task`, res.data.url, res.data.name);
         }
     }

@@ -4,7 +4,6 @@ import $ from 'jquery';
 import 'bootstrap'; // Adds functions to jQuery
 
 import Flashes from "./components/flashes";
-import { ApiTask } from "./core/api/task_api";
 import AutocompleteTask from "./components/autocomplete_task";
 import { AutocompleteEnterPressedEvent } from "./components/autocomplete";
 import { TagFilter } from "./components/tag_filter";
@@ -18,6 +17,7 @@ import {
 import { ApiErrorResponse, ApiResourceError } from "./core/api/api";
 import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
 import TimerView from "./components/timer";
+import { ApiTask } from "./core/api/types";
 
 class TimeEntryListItem {
     public readonly id: string;

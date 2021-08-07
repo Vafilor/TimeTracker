@@ -1,27 +1,13 @@
-import { CoreApi, JsonResponse } from "./api";
-import { ApiTag } from "./tag_api";
-import { ApiTask } from "./task_api";
 import { AddStatisticRequest } from "./statistic_api";
 import { CreateStatisticValueResponse } from "./statistic_value_api";
 import { dateToISOLocal } from "../../components/time";
+import { AxiosResponse } from "axios";
+import { ApiTag, ApiTask, ApiTimeEntry } from "./types";
+import { PaginatedResponse } from "./api";
+
+const axios = require('axios').default;
 
 export type DateFormat = 'date' | 'date_time' | 'date_time_today';
-
-export interface ApiTimeEntry {
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-    updatedAtEpoch: number;
-    startedAt: string;
-    startedAtEpoch: number;
-    endedAt?: string;
-    endedAtEpoch?: number;
-    description: string;
-    duration?: string; // If the time entry is not over, no duration.
-    taskId?: string;
-    url?: string;
-    tags: ApiTag[];
-}
 
 export interface IndexTimeEntryOptions {
     taskId?: string;
@@ -55,20 +41,20 @@ export interface ContinueTimeEntryOptions {
 }
 
 export class TimeEntryApi {
-    public static create(options: CreateTimeEntryOptions, format: DateFormat = 'date_time') {
+    public static create(options: CreateTimeEntryOptions, format: DateFormat = 'date_time'): Promise<AxiosResponse<CreateTimeEntryResponse>> {
         let url = '/json/time-entry';
         if (options.htmlTemplate) {
             url += `?template=${options.htmlTemplate}`;
             options.htmlTemplate = undefined;
         }
 
-        return CoreApi.post<CreateTimeEntryResponse>(url, {
+        return axios.post(url, {
             'time_format': format,
             ...options
         });
     }
 
-    public static index(options: IndexTimeEntryOptions) {
+    public static index(options: IndexTimeEntryOptions): Promise<AxiosResponse<PaginatedResponse<ApiTimeEntry>>> {
         let url = `/json/time-entry`;
 
         let params = new URLSearchParams();
@@ -79,41 +65,41 @@ export class TimeEntryApi {
 
         url = url + '?' + params.toString();
 
-        return CoreApi.get<JsonResponse<ApiTimeEntry[]>>(url);
+        return axios.get(url);
     }
 
-    public static stop(timeEntryId: string, format: DateFormat = 'date_time') {
-        return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}/stop`, {
+    public static stop(timeEntryId: string, format: DateFormat = 'date_time'): Promise<AxiosResponse<ApiTimeEntry>> {
+        return axios.put(`/json/time-entry/${timeEntryId}/stop`, {
             'time_format': format
         });
     }
 
-    public static continue(timeEntryId: string, options: ContinueTimeEntryOptions) {
+    public static continue(timeEntryId: string, options: ContinueTimeEntryOptions): Promise<AxiosResponse<CreateTimeEntryResponse>> {
         let url = `/json/time-entry/${timeEntryId}/continue`;
         if (options.withHtmlTemplate) {
             url += '?template=true';
         }
 
-        return CoreApi.post<CreateTimeEntryResponse>(url, {});
+        return axios.post(url, {});
     }
 
-    public static addTag(timeEntryId: string, tagName: string) {
-        return CoreApi.post<ApiTag>(`/json/time-entry/${timeEntryId}/tag`, {
+    public static addTag(timeEntryId: string, tagName: string): Promise<AxiosResponse<ApiTag>> {
+        return axios.post(`/json/time-entry/${timeEntryId}/tag`, {
             name: tagName
         });
     }
 
-    public static getTags(timeEntryId: string) {
-        return CoreApi.get<ApiTag[]>(`/json/time-entry/${timeEntryId}/tags`);
+    public static getTags(timeEntryId: string): Promise<AxiosResponse<ApiTag[]>> {
+        return axios.get(`/json/time-entry/${timeEntryId}/tags`);
     }
 
-    public static removeTag(timeEntryId: string, tagName: string) {
+    public static removeTag(timeEntryId: string, tagName: string): Promise<AxiosResponse> {
         tagName = encodeURIComponent(tagName);
 
-        return CoreApi.delete(`/json/time-entry/${timeEntryId}/tag/${tagName}`);
+        return axios.delete(`/json/time-entry/${timeEntryId}/tag/${tagName}`);
     }
 
-    public static assignToTask(timeEntryId: string, taskName: string, taskId?: string) {
+    public static assignToTask(timeEntryId: string, taskName: string, taskId?: string): Promise<AxiosResponse<ApiTask>> {
         const url = `/json/time-entry/${timeEntryId}/task`;
 
         const data = {
@@ -124,33 +110,32 @@ export class TimeEntryApi {
             data['id'] = taskId;
         }
 
-        return CoreApi.post<ApiTask>(url, data);
+        return axios.post(url, data);
     }
 
-    public static unassignTask(timeEntryId: string) {
+    public static unassignTask(timeEntryId: string): Promise<AxiosResponse> {
         const url = `/json/time-entry/${timeEntryId}/task`;
 
-        return CoreApi.delete(url);
+        return axios.delete(url);
     }
 
-    public static update(timeEntryId: string, update: ApiUpdateTimeEntry) {
-        return CoreApi.put<ApiTimeEntry>(`/json/time-entry/${timeEntryId}`, {
+    public static update(timeEntryId: string, update: ApiUpdateTimeEntry): Promise<AxiosResponse<ApiTimeEntry>> {
+        return axios.put(`/json/time-entry/${timeEntryId}`, {
             description: update.description,
             startedAt: update.startedAt ? dateToISOLocal(update.startedAt): undefined,
             endedAt: update.endedAt ? dateToISOLocal(update.endedAt): undefined
         });
     }
 
-    public static getActive() {
-        const url = '/json/time-entry/active';
-        return CoreApi.get<ApiTimeEntry|null>(url);
+    public static getActive(): Promise<AxiosResponse<ApiTimeEntry|null>> {
+        return axios.get('/json/time-entry/active');
     }
 
-    public static addStatistic(timeEntryId: string, request: AddStatisticRequest) {
-        return CoreApi.post<CreateStatisticValueResponse>(`/json/time-entry/${timeEntryId}/statistic`, request);
+    public static addStatistic(timeEntryId: string, request: AddStatisticRequest): Promise<AxiosResponse<CreateStatisticValueResponse>> {
+        return axios.post(`/json/time-entry/${timeEntryId}/statistic`, request);
     }
 
-    public static removeStatistic(timeEntryId: string, statisticId: string) {
-        return CoreApi.delete(`/json/time-entry/${timeEntryId}/statistic/${statisticId}`);
+    public static removeStatistic(timeEntryId: string, statisticId: string): Promise<AxiosResponse> {
+        return axios.delete(`/json/time-entry/${timeEntryId}/statistic/${statisticId}`);
     }
 }

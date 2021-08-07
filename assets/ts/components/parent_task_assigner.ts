@@ -39,7 +39,7 @@ export class ParentTaskAssigner extends TaskAssigner {
         this.task = res.data;
         this.autocomplete.setQuery(taskName);
 
-        if (res.source.status === 200 && res.data.url) {
+        if (res.status === 200 && res.data.url) {
             this.flashes.appendWithLink('success', `Assigned to task`, res.data.url, res.data.name);
             this.parentTaskAssigned.emit(this.childTaskId);
         } else {

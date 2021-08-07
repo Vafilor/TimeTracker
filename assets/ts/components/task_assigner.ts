@@ -1,6 +1,6 @@
 import AutocompleteTask from "./autocomplete_task";
-import { ApiTask } from "../core/api/task_api";
 import { AutocompleteEnterPressedEvent } from "./autocomplete";
+import { ApiTask } from "../core/api/types";
 
 export abstract class TaskAssigner {
     protected autocomplete: AutocompleteTask;
