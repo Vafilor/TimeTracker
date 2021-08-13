@@ -8,12 +8,14 @@ use App\Api\ApiTag;
 use App\Entity\Timestamp;
 use App\Form\Model\TimestampEditModel;
 use App\Form\TimestampEditFormType;
+use App\Manager\TimestampManager;
 use App\Repository\StatisticValueRepository;
 use App\Repository\TimestampRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TimestampController extends BaseController
@@ -51,6 +53,29 @@ class TimestampController extends BaseController
         $this->getDoctrine()->getManager()->flush();
 
         return $this->redirectToRoute('timestamp_view', ['id' => $timestamp->getIdString()]);
+    }
+
+    #[Route('/timestamp/{id}/repeat', name: 'timestamp_repeat', methods: ["POST"])]
+    public function repeat(
+        Request $request,
+        TimestampManager $timestampManager,
+        TimestampRepository $timestampRepository,
+        string $id): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('repeat_timestamp', $request->request->get('_token'))) {
+            throw new BadRequestHttpException('Invalid CSRF token');
+        }
+
+        $timestampManager->repeat($timestamp);
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->redirectToRoute('timestamp_index');
     }
 
     /**

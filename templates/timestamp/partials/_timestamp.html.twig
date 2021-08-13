@@ -24,9 +24,27 @@
     <hr/>
     <div class="d-flex justify-content-end js-actions">
         <a href="{{ path('timestamp_view', {id: timestamp.idString}) }}" class="btn btn-primary js-view">View</a>
-        <button type="button" class="btn btn-secondary js-timestamp-repeat ms-2">
-            <span class="spinner-border spinner-border-sm d-none js-loading" role="status" aria-hidden="true"></span>
-            Repeat
-        </button>
+
+        <form
+            action="{{ path('timestamp_repeat', {id: timestamp.idString}) }}"
+            method="POST"
+            {{ stimulus_controller('load-form') }}
+            data-action="submit->load-form#start"
+        >
+            <input type="hidden" name="_token" value="{{ csrf_token('repeat_timestamp') }}" />
+
+            <button
+                    type="submit"
+                    class="btn btn-secondary ms-2"
+                    data-load-form-target="button">
+                <span
+                        class="spinner-border spinner-border-sm d-none"
+                        role="status"
+                        aria-hidden="true"
+                        data-load-form-target="loading">
+                </span>
+                Repeat
+            </button>
+        </form>
     </div>
 </div>
