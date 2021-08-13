@@ -3,18 +3,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% block head %}
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>{% block title %}Time tracker{% endblock %}</title>
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-            <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
-        {% endblock stylesheets %}
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}Time tracker{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock stylesheets %}
 
-    {% endblock head %}
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock javascripts %}
 </head>
-<body class="bg-light">
+<body class="bg-light" data-turbo="{% block turbo %}true{% endblock %}">
 {% block body %}
     {% block header %}
         {% include('header.html.twig') %}
@@ -42,10 +43,5 @@
         </div>
     {% endblock center %}
 {% endblock body %}
-
-{% block javascripts %}
-    {{ encore_entry_script_tags('app') }}
-{% endblock javascripts %}
-
 </body>
 </html>

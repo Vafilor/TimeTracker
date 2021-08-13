@@ -15,3 +15,7 @@ import '../styles/app.scss';
 // start the Stimulus application
 import '../bootstrap';
 
+
+document.addEventListener('turbo:submit-start', () => {
+   console.log('turbo:submit-start');
+});

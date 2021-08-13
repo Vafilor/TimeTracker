@@ -103,8 +103,15 @@ abstract class Autocomplete {
      * This happens when we click outside the search.
      */
     public clearSearchContent() {
-        this.$searchContent.addClass('d-none');
+        this.hideSearchContent();
         this.$searchContent.html('');
+    }
+
+    /**
+     * hideSearchContent makes the search results not display, but still keeps them in the DOM.
+     */
+    public hideSearchContent() {
+        this.$searchContent.addClass('d-none');
     }
 
     /**
@@ -412,7 +419,9 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
             $template.addClass('search-result-item');
             $template.addClass(`js-paginated-autocomplete-index-${index}`);
 
+
             $template.on('click', (event) => {
+                // TODO - does stimulus happen first, or does this?
                 this.itemSelected.emit(item);
             });
 

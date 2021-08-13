@@ -1,11 +1,11 @@
 import { Controller } from 'stimulus';
-import { Popover } from 'bootstrap';
+import { Dropdown } from 'bootstrap';
 
 export default class extends Controller {
     #popover = null;
 
     connect() {
-        this.#popover = new Popover(this.element);
+        this.#popover = new Dropdown(this.element);
     }
 
     disconnect() {

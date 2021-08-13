@@ -6,9 +6,13 @@ namespace App\Form\Model;
 
 use App\Util\TimeType;
 use InvalidArgumentException;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class StatisticModel
 {
+    /**
+     * @Assert\NotBlank()
+     */
     private string $name;
     private string $description;
     private string $timeType;

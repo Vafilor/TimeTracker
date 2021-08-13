@@ -16,14 +16,14 @@ class TagListFilterFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', TextType::class)
+            ->add('name', TextType::class, [
+                'required' => false
+            ])
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-                                   'data_class' => TagListFilterModel::class
-                               ]);
+        $resolver->setDefaults(['data_class' => TagListFilterModel::class]);
     }
 }

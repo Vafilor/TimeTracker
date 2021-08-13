@@ -6,19 +6,19 @@ namespace App\Form\Model;
 
 class TagListFilterModel
 {
-    private string $name;
+    private ?string $name;
 
-    public function __construct(string $name = '')
+    public function __construct(?string $name = null)
     {
         $this->setName($name);
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): TagListFilterModel
+    public function setName(?string $name): self
     {
         $this->name = $name;
         return $this;

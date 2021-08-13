@@ -14,6 +14,7 @@ export default class StatisticValuePicker {
     private $statisticInput: JQuery;
     public valuePicked = new Observable<StatisticValuePickedEvent>();
 
+    // TODO - this expects jquery....
     constructor(private $container: JQuery, timeType: TimeType) {
         this.autocompleteStatistic = new AutocompleteStatistics($container.find('.js-autocomplete-statistic'), timeType);
         this.$statisticInput = this.$container.find('.js-statistic-input');

@@ -11,7 +11,13 @@
 
     <div class="dropdown mb-2">
         <label>Sort</label>
-        <button class="btn dropdown-toggle bg-white border border-gray ms-2" type="button" id="time-entry-sort" data-bs-toggle="dropdown" aria-expanded="false">
+        <button
+                id="statistic-sort"
+                {{ stimulus_controller('bootstrap-dropdown') }}
+                class="btn dropdown-toggle bg-white border border-gray ms-2"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
             {% if pagination.isSorted('statistic.createdAt') and pagination.direction == 'asc' %}
                 Oldest
             {% elseif pagination.isSorted('statistic.createdAt') and pagination.direction == 'desc' %}
@@ -22,7 +28,7 @@
                 Name - desc
             {% endif %}
         </button>
-        <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+        <div class="dropdown-menu" aria-labelledby="statistic-sort">
             {{ knp_pagination_sortable(pagination, 'Newest', 'statistic.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
             {{ knp_pagination_sortable(pagination, 'Oldest', 'statistic.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
             {{ knp_pagination_sortable(pagination, 'Name - asc', 'statistic.name', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
@@ -32,32 +38,40 @@
 
     {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
-    <form class="row g-2 mt-3 js-create-statistic">
+    <label class="form-label"><strong>Add record</strong></label>
+    {{ form_start(form, {
+        attr: {
+            class: 'row g-2 align-items-baseline',
+            'data-controller': "load-form",
+            'data-action': "submit->load-form#start",
+            'autocomplete': 'off'
+        }
+    }) }}
         <div class="col col-md-3">
-            <label class="visually-hidden" for="statistic-create-name"></label>
-            <input id="statistic-create-name" type="text" class="form-control" placeholder="name">
+            {{ form_widget(form.name) }}
+            {{ form_errors(form.name) }}
         </div>
-
-        <div class="d-none d-md-block col">
-            <label class="visually-hidden" for="statistic-create-description"></label>
-            <input id="statistic-create-description" type="text" class="form-control" placeholder="description">
+        <div class="col">
+            {{ form_widget(form.description) }}
+            {{ form_errors(form.description) }}
         </div>
-
         <div class="col-auto">
-            <label class="visually-hidden" for="statistic-create-time-type"></label>
-            <select id="statistic-create-time-type" class="form-control">
-                <option value="instant" selected="selected">instant</option>
-                <option value="interval">interval</option>
-            </select>
+            {{ form_widget(form.timeType) }}
+            {{ form_errors(form.timeType) }}
         </div>
-
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary js-loading-button">
-                <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                <span class="js-text">Create</span>
-            </button>
-        </div>
-    </form>
+        <button
+                type="submit"
+                class="btn btn-primary col-auto"
+                data-load-form-target="button">
+                <span
+                        class="spinner-border spinner-border-sm d-none"
+                        data-load-form-target="loading"
+                        role="status"
+                        aria-hidden="true">
+                </span>
+            Create
+        </button>
+    {{ form_end(form) }}
 
     <div class="mt-3 mb-3 card-list js-statistic-list">
         {% for statistic in pagination.items %}

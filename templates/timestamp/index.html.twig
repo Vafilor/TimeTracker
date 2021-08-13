@@ -7,15 +7,7 @@
 {% block title %}Timestamps{% endblock %}
 
 {% block content_body %}
-    <div class="resource js-data"
-         data-route-timestamp-view="timestamp_view;{{ path('timestamp_view', { id: 'TIMESTAMP_ID' }) }}"
-         data-datetime-format="{{ app.user.dateTimeFormat }}"
-         {% if pagination.sort == 'timestamp.createdAt' %}
-         data-created-at-sort="{{ pagination.direction }}"
-         {% else %}
-         data-created-at-sort="none"
-         {% endif %}
-    >
+    <div class="resource">
 
         <h1 class="text-center">
             Timestamps
@@ -36,14 +28,20 @@
 
         <div class="dropdown mb-2">
             <label>Sort</label>
-            <button class="btn dropdown-toggle bg-white border border-gray ms-2" type="button" id="time-entry-sort" data-bs-toggle="dropdown" aria-expanded="false">
+            <button
+                    id="timestamp-sort"
+                    {{ stimulus_controller('bootstrap-dropdown') }}
+                    class="btn dropdown-toggle bg-white border border-gray ms-2"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
                 {% if pagination.isSorted('timestamp.createdAt') and pagination.direction == 'asc' %}
                     Oldest
                 {% else %}
                     Newest
                 {% endif %}
             </button>
-            <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+            <div class="dropdown-menu" aria-labelledby="timestamp-sort">
                 {{ knp_pagination_sortable(pagination, 'Newest', 'timestamp.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
                 {{ knp_pagination_sortable(pagination, 'Oldest', 'timestamp.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
             </div>

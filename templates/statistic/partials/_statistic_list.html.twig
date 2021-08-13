@@ -1,0 +1,16 @@
+{% for statistic in pagination.items %}
+<li class="list-group-item selectable pointer-hover" role="option" data-autocomplete-value="{{ statistic.name }}">
+    <span class="autocomplete-statistic-icon">
+        <i class="{% if statistic.icon %}{{ statistic.icon }}{% else %}far fa-square{% endif%}"
+           style="color: {{ statistic.color }}">
+        </i>
+    </span>
+    {{statistic.name}}
+</li>
+{% else %}
+<li class="list-group-item no-more-results" role="option" aria-disabled="true">No results found</li>
+{% endfor %}
+
+{% if pagination.count < pagination.totalItemCount %}
+<li class="list-group-item no-more-results" role="option" aria-disabled="true">{{ pagination.totalItemCount - pagination.count }} more results</li>
+{% endif %}

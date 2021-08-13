@@ -15,7 +15,13 @@ export default class AutocompleteStatistics extends PaginatedAutocomplete<ApiSta
             icon = `<i class="${item.icon}" style="color: ${item.color}"></i>`
         }
 
-        return `<div><span class="autocomplete-statistic-icon">${icon}</span>${item.name}</div>`;
+        return `<div 
+                    data-controller="data-emitter" 
+                    data-data-emitter-value-value="${item.name}"
+                    data-action="click->data-emitter#emit">
+                    <span class="autocomplete-statistic-icon">${icon}</span>
+                    ${item.name}
+                </div>`;
     }
 
     protected queryApi(query: string): Promise<AxiosResponse<PaginatedResponse<ApiStatistic>>> {

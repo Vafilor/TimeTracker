@@ -12,7 +12,7 @@ use App\Api\ApiProblemException;
 use App\Api\ApiStatistic;
 use App\Entity\Statistic;
 use App\Form\Model\StatisticModel;
-use App\Form\StatisticFormType;
+use App\Form\AddStatisticFormType;
 use App\Manager\TagManager;
 use App\Repository\StatisticRepository;
 use App\Repository\TagLinkRepository;
@@ -81,7 +81,7 @@ class ApiStatisticController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $defaultModel = new StatisticModel();
-        $form = $this->createForm(StatisticFormType::class, $defaultModel, [
+        $form = $this->createForm(AddStatisticFormType::class, $defaultModel, [
             'csrf_protection' => false,
         ]);
 

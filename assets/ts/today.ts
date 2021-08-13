@@ -12,7 +12,8 @@ import Flashes from "./components/flashes";
 import LoadingButton from "./components/loading_button";
 import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
 import { ApiErrorResponse, ApiResourceError } from "./core/api/api";
-import { ApiTimeEntry } from "./core/api/types"; // Adds functions to jQuery
+import { ApiTimeEntry } from "./core/api/types";
+import { ApiError } from "./core/api/errors"; // Adds functions to jQuery
 
 class TimeEntryList {
     private readonly $container: JQuery;
@@ -139,13 +140,11 @@ class TodayIndexPage implements TimeEntryActionDelegate {
 
             this.createTimeEntry(res.data);
         } catch (e) {
-            if (e instanceof ApiErrorResponse) {
-                const runningTimerError = e.getErrorForCode(TimeEntryApiErrorCode.codeRunningTimer) as ApiResourceError;
-                if (runningTimerError) {
-                    this.confirmStopExistingTimer(() => {
-                        this.stopTimeEntryAndCreate(runningTimerError.resource);
-                    });
-                }
+            const runningTimerError = ApiError.findByCode(e.response.data, TimeEntryApiErrorCode.codeRunningTimer)
+            if (runningTimerError) {
+                this.confirmStopExistingTimer(() => {
+                    this.stopTimeEntryAndCreate(runningTimerError.resource);
+                });
             }
         }
 

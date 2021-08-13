@@ -63,3 +63,39 @@
     margin-left: -1px;
   }
 }
+
+.autocomplete-2 {
+  .results {
+    position: absolute;
+    top: 44px;
+    z-index: 100;
+    border-radius: 6px;
+    box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 8%);
+
+    .no-more-results {
+      padding: 8px;
+      text-align: center;
+    }
+
+    .list-group-item {
+      &.selectable {
+        &:hover {
+          background-color: lighten($primary, 20%);
+        }
+      }
+    }
+  }
+
+  .loading {
+    position: absolute;
+    top: 44px;
+    z-index: 700;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 8%);
+    padding: 8px;
+    text-align: center;
+    width: 100%;
+  }
+}

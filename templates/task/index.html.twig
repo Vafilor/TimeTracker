@@ -55,7 +55,13 @@
 
         <div class="dropdown mb-2">
             <label>Sort</label>
-            <button class="btn dropdown-toggle bg-white border border-gray ms-2" type="button" id="task-sort" data-bs-toggle="dropdown" aria-expanded="false">
+            <button
+                    id="task-sort"
+                    {{ stimulus_controller('bootstrap-dropdown') }}
+                    class="btn dropdown-toggle bg-white border border-gray ms-2"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
                 {% if pagination.isSorted('task.createdAt') and pagination.direction == 'desc' %}
                     Newest
                 {% elseif pagination.isSorted('task.createdAt') and pagination.direction == 'asc'  %}

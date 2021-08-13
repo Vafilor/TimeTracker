@@ -1,8 +1,8 @@
 import { Controller } from 'stimulus';
 import { StatisticValueApi } from "../ts/core/api/statistic_value_api";
 import { useDispatch } from "stimulus-use";
-import {useFlash} from "../use-flash/use-flash";
-import {ApiError} from "../ts/core/api/errors";
+import { useFlash } from "../use-flash/use-flash";
+import { ApiError } from "../ts/core/api/errors";
 
 export default class extends Controller {
     static targets = ['name', 'value', 'loading'];

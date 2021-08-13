@@ -26,6 +26,20 @@ class TagController extends BaseController
     const CODE_NAME_TAKEN = 'code_name_taken';
     const CODE_TAG_NOT_ASSOCIATED = 'tag_not_associated';
 
+    private function createIndexFilterForm(FormFactoryInterface $formFactory)
+    {
+        return $formFactory->createNamed(
+            '',
+            TagListFilterFormType::class,
+            new TagListFilterModel(),
+            [
+                'csrf_protection' => false,
+                'method' => 'GET',
+                'allow_extra_fields' => true,
+            ]
+        );
+    }
+
     #[Route('/tag', name: 'tag_index')]
     public function index(
         Request $request,
@@ -36,24 +50,14 @@ class TagController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $tagRepository->findWithUser($this->getUser());
-
-        $filterForm = $formFactory->createNamed(
-            '',
-            TagListFilterFormType::class,
-            new TagListFilterModel(),
-            [
-                'csrf_protection' => false,
-                'method' => 'GET',
-                'allow_extra_fields' => true,
-            ]
-        );
+        $filterForm = $this->createIndexFilterForm($formFactory);
 
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
             /** @var TagListFilterModel $data */
             $data = $filterForm->getData();
             $nameLike = $data->getName();
-            if ($nameLike !== '') {
+            if (!is_null($nameLike)) {
                 $queryBuilder = $queryBuilder->andWhere('tag.canonicalName LIKE :name')
                     ->setParameter('name', "%$nameLike%")
                 ;
@@ -65,21 +69,24 @@ class TagController extends BaseController
             'direction' => 'asc'
         ]);
 
-        $defaultTagModel = new TagModel();
-        $createForm = $this->createForm(TagFormType::class, $defaultTagModel, [
+        $createForm = $this->createForm(TagFormType::class, new TagModel(), [
             'action' => $this->generateUrl('tag_create')
         ]);
 
-        return $this->render('tag/index.html.twig', [
+        return $this->renderForm('tag/index.html.twig', [
             'pagination' => $pagination,
-            'form' => $createForm->createView(),
-            'filterForm' => $filterForm->createView()
+            'form' => $createForm,
+            'filterForm' => $filterForm
         ]);
     }
 
     #[Route('/tag/create', name: 'tag_create')]
-    public function create(Request $request, TagRepository $tagRepository): Response
-    {
+    public function create(
+        Request $request,
+        PaginatorInterface $paginator,
+        FormFactoryInterface $formFactory,
+        TagRepository $tagRepository
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $defaultTagModel = new TagModel();
@@ -106,7 +113,22 @@ class TagController extends BaseController
             return $this->redirectToRoute('tag_index');
         }
 
-        return $this->redirectToRoute('tag_index');
+        $filterForm = $this->createIndexFilterForm($formFactory);
+        $createForm = $this->createForm(TagFormType::class, new TagModel(), [
+            'action' => $this->generateUrl('tag_create')
+        ]);
+
+        $queryBuilder = $tagRepository->findWithUser($this->getUser());
+        $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
+            'sort' => 'tag.name',
+            'direction' => 'asc'
+        ]);
+
+        return $this->redirectToRoute('tag_index', [
+            'pagination' => $pagination,
+            'filterForm' => $filterForm,
+            'form' => $createForm
+        ]);
     }
 
     #[Route('/tag/{id}/view', name: 'tag_view')]

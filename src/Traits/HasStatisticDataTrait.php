@@ -15,7 +15,7 @@ use App\Entity\TimeEntry;
 use App\Entity\Timestamp;
 use App\Entity\User;
 use App\Form\AddStatisticValueFormType;
-use App\Form\Model\AddStatisticValue;
+use App\Form\Model\AddStatisticValueModel;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
 use App\Util\TimeType;
@@ -45,7 +45,7 @@ trait HasStatisticDataTrait
             $timeType = TimeType::INTERVAL;
         }
 
-        $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValue(), [
+        $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValueModel(), [
             'csrf_protection' => false,
             'timezone' => $assignedTo->getTimezone(),
         ]);
@@ -71,7 +71,7 @@ trait HasStatisticDataTrait
             throw new ApiProblemException($formError);
         }
 
-        /** @var AddStatisticValue $data */
+        /** @var AddStatisticValueModel $data */
         $data = $form->getData();
         $value = $data->getValue();
 

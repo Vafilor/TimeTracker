@@ -32,14 +32,21 @@
 
         <div class="dropdown mb-2">
             <label>Sort</label>
-            <button class="btn dropdown-toggle bg-white border-gray ms-2" type="button" id="time-entry-sort" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button
+                    id="note-sort"
+                    {{ stimulus_controller('bootstrap-dropdown') }}
+                    class="btn dropdown-toggle bg-white border-gray ms-2"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false">
                 {% if pagination.isSorted('note.createdAt') and pagination.direction == 'asc' %}
                     Oldest
                 {% else %}
                     Newest
                 {% endif %}
             </button>
-            <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+            <div class="dropdown-menu" aria-labelledby="note-sort">
                 {{ knp_pagination_sortable(pagination, 'Newest', 'note.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
                 {{ knp_pagination_sortable(pagination, 'Oldest', 'note.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
             </div>

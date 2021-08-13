@@ -9,22 +9,22 @@ use DateTime;
 use DateTimeZone;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class AddStatisticValue
+class AddStatisticValueModel
 {
     /**
      * @Assert\NotBlank()
-     * @var string|null
      */
     private ?string $statisticName;
 
     /**
      * @Assert\NotNull()
+     * @Assert\GreaterThan(0)
      */
     private ?float $value;
 
     private ?DateTime $day;
 
-    public function __construct(string $statisticName = '', float $value = 0.0)
+    public function __construct(string $statisticName = '', float $value = null)
     {
         $this->statisticName = $statisticName;
         $this->value = $value;
@@ -71,7 +71,7 @@ class AddStatisticValue
         return $this->day;
     }
 
-    public function setDay(?DateTime $day): AddStatisticValue
+    public function setDay(?DateTime $day): AddStatisticValueModel
     {
         if ($day) {
             $day->setTimezone(new DateTimeZone('UTC'));
