@@ -36,10 +36,18 @@
     {{ autocomplete.removable('task', { button: { class: 'bg-weak-white btn-outline-danger'}, search: { value: taskName, placeholder: 'task name' } }) }}
 
     <label class="d-block form-label mt-3">Tags</label>
-    <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
-        <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+    <div class="mt-2 d-flex align-items-center">
+        <div
+            {{ stimulus_controller('tag-list', {
+                addUrl: path('json_task_tag_create', {id: task.idString}),
+                removeUrl: path('json_task_tag_delete', {id: task.idString, tagName: '{NAME}'})
+            }) }}
+            class="tag-list tag-list-autocomplete"
+            data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
+            data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+        </div>
 
-        {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+        {{ autocomplete.addTag('task') }}
     </div>
 
     {{ form_label(form.completedAt, null, {label_attr: {class: 'd-block mt-3'}}) }}

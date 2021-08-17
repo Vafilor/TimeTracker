@@ -247,6 +247,16 @@ export default class extends Controller {
         }
     }
 
+    fetchRequest(endpoint, query) {
+        const headers = { "X-Requested-With": "XMLHttpRequest" }
+        const url = new URL(endpoint, window.location.href)
+        const params = new URLSearchParams(url.search.slice(1))
+        params.append("q", query)
+        url.search = params.toString()
+
+        return fetch(url.toString(), { headers })
+    }
+
     fetchResults() {
         const query = this.getQuery();
         if (!this.shouldFetchQuery(query)) {
@@ -258,18 +268,12 @@ export default class extends Controller {
             return
         }
 
-        const headers = { "X-Requested-With": "XMLHttpRequest" }
-        const url = new URL(this.urlValue, window.location.href)
-        const params = new URLSearchParams(url.search.slice(1))
-        params.append("q", query)
-        url.search = params.toString()
-
         this.element.dispatchEvent(new CustomEvent("loadstart"))
 
         this.resultsTarget.hidden = true;
         this.showLoading();
 
-        fetch(url.toString(), { headers })
+        this.fetchRequest(this.urlValue, query)
             .then(response => response.text())
             .then(html => {
                 this.resultsTarget.innerHTML = html

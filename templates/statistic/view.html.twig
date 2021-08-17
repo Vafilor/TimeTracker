@@ -32,10 +32,19 @@
             {{ statistic.name }}
         </h1>
 
-        <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
-            <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+        <label class="d-block form-label mt-3">Tags</label>
+        <div class="mt-2 d-flex align-items-center">
+            <div
+                {{ stimulus_controller('tag-list', {
+                    addUrl: path('json_statistic_tag_create', {id: statistic.idString}),
+                    removeUrl: path('json_statistic_tag_delete', {id: statistic.idString, tagName: '{NAME}'})
+                }) }}
+                class="tag-list tag-list-autocomplete"
+                data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
+                data-action="autocomplete.tags.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+            </div>
 
-            {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+            {{ autocomplete.addTag('statistic') }}
         </div>
 
         <div class="mb-2 mt-2">Created: {{ time.user_datetime(statistic.createdAt, app.user) }}</div>

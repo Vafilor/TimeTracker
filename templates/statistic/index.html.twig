@@ -59,18 +59,20 @@
             {{ form_widget(form.timeType) }}
             {{ form_errors(form.timeType) }}
         </div>
-        <button
-                type="submit"
-                class="btn btn-primary col-auto"
-                data-load-form-target="button">
-                <span
-                        class="spinner-border spinner-border-sm d-none"
-                        data-load-form-target="loading"
-                        role="status"
-                        aria-hidden="true">
-                </span>
-            Create
-        </button>
+        <div class="col-auto">
+            <button
+                    type="submit"
+                    class="btn btn-primary"
+                    data-load-form-target="button">
+                    <span
+                            class="spinner-border spinner-border-sm d-none"
+                            data-load-form-target="loading"
+                            role="status"
+                            aria-hidden="true">
+                    </span>
+                Create
+            </button>
+        </div>
     {{ form_end(form) }}
 
     <div class="mt-3 mb-3 card-list js-statistic-list">

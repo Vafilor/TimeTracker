@@ -21,10 +21,19 @@
     {{ form_start(form) }}
     {{ form_row(form.title) }}
 
-    <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
-        <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+    <label class="d-block form-label mt-3">Tags</label>
+    <div class="mt-2 d-flex align-items-center">
+        <div
+                {{ stimulus_controller('tag-list', {
+                    addUrl: path('json_note_tag_create', {id: note.idString}),
+                    removeUrl: path('json_note_tag_delete', {id: note.idString, tagName: '{NAME}'})
+                }) }}
+                class="tag-list tag-list-autocomplete"
+                data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
+                data-action="autocomplete.tags.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+        </div>
 
-        {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+        {{ autocomplete.addTag('note') }}
     </div>
 
     <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">

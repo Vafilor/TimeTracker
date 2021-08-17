@@ -6,6 +6,10 @@
 
 {% block title %}Tasks{% endblock %}
 
+{% block metas %}
+    <meta name="turbo-cache-control" content="no-preview">
+{% endblock %}
+
 {% block content_body %}
     <div class="resource js-data"
          data-duration-format="{{ app.user.durationFormat }}"
@@ -24,15 +28,20 @@
 
         <div class="filter table-filter mb-3">
             <div class="filter-title">Filter</div>
-            {{ form_start(filterForm) }}
+            {{ form_start(filterForm, {
+                attr: {
+                    'data-controller': "load-form",
+                    'data-action': "submit->load-form#start",
+                }
+            }) }}
             {{ form_errors(filterForm) }}
             <div class="d-flex flex-column flex-md-row">
-                {{ form_row(filterForm.showCompleted) }}
+                {{ form_row(filterForm.showCompleted, { attr: { 'data-controller': 'false-checkbox' }}) }}
                 <div class="ms-md-4">
-                    {{ form_row(filterForm.showSubtasks) }}
+                    {{ form_row(filterForm.showSubtasks, { attr: { 'data-controller': 'false-checkbox' }}) }}
                 </div>
                 <div class="ms-md-4">
-                    {{ form_row(filterForm.onlyShowPastDue) }}
+                    {{ form_row(filterForm.onlyShowPastDue, { attr: { 'data-controller': 'false-checkbox' }}) }}
                 </div>
             </div>
             {{ form_row(filterForm.content) }}
@@ -49,7 +58,18 @@
                 {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'} }) }}
             </div>
 
-            <button type="submit" class="btn btn-primary">Search</button>
+            <button
+                    type="submit"
+                    class="btn btn-primary"
+                    data-load-form-target="button">
+                <span
+                        class="spinner-border spinner-border-sm d-none"
+                        data-load-form-target="loading"
+                        role="status"
+                        aria-hidden="true">
+                </span>
+                Search
+            </button>
             {{ form_end(filterForm) }}
         </div>
 
@@ -86,24 +106,59 @@
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
         <div class="inline-form-header mb-2">Add Task</div>
-        <form class="js-task-create row g-2">
+
+        {{ form_start(form, {
+            attr: {
+                class: 'row g-2',
+                'data-controller': "load-form",
+                'data-action': "submit->load-form#start",
+            }
+        }) }}
             <div class="col">
-                <input
-                        id="create-task-name"
-                        type="text"
-                        class="form-control js-name"
-                        autocomplete="off"
-                        placeholder="What do you want to achieve?"
-                />
+                {{ form_widget(form.name, {
+                    attr: {
+                        placeholder: 'name',
+                        autocomplete: 'off'
+                    }}
+                ) }}
+            </div>
+            <div class="d-none">
+                {{ form_rest(form) }}
             </div>
             <div class="col-auto">
-                <button type="button" class="btn btn-primary js-button js-loading-button">
-                    <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                    <span class="js-loading visually-hidden">Loading...</span>
-                    <span class="js-text">Create task</span>
+                <button
+                        type="submit"
+                        class="btn btn-primary"
+                        data-load-form-target="button">
+                        <span
+                                class="spinner-border spinner-border-sm d-none"
+                                data-load-form-target="loading"
+                                role="status"
+                                aria-hidden="true">
+                        </span>
+                    Create
                 </button>
             </div>
-        </form>
+        {{ form_end(form) }}
+
+{#        <form class="js-task-create row g-2">#}
+{#            <div class="col">#}
+{#                <input#}
+{#                        id="create-task-name"#}
+{#                        type="text"#}
+{#                        class="form-control js-name"#}
+{#                        autocomplete="off"#}
+{#                        placeholder="What do you want to achieve?"#}
+{#                />#}
+{#            </div>#}
+{#            <div class="col-auto">#}
+{#                <button type="button" class="btn btn-primary js-button js-loading-button">#}
+{#                    <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>#}
+{#                    <span class="js-loading visually-hidden">Loading...</span>#}
+{#                    <span class="js-text">Create task</span>#}
+{#                </button>#}
+{#            </div>#}
+{#        </form>#}
 
         <div class="stack-list task-list js-task-list mt-2 mb-2">
             {% for task in pagination %}

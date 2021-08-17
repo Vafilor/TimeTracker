@@ -60,7 +60,7 @@ class StatisticController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $term = strtolower($request->query->get('q'));
-        $timeType = strtolower($request->query->get('timeType', 'timestamp'));
+        $timeType = strtolower($request->query->get('timeType', 'instant'));
 
 //         TODO
         if (!TimeType::isValid($timeType)) {
@@ -90,7 +90,6 @@ class StatisticController extends BaseController
             ]
         );
 
-// TODO pagination
         return $this->render('statistic/partials/_statistic_list.html.twig', [
             'pagination' => $pagination
         ]);

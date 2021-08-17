@@ -19,10 +19,19 @@
             </ol>
         </nav>
 
-        <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
-            <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+        <label class="d-block form-label mt-3">Tags</label>
+        <div class="mt-2 d-flex align-items-center">
+            <div
+                {{ stimulus_controller('tag-list', {
+                    addUrl: path('json_timestamp_tag_create', {id: timestamp.idString}),
+                    removeUrl: path('json_timestamp_tag_delete', {id: timestamp.idString, tagName: '{NAME}'})
+                }) }}
+                class="tag-list tag-list-autocomplete"
+                data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
+                data-action="autocomplete.tags.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+            </div>
 
-            {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+            {{ autocomplete.addTag('timestamp') }}
         </div>
 
         {{ form_start(form) }}
@@ -34,12 +43,43 @@
                 createUrl: path('json_timestamp_statistic_create', { id: timestamp.id })
             }) }}
             class="d-flex mt-2 js-add-statistic add-statistic">
-            {{ autocomplete.list('statistic', {
-                search: {
-                    tabIndex: '1',
-                    'data-create-statistic-value-target': 'name'
-                }
-            }) }}
+
+            <div
+                    {{ stimulus_controller({
+                        'autocomplete': {
+                            url: path('partial_statistic_index', { timeType: 'instant' }),
+                            minLength: -1,
+                        },
+                    }) }}
+                    class="autocomplete-2 position-relative"
+            >
+                <label for="timestamp-statistic-search" class="visually-hidden">Search statistics</label>
+                <input
+                        id="timestamp-statistic-search"
+                        type="search"
+                        class="form-control search"
+                        data-create-statistic-value-target="name"
+                        data-autocomplete-target="input"
+                        placeholder="statistic name"
+                        autocomplete="off"
+                        tabindex="1"
+                />
+                <ul
+                        class="list-group results w-100"
+                        data-autocomplete-target="results">
+                </ul>
+                <div
+                        class="loading"
+                        hidden
+                        data-autocomplete-target="loading">
+                    <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    Searching...
+                </div>
+            </div>
+
+
             <div class="ms-2">
                 <label class="visually-hidden" for="add-statistic-value">record value</label>
                 <input

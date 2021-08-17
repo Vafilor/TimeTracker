@@ -16,4 +16,16 @@ export class TagApi {
 
         return axios.get(`/json/tag?${search.toString()}`);
     }
+
+    public static addTagToResource(url: string, tagName: string): Promise<AxiosResponse<ApiTag>> {
+        return axios.post(url, {
+            name: tagName
+        });
+    }
+
+    public static removeTagFromResource(url: string, tagName: string): Promise<AxiosResponse> {
+        tagName = encodeURIComponent(tagName);
+
+        return axios.delete(`${url}/${tagName}`);
+    }
 }

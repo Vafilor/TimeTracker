@@ -33,7 +33,6 @@ class TagController extends BaseController
             TagListFilterFormType::class,
             new TagListFilterModel(),
             [
-                'csrf_protection' => false,
                 'method' => 'GET',
                 'allow_extra_fields' => true,
             ]
@@ -185,5 +184,46 @@ class TagController extends BaseController
         $this->addFlash('success', 'Tag successfully removed');
 
         return $this->redirectToRoute('tag_index');
+    }
+
+    #[Route('/tag_partial', name: 'tag_index_partial', methods: ["GET"])]
+    public function partialIndex(
+        Request $request,
+        TagRepository $tagRepository,
+        PaginatorInterface $paginator
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $term = strtolower(urldecode($request->query->get('q')));
+        $excludeString = $request->query->get('exclude', '');
+        $excludeItems = [];
+
+        if ($excludeString !== '') {
+            $excludeItems = explode(',', urldecode($excludeString));
+        }
+
+        $queryBuilder = $tagRepository->findWithUser($this->getUser())
+            ->andWhere('tag.canonicalName LIKE :term')
+            ->setParameter('term', "%$term%");
+
+        if (count($excludeItems) !== 0) {
+            $queryBuilder = $queryBuilder->andWhere('tag.name NOT IN (:exclude)')
+                ->setParameter('exclude', $excludeItems);
+        }
+
+        $pagination = $this->populatePaginationData(
+            $request,
+            $paginator,
+            $queryBuilder,
+            [
+                'sort' => 'tag.name',
+                'direction' => 'asc'
+            ]
+        );
+
+
+        return $this->render('tag/partials/_tag_list.html.twig', [
+            'pagination' => $pagination
+        ]);
     }
 }

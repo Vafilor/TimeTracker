@@ -48,11 +48,23 @@
         </div>
 
         {{ form_label(filterForm.tags, null, {label_attr: {class: 'd-block'}}) }}
-        <div class="js-tags-filter d-flex align-items-center mb-1">
-            {{ form_widget(filterForm.tags, {attr: {class: 'js-real-tag-input d-none'}}) }}
-            <div class="js-tags tag-list js-tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
 
-            {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'} }) }}
+        <div class="d-flex align-items-center">
+            <div
+                {{ stimulus_controller('tag-list') }}
+                class="tag-list tag-list-autocomplete"
+                data-tag-list-tags-csv-value="{{ app.request.query.get('tags') }}"
+                data-action="autocomplete.tags.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+
+                {{ form_widget(filterForm.tags, {
+                    attr: {
+                        class: 'd-none',
+                        'data-tag-list-target': 'hidden'
+                    }})
+                }}
+            </div>
+
+            {{ autocomplete.addTag('time-entry-filter') }}
         </div>
 
         {{ form_label(filterForm.taskId, null, {label_attr: {class: 'd-block'}}) }}

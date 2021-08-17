@@ -75,7 +75,7 @@ trait HasStatisticDataTrait
         $data = $form->getData();
         $value = $data->getValue();
 
-        $statistic = $statisticRepository->findWithUserNameCanonical($assignedTo, $data->getCanonicalStatisticName());
+        $statistic = $statisticRepository->findWithUserNameCanonical($assignedTo, $data->getCanonicalStatisticName(), $timeType);
         if (is_null($statistic)) {
             $statistic = new Statistic($assignedTo, $data->getStatisticName(), $timeType);
             $this->persist($statistic);

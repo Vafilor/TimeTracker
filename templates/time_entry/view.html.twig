@@ -49,10 +49,18 @@
         </div>
     </div>
 
-    <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
-        <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+    <div class="d-flex align-items-center mt-2">
+        <div
+            {{ stimulus_controller('tag-list', {
+                addUrl: path('json_time_entry_tag_create', {id: timeEntry.idString}),
+                removeUrl: path('json_time_entry_tag_delete', {id: timeEntry.idString, tagName: '{NAME}'})
+            }) }}
+            class="tag-list tag-list-autocomplete"
+            data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
+            data-action="autocomplete.tags.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+        </div>
 
-        {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+        {{ autocomplete.addTag('time-entry') }}
     </div>
 
     {{ form_start(form, {attr: {class: 'mt-2'}}) }}
@@ -159,12 +167,42 @@
                 {{ stimulus_controller('create-statistic-value', {
                     createUrl: path('json_time_entry_statistic_create', { id: timeEntry.idString })
                 }) }}>
-                {{ autocomplete.list('statistic', {
-                    search: {
-                        tabIndex: '1',
-                        'data-create-statistic-value-target': 'name'
-                    }
-                }) }}
+
+                <div
+                    {{ stimulus_controller({
+                        'autocomplete': {
+                            url: path('partial_statistic_index', { timeType: 'interval' }),
+                            minLength: -1,
+                        },
+                    }) }}
+                    class="autocomplete-2 position-relative"
+                >
+                    <label for="time-entry-statistic-search" class="visually-hidden">Search statistics</label>
+                    <input
+                            id="time-entry-statistic-search"
+                            type="search"
+                            class="form-control search"
+                            data-create-statistic-value-target="name"
+                            data-autocomplete-target="input"
+                            placeholder="statistic name"
+                            autocomplete="off"
+                            tabindex="1"
+                    />
+                    <ul
+                        class="list-group results w-100"
+                        data-autocomplete-target="results">
+                    </ul>
+                    <div
+                            class="loading"
+                            hidden
+                            data-autocomplete-target="loading">
+                        <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Searching...
+                    </div>
+                </div>
+
                 <div class="ms-2">
                     <label class="visually-hidden" for="add-statistic-value">record value</label>
                     <input
@@ -180,7 +218,8 @@
                 <button
                         type="button"
                         class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary"
-                        data-action="create-statistic-value#create">
+                        data-action="create-statistic-value#create"
+                        tabindex="2">
                     <span
                         class="spinner-border spinner-border-sm d-none"
                         role="status"
