@@ -1,0 +1,18 @@
+{% for tag in pagination.items %}
+    <li
+        class="list-group-item selectable pointer-hover"
+        role="option"
+        data-autocomplete-value="{{ tag.canonicalName }}"
+        data-autocomplete-object="{{ {name:tag.canonicalName, color: tag.color}|json_encode|e('html_attr') }}"
+        data-autocomplete-label="{{ tag.name }}"
+    >
+        {{tag.name}}
+    </li>
+{% else %}
+    <li class="list-group-item no-more-results" role="option" aria-disabled="true">No results found</li>
+{% endfor %}
+
+{% if pagination.count < pagination.totalItemCount %}
+{#     TODO huh - no more results?#}
+    <li class="list-group-item no-more-results" role="option" aria-disabled="true">{{ pagination.totalItemCount - pagination.count }} more results</li>
+{% endif %}

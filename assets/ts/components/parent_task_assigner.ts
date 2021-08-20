@@ -1,8 +1,9 @@
 import { TaskAssigner } from "./task_assigner";
 import Flashes from "./flashes";
 import Observable from "./observable";
-import { TaskApi, TaskApiErrorCode } from "../core/api/task_api";
+import { TaskApi } from "../core/api/task_api";
 import { ApiErrorResponse } from "../core/api/api";
+import { TaskApiErrorCode } from "../core/api/types";
 
 export class ParentTaskAssigner extends TaskAssigner {
     // This is the id of the task whose parent we are changing

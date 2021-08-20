@@ -527,6 +527,7 @@ class ApiTimeEntryController extends BaseController
         return $this->getTagsRequest($timeEntry);
     }
 
+    // TOOD rename to assignTask?
     #[Route('/api/time-entry/{id}/task', name: 'api_time_entry_task_create', methods: ['POST'])]
     #[Route('/json/time-entry/{id}/task', name: 'json_time_entry_task_create', methods: ['POST'])]
     public function addTask(
@@ -609,7 +610,7 @@ class ApiTimeEntryController extends BaseController
         if (!$timeEntry->assignedToTask()) {
             throw new ApiProblemException(
                 ApiProblem::invalidAction(
-                    TimeEntryController::CODE_NO_ASSIGNED_TASK,
+                    TaskController::CODE_NO_ASSIGNED_TASK,
                     'Time entry has no assigned task',
                 )
             );

@@ -73,3 +73,8 @@ export function ApiTagFromName(name: string): ApiTag {
         color: '#5d5d5d'
     };
 }
+
+export enum TaskApiErrorCode {
+    codeNoAssignedTask = 'code_no_assigned_task',
+    codeNoParentTask = 'code_no_parent_task',
+}

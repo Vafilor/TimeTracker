@@ -5,6 +5,8 @@ export interface CreateFlashOptions {
     type: string;
     title?: string;
     message: string;
+    url?: string;
+    urlText?: string;
 }
 
 export interface FlashOptions extends StimulusUseOptions {

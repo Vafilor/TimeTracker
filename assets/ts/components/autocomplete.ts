@@ -421,7 +421,6 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
 
 
             $template.on('click', (event) => {
-                // TODO - does stimulus happen first, or does this?
                 this.itemSelected.emit(item);
             });
 

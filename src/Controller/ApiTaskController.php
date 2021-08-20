@@ -46,7 +46,6 @@ class ApiTaskController extends BaseController
 
         $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
 
-        $this->createForm(FilterTaskFormType::class, new FilterTaskModel());
         $filterForm = $formFactory->createNamed(
             '',
             FilterTaskFormType::class,
@@ -63,7 +62,7 @@ class ApiTaskController extends BaseController
             $data = $filterForm->getData();
 
             $taskRepository->applyFilter($queryBuilder, $data);
-        } elseif (!$filterForm->isValid()) {
+        } elseif ($filterForm->isSubmitted() && !$filterForm->isValid()) {
             $formError = new ApiFormError($filterForm->getErrors(true));
             throw new ApiProblemException($formError);
         } else {

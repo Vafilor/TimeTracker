@@ -8,14 +8,17 @@ import debounce from "lodash.debounce"
  * 2. configurable debounce value
  * 3. optional passValue setting. If true, the hidden element will be updated with the query value as it is modified.
  */
-export default class extends Controller {
+export default class Autocomplete extends Controller {
     static targets = ["input", "hidden", "results", "loading"]
     static values = {
         submitOnEnter: Boolean,
-        url: String, // required
+        url: String, // required,
+        queryName: String, // optional, defaults to 'q',
+        params: Object, // optional, additional query params to set - key/value. Values are url encoded
         minLength: Number, // optional
         debounce: Number, // optional, defaults to 300
-        passValue: Boolean // optional, if true will update the hidden element with the search query as it is typed in
+        passValue: Boolean, // optional, if true will update the hidden element with the search query as it is typed in
+        type: String // optional, emit in the autocomplete.change event to identify what the object is
     }
 
     connect() {
@@ -42,6 +45,10 @@ export default class extends Controller {
 
         if (typeof this.inputTarget.getAttribute("autofocus") === "string") {
             this.inputTarget.focus()
+        }
+
+        if (this.queryNameValue === '') {
+            this.queryNameValue = 'q';
         }
     }
 
@@ -103,51 +110,65 @@ export default class extends Controller {
         }
     }
 
+    onEscapeKeyDown(event) {
+        if (!this.resultsTarget.hidden) {
+            this.hideAndRemoveOptions()
+            event.stopPropagation()
+            event.preventDefault()
+        }
+    }
+
+    onArrowDownKeyDown(event) {
+        const item = this.sibling(true)
+        if (item) {
+            this.select(item)
+        }
+        event.preventDefault()
+    }
+
+    onArrowUpKeyDown(event) {
+        const item = this.sibling(false)
+        if (item) this.select(item)
+        event.preventDefault()
+    }
+
+    onTabKeyDown(event) {
+        const selected = this.resultsTarget.querySelector(
+            '[aria-selected="true"]'
+        )
+        if (selected) {
+            this.commit(selected)
+        }
+    }
+
+    onEnterKeyDown(event) {
+        const selected = this.resultsTarget.querySelector(
+            '[aria-selected="true"]'
+        )
+        if (selected && !this.resultsTarget.hidden) {
+            this.commit(selected)
+            if (!this.hasSubmitOnEnterValue) {
+                event.preventDefault()
+            }
+        }
+    }
+
     onKeydown(event) {
         switch (event.key) {
             case "Escape":
-                if (!this.resultsTarget.hidden) {
-                    this.hideAndRemoveOptions()
-                    event.stopPropagation()
-                    event.preventDefault()
-                }
+                this.onEscapeKeyDown(event)
                 break
             case "ArrowDown":
-            {
-                const item = this.sibling(true)
-                if (item) this.select(item)
-                event.preventDefault()
-            }
+                this.onArrowDownKeyDown(event);
                 break
             case "ArrowUp":
-            {
-                const item = this.sibling(false)
-                if (item) this.select(item)
-                event.preventDefault()
-            }
+                this.onArrowUpKeyDown(event);
                 break
             case "Tab":
-            {
-                const selected = this.resultsTarget.querySelector(
-                    '[aria-selected="true"]'
-                )
-                if (selected) {
-                    this.commit(selected)
-                }
-            }
+                this.onTabKeyDown(event);
                 break
             case "Enter":
-            {
-                const selected = this.resultsTarget.querySelector(
-                    '[aria-selected="true"]'
-                )
-                if (selected && !this.resultsTarget.hidden) {
-                    this.commit(selected)
-                    if (!this.hasSubmitOnEnterValue) {
-                        event.preventDefault()
-                    }
-                }
-            }
+                this.onEnterKeyDown(event);
                 break
         }
     }
@@ -158,7 +179,9 @@ export default class extends Controller {
     }
 
     commit(selected) {
-        if (selected.getAttribute("aria-disabled") === "true") return
+        if (selected.getAttribute("aria-disabled") === "true") {
+            return
+        }
 
         if (selected instanceof HTMLAnchorElement) {
             selected.click()
@@ -168,6 +191,8 @@ export default class extends Controller {
 
         const textValue = this.extractTextValue(selected)
         const value = selected.getAttribute("data-autocomplete-value") || textValue
+        const object = selected.getAttribute('data-autocomplete-object')
+
         this.inputTarget.value = textValue
 
         if (this.hasHiddenTarget) {
@@ -184,15 +209,26 @@ export default class extends Controller {
         this.element.dispatchEvent(
             new CustomEvent("autocomplete.change", {
                 bubbles: true,
-                detail: { value: value, textValue: textValue }
+                detail: {
+                    type: this.typeValue,
+                    value: value,
+                    textValue: textValue,
+                    object: object
+                }
             })
         )
     }
 
     onResultsClick(event) {
-        if (!(event.target instanceof Element)) return
+        if (!(event.target instanceof Element)) {
+            return
+        }
+
         const selected = event.target.closest('[role="option"]')
-        if (selected) this.commit(selected)
+
+        if (selected) {
+            this.commit(selected)
+        }
     }
 
     onResultsMouseDown() {
@@ -251,7 +287,12 @@ export default class extends Controller {
         const headers = { "X-Requested-With": "XMLHttpRequest" }
         const url = new URL(endpoint, window.location.href)
         const params = new URLSearchParams(url.search.slice(1))
-        params.append("q", query)
+        params.append(this.queryNameValue, query)
+
+        for(const [key, value] of Object.entries(this.paramsValue)) {
+            params.append(key, encodeURIComponent(value));
+        }
+
         url.search = params.toString()
 
         return fetch(url.toString(), { headers })
@@ -292,7 +333,10 @@ export default class extends Controller {
     }
 
     open() {
-        if (!this.resultsTarget.hidden) return
+        if (!this.resultsTarget.hidden) {
+            return
+        }
+
         this.resultsTarget.hidden = false
         this.element.setAttribute("aria-expanded", "true")
         this.element.dispatchEvent(
@@ -303,7 +347,10 @@ export default class extends Controller {
     }
 
     close() {
-        if (this.resultsTarget.hidden) return
+        if (this.resultsTarget.hidden) {
+            return
+        }
+
         this.resultsTarget.hidden = true
         this.inputTarget.removeAttribute("aria-activedescendant")
         this.element.setAttribute("aria-expanded", "false")
@@ -312,6 +359,10 @@ export default class extends Controller {
                 detail: { input: this.input, results: this.results }
             })
         )
+    }
+
+    clearInput() {
+        this.inputTarget.value = '';
     }
 
     extractTextValue = el =>

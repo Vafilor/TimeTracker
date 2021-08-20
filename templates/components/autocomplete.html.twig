@@ -85,6 +85,7 @@
         'autocomplete-tags': {
             url: path('tag_index_partial'),
             minLength: -1,
+            type: 'tag'
         },
     }) }}
     class="autocomplete-2 autocomplete-search-group position-relative"
@@ -115,7 +116,7 @@
     <button
             type="button"
             class="btn btn-outline-primary autocomplete-search-group-append bg-weak-white"
-            data-action="autocomplete-tags#addTag">
+            data-action="autocomplete-tags#commitFromTextInput">
         Add
     </button>
 </div>

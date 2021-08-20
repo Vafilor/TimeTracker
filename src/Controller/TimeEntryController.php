@@ -27,7 +27,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class TimeEntryController extends BaseController
 {
     const CODE_RUNNING_TIMER = 'code_running_timer';
-    const CODE_NO_ASSIGNED_TASK = 'code_no_assigned_task';
     const CODE_TIME_ENTRY_OVER = 'code_time_entry_over';
 
     #[Route('/time-entry', name: 'time_entry_index')]

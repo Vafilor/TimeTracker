@@ -4,10 +4,6 @@ import { AxiosResponse } from "axios";
 
 const axios = require('axios').default;
 
-export enum TaskApiErrorCode {
-    codeNoParentTask = 'code_no_parent_task',
-}
-
 // The data required to assign a task to something.
 // If id is not provided, a new task will be created.
 export interface ApiTaskAssign {
@@ -116,5 +112,20 @@ export class TaskApi {
         tagName = encodeURIComponent(tagName);
 
         return axios.delete(`/json/task/${taskId}/tag/${tagName}`);
+    }
+
+    public static assignToResource(url: string, taskName: string, taskId?: string): Promise<AxiosResponse<ApiTask>> {
+        const data = {
+            name: taskName,
+        };
+
+        if (taskId) {
+            data['id'] = taskId;
+        }
+
+        return axios.post(url, data);
+    }
+    public static unassignTask(url: string): Promise<AxiosResponse> {
+        return axios.delete(url);
     }
 }

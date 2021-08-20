@@ -1,8 +1,9 @@
 import Flashes from "./flashes";
 import IdGenerator from "./id_generator";
-import { TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
+import { TimeEntryApi } from "../core/api/time_entry_api";
 import { ApiErrorResponse } from "../core/api/api";
 import { TaskAssigner } from "./task_assigner";
+import { TaskApiErrorCode } from "../core/api/types";
 
 export class TimeEntryTaskAssigner extends TaskAssigner {
     private readonly timeEntryId: string;
@@ -64,7 +65,7 @@ export class TimeEntryTaskAssigner extends TaskAssigner {
         } catch (e) {
             if (e instanceof ApiErrorResponse) {
                 const errRes = e as ApiErrorResponse;
-                if (errRes.hasErrorCode(TimeEntryApiErrorCode.codeNoAssignedTask)) {
+                if (errRes.hasErrorCode(TaskApiErrorCode.codeNoAssignedTask)) {
                     this.flashes.append('danger', 'Time entry has no assigned task');
                 }
             }

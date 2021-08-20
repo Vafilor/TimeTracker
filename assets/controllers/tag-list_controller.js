@@ -71,8 +71,17 @@ export default class extends Controller {
     }
 
     requestAddFromAutocomplete(event) {
-        const { name, color } = event.detail;
-        this.requestAdd(name, color);
+        const { type, value, textValue, object } = event.detail;
+        if (type !== 'tag') {
+            return;
+        }
+
+        if (object) {
+            const { name, color } = JSON.parse(object);
+            this.requestAdd(name, color);
+        } else {
+            this.requestAdd(value, '#5d5d5d');
+        }
     }
 
     requestAdd(name, color) {

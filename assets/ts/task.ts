@@ -129,12 +129,6 @@ $(document).ready(() => {
 
     updateTotalTime(taskId);
 
-    const $tagList = $('.js-tags');
-    const tagList = new TagList($tagList, new TaskApiAdapter(taskId, flashes));
-    const $template = $('.js-autocomplete-tags-container');
-
-    const tagEdit = new TagAssigner($template, tagList, flashes);
-
     const taskTable = new TaskList($('.js-task-list'), true, flashes);
     const createForm = new CreateTaskForm($('.js-task-create'), taskId);
     createForm.taskCreated.addObserver((response) => {

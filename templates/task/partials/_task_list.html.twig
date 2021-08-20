@@ -1,0 +1,19 @@
+{% for task in pagination.items %}
+    <div
+        class="list-group-item selectable pointer-hover"
+        role="option"
+        data-autocomplete-object="{{ {id: task.idString, name:task.name}|json_encode|e('html_attr') }}"
+        data-autocomplete-value="{{ task.name }}">
+        <span class="task-complete">
+            <i class="far {% if task.completed %}fa-check-square{% else %}fa-square{% endif %}"></i>
+        </span>
+        {{ task.name }}
+    </div>
+{% else %}
+    <li class="list-group-item no-more-results" role="option" aria-disabled="true">No results found</li>
+{% endfor %}
+
+{% if pagination.count < pagination.totalItemCount %}
+{#    TODO huh no more results class?#}
+    <li class="list-group-item no-more-results" role="option" aria-disabled="true">{{ pagination.totalItemCount - pagination.count }} more results</li>
+{% endif %}

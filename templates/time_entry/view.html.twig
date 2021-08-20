@@ -21,12 +21,56 @@
     </nav>
 
     <div class="d-flex justify-content-between">
-        {% set taskName = '' %}
-        {% if timeEntry.assignedToTask %}
-            {% set taskName = timeEntry.task.name %}
-        {% endif %}
-
-        {{ autocomplete.removable('task', { button: { class: 'bg-weak-white btn-outline-danger'}, search: { value: taskName, placeholder: 'task name' } }) }}
+        <div
+            {{ stimulus_controller({
+                'app-autocomplete': {
+                    url: path('task_index_partial'),
+                    minLength: -1,
+                    queryName: 'content',
+                    type: 'task',
+                    params: { showCompleted: 1 }|json_encode
+                },
+                'assign-task': {
+                    url: path('json_time_entry_task_create', { id: timeEntry.idString }),
+                    removeUrl: path('json_time_entry_task_delete', { id: timeEntry.idString })
+                }
+            }) }}
+            class="autocomplete-2 autocomplete-search-group position-relative"
+            data-action="autocomplete.change->assign-task#assign"
+        >
+            <label for="time-entry-task-search" class="visually-hidden">Search tasks</label>
+            <input
+                    id="time-entry-task-search"
+                    type="search"
+                    class="form-control search"
+                    data-app-autocomplete-target="input"
+                    data-assign-task-target="input"
+                    placeholder="task name"
+                    autocomplete="off"
+                    {% if timeEntry.assignedToTask %}
+                    value="{{ timeEntry.task.name }}"
+                    {% endif %}
+            />
+            <ul
+                class="list-group results w-100"
+                data-app-autocomplete-target="results">
+            </ul>
+            <div
+                class="loading"
+                hidden
+                data-app-autocomplete-target="loading">
+                <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                Searching...
+            </div>
+            <button
+                    type="button"
+                    class="btn autocomplete-search-group-append bg-weak-white btn-outline-danger"
+                    data-action="assign-task#remove">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
 
         <div
             class="mt-2">
@@ -57,7 +101,7 @@
             }) }}
             class="tag-list tag-list-autocomplete"
             data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
-            data-action="autocomplete.tags.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+            data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
         </div>
 
         {{ autocomplete.addTag('time-entry') }}

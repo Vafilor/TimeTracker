@@ -8,6 +8,7 @@ use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Entity\Task;
 use App\Form\AddTaskFormType;
+use App\Form\ExampleFormType;
 use App\Form\Model\AddTaskModel;
 use App\Form\Model\FilterTaskModel;
 use App\Form\Model\EditTaskModel;
@@ -22,11 +23,13 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TaskController extends BaseController
 {
     const CODE_NO_PARENT_TASK = 'code_no_parent_task';
+    const CODE_NO_ASSIGNED_TASK = 'code_no_assigned_task';
 
     private TaskRepository $taskRepository;
 
@@ -96,6 +99,55 @@ class TaskController extends BaseController
                 'form' => $form
             ]
         );
+    }
+
+    #[Route('/task_partial', name: 'task_index_partial', methods: ["GET"])]
+    public function partialIndex(
+        Request $request,
+        TaskRepository $taskRepository,
+        FormFactoryInterface $formFactory,
+        PaginatorInterface $paginator
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
+
+        $filterForm = $formFactory->createNamed(
+            '',
+            FilterTaskFormType::class,
+            new FilterTaskModel(),
+            [
+                'csrf_protection' => false,
+                'method' => 'GET',
+            ]
+        );
+
+        $filterForm->handleRequest($request);
+
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
+            /** @var FilterTaskModel $data */
+            $data = $filterForm->getData();
+
+            $taskRepository->applyFilter($queryBuilder, $data);
+        } elseif ($filterForm->isSubmitted() && !$filterForm->isValid()) {
+            throw new HttpException(Response::HTTP_BAD_REQUEST, 'Invalid query parameters');
+        } else {
+            $queryBuilder = $taskRepository->applyNotCompleted($queryBuilder);
+        }
+
+        $pagination = $this->populatePaginationData(
+            $request,
+            $paginator,
+            $queryBuilder,
+            [
+                'sort' => 'task.createdAt',
+                'direction' => 'desc'
+            ]
+        );
+
+        return $this->render('task/partials/_task_list.html.twig', [
+            'pagination' => $pagination
+        ]);
     }
 
     #[Route('/task/create', name: 'task_create')]
@@ -271,5 +323,30 @@ class TaskController extends BaseController
         $this->addFlash('success', "Task '{$task->getName()}' and it's children have been deleted");
 
         return $this->redirectToRoute('task_index');
+    }
+
+    #[Route('/example', name: 'example', methods: ["GET"])]
+    public function example(
+        Request $request,
+        FormFactoryInterface $formFactory,
+        PaginatorInterface $paginator
+    ): Response {
+
+        $form = $formFactory->createNamed(
+            '',
+            ExampleFormType::class,
+            new FilterTaskModel(),
+            [
+                'method' => 'GET',
+                'csrf_protection' => false,
+                'allow_extra_fields' => true,
+            ]
+        );
+
+        $form->handleRequest($request);
+
+        return $this->renderForm('example/index.html.twig', [
+            'form' => $form
+        ]);
     }
 }

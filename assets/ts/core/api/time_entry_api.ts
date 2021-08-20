@@ -26,7 +26,6 @@ export interface ApiUpdateTimeEntry {
 }
 
 export enum TimeEntryApiErrorCode {
-    codeNoAssignedTask = 'code_no_assigned_task',
     codeRunningTimer = 'code_running_timer',
     codeTimeEntryOver = 'code_time_entry_over',
 }

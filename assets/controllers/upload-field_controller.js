@@ -40,8 +40,6 @@ export default class extends Controller {
                 status: 'success'
             });
         } catch (e) {
-            // TODO handle errors.
-
             this.dispatch('update:finish', {
                 key: this.keyValue,
                 status: 'failure'

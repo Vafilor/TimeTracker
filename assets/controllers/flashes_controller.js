@@ -2,19 +2,37 @@ import { Controller } from 'stimulus';
 
 export default class extends Controller {
     addFlash(event) {
-        const { type, title, message } = event.detail;
-        this.addFlashHtml(type, title, message);
+        const { type, title, message, url, urlText } = event.detail;
+        this.add(type, title, message, url, urlText);
     }
 
-    addFlashHtml(type, title, message) {
-        const titleHtml = title ? `<strong>${title}</strong>` : '';
-        const flashHtml = `<div class="alert alert-${type} alert-dismissible fade show flash" role="alert">
-            ${titleHtml}
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-            </button>
-        </div>`;
+    add(type, title, message, url, urlText) {
+        const ele = document.createElement('div');
+        ele.classList.add('alert', `alert-${type}`, 'alert-dismissible', 'fade', 'show', 'flash');
+        ele.setAttribute('role', 'alert');
 
-        this.element.innerHTML += flashHtml;
+        if (title) {
+            const titleElement = document.createElement('strong');
+            titleElement.appendChild(document.createTextNode(title));
+            ele.appendChild(titleElement);
+        }
+
+        ele.appendChild(document.createTextNode(message + ' '));
+
+        if (url) {
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.appendChild(document.createTextNode(urlText));
+            ele.appendChild(link);
+        }
+
+        const btn = document.createElement('button');
+        btn.classList.add('btn-close');
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('data-bs-dismiss', 'alert');
+        btn.setAttribute('aria-label', 'close');
+        ele.appendChild(btn);
+
+        this.element.appendChild(ele);
     }
 }

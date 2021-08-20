@@ -1,6 +1,6 @@
-import Autocomplete from './autocomplete_controller';
+import AppAutocomplete from "./app-autocomplete_controller";
 
-export default class extends Autocomplete {
+export default class extends AppAutocomplete {
     static values = {
         excludeTagsCsv: String,
         excludeTags: Array
@@ -12,6 +12,15 @@ export default class extends Autocomplete {
         if (this.excludeTagsCsvValue !== '') {
             this.excludeTagsValue = this.excludeTagsCsvValue.split(',');
         }
+
+        this.clearInput = this.clearInput.bind(this);
+        this.element.addEventListener('autocomplete.change', this.clearInput);
+    }
+
+    disconnect() {
+        super.disconnect();
+
+        this.element.removeEventListener('autocomplete.change', this.clearInput);
     }
 
     excludeTagEvent(event) {
@@ -43,70 +52,6 @@ export default class extends Autocomplete {
         copy.splice(index, 1);
 
         this.excludeTagsValue = copy;
-    }
-
-    onKeydown(event) {
-        if( event.key === 'Enter' ) {
-            event.preventDefault();
-
-            const selected = this.resultsTarget.querySelector(
-                '[aria-selected="true"]'
-            );
-
-            if (!selected) {
-                this.addTag();
-                return;
-            }
-        }
-
-        super.onKeydown(event);
-    }
-
-    addTag() {
-        let name = this.inputTarget.getAttribute("data-autocomplete-value");
-        if (!name) {
-            name = this.inputTarget.value;
-        }
-
-        if (name === '') {
-            return;
-        }
-
-        const color = '#5d5d5d';
-
-        this.hideAndRemoveOptions()
-        this.inputTarget.value = '';
-        this.inputTarget.focus();
-
-        this.element.dispatchEvent(
-            new CustomEvent("autocomplete.tags.change", {
-                bubbles: true,
-                detail: {
-                    name,
-                    color
-                }
-            })
-        )
-    }
-
-    commit(selected) {
-        if (selected.getAttribute("aria-disabled") === "true") {
-            return;
-        }
-
-        const value = selected.getAttribute("data-autocomplete-value");
-
-        this.hideAndRemoveOptions()
-        this.inputTarget.value = '';
-
-        const tag = JSON.parse(value);
-
-        this.element.dispatchEvent(
-            new CustomEvent("autocomplete.tags.change", {
-                bubbles: true,
-                detail: tag
-            })
-        )
     }
 
     fetchRequest(endpoint, query) {
