@@ -38,7 +38,7 @@ export class TimeEntryActivity {
         return `
             <div class="time-entry-activity">
                 <a href="${timeEntry.url}" class="created-ago">${createdAgo} for ${duration}</a>
-                <div>${tags}</div>
+                <div class="tag-list">${tags}</div>
                 <div class="created-at">${timeEntry.createdAt} - ${timeEntry.endedAt}</div>
                 <div class="description">${description}</div>
             </div>
