@@ -8,10 +8,10 @@ use App\Api\ApiTag;
 use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Entity\TimeEntry;
-use App\Form\Model\TimeEntryListFilterModel;
-use App\Form\Model\TimeEntryModel;
-use App\Form\TimeEntryFormType;
-use App\Form\TimeEntryListFilterFormType;
+use App\Form\Model\FilterTimeEntryModel;
+use App\Form\Model\EditTimeEntryModel;
+use App\Form\EditTimeEntryFormType;
+use App\Form\FilterTimeEntryFormType;
 use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TaskRepository;
@@ -44,8 +44,8 @@ class TimeEntryController extends BaseController
 
         $filterForm = $formFactory->createNamed(
             '',
-            TimeEntryListFilterFormType::class,
-            new TimeEntryListFilterModel(),
+            FilterTimeEntryFormType::class,
+            new FilterTimeEntryModel(),
             [
                 'timezone' => $this->getUser()->getTimezone(),
                 'csrf_protection' => false,
@@ -59,7 +59,7 @@ class TimeEntryController extends BaseController
 
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
-            /** @var TimeEntryListFilterModel $data */
+            /** @var FilterTimeEntryModel $data */
             $data = $filterForm->getData();
 
             $queryBuilder = $timeEntryRepository->applyFilter($queryBuilder, $data);
@@ -155,13 +155,13 @@ class TimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $form = $this->createForm(TimeEntryFormType::class, TimeEntryModel::fromEntity($timeEntry), [
+        $form = $this->createForm(EditTimeEntryFormType::class, EditTimeEntryModel::fromEntity($timeEntry), [
             'timezone' => $this->getUser()->getTimezone(),
         ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TimeEntryModel $data */
+            /** @var EditTimeEntryModel $data */
             $data = $form->getData();
 
             if ($data->hasDescription()) {

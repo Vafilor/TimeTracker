@@ -8,15 +8,15 @@ use App\Entity\Task;
 use App\Entity\TimeEntry;
 use DateTime;
 
-class TimeEntryModel
+class EditTimeEntryModel
 {
     private ?DateTime $startedAt;
     private ?DateTime $endedAt;
     private ?string $description;
 
-    public static function fromEntity(TimeEntry $timeEntry): TimeEntryModel
+    public static function fromEntity(TimeEntry $timeEntry): EditTimeEntryModel
     {
-        $model = new TimeEntryModel();
+        $model = new EditTimeEntryModel();
         $model->setStartedAt($timeEntry->getStartedAt());
         $model->setEndedAt($timeEntry->getEndedAt());
         $model->setDescription($timeEntry->getDescription());

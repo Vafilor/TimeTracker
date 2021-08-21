@@ -9,9 +9,9 @@ use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTag;
 use App\Entity\Statistic;
-use App\Form\Model\StatisticEditModel;
-use App\Form\Model\StatisticModel;
-use App\Form\StatisticEditFormType;
+use App\Form\Model\EditStatisticModel;
+use App\Form\Model\AddStatisticModel;
+use App\Form\EditStatisticFormType;
 use App\Form\AddStatisticFormType;
 use App\Repository\StatisticRepository;
 use App\Util\TimeType;
@@ -41,7 +41,7 @@ class StatisticController extends BaseController
             'direction' => 'desc'
         ]);
 
-        $form = $this->createForm(AddStatisticFormType::class, new StatisticModel(), [
+        $form = $this->createForm(AddStatisticFormType::class, new AddStatisticModel(), [
             'action' => $this->generateUrl('statistic_create')
         ]);
 
@@ -103,10 +103,10 @@ class StatisticController extends BaseController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $form = $this->createForm(AddStatisticFormType::class, new StatisticModel());
+        $form = $this->createForm(AddStatisticFormType::class, new AddStatisticModel());
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var StatisticModel $data */
+            /** @var AddStatisticModel $data */
             $data = $form->getData();
             $name = $data->getName();
             $canonicalName = Statistic::canonicalizeName($name);
@@ -151,12 +151,12 @@ class StatisticController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $model = StatisticEditModel::fromEntity($statistic);
+        $model = EditStatisticModel::fromEntity($statistic);
 
-        $form = $this->createForm(StatisticEditFormType::class, $model);
+        $form = $this->createForm(EditStatisticFormType::class, $model);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var StatisticEditModel $data */
+            /** @var EditStatisticModel $data */
             $data = $form->getData();
             $statistic->setDescription($data->getDescription());
             $statistic->setTimeType($data->getTimeType());

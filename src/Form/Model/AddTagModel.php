@@ -12,21 +12,33 @@ class AddTagModel
      * @Assert\NotBlank(normalizer="trim", message="Tag name can not be blank")
      */
     private ?string $name;
+    private string $color;
 
     public function __construct()
     {
         $this->name = '';
-    }
-
-    public function setName(?string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
+        $this->color = '#5d5d5d';
     }
 
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): self
+    {
+        $this->color = $color;
+        return $this;
     }
 }

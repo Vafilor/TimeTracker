@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Form\Model\UserEditModel;
-use App\Form\UserEditFormType;
+use App\Form\Model\EditUserModel;
+use App\Form\EditUserFormType;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,12 +26,12 @@ class UserController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $model = UserEditModel::fromEntity($user);
-        $form = $this->createForm(UserEditFormType::class, $model);
+        $model = EditUserModel::fromEntity($user);
+        $form = $this->createForm(EditUserFormType::class, $model);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var UserEditModel $data */
+            /** @var EditUserModel $data */
             $data = $form->getData();
 
             $user->setTimezone($data->getTimezone());

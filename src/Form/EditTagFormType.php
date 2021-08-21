@@ -4,26 +4,25 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Form\Model\TagListFilterModel;
+use App\Form\Model\EditTagModel;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TagListFilterFormType extends AbstractType
+class EditTagFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', TextType::class, [
-                'required' => false
-            ])
+            ->add('color', ColorType::class)
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(['data_class' => TagListFilterModel::class]);
+        $resolver->setDefaults([
+                                   'data_class' => EditTagModel::class
+                               ]);
     }
 }

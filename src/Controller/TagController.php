@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Api\ApiPagination;
-use App\Api\ApiTag;
 use App\Entity\Tag;
-use App\Form\Model\TagEditModel;
-use App\Form\Model\TagListFilterModel;
-use App\Form\Model\TagModel;
-use App\Form\TagEditFormType;
-use App\Form\TagFormType;
-use App\Form\TagListFilterFormType;
+use App\Form\AddTagFormType;
+use App\Form\Model\EditTagModel;
+use App\Form\Model\FilterTagModel;
+use App\Form\Model\AddTagModel;
+use App\Form\EditTagFormType;
+use App\Form\FilterTagFormType;
 use App\Repository\TagRepository;
 use App\Util\DateTimeUtil;
 use Knp\Component\Pager\PaginatorInterface;
@@ -30,8 +28,8 @@ class TagController extends BaseController
     {
         return $formFactory->createNamed(
             '',
-            TagListFilterFormType::class,
-            new TagListFilterModel(),
+            FilterTagFormType::class,
+            new FilterTagModel(),
             [
                 'method' => 'GET',
                 'allow_extra_fields' => true,
@@ -54,7 +52,7 @@ class TagController extends BaseController
 
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
-            /** @var TagListFilterModel $data */
+            /** @var FilterTagModel $data */
             $data = $filterForm->getData();
             $nameLike = $data->getName();
             if (!is_null($nameLike)) {
@@ -69,7 +67,7 @@ class TagController extends BaseController
             'direction' => 'asc'
         ]);
 
-        $createForm = $this->createForm(TagFormType::class, new TagModel(), [
+        $createForm = $this->createForm(AddTagFormType::class, new AddTagModel(), [
             'action' => $this->generateUrl('tag_create')
         ]);
 
@@ -89,12 +87,12 @@ class TagController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $defaultTagModel = new TagModel();
-        $form = $this->createForm(TagFormType::class, $defaultTagModel);
+        $defaultTagModel = new AddTagModel();
+        $form = $this->createForm(AddTagFormType::class, $defaultTagModel);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TagModel $data */
+            /** @var AddTagModel $data */
             $data = $form->getData();
             $name = $data->getName();
 
@@ -114,7 +112,7 @@ class TagController extends BaseController
         }
 
         $filterForm = $this->createIndexFilterForm($formFactory);
-        $createForm = $this->createForm(TagFormType::class, new TagModel(), [
+        $createForm = $this->createForm(AddTagFormType::class, new AddTagModel(), [
             'action' => $this->generateUrl('tag_create')
         ]);
 
@@ -140,12 +138,12 @@ class TagController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $tagEditModel = TagEditModel::fromEntity($tag);
+        $tagEditModel = EditTagModel::fromEntity($tag);
 
-        $form = $this->createForm(TagEditFormType::class, $tagEditModel);
+        $form = $this->createForm(EditTagFormType::class, $tagEditModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TagEditModel $data */
+            /** @var EditTagModel $data */
             $data = $form->getData();
             $color = $data->getColor();
             $tag->setColor($color);

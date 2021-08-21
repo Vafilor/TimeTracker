@@ -7,7 +7,7 @@ namespace App\Form\Model;
 use App\Entity\StatisticValue;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class StatisticValueEditModel
+class EditStatisticValueModel
 {
     /**
      * @Assert\NotNull(message="This value should not be blank.")
@@ -16,7 +16,7 @@ class StatisticValueEditModel
 
     public static function fromEntity(StatisticValue $statisticValue): self
     {
-        return new StatisticValueEditModel($statisticValue->getValue());
+        return new EditStatisticValueModel($statisticValue->getValue());
     }
 
     public function __construct(float $value)

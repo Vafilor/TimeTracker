@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Form\Model\StatisticModel;
+use App\Form\Model\AddStatisticModel;
 use App\Util\TimeType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -39,6 +39,6 @@ class AddStatisticFormType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(['data_class' => StatisticModel::class]);
+        $resolver->setDefaults(['data_class' => AddStatisticModel::class]);
     }
 }

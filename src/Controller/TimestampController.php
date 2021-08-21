@@ -6,8 +6,8 @@ namespace App\Controller;
 
 use App\Api\ApiTag;
 use App\Entity\Timestamp;
-use App\Form\Model\TimestampEditModel;
-use App\Form\TimestampEditFormType;
+use App\Form\Model\EditTimestampModel;
+use App\Form\EditTimestampFormType;
 use App\Manager\TimestampManager;
 use App\Repository\StatisticValueRepository;
 use App\Repository\TimestampRepository;
@@ -69,6 +69,7 @@ class TimestampController extends BaseController
         }
 
         if (!$this->isCsrfTokenValid('repeat_timestamp', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Invalid CSRF token');
             throw new BadRequestHttpException('Invalid CSRF token');
         }
 
@@ -101,13 +102,13 @@ class TimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $form = $this->createForm(TimestampEditFormType::class, TimestampEditModel::fromEntity($timestamp), [
+        $form = $this->createForm(EditTimestampFormType::class, EditTimestampModel::fromEntity($timestamp), [
             'timezone' => $this->getUser()->getTimezone(),
         ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TimestampEditModel $data */
+            /** @var EditTimestampModel $data */
             $data = $form->getData();
 
             $timestamp->setCreatedAt($data->getCreatedAt());

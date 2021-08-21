@@ -7,7 +7,7 @@ namespace App\Repository;
 use App\Entity\Tag;
 use App\Entity\TimeEntry;
 use App\Entity\User;
-use App\Form\Model\TimeEntryListFilterModel;
+use App\Form\Model\FilterTimeEntryModel;
 use App\Traits\FindByKeysInterface;
 use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
@@ -123,7 +123,7 @@ class TimeEntryRepository extends ServiceEntityRepository implements FindByKeysI
         ;
     }
 
-    public function applyFilter(QueryBuilder $queryBuilder, TimeEntryListFilterModel $filter): QueryBuilder
+    public function applyFilter(QueryBuilder $queryBuilder, FilterTimeEntryModel $filter): QueryBuilder
     {
         if ($filter->hasStart()) {
             $queryBuilder = $queryBuilder

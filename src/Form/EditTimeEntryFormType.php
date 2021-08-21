@@ -6,7 +6,7 @@ namespace App\Form;
 
 use App\Entity\Task;
 use App\Entity\User;
-use App\Form\Model\TimeEntryModel;
+use App\Form\Model\EditTimeEntryModel;
 use App\Repository\TaskRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -15,7 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TimeEntryFormType extends AbstractType
+class EditTimeEntryFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -40,9 +40,7 @@ class TimeEntryFormType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-                                   'data_class' => TimeEntryModel::class
-                               ]);
+        $resolver->setDefaults(['data_class' => EditTimeEntryModel::class]);
 
         $resolver->setRequired(['timezone']);
     }

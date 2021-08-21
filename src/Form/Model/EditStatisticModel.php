@@ -8,7 +8,7 @@ use App\Entity\Statistic;
 use App\Util\TimeType;
 use InvalidArgumentException;
 
-class StatisticEditModel
+class EditStatisticModel
 {
     private string $name;
     private string $description;
@@ -18,9 +18,9 @@ class StatisticEditModel
     private string $color;
     private string $unit;
 
-    public static function fromEntity(Statistic $statistic): StatisticEditModel
+    public static function fromEntity(Statistic $statistic): self
     {
-        $model = new StatisticEditModel(
+        $model = new EditStatisticModel(
             $statistic->getName(),
             $statistic->getDescription(),
             $statistic->getTimeType(),
@@ -64,7 +64,7 @@ class StatisticEditModel
         return $this->timeType;
     }
 
-    public function setTimeType(string $timeType): StatisticEditModel
+    public function setTimeType(string $timeType): self
     {
         if (!TimeType::isValid($timeType)) {
             throw new InvalidArgumentException(TimeType::invalidErrorMessage($timeType));

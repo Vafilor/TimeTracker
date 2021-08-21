@@ -34,6 +34,6 @@ trait UpdateTimestampableTrait
 
     public function getUpdatedAt(): DateTime
     {
-        return $this->updatedAt;
+        return clone $this->updatedAt;
     }
 }

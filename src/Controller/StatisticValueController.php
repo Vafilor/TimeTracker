@@ -7,8 +7,8 @@ namespace App\Controller;
 use App\Error\StatisticValueDayConflict;
 use App\Form\AddStatisticValueFormType;
 use App\Form\Model\AddStatisticValueModel;
-use App\Form\Model\StatisticValueEditModel;
-use App\Form\StatisticValueEditFormType;
+use App\Form\Model\EditStatisticValueModel;
+use App\Form\EditStatisticValueFormType;
 use App\Manager\StatisticValueManager;
 use App\Repository\StatisticValueRepository;
 use DateTimeZone;
@@ -66,11 +66,11 @@ class StatisticValueController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $form = $this->createForm(StatisticValueEditFormType::class, StatisticValueEditModel::fromEntity($statisticValue));
+        $form = $this->createForm(EditStatisticValueFormType::class, EditStatisticValueModel::fromEntity($statisticValue));
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var StatisticValueEditModel $data */
+            /** @var EditStatisticValueModel $data */
             $data = $form->getData();
 
             $statisticValue->setValue($data->getValue());

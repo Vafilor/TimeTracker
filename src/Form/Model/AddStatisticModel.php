@@ -8,7 +8,7 @@ use App\Util\TimeType;
 use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class StatisticModel
+class AddStatisticModel
 {
     /**
      * @Assert\NotBlank()
@@ -61,7 +61,7 @@ class StatisticModel
         return $this->timeType;
     }
 
-    public function setTimeType(string $timeType): StatisticModel
+    public function setTimeType(string $timeType): AddStatisticModel
     {
         if (!TimeType::isValid($timeType)) {
             throw new InvalidArgumentException(TimeType::invalidErrorMessage($timeType));

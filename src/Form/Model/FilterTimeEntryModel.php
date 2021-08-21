@@ -6,7 +6,7 @@ namespace App\Form\Model;
 
 use DateTime;
 
-class TimeEntryListFilterModel
+class FilterTimeEntryModel
 {
     private ?DateTime $start;
     private ?DateTime $end;
@@ -98,7 +98,7 @@ class TimeEntryListFilterModel
         return !is_null($this->taskId);
     }
 
-    public function setTaskId(?string $taskId): TimeEntryListFilterModel
+    public function setTaskId(?string $taskId): FilterTimeEntryModel
     {
         $this->taskId = $taskId;
         return $this;

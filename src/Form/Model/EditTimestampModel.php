@@ -7,13 +7,13 @@ namespace App\Form\Model;
 use App\Entity\Timestamp;
 use DateTime;
 
-class TimestampEditModel
+class EditTimestampModel
 {
     private DateTime $createdAt;
 
     public static function fromEntity(Timestamp $timestamp): self
     {
-        $model = new TimestampEditModel();
+        $model = new EditTimestampModel();
         $model->setCreatedAt($timestamp->getCreatedAt());
 
         return $model;

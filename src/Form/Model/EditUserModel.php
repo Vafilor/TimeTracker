@@ -6,7 +6,7 @@ namespace App\Form\Model;
 
 use App\Entity\User;
 
-class UserEditModel
+class EditUserModel
 {
     private string $timezone;
     private string $dateFormat;
@@ -16,7 +16,7 @@ class UserEditModel
 
     public static function fromEntity(User $user): self
     {
-        $model = new UserEditModel();
+        $model = new EditUserModel();
 
         $model->setDateFormat($user->getDateFormat());
         $model->setTimezone($user->getTimezone());

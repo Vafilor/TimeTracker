@@ -6,13 +6,13 @@ namespace App\Form\Model;
 
 use App\Entity\Tag;
 
-class TagEditModel
+class EditTagModel
 {
     private string $color;
 
     public static function fromEntity(Tag $tag)
     {
-        return new TagEditModel($tag->getColor());
+        return new EditTagModel($tag->getColor());
     }
 
     public function __construct(string $color)
