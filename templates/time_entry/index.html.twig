@@ -8,7 +8,9 @@
 {% block title %}Time Entries{% endblock %}
 
 {% block content_body %}
-<div class="resource js-data"
+<div
+     {{ stimulus_controller('time-entry-page-bridge') }}
+     class="resource js-data"
      data-duration-format="{{ app.user.durationFormat }}"
      data-date-format="date_time">
     <h1 class="text-center">Time Entries</h1>
@@ -54,7 +56,7 @@
                 {{ stimulus_controller('tag-list') }}
                 class="tag-list tag-list-autocomplete"
                 data-tag-list-tags-csv-value="{{ app.request.query.get('tags') }}"
-                data-action="autocomplete.tags.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+                data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
 
                 {{ form_widget(filterForm.tags, {
                     attr: {

@@ -85,6 +85,10 @@ export default class extends Controller {
     }
 
     requestAdd(name, color) {
+        if (!name) {
+            return;
+        }
+
         const existingElement = this.element.querySelector(`[data-tag-name-value=${name}]`);
         if (existingElement) {
             existingElement.classList.add('tag-exists');
@@ -99,13 +103,7 @@ export default class extends Controller {
         this.element.appendChild(newElement);
     }
 
-    addExisting(name, color) {
-        const newElement = this.createRemovableTag(name, color, 'added');
-        this.element.appendChild(newElement);
-    }
-
-    add(event) {
-        const { name, color } = event.detail;
+    #addTag(name, color) {
         const copy = this.tagsValue.slice();
         copy.push({
             name,
@@ -113,6 +111,18 @@ export default class extends Controller {
         });
 
         this.tagsValue = copy;
+    }
+
+    addExisting(name, color) {
+        const newElement = this.createRemovableTag(name, color, 'added');
+        this.element.appendChild(newElement);
+
+        this.#addTag(name, color);
+    }
+
+    add(event) {
+        const { name, color } = event.detail;
+        this.#addTag(name, color);
 
         return true;
     }

@@ -111,7 +111,7 @@ class StatisticController extends BaseController
             $name = $data->getName();
             $canonicalName = Statistic::canonicalizeName($name);
 
-            $existingStatistic = $statisticRepository->findWithUserNameCanonical($this->getUser(), $canonicalName);
+            $existingStatistic = $statisticRepository->findWithUserNameCanonical($this->getUser(), $canonicalName, $data->getTimeType());
             if (!is_null($existingStatistic)) {
                 $this->addFlash('danger', "Statistic '$name' already exists for user '{$this->getUser()->getUsername()}'");
                 return $this->redirectToRoute('statistic_index');

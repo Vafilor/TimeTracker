@@ -18,6 +18,7 @@ import { ApiErrorResponse, ApiResourceError } from "./core/api/api";
 import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
 import TimerView from "./components/timer";
 import { ApiTask } from "./core/api/types";
+import { ApiError } from "./core/api/errors";
 
 class TimeEntryListItem {
     public readonly id: string;
@@ -109,7 +110,7 @@ class TimeEntryListFilter {
     }
 }
 
-class TimeEntryIndexPage {
+export class TimeEntryIndexPage {
     private flashes: Flashes;
     private dateTimeFormat: DateFormat;
     private filter: TimeEntryListFilter;
@@ -199,12 +200,12 @@ class TimeEntryIndexPage {
             const res = await TimeEntryApi.create({htmlTemplate: 'small'});
 
             this.addTimeEntryToUI(res.data);
-        } catch (e) {
-            if (e instanceof ApiErrorResponse) {
-                const runningTimerError = e.getErrorForCode(TimeEntryApiErrorCode.codeRunningTimer) as ApiResourceError;
-                if (runningTimerError) {
+        } catch (err) {
+            if (err && err.response.data) {
+                const error = ApiError.findByCode(err.response.data, TimeEntryApiErrorCode.codeRunningTimer)
+                if (error) {
                     this.confirmStopExistingTimer(() => {
-                        this.stopTimeEntryAndCreate(runningTimerError.resource);
+                        this.stopTimeEntryAndCreate(error.resource);
                     });
                 }
             }
@@ -213,7 +214,3 @@ class TimeEntryIndexPage {
         this.createButton.stopLoading();
     }
 }
-
-$(document).ready( () => {
-    const page = new TimeEntryIndexPage();
-})

@@ -35,6 +35,7 @@ class TagController extends BaseController
             [
                 'method' => 'GET',
                 'allow_extra_fields' => true,
+                'csrf_protection' => false,
             ]
         );
     }

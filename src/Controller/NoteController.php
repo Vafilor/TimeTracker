@@ -84,7 +84,10 @@ class NoteController extends BaseController
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $form = $this->createForm(AddNoteFormType::class, new AddNoteModel());
+        $form = $this->createForm(AddNoteFormType::class, new AddNoteModel(), [
+            'action' => $this->generateUrl('note_create')
+        ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -142,7 +145,9 @@ class NoteController extends BaseController
             $data = $form->getData();
 
             $note->setTitle($data->getTitle());
-            $note->setContent($data->getContent());
+            if ($data->hasContent()) {
+                $note->setContent($data->getContent());
+            }
 
             $this->getDoctrine()->getManager()->flush();
 

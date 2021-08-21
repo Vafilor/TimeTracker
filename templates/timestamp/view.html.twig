@@ -4,7 +4,7 @@
 {% import 'components/statistic-value.html.twig' as statistics %}
 
 {% block content_class %}w-100{% endblock %}
-
+{% block turbo %}false{% endblock %}
 {% block title %}Timestamp{% endblock %}
 
 {% block content_body %}
@@ -28,7 +28,7 @@
                 }) }}
                 class="tag-list tag-list-autocomplete"
                 data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
-                data-action="autocomplete.tags.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+                data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
             </div>
 
             {{ autocomplete.addTag('timestamp') }}

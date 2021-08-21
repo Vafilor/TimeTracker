@@ -482,9 +482,9 @@ export class TimeEntryIndexItem {
 
         // Timestamps
         const $timestamps = this.$container.find('.js-timestamps');
-        const $startedEdit = $(EditDateTime.templateWithLabel('Started', 'js-edit-started-at'));
+        const $startedEdit = $(EditDateTime.templateWithLabel('Started', 'js-edit-started-at me-2'));
         $startedEdit.data('timestamp', data.startedAtEpoch);
-        const $endedEdit = $(EditDateTime.templateWithLabel('Ended', 'js-edit-ended-at ms-2'));
+        const $endedEdit = $(EditDateTime.templateWithLabel('Ended', 'js-edit-ended-at'));
         if (data.endedAtEpoch) {
             $endedEdit.data('timestamp', data.endedAtEpoch);
         }

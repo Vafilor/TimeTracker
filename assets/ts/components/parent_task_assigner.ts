@@ -4,6 +4,8 @@ import Observable from "./observable";
 import { TaskApi } from "../core/api/task_api";
 import { ApiErrorResponse } from "../core/api/api";
 import { TaskApiErrorCode } from "../core/api/types";
+import { ApiError } from "../core/api/errors";
+import { TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 
 export class ParentTaskAssigner extends TaskAssigner {
     // This is the id of the task whose parent we are changing
@@ -55,10 +57,10 @@ export class ParentTaskAssigner extends TaskAssigner {
             this.autocomplete.clear();
             this.flashes.append('success', 'Removed task', true);
             this.parentTaskRemoved.emit(this.childTaskId);
-        } catch (e) {
-            if (e instanceof ApiErrorResponse) {
-                const errRes = e as ApiErrorResponse;
-                if (errRes.hasErrorCode(TaskApiErrorCode.codeNoParentTask)) {
+        } catch (err) {
+            if (err && err.response.data) {
+                const error = ApiError.findByCode(err.response.data, TaskApiErrorCode.codeNoParentTask)
+                if (error) {
                     this.flashes.append('danger', 'Task has no parent task');
                 }
             }

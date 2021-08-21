@@ -57,7 +57,7 @@ class TimeEntryList {
     }
 }
 
-class TodayIndexPage implements TimeEntryActionDelegate {
+export class TodayIndexPage implements TimeEntryActionDelegate {
     private readonly dateFormat: DateFormat;
     private readonly durationFormat: string;
     private readonly flashes: Flashes;
@@ -167,8 +167,3 @@ class TodayIndexPage implements TimeEntryActionDelegate {
         }
     }
 }
-
-
-$(document).ready( () => {
-    const page = new TodayIndexPage();
-})

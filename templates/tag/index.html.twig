@@ -17,7 +17,7 @@
                 'data-action': "submit->load-form#start",
             }
         }) }}
-        {{ form_widget(filterForm) }}
+        {{ form_row(filterForm.name, { attr: {autocomplete: 'off'}}) }}
         <button
                 type="submit"
                 class="btn btn-primary"

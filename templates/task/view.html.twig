@@ -4,11 +4,13 @@
 {% import 'components/autocomplete.html.twig' as autocomplete %}
 
 {% block content_class %}w-100{% endblock %}
-
+{% block turbo %}false{% endblock %}
 {% block title %}Task: {{ task.name }}{% endblock %}
 
 {% block content_body %}
-<div class="resource js-data"
+<div
+     {{ stimulus_controller('task-page-bridge') }}
+     class="resource js-data"
      data-duration-format="{{ app.user.durationFormat }}"
      data-task-id="{{ task.idString }}">
 

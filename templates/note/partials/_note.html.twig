@@ -6,8 +6,9 @@
     data-id="{{ note.idString }}"
 >
     <div class="d-flex justify-content-between">
-        <div>
-            {{ note.title }}
+        <div class="d-inline-flex flex-column">
+            <div>{{ note.title }}</div>
+            <div class="datetime">{{ time.user_datetime(note.createdAt, app.user)}}</div>
         </div>
         <div>
             <a href="{{ path('note_view', {id: note.idString}) }}" class="btn btn-primary js-view ms-2">View</a>

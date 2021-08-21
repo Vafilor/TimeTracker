@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace App\Form\Model;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 class AddNoteModel
 {
+    /**
+     * @Assert\NotBlank()
+     */
     private string $title;
     private string $content;
 
-    public function __construct(string $name = '', string $content = '')
+    public function __construct(string $title = '', string $content = '')
     {
-        $this->title = $name;
+        $this->title = $title;
         $this->content = $content;
     }
 

@@ -4,6 +4,7 @@
 
 {% block content_class %}w-100{% endblock %}
 
+{% block turbo %}false{% endblock %}
 {% block title %}Note: {{ note.title }}{% endblock %}
 
 {% block content_body %}
@@ -24,13 +25,13 @@
     <label class="d-block form-label mt-3">Tags</label>
     <div class="mt-2 d-flex align-items-center">
         <div
-                {{ stimulus_controller('tag-list', {
-                    addUrl: path('json_note_tag_create', {id: note.idString}),
-                    removeUrl: path('json_note_tag_delete', {id: note.idString, tagName: '{NAME}'})
-                }) }}
-                class="tag-list tag-list-autocomplete"
-                data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
-                data-action="autocomplete.tags.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+            {{ stimulus_controller('tag-list', {
+                addUrl: path('json_note_tag_create', {id: note.idString}),
+                removeUrl: path('json_note_tag_delete', {id: note.idString, tagName: '{NAME}'})
+            }) }}
+            class="tag-list tag-list-autocomplete"
+            data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
+            data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
         </div>
 
         {{ autocomplete.addTag('note') }}

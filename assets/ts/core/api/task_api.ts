@@ -70,14 +70,10 @@ export class TaskApi {
         return axios.get(`/json/task/${taskId}/lineage`);
     }
 
-    // TODO redo
     public static async getLineageHtml(taskId: string): Promise<string> {
-        axios.get(`/task/${taskId}/lineage`).then((res) => {
-            console.log(res);
-        });
+        const response = await axios.get(`/task/${taskId}/lineage`);
 
-        const response = await fetch(`/task/${taskId}/lineage`);
-        return await response.text()
+        return response.data;
     }
 
     public static update(taskId: string, update: ApiUpdateTask): Promise<AxiosResponse<ApiTask>> {

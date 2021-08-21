@@ -73,7 +73,7 @@ class Statistic
     private User $assignedTo;
 
     /**
-     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="statistic")
+     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="statistic", orphanRemoval=true)
      * @var TagLink[]
      */
     private $tagLinks;

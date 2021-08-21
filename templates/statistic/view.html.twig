@@ -3,7 +3,7 @@
 {% import 'components/autocomplete.html.twig' as autocomplete %}
 
 {% block content_class %}w-100{% endblock %}
-
+{% block turbo %}false{% endblock %}
 {% block title %}Stat: {{ statistic.name }}{% endblock %}
 
 {% block content_body %}
@@ -32,6 +32,7 @@
             {{ statistic.name }}
         </h1>
 
+        <div class="mb-2 mt-2">Created: {{ time.user_datetime(statistic.createdAt, app.user) }}</div>
         <label class="d-block form-label mt-3">Tags</label>
         <div class="mt-2 d-flex align-items-center">
             <div
@@ -41,13 +42,12 @@
                 }) }}
                 class="tag-list tag-list-autocomplete"
                 data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
-                data-action="autocomplete.tags.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+                data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
             </div>
 
             {{ autocomplete.addTag('statistic') }}
         </div>
 
-        <div class="mb-2 mt-2">Created: {{ time.user_datetime(statistic.createdAt, app.user) }}</div>
 
         {{ form_start(form) }}
         {{ form_row(form.name) }}

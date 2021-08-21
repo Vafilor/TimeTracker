@@ -16,7 +16,7 @@ class AddNoteFormType extends AbstractType
     {
         $builder
             ->add('title', TextType::class, [
-                'required' => false,
+                'required' => true,
                 'attr' => [
                     'placeholder' => 'title'
                 ]

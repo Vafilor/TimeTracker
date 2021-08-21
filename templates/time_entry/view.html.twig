@@ -4,7 +4,7 @@
 {% import 'components/statistic-value.html.twig' as statistics %}
 
 {% block content_class %}w-100{% endblock %}
-
+{% block turbo %}false{% endblock %}
 {% block title %}{{ time.user_duration(timeEntry.duration, app.user) }}{% endblock %}
 
 {% block content_body %}

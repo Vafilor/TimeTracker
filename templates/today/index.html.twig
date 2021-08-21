@@ -7,7 +7,9 @@
 {% block title %}Today{% endblock %}
 
 {% block content_body %}
-<div class="resource js-data"
+<div
+     {{ stimulus_controller('today-page-bridge') }}
+     class="resource js-data"
      data-duration-format="{{ app.user.durationFormat }}"
      data-date-format="date_time_today">
 

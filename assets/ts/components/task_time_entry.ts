@@ -2,9 +2,9 @@ import $ from "jquery";
 import Observable from "./observable";
 import { TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
 import { ConfirmClickEvent, ConfirmDialog } from "./confirm_dialog";
-import { ApiErrorResponse, ApiResourceError } from "../core/api/api";
 import { ApiTimeEntry } from "../core/api/types";
 import TimerView from "./timer";
+import { ApiError } from "../core/api/errors";
 
 abstract class SyncInputInternal {
     private $input: JQuery;
@@ -204,7 +204,7 @@ export default class TaskTimeEntry {
 
         this.$loading = this.$container.find('.js-task-time-entry-loading');
 
-        this.durationTimer = new TimerView($('.js-duration'), this.durationFormat);
+        this.durationTimer = new TimerView($('.js-duration'));
 
         this.descriptionUpdater = new SyncTaskTimeEntryDescription(
             $('.js-task-time-entry .js-time-entry-description'),
@@ -305,11 +305,13 @@ export default class TaskTimeEntry {
             }).then(res => {
                 this.model = res.data.timeEntry;
                 this.state = TimeEntryState.running;
-            }).catch( (res: ApiErrorResponse) => {
-                if (res.hasErrorCode(TimeEntryApiErrorCode.codeRunningTimer)) {
-                    const error = res.getErrorForCode(TimeEntryApiErrorCode.codeRunningTimer) as ApiResourceError;
-                    const timeEntryId = error.resource;
-                    this.confirmStopRunningTimeEntry(timeEntryId);
+            }).catch( err => {
+                if (err && err.response.data) {
+                    const error = ApiError.findByCode(err.response.data, TimeEntryApiErrorCode.codeRunningTimer)
+                    if (error) {
+                        const timeEntryId = error.resource;
+                        this.confirmStopRunningTimeEntry(timeEntryId);
+                    }
                 }
             }
         );
