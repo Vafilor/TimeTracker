@@ -56,7 +56,7 @@ trait TaggableController
 
         try {
             $form->submit($data);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
         }
 
