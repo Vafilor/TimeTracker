@@ -200,7 +200,11 @@ class Task
 
     public function getDueAt(): ?DateTime
     {
-        return $this->dueAt;
+        if (is_null($this->dueAt)) {
+            return null;
+        }
+
+        return clone $this->dueAt;
     }
 
     public function setDueAt(?DateTime $dueAt): self

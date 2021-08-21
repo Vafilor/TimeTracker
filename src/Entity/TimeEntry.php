@@ -104,7 +104,7 @@ class TimeEntry
 
     public function getStartedAt(): DateTime
     {
-        return $this->startedAt;
+        return clone $this->startedAt;
     }
 
     public function setStartedAt(DateTime $startedAt): self
@@ -115,12 +115,11 @@ class TimeEntry
 
     public function getEndedAt(): ?DateTime
     {
-        return $this->endedAt;
-    }
+        if (is_null($this->endedAt)) {
+            return null;
+        }
 
-    public function getUpdatedAt(): DateTimeImmutable|DateTime
-    {
-        return $this->updatedAt;
+        return clone $this->endedAt;
     }
 
     public function duration(): DateInterval
