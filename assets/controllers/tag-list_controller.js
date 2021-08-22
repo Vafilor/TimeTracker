@@ -89,7 +89,8 @@ export default class extends Controller {
             return;
         }
 
-        const existingElement = this.element.querySelector(`[data-tag-name-value=${name}]`);
+
+        const existingElement = this.element.querySelector(`[data-tag-name-value="${name}"]`);
         if (existingElement) {
             existingElement.classList.add('tag-exists');
             setTimeout(() => {
