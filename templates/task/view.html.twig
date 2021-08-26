@@ -129,7 +129,7 @@
         </li>
     </ul>
     <div class="tab-content">
-        <div class="tab-pane fade show active contained" id="activity" role="tabpanel" aria-labelledby="activity-tab">
+        <div class="tab-pane fade show active contained task-activity" id="activity" role="tabpanel" aria-labelledby="activity-tab">
             <div class="total-time js-total-time">
                 <strong>Total Time:</strong>
                 <span class="js-value"></span>
@@ -141,7 +141,7 @@
             <div class="js-task-time-entry-activity mt-3">
             </div>
         </div>
-        <div class="tab-pane fade" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
+        <div id="markdown" class="tab-pane fade markdown-input" role="tabpanel" aria-labelledby="markdown-tab">
             {{ form_widget(form.description, {
                 attr: {
                     rows: 10,
@@ -154,7 +154,7 @@
                 }})
             }}
         </div>
-        <div class="tab-pane fade contained" id="preview" role="tabpanel" aria-labelledby="profile-tab">
+        <div id="preview" class="tab-pane fade contained markdown-preview" role="tabpanel" aria-labelledby="profile-tab">
             <div
                 id="preview-content"
                 {{ stimulus_controller('markdown-updater', {
@@ -259,16 +259,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    {{ encore_entry_link_tags('task') }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('task') }}
 {% endblock %}

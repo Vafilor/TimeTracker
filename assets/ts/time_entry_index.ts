@@ -1,5 +1,3 @@
-import '../styles/time_entry_index.scss';
-
 import $ from 'jquery';
 import 'bootstrap'; // Adds functions to jQuery
 

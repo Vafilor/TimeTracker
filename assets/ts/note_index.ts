@@ -1,1 +1,0 @@
-import '../styles/note_index.scss';

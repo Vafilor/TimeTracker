@@ -23,7 +23,7 @@
         <div
             {{ stimulus_controller({
                 'autocomplete': {
-                    url: path('partial_statistic_index', { timeType: 'instant'} ),
+                    url: path('partial_statistic_index', { timeType: 'interval'} ),
                     minLength: -1,
                     passValue: true
                 },
@@ -141,17 +141,5 @@
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
     </div>
-{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    {{ encore_entry_link_tags('statistic_value_index') }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('statistic_value_index') }}
 {% endblock %}
 

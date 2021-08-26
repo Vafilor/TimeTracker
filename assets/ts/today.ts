@@ -1,5 +1,3 @@
-import '../styles/today.scss';
-
 import $ from 'jquery';
 import { TimeEntryActionDelegate, TimeEntryIndexItem } from "./components/time_entry";
 import {

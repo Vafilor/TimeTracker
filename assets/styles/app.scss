@@ -5,6 +5,7 @@
 @import "partials/autocomplete";
 @import "partials/statistics";
 @import "partials/card_list";
+@import "partials/task";
 
 $headerHeight: 64px;
 $paddingFromHeader: 20px;
@@ -255,4 +256,53 @@ main {
     border: 1px solid $gray-300 !important;
     border-top: none !important;
     overflow: hidden;
+}
+
+.markdown-input {
+    textarea {
+        min-height: 300px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+}
+
+.markdown-preview {
+    min-height: 300px;
+    background-color: white;
+    padding: 6px 12px;
+}
+
+
+.statistic-row {
+    transition: opacity 0.3s;
+
+    &.disabled {
+        opacity: 0.65;
+    }
+}
+
+.task-activity {
+    min-height: 300px;
+    background-color: white;
+    padding: 6px 12px;
+}
+
+.time-entry {
+    &.edit {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
+    }
+
+    .spinner {
+        display: inline-block;
+    }
+
+    .task {
+        display: inline-block;
+    }
+
+    .description {
+        word-break: break-all;
+    }
 }

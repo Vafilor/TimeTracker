@@ -122,15 +122,3 @@
     {{ knp_pagination_render(pagination, null, {}, {align: 'center'}) }}
 </div>
 {% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    {{ encore_entry_link_tags('time_entry_index') }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('time_entry_index') }}
-{% endblock %}

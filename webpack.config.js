@@ -21,21 +21,6 @@ Encore
      * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
      */
     .addEntry('app', './assets/ts/app.ts')
-    .addEntry('login', './assets/ts/login.ts')
-    .addEntry('today', './assets/ts/today.ts')
-    .addEntry('time_entry_index', './assets/ts/time_entry_index.ts')
-    .addEntry('time_entry', './assets/ts/time_entry.ts')
-    .addEntry('tag', './assets/ts/tag.ts')
-    .addEntry('task', './assets/ts/task.ts')
-    .addEntry('task_index', './assets/ts/task_index.ts')
-    .addEntry('timestamp', './assets/ts/timestamp.ts')
-    .addEntry('timestamp_index', './assets/ts/timestamp_index.ts')
-    .addEntry('statistic_value', './assets/ts/statistic_value.ts')
-    .addEntry('statistic', './assets/ts/statistic.ts')
-    .addEntry('statistic_index', './assets/ts/statistic_index.ts')
-    .addEntry('statistic_value_index', './assets/ts/statistic_value_index.ts')
-    .addEntry('note_index', './assets/ts/note_index.ts')
-    .addEntry('note', './assets/ts/note.ts')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')
@@ -58,7 +43,7 @@ Encore
     .enableBuildNotifications()
     .enableSourceMaps(!Encore.isProduction())
     // enables hashed filenames (e.g. app.abc123.css)
-    .enableVersioning(Encore.isProduction())
+    .enableVersioning(true || Encore.isProduction())
 
     .configureBabel((config) => {
         config.plugins.push('@babel/plugin-proposal-class-properties');

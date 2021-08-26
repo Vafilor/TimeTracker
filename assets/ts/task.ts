@@ -1,16 +1,7 @@
-import '../styles/task.scss';
-import '../styles/partials/task_time_entry.scss';
-
 import $ from "jquery";
 import { TaskApi } from "./core/api/task_api";
-import TaskTimeEntry from "./components/task_time_entry";
-import { TimeEntryApi } from "./core/api/time_entry_api";
 import { formatShortTimeDifference, timeAgo } from "./components/time";
 import { createTagView } from "./components/tags";
-import Flashes from "./components/flashes";
-import { CreateTaskForm, TaskList } from "./components/task";
-import { Breadcrumbs } from "./components/breadcrumbs";
-import { ParentTaskAssigner } from "./components/parent_task_assigner";
 import { ApiTimeEntry } from "./core/api/types";
 
 export class TimeEntryActivity {

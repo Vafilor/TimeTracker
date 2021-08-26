@@ -1,1 +1,0 @@
-import '../styles/statistic_value_index.scss';
