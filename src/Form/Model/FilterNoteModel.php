@@ -7,10 +7,12 @@ namespace App\Form\Model;
 class FilterNoteModel
 {
     private ?string $tags;
+    private ?string $content;
 
     public function __construct()
     {
         $this->tags = null;
+        $this->content = null;
     }
 
     public function getTags(): string
@@ -45,6 +47,22 @@ class FilterNoteModel
     public function setTags(?string $tags): self
     {
         $this->tags = $tags;
+        return $this;
+    }
+
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function hasContent(): bool
+    {
+        return !is_null($this->content) && $this->content !== '';
+    }
+
+    public function setContent(?string $content): self
+    {
+        $this->content = $content;
         return $this;
     }
 }

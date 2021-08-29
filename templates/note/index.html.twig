@@ -21,21 +21,26 @@
                 }
             }) }}
 
-            <div
-                {{ stimulus_controller('tag-list') }}
-                class="tag-list d-inline-block"
-                data-tag-list-tags-csv-value="{{ app.request.query.get('tags') }}"
-                data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+            {{ form_row(filterForm.content) }}
 
-                {{ form_widget(filterForm.tags, {
-                    attr: {
-                        class: 'd-none',
-                        'data-tag-list-target': 'hidden'
-                    }})
-                }}
+            {{ form_label(filterForm.tags, null, {label_attr: {class: 'd-block'}}) }}
+            <div class="d-flex align-items-center">
+                <div
+                    {{ stimulus_controller('tag-list') }}
+                    class="tag-list tag-list-autocomplete"
+                    data-tag-list-tags-csv-value="{{ app.request.query.get('tags') }}"
+                    data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+
+                    {{ form_widget(filterForm.tags, {
+                        attr: {
+                            class: 'd-none',
+                            'data-tag-list-target': 'hidden'
+                        }})
+                    }}
+                </div>
+
+                {{ autocomplete.addTag('note-filter') }}
             </div>
-
-            {{ autocomplete.addTag('note-filter') }}
 
             <div class="d-block mt-2">
                 <button

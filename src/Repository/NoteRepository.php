@@ -61,6 +61,17 @@ class NoteRepository extends ServiceEntityRepository implements FindByKeysInterf
 
     public function applyFilter(QueryBuilder $queryBuilder, FilterNoteModel $filter): QueryBuilder
     {
+        if ($filter->hasContent()) {
+            $content = $filter->getContent();
+            $queryBuilder = $queryBuilder->andWhere(
+                $queryBuilder->expr()->orX(
+                                    $queryBuilder->expr()->like('note.title', ':content'),
+                                    $queryBuilder->expr()->like('note.content', ':content')
+                                )
+            )
+            ->setParameter('content', "%${content}%");
+        }
+
         if ($filter->hasTags()) {
             $tags = $filter->getTagsArray();
             $queryBuilder = $queryBuilder
