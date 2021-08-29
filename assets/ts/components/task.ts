@@ -1,9 +1,10 @@
-import Observable, { Observer } from "./observable";
 import $ from "jquery";
+import Observable, { Observer } from "./observable";
 import Flashes from "./flashes";
-import { ApiTask, CreateTaskResponse, TaskApi } from "../core/api/task_api";
+import { CreateTaskResponse, TaskApi } from "../core/api/task_api";
 import LoadingButton from "./loading_button";
 import { TagFilter } from "./tag_filter";
+import { ApiTask } from "../core/api/types";
 
 export class TaskList {
     private tasks = new Map<string, TaskListItem>()
@@ -70,7 +71,6 @@ export class TaskList {
         const $view = $(view);
         this.addTaskElement($view);
         this.$container.prepend($view);
-
     }
 }
 

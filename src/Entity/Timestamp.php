@@ -38,7 +38,7 @@ class Timestamp
     private Collection $tagLinks;
 
     /**
-     * @ORM\OneToMany(targetEntity=StatisticValue::class, mappedBy="timestamp")
+     * @ORM\OneToMany(targetEntity=StatisticValue::class, mappedBy="timestamp", orphanRemoval=true)
      * @var StatisticValue[]|Collection
      */
     private Collection $statisticValues;

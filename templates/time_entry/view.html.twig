@@ -4,7 +4,7 @@
 {% import 'components/statistic-value.html.twig' as statistics %}
 
 {% block content_class %}w-100{% endblock %}
-
+{% block turbo %}false{% endblock %}
 {% block title %}{{ time.user_duration(timeEntry.duration, app.user) }}{% endblock %}
 
 {% block content_body %}
@@ -13,16 +13,67 @@
      data-time-entry-id="{{ timeEntry.idString }}"
      data-assigned-task="{{ timeEntry.assignedToTask }}">
 
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('time_entry_index') }}">Time entries</a></li>
+            <li class="breadcrumb-item active" aria-current="page">current</li>
+        </ol>
+    </nav>
+
     <div class="d-flex justify-content-between">
+        <div
+            {{ stimulus_controller({
+                'app-autocomplete': {
+                    url: path('task_index_partial'),
+                    minLength: -1,
+                    queryName: 'content',
+                    type: 'task',
+                    params: { showCompleted: 1 }|json_encode
+                },
+                'assign-task': {
+                    url: path('json_time_entry_task_create', { id: timeEntry.idString }),
+                    removeUrl: path('json_time_entry_task_delete', { id: timeEntry.idString })
+                }
+            }) }}
+            class="autocomplete-2 autocomplete-search-group position-relative"
+            data-action="autocomplete.change->assign-task#assign"
+        >
+            <label for="time-entry-task-search" class="visually-hidden">Search tasks</label>
+            <input
+                    id="time-entry-task-search"
+                    type="search"
+                    class="form-control search"
+                    data-app-autocomplete-target="input"
+                    data-assign-task-target="input"
+                    placeholder="task name"
+                    autocomplete="off"
+                    {% if timeEntry.assignedToTask %}
+                    value="{{ timeEntry.task.name }}"
+                    {% endif %}
+            />
+            <ul
+                class="list-group results w-100"
+                data-app-autocomplete-target="results">
+            </ul>
+            <div
+                class="loading"
+                hidden
+                data-app-autocomplete-target="loading">
+                <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                Searching...
+            </div>
+            <button
+                    type="button"
+                    class="btn autocomplete-search-group-append bg-weak-white btn-outline-danger"
+                    data-action="assign-task#remove">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
 
-        {% set taskName = '' %}
-        {% if timeEntry.assignedToTask %}
-            {% set taskName = timeEntry.task.name %}
-        {% endif %}
-
-        {{ autocomplete.removable('task', { button: { class: 'bg-weak-white btn-outline-danger'}, search: { value: taskName, placeholder: 'task name' } }) }}
-
-        <div class="mt-2">
+        <div
+            class="mt-2">
             {% if not timeEntry.over %}
                 <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
                     <span class="visually-hidden">Loading...</span>
@@ -30,18 +81,30 @@
             {% endif %}
 
             Duration
-            <span class="ms-1 js-timer {% if timeEntry.running %}js-running-timer{% endif %}"
-                  data-start="{{ timeEntry.startedAt.timestamp * 1000 }}"
-                  data-duration-format="{{ app.user.durationFormat }}">
+            <span class="ms-1"
+                  {% if timeEntry.running %}
+                  {{ stimulus_controller('time-elapsed-title', {
+                    start: timeEntry.startedAt.timestamp,
+                    format: app.user.durationFormat
+                  }) }}
+                  {% endif %}>
             {{ time.user_duration(timeEntry.duration, app.user) }}
         </span>
         </div>
     </div>
 
-    <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
-        <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+    <div class="d-flex align-items-center mt-2">
+        <div
+            {{ stimulus_controller('tag-list', {
+                addUrl: path('json_time_entry_tag_create', {id: timeEntry.idString}),
+                removeUrl: path('json_time_entry_tag_delete', {id: timeEntry.idString, tagName: '{NAME}'})
+            }) }}
+            class="tag-list tag-list-autocomplete"
+            data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
+            data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+        </div>
 
-        {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+        {{ autocomplete.addTag('time-entry') }}
     </div>
 
     {{ form_start(form, {attr: {class: 'mt-2'}}) }}
@@ -75,12 +138,20 @@
     <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
         <li class="nav-item" role="presentation">
             <button type="button" class="nav-link active markdown-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#markdown" role="tab" aria-controls="markdown" aria-selected="true">
-                <i class="fas fa-sync-alt fa-spin me-1 d-none js-loading"></i>
+                <span
+                    {{ stimulus_controller('toggle-class', {
+                        className: 'd-none',
+                        key: timeEntry.idString
+                    }) }}
+                    data-action="upload-field:update:start@window->toggle-class#remove upload-field:update:finish@window->toggle-class#add"
+                    class="me-1 d-none">
+                    <i class="fas fa-sync-alt fa-spin"></i>
+                </span>
                 Markdown
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button type="button" class="nav-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</button>
+            <button type="button" class="nav-link" id="markdown-preview-tab" data-bs-toggle="tab" data-bs-target="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</button>
         </li>
         <li class="nav-item" role="presentation">
             <button type="button" class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" role="tab" aria-selected="false">Details</button>
@@ -90,11 +161,29 @@
         </li>
     </ul>
     <div class="tab-content" id="description-content">
-        <div class="tab-pane fade show active" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
-            {{ form_widget(form.description, {attr: { rows: 10, class: 'border-top-0 js-description' }}) }}
+        <div id="markdown" class="tab-pane fade show active markdown-input" role="tabpanel" aria-labelledby="markdown-tab">
+            {{ form_widget(form.description, {
+                attr: {
+                    rows: 10,
+                    class: 'border-top-0 js-description',
+                    'data-controller': 'upload-field',
+                    'data-action': 'upload-field#update',
+                    'data-upload-field-key-value': timeEntry.idString,
+                    'data-upload-field-field-name-value': 'description',
+                    'data-upload-field-url-value': path('json_time_entry_update', {id: timeEntry.idString} )
+                }}
+            ) }}
         </div>
-        <div class="tab-pane contained fade" id="preview" role="tabpanel" aria-labelledby="profile-tab">
-            <div id="preview-content"></div>
+        <div id="preview" class="tab-pane contained fade markdown-preview" role="tabpanel" aria-labelledby="profile-tab">
+            <div
+                id="preview-content"
+                {{ stimulus_controller('markdown-updater', {
+                    field: 'value',
+                    key: timeEntry.idString
+                }) }}
+                data-action="upload-field:update:finish@window->markdown-updater#convert">
+                {{ timeEntry.description|markdown_to_html }}
+            </div>
         </div>
         <div class="tab-pane fade bg-white" id="details" role="tabpanel" aria-labelledby="details-tab">
             <table class="table table-hover table-bordered">
@@ -117,24 +206,76 @@
             </table>
         </div>
         <div class="tab-pane fade" id="data" role="tabpanel" aria-labelledby="data-tab">
-            <div class="d-flex mt-2 js-add-statistic add-statistic">
-                {{ autocomplete.list('statistic', { search: { tabIndex: '1' } }) }}
+            <div
+                class="d-flex mt-2 js-add-statistic add-statistic"
+                {{ stimulus_controller('create-statistic-value', {
+                    createUrl: path('json_time_entry_statistic_create', { id: timeEntry.idString })
+                }) }}>
+
+                <div
+                    {{ stimulus_controller({
+                        'autocomplete': {
+                            url: path('partial_statistic_index', { timeType: 'interval' }),
+                            minLength: -1,
+                        },
+                    }) }}
+                    class="autocomplete-2 position-relative"
+                >
+                    <label for="time-entry-statistic-search" class="visually-hidden">Search statistics</label>
+                    <input
+                            id="time-entry-statistic-search"
+                            type="search"
+                            class="form-control search"
+                            data-create-statistic-value-target="name"
+                            data-autocomplete-target="input"
+                            placeholder="statistic name"
+                            autocomplete="off"
+                            tabindex="1"
+                    />
+                    <ul
+                        class="list-group results w-100"
+                        data-autocomplete-target="results">
+                    </ul>
+                    <div
+                            class="loading"
+                            hidden
+                            data-autocomplete-target="loading">
+                        <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Searching...
+                    </div>
+                </div>
+
                 <div class="ms-2">
                     <label class="visually-hidden" for="add-statistic-value">record value</label>
                     <input
                             id="add-statistic-value"
                             tabindex="2"
                             type="number"
-                            class="js-statistic-input form-control"
+                            class="form-control"
+                            data-create-statistic-value-target="value"
                             placeholder="value..."
                             autocomplete="off"
                     />
                 </div>
-                <button type="button" class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
+                <button
+                        type="button"
+                        class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary"
+                        data-action="create-statistic-value#create"
+                        tabindex="2">
+                    <span
+                        class="spinner-border spinner-border-sm d-none"
+                        role="status"
+                        aria-hidden="true"
+                        data-create-statistic-value-target="loading"></span>
+                    <span
+                        class="visually-hidden"
+                        data-create-statistic-value-target="loading">Loading...</span>
                     Add
                 </button>
             </div>
-            {{ statistics.valueList(timeEntry.statisticValues, {class: 'mt-2'}) }}
+            {{ statistics.valueList(timeEntry.statisticValues, path('time_entry_record_index', {id: timeEntry.idString}), {class: 'mt-2'}) }}
         </div>
     </div>
 
@@ -174,17 +315,5 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    {{ encore_entry_link_tags('time_entry') }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('time_entry') }}
 {% endblock %}
 

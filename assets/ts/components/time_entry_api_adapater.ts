@@ -1,8 +1,8 @@
-import { TagListDelegate } from "./tag_index";
 import Flashes from "./flashes";
-import { ApiTag } from "../core/api/tag_api";
+import { TagListDelegate } from "./tag_index";
 import { TimeEntryApi } from "../core/api/time_entry_api";
 import { ApiErrorResponse } from "../core/api/api";
+import { ApiTag } from "../core/api/types";
 
 export class TimeEntryApiAdapter implements TagListDelegate {
     constructor(private timeEntryId: string, private flashes: Flashes) {
@@ -25,7 +25,7 @@ export class TimeEntryApiAdapter implements TagListDelegate {
             });
     }
 
-    removeTag(tagName: string): Promise<void> {
+    removeTag(tagName: string): Promise<any> {
         return TimeEntryApi.removeTag(this.timeEntryId, tagName)
             .catch(res => {
                 this.flashes.append('danger', `Unable to add remove tag '${tagName}'`)

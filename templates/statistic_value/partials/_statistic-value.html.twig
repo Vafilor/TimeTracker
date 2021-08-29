@@ -1,0 +1,54 @@
+<div
+        id="{{ value.idString }}"
+        {{ stimulus_controller('statistic-value', {
+            id: value.idString,
+            name: value.statistic.name,
+            value: value.value,
+            updateUrl: path('json_statistic_value_update', { id: value.idString }),
+            deleteUrl: path('json_statistic_value_delete', { id: value.idString })
+        }) }}
+        class="statistic-value-row js-statistic-item input-group d-inline-flex"
+        data-action="create-statistic-value:create-conflict@window->statistic-value#highlightOnNameMatch">
+    <span
+        {{ stimulus_controller('bootstrap-tooltip') }}
+        class="input-group-text bg-white js-name-icon"
+        style="color: {{ value.statistic.color }}"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="{{ value.statistic.name }} ({{ value.statistic.unit }})">
+        {% if value.statistic.hasIcon %}
+            <i class="{{ value.statistic.icon }}"></i>
+        {% else %}
+            {{ value.statistic.name }}
+        {% endif %}
+    </span>
+    <input
+            type="number"
+            class="form-control input-value js-input-value"
+            placeholder="value"
+            value="{{ value.value }}"
+            data-action="statistic-value#updateValue"
+            data-statistic-value-target="valueInput">
+    <div class="upload-status js-upload-status input-group-text bg-white">
+        <div
+                class="spinner-border spinner-border-sm text-primary d-none"
+                data-statistic-value-target="loading"
+                role="status">
+            <span
+                    class="visually-hidden"
+                    data-statistic-value-target="loading">Loading...</span>
+        </div>
+        <div
+                class="js-uploaded"
+                data-statistic-value-target="loaded">
+            <i class="fas fa-cloud"></i>
+        </div>
+    </div>
+    <button
+            class="btn btn-outline-danger bg-weak-white js-delete"
+            type="button"
+            data-action="statistic-value#remove"
+            data-statistic-value-target="remove">
+        <i class="fas fa-trash"></i>
+    </button>
+</div>

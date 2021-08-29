@@ -8,40 +8,78 @@
 
 {% block content_body %}
     <div class="resource">
-        <h1 class="text-center">Data Records</h1>
+        <h1 class="text-center baseline">Data Records</h1>
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
         <label class="form-label"><strong>Add record</strong></label>
-        <form class="js-add-statistic row g-2">
-            {{ autocomplete.list('statistic', { root: { class: 'col' }, search: { tabIndex: '1' }  }) }}
-            <div class="col-auto">
-                <label class="visually-hidden" for="statistic-value">value</label>
-                <input
-                        id="statistic-value"
-                        tabindex="2"
-                        type="number"
-                        class="js-statistic-input form-control"
-                        placeholder="value..."
-                        autocomplete="off"
-                />
+        {{ form_start(form, {
+            attr: {
+                class: 'row g-2',
+                'data-controller': "load-form",
+                'data-action': "submit->load-form#start"
+            }
+        }) }}
+        <div
+            {{ stimulus_controller({
+                'autocomplete': {
+                    url: path('partial_statistic_index', { timeType: 'interval'} ),
+                    minLength: -1,
+                    passValue: true
+                },
+            }) }}
+            class="autocomplete-2 col position-relative">
+            {{ form_widget(form.statisticName, { attr: {class: 'd-none', 'data-autocomplete-target': 'hidden'}}) }}
+            <input
+                    type="search"
+                    class="form-control"
+                    data-autocomplete-target="input"
+                    placeholder="name"
+                    autocomplete="off"
+                    required
+            />
+            {{ form_errors(form.statisticName) }}
+            <ul
+                class="list-group results w-100"
+                data-autocomplete-target="results">
+            </ul>
+            <div
+                class="loading"
+                hidden
+                data-autocomplete-target="loading">
+                <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                Searching...
             </div>
-            <div class="col-auto">
-                <label class="visually-hidden" for="statistic-day">day</label>
-                <input
-                        id="statistic-day"
-                        tabindex="3"
-                        type="date"
-                        class="form-control js-day-input"
-                        name="day"
-                        value="{{ 'now'|date('Y-m-d', app.user.timezone) }}">
-            </div>
-            <div class="col-auto">
-                <button type="button" tabindex="4" class="btn btn-primary js-add">
-                    Add
-                </button>
-            </div>
-        </form>
+        </div>
+        <div class="col-auto">
+            {{ form_widget(form.value) }}
+            {{ form_errors(form.value) }}
+        </div>
+        <div class="col-auto">
+            {{ form_widget(form.day, {
+                attr: {
+                    class: 'col-auto',
+                    value: 'now'|date('Y-m-d', app.user.timezone)
+                }
+            }) }}
+        </div>
+        <div class="col-auto">
+            <button
+                    type="submit"
+                    class="btn btn-primary"
+                    data-load-form-target="button">
+                <span
+                    class="spinner-border spinner-border-sm d-none"
+                    data-load-form-target="loading"
+                    role="status"
+                    aria-hidden="true">
+                </span>
+                Add
+            </button>
+        </div>
+        {{ form_end(form) }}
 
         <table class="table table-bordered table-hover mt-3">
             <thead>
@@ -103,17 +141,5 @@
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
     </div>
-{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    {{ encore_entry_link_tags('statistic_value_index') }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('statistic_value_index') }}
 {% endblock %}
 

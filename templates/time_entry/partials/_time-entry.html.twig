@@ -36,11 +36,11 @@
             {% endfor %}
         </div>
     </div>
-    <div class="d-flex js-timestamps mt-2">
-        <div class="datetime js-started-at" data-timestamp="{{ timeEntry.startedAt.timestamp * 1000 }}">{{ time.user_datetime(timeEntry.startedAt, app.user) }}</div>
+    <div class="d-flex js-timestamps flex-wrap mt-2">
+        <div class="datetime js-started-at me-2" data-timestamp="{{ timeEntry.startedAt.timestamp * 1000 }}">{{ time.user_datetime(timeEntry.startedAt, app.user) }}</div>
 
         <div
-            class="ms-2 datetime js-ended-at"
+            class="datetime js-ended-at"
             {% if timeEntry.over %}
             data-timestamp="{{ timeEntry.endedAt.timestamp * 1000 }}"
             {% endif %}>

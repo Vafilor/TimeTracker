@@ -1,10 +1,9 @@
 import Flashes from "./flashes";
-import { TaskApi, TaskApiErrorCode } from "../core/api/task_api";
-import { TimeEntryApi, TimeEntryApiErrorCode } from "../core/api/time_entry_api";
-import { ApiErrorResponse } from "../core/api/api";
 import IdGenerator from "./id_generator";
-import Observable from "./observable";
+import { TimeEntryApi } from "../core/api/time_entry_api";
+import { ApiErrorResponse } from "../core/api/api";
 import { TaskAssigner } from "./task_assigner";
+import { TaskApiErrorCode } from "../core/api/types";
 
 export class TimeEntryTaskAssigner extends TaskAssigner {
     private readonly timeEntryId: string;
@@ -50,9 +49,9 @@ export class TimeEntryTaskAssigner extends TaskAssigner {
         this.task = res.data;
         this.autocomplete.setQuery(taskName);
 
-        if (res.source.status === 201 && res.data.url) {
+        if (res.status === 201 && res.data.url) {
             this.flashes.appendWithLink('success', `Created new task`, res.data.url, res.data.name);
-        } else if (res.source.status === 200 && res.data.url) {
+        } else if (res.status === 200 && res.data.url) {
             this.flashes.appendWithLink('success', `Assigned to task`, res.data.url, res.data.name);
         }
     }
@@ -66,7 +65,7 @@ export class TimeEntryTaskAssigner extends TaskAssigner {
         } catch (e) {
             if (e instanceof ApiErrorResponse) {
                 const errRes = e as ApiErrorResponse;
-                if (errRes.hasErrorCode(TimeEntryApiErrorCode.codeNoAssignedTask)) {
+                if (errRes.hasErrorCode(TaskApiErrorCode.codeNoAssignedTask)) {
                     this.flashes.append('danger', 'Time entry has no assigned task');
                 }
             }

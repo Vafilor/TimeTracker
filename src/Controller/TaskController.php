@@ -7,6 +7,9 @@ namespace App\Controller;
 use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Entity\Task;
+use App\Form\AddTaskFormType;
+use App\Form\ExampleFormType;
+use App\Form\Model\AddTaskModel;
 use App\Form\Model\FilterTaskModel;
 use App\Form\Model\EditTaskModel;
 use App\Form\EditTaskFormType;
@@ -16,20 +19,36 @@ use DateTime;
 use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TaskController extends BaseController
 {
     const CODE_NO_PARENT_TASK = 'code_no_parent_task';
+    const CODE_NO_ASSIGNED_TASK = 'code_no_assigned_task';
 
     private TaskRepository $taskRepository;
 
     public function __construct(TaskRepository $taskRepository)
     {
         $this->taskRepository = $taskRepository;
+    }
+
+    private function createIndexFilterForm(FormFactoryInterface $formFactory): FormInterface {
+        return $formFactory->createNamed(
+            '',
+            FilterTaskFormType::class,
+            new FilterTaskModel(),
+            [
+                'method' => 'GET',
+                'csrf_protection' => false,
+                'allow_extra_fields' => true,
+            ]
+        );
     }
 
     #[Route('/task', name: 'task_index')]
@@ -43,17 +62,7 @@ class TaskController extends BaseController
         $queryBuilder = $this->taskRepository->findByUserQueryBuilder($this->getUser());
         $queryBuilder = $this->taskRepository->preloadTags($queryBuilder);
 
-        $filterForm = $formFactory->createNamed(
-            '',
-            FilterTaskFormType::class,
-            new FilterTaskModel(),
-            [
-                'csrf_protection' => false,
-                'method' => 'GET',
-                'allow_extra_fields' => true
-            ]
-        );
-
+        $filterForm = $this->createIndexFilterForm($formFactory);
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
             /** @var FilterTaskModel $data */
@@ -75,49 +84,128 @@ class TaskController extends BaseController
             ]
         );
 
-        return $this->render(
-            'task/index.html.twig',
+        $form = $this->createForm(
+            AddTaskFormType::class,
+            new AddTaskModel(),
             [
+                'timezone' => $this->getUser()->getTimezone(),
+                'action' => $this->generateUrl('task_create')
+            ],
+        );
+
+        return $this->renderForm('task/index.html.twig', [
                 'pagination' => $pagination,
-                'filterForm' => $filterForm->createView()
+                'filterForm' => $filterForm,
+                'form' => $form
             ]
         );
     }
 
+    #[Route('/task_partial', name: 'task_index_partial', methods: ["GET"])]
+    public function partialIndex(
+        Request $request,
+        TaskRepository $taskRepository,
+        FormFactoryInterface $formFactory,
+        PaginatorInterface $paginator
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $queryBuilder = $taskRepository->findByUserQueryBuilder($this->getUser());
+
+        $filterForm = $formFactory->createNamed(
+            '',
+            FilterTaskFormType::class,
+            new FilterTaskModel(),
+            [
+                'csrf_protection' => false,
+                'method' => 'GET',
+            ]
+        );
+
+        $filterForm->handleRequest($request);
+
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
+            /** @var FilterTaskModel $data */
+            $data = $filterForm->getData();
+
+            $taskRepository->applyFilter($queryBuilder, $data);
+        } elseif ($filterForm->isSubmitted() && !$filterForm->isValid()) {
+            throw new HttpException(Response::HTTP_BAD_REQUEST, 'Invalid query parameters');
+        } else {
+            $queryBuilder = $taskRepository->applyNotCompleted($queryBuilder);
+        }
+
+        $pagination = $this->populatePaginationData(
+            $request,
+            $paginator,
+            $queryBuilder,
+            [
+                'sort' => 'task.createdAt',
+                'direction' => 'desc'
+            ]
+        );
+
+        return $this->render('task/partials/_task_list.html.twig', [
+            'pagination' => $pagination
+        ]);
+    }
+
     #[Route('/task/create', name: 'task_create')]
     public function create(
-        Request $request
+        Request $request,
+        TaskRepository $taskRepository,
+        PaginatorInterface $paginator,
+        FormFactoryInterface $formFactory
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $form = $this->createForm(
-            EditTaskFormType::class,
-            new EditTaskModel(),
-            ['timezone' => $this->getUser()->getTimezone()]
+            AddTaskFormType::class,
+            new AddTaskModel(),
+            [
+                'timezone' => $this->getUser()->getTimezone(),
+                'action' => $this->generateUrl('task_create')
+            ]
         );
+
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var EditTaskModel $data */
+            /** @var AddTaskModel $data */
             $data = $form->getData();
 
             $newTask = new Task($this->getUser(), $data->getName());
             $newTask->setDescription($data->getDescription());
+            if ($data->hasParentTask()) {
+                $parentTask = $taskRepository->findOrException($data->getParentTask());
+                $newTask->setParent($parentTask);
+            }
 
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($newTask);
             $manager->flush();
 
-            $this->addFlash('success', 'Task successfully created');
-
-            return $this->redirectToRoute('task_view', ['id' => $newTask->getIdString()]);
+            return $this->redirectToRoute('task_index');
         }
 
-        return $this->render(
-            'task/create.html.twig',
+        $queryBuilder = $this->taskRepository->findByUserQueryBuilder($this->getUser());
+        $queryBuilder = $this->taskRepository->preloadTags($queryBuilder);
+        $pagination = $this->populatePaginationData(
+            $request,
+            $paginator,
+            $queryBuilder,
             [
-                'form' => $form->createView()
+                'sort' => 'task.createdAt',
+                'direction' => 'desc'
             ]
         );
+
+        $filterForm = $this->createIndexFilterForm($formFactory);
+
+        return $this->renderForm('task/index.html.twig', [
+           'pagination' => $pagination,
+           'filterForm' => $filterForm,
+           'form' => $form
+       ]);
     }
 
     #[Route('/task/{id}/view', name: 'task_view')]
@@ -235,5 +323,30 @@ class TaskController extends BaseController
         $this->addFlash('success', "Task '{$task->getName()}' and it's children have been deleted");
 
         return $this->redirectToRoute('task_index');
+    }
+
+    #[Route('/example', name: 'example', methods: ["GET"])]
+    public function example(
+        Request $request,
+        FormFactoryInterface $formFactory,
+        PaginatorInterface $paginator
+    ): Response {
+
+        $form = $formFactory->createNamed(
+            '',
+            ExampleFormType::class,
+            new FilterTaskModel(),
+            [
+                'method' => 'GET',
+                'csrf_protection' => false,
+                'allow_extra_fields' => true,
+            ]
+        );
+
+        $form->handleRequest($request);
+
+        return $this->renderForm('example/index.html.twig', [
+            'form' => $form
+        ]);
     }
 }

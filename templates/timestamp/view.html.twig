@@ -4,7 +4,7 @@
 {% import 'components/statistic-value.html.twig' as statistics %}
 
 {% block content_class %}w-100{% endblock %}
-
+{% block turbo %}false{% endblock %}
 {% block title %}Timestamp{% endblock %}
 
 {% block content_body %}
@@ -12,35 +12,103 @@
          data-duration-format="{{ app.user.durationFormat }}"
          data-timestamp-id="{{ timestamp.idString }}">
 
-        <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
-            <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('timestamp_index') }}">Timestamps</a></li>
+                <li class="breadcrumb-item active" aria-current="page">current</li>
+            </ol>
+        </nav>
 
-            {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+        <label class="d-block form-label mt-3">Tags</label>
+        <div class="mt-2 d-flex align-items-center">
+            <div
+                {{ stimulus_controller('tag-list', {
+                    addUrl: path('json_timestamp_tag_create', {id: timestamp.idString}),
+                    removeUrl: path('json_timestamp_tag_delete', {id: timestamp.idString, tagName: '{NAME}'})
+                }) }}
+                class="tag-list tag-list-autocomplete"
+                data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
+                data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+            </div>
+
+            {{ autocomplete.addTag('timestamp') }}
         </div>
 
         {{ form_start(form) }}
         {{ form_row(form.createdAt, {attr: {class: 'unset-width'}})}}
 
         <label>Data</label>
-        <div class="d-flex mt-2 js-add-statistic add-statistic">
-            {{ autocomplete.list('statistic', { search: { tabIndex: '1' } }) }}
+        <div
+            {{ stimulus_controller('create-statistic-value', {
+                createUrl: path('json_timestamp_statistic_create', { id: timestamp.id })
+            }) }}
+            class="d-flex mt-2 js-add-statistic add-statistic">
+
+            <div
+                    {{ stimulus_controller({
+                        'autocomplete': {
+                            url: path('partial_statistic_index', { timeType: 'instant' }),
+                            minLength: -1,
+                        },
+                    }) }}
+                    class="autocomplete-2 position-relative"
+            >
+                <label for="timestamp-statistic-search" class="visually-hidden">Search statistics</label>
+                <input
+                        id="timestamp-statistic-search"
+                        type="search"
+                        class="form-control search"
+                        data-create-statistic-value-target="name"
+                        data-autocomplete-target="input"
+                        placeholder="statistic name"
+                        autocomplete="off"
+                        tabindex="1"
+                />
+                <ul
+                        class="list-group results w-100"
+                        data-autocomplete-target="results">
+                </ul>
+                <div
+                        class="loading"
+                        hidden
+                        data-autocomplete-target="loading">
+                    <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    Searching...
+                </div>
+            </div>
+
+
             <div class="ms-2">
                 <label class="visually-hidden" for="add-statistic-value">record value</label>
                 <input
                         id="add-statistic-value"
+                        data-create-statistic-value-target="value"
                         tabindex="2"
                         type="number"
-                        class="js-statistic-input form-control"
+                        class="form-control"
                         placeholder="value..."
                         autocomplete="off"
                 />
             </div>
-            <button type="button" class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary">
+            <button
+                type="button"
+                class="ms-2 btn btn-sm js-add bg-weak-white btn-outline-primary"
+                data-action="create-statistic-value#create">
+                <span
+                    class="spinner-border spinner-border-sm d-none"
+                    role="status"
+                    aria-hidden="true"
+                    data-create-statistic-value-target="loading"></span>
+                <span
+                    class="visually-hidden"
+                    data-create-statistic-value-target="loading">Loading...</span>
                 Add
             </button>
         </div>
 
-        {{ statistics.valueList(timestamp.statisticValues, {class: 'mt-2'}) }}
+        {{ statistics.valueList(timestamp.statisticValues, path('timestamp_record_index', {id: timestamp.idString}), {class: 'mt-2'}) }}
 
         <div class="mt-2">
             <button type="submit" class="btn btn-primary">Update</button>
@@ -70,16 +138,3 @@
         </div>
     </div>
 {% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    {{ encore_entry_link_tags('timestamp') }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('timestamp') }}
-{% endblock %}
-

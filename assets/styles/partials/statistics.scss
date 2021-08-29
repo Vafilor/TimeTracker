@@ -4,8 +4,9 @@
   .statistic-value-row {
     transition: opacity 0.3s, box-shadow 0.3s;
     background-color: white;
+    border-radius: 0.25rem;
 
-    &.highlighted {
+    &.highlight {
       box-shadow: 0 0 0 0.2rem rgb(255 0 35 / 41%);
     }
 
@@ -15,7 +16,7 @@
       margin-top: 0;
     }
 
-    &.disabled {
+    &[disabled] {
       opacity: 0.65;
     }
   }
@@ -36,6 +37,7 @@
   }
 
   .upload-status {
+      min-width: 44px;
       border-color: $input-border-color;
       border-width: $input-border-width;
       border-style: solid;

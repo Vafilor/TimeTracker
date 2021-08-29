@@ -14,32 +14,63 @@
 
         <div class="filter table-filter mb-3">
             <div class="filter-title">Filter</div>
-            {{ form_start(filterForm) }}
+            {{ form_start(filterForm, {
+                attr: {
+                    'data-controller': "load-form",
+                    'data-action': "submit->load-form#start",
+                }
+            }) }}
 
-            {{ form_label(filterForm.tags) }}
-            <div class="js-tags-filter d-flex align-items-center mb-1">
-                {{ form_widget(filterForm.tags, {attr: {class: 'js-real-tag-input d-none'}}) }}
-                <div class="js-tags tag-list js-tag-list many-rows" data-initial-tags-name="{{ app.request.query.get('tags') }}"></div>
+            <div
+                {{ stimulus_controller('tag-list') }}
+                class="tag-list d-inline-block"
+                data-tag-list-tags-csv-value="{{ app.request.query.get('tags') }}"
+                data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
 
-                {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'} }) }}
+                {{ form_widget(filterForm.tags, {
+                    attr: {
+                        class: 'd-none',
+                        'data-tag-list-target': 'hidden'
+                    }})
+                }}
             </div>
 
-            <div class="d-block">
-                <button type="submit" class="btn btn-primary mt-2">Search</button>
+            {{ autocomplete.addTag('note-filter') }}
+
+            <div class="d-block mt-2">
+                <button
+                        type="submit"
+                        class="btn btn-primary"
+                        data-load-form-target="button">
+                <span
+                        class="spinner-border spinner-border-sm d-none"
+                        data-load-form-target="loading"
+                        role="status"
+                        aria-hidden="true">
+                </span>
+                    Search
+                </button>
             </div>
             {{ form_end(filterForm) }}
         </div>
 
         <div class="dropdown mb-2">
             <label>Sort</label>
-            <button class="btn dropdown-toggle bg-white border-gray ms-2" type="button" id="time-entry-sort" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button
+                    id="note-sort"
+                    {{ stimulus_controller('bootstrap-dropdown') }}
+                    class="btn dropdown-toggle bg-white border-gray ms-2"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false">
                 {% if pagination.isSorted('note.createdAt') and pagination.direction == 'asc' %}
                     Oldest
                 {% else %}
                     Newest
                 {% endif %}
             </button>
-            <div class="dropdown-menu" aria-labelledby="time-entry-sort">
+            <div class="dropdown-menu" aria-labelledby="note-sort">
                 {{ knp_pagination_sortable(pagination, 'Newest', 'note.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
                 {{ knp_pagination_sortable(pagination, 'Oldest', 'note.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
             </div>
@@ -48,21 +79,36 @@
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
         <label class="form-label"><strong>Add note</strong></label>
-        <form class="row g-2 js-create-note">
+        {{ form_start(form, {
+            attr: {
+                class: 'row g-2',
+                'data-controller': "load-form",
+                'data-action': "submit->load-form#start",
+            }
+        }) }}
             <div class="col-auto">
-                <label class="visually-hidden" for="note-create-title"></label>
-                <input id="note-create-title" type="text" class="form-control" placeholder="title">
+                {{ form_widget(form.title) }}
+                {{ form_errors(form.title) }}
             </div>
-
             <div class="col">
-                <label class="visually-hidden" for="note-create-content"></label>
-                <input id="note-create-content" type="text" class="form-control" placeholder="content">
+                {{ form_widget(form.content) }}
+                {{ form_errors(form.content) }}
             </div>
-
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary">Create</button>
+                <button
+                        type="submit"
+                        class="btn btn-primary"
+                        data-load-form-target="button">
+                        <span
+                                class="spinner-border spinner-border-sm d-none"
+                                data-load-form-target="loading"
+                                role="status"
+                                aria-hidden="true">
+                        </span>
+                    Create
+                </button>
             </div>
-        </form>
+        {{ form_rest(form) }}
 
         {% if pagination.count == 0 %}
             <div class="text-center mt-2">No results found</div>
@@ -76,16 +122,4 @@
 
         {{ knp_pagination_render(pagination, null, {}, {align: 'center'}) }}
     </div>
-{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    {{ encore_entry_link_tags('note_index') }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('note_index') }}
 {% endblock %}

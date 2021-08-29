@@ -2,11 +2,18 @@
 {% import 'time/partials.html.twig' as time %}
 
 {% block content_class %}w-100{% endblock %}
-
+{% block turbo %}false{% endblock %}
 {% block title %}Record: {{ statisticValue.statistic.name }}{% endblock %}
 
 {% block content_body %}
     <div class="resource">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('statistic_value_index') }}">Records</a></li>
+                <li class="breadcrumb-item active" aria-current="page">current</li>
+            </ol>
+        </nav>
+
         <h1 class="text-center">{{ statisticValue.statistic.name }}</h1>
 
         <div>
@@ -62,16 +69,3 @@
         </div>
     </div>
 {% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    {{ encore_entry_link_tags('statistic_value') }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('statistic_value') }}
-{% endblock %}
-

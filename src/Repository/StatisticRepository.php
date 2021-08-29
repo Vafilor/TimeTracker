@@ -9,9 +9,11 @@ use App\Entity\User;
 use App\Traits\FindByKeysInterface;
 use App\Traits\FindByKeysTrait;
 use App\Traits\FindOrExceptionTrait;
+use App\Util\TimeType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use InvalidArgumentException;
 
 /**
  * @method Statistic|null find($id, $lockMode = null, $lockVersion = null)
@@ -52,12 +54,18 @@ class StatisticRepository extends ServiceEntityRepository implements FindByKeysI
         ;
     }
 
-    public function findWithUserNameCanonicalQueryBuilder(User $user, string $name): QueryBuilder
+    public function findWithUserNameCanonicalQueryBuilder(User $user, string $name, string $timeType): QueryBuilder
     {
+        if (!TimeType::isValid($timeType)) {
+            throw new InvalidArgumentException(TimeType::invalidErrorMessage($timeType));
+        }
+
         return $this->findWithUser($user)
             ->andWhere('statistic.canonicalName = :name')
+            ->andWhere('statistic.timeType = :timeType')
             ->setParameter('name', $name)
-            ;
+            ->setParameter('timeType', $timeType)
+        ;
     }
 
     public function findWithUserName(User $user, string $name): ?Statistic
@@ -68,9 +76,9 @@ class StatisticRepository extends ServiceEntityRepository implements FindByKeysI
         ;
     }
 
-    public function findWithUserNameCanonical(User $user, string $name): ?Statistic
+    public function findWithUserNameCanonical(User $user, string $name, string $timeType): ?Statistic
     {
-        return $this->findWithUserNameCanonicalQueryBuilder($user, $name)
+        return $this->findWithUserNameCanonicalQueryBuilder($user, $name, $timeType)
             ->getQuery()
             ->getOneOrNullResult()
         ;

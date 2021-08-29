@@ -11,16 +11,11 @@ use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTag;
 use App\Entity\Tag;
-use App\Form\Model\TagEditModel;
-use App\Form\Model\TagListFilterModel;
-use App\Form\Model\TagModel;
-use App\Form\TagEditFormType;
-use App\Form\TagFormType;
-use App\Form\TagListFilterFormType;
+use App\Form\AddTagFormType;
+use App\Form\Model\AddTagModel;
 use App\Repository\TagRepository;
 use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -77,8 +72,8 @@ class ApiTagController extends BaseController
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $defaultTagModel = new TagModel();
-        $form = $this->createForm(TagFormType::class, $defaultTagModel, [
+        $defaultTagModel = new AddTagModel();
+        $form = $this->createForm(AddTagFormType::class, $defaultTagModel, [
             'csrf_protection' => false,
         ]);
 
@@ -91,7 +86,7 @@ class ApiTagController extends BaseController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TagModel $data */
+            /** @var AddTagModel $data */
             $data = $form->getData();
             $name = $data->getName();
 

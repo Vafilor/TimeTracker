@@ -19,13 +19,16 @@ class FilterTaskFormType extends AbstractType
     {
         $builder
             ->add('showCompleted', CheckboxType::class, [
-                'required' => false
+                'required' => false,
+                'false_values' => [null, '0']
             ])
             ->add('showSubtasks', CheckboxType::class, [
-                'required' => false
+                'required' => false,
+                'false_values' => [null, '0']
             ])
             ->add('onlyShowPastDue', CheckboxType::class, [
-                'required' => false
+                'required' => false,
+                'false_values' => [null, '0']
             ])
             ->add('content', SearchType::class, [
                 'required' => false

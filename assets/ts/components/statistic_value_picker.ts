@@ -1,7 +1,7 @@
 import AutocompleteStatistics from "./autocomplete_statistics";
-import { ApiStatistic, TimeType } from "../core/api/statistic_api";
 import Observable from "./observable";
 import { AutocompleteEnterPressedEvent } from "./autocomplete";
+import { ApiStatistic, TimeType } from "../core/api/types";
 
 export interface StatisticValuePickedEvent {
     name: string;
@@ -14,6 +14,7 @@ export default class StatisticValuePicker {
     private $statisticInput: JQuery;
     public valuePicked = new Observable<StatisticValuePickedEvent>();
 
+    // TODO - this expects jquery....
     constructor(private $container: JQuery, timeType: TimeType) {
         this.autocompleteStatistic = new AutocompleteStatistics($container.find('.js-autocomplete-statistic'), timeType);
         this.$statisticInput = this.$container.find('.js-statistic-input');
@@ -36,18 +37,6 @@ export default class StatisticValuePicker {
             } else {
                 event.query;
             }
-        })
-
-        this.$statisticInput.on('keypress', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-
-               this.onAdd();
-            }
-        });
-
-        $container.find('.js-add').on('click', (event) => {
-            this.onAdd();
         })
     }
 

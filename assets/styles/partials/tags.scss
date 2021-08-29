@@ -1,6 +1,20 @@
 @import "custom";
 
 .tag-list {
+  .tag {
+    &:not(:last-child) {
+      margin-right: 5px;
+    }
+  }
+
+  &.tag-list-autocomplete {
+    .tag {
+      &:last-child {
+        margin-right: 10px;
+      }
+    }
+  }
+
   &.many-rows {
     .tag {
       margin-bottom: 5px;
@@ -20,6 +34,10 @@
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   color: white;
   margin-bottom: 5px;
+
+  &.tag-exists {
+    background-color: red !important;
+  }
 
   &.tag-sm {
     font-size: 14px;

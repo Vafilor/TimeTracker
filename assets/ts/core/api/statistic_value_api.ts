@@ -1,28 +1,42 @@
-import { CoreApi } from "./api";
-import { ApiStatistic } from "./statistic_api";
+import { ApiStatisticValue } from "./types";
+import { AxiosResponse } from "axios";
+import { AddStatisticRequest } from "./statistic_api";
 
-export interface ApiStatisticValue {
-    id: string;
-    value: number;
-    statistic: ApiStatistic;
+const axios = require('axios').default;
+
+export interface CreateStatisticValueResponse {
+    statisticValue: ApiStatisticValue;
+    view: string;
 }
 
 export class StatisticValueApi {
-    public static addForDay(name: string, value: number, day?: string) {
-        return CoreApi.post<ApiStatisticValue>(`/json/record`, {
+    static addForDay(name: string, value: number, day?: string): Promise<AxiosResponse<ApiStatisticValue>> {
+        return axios.post(`/json/record`, {
             statisticName: name,
             value,
             day
-        });
+        })
     }
 
-    public static update(id: string, value: number) {
-        return CoreApi.put<ApiStatisticValue>(`/json/statistic-value/${id}`, {
+    static update(url: string, value: number): Promise<AxiosResponse<ApiStatisticValue>> {
+        return axios.put(url, {
             value
         });
     }
 
-    public static remove(id: string) {
-        return CoreApi.delete(`/json/statistic-value/${id}`);
+    static updateById(id: string, value: number): Promise<AxiosResponse<ApiStatisticValue>> {
+        return StatisticValueApi.update(`/json/statistic-value/${id}`, value);
+    }
+
+    static remove(url: string): Promise<AxiosResponse<void>> {
+        return axios.delete(url);
+    }
+
+    static removeById(id: string): Promise<AxiosResponse<void>> {
+        return StatisticValueApi.remove(`/json/statistic-value/${id}`);
+    }
+
+    public static addToResource(url: string, request: AddStatisticRequest): Promise<AxiosResponse<CreateStatisticValueResponse>> {
+        return axios.post(url, request);
     }
 }

@@ -1,19 +1,11 @@
-import { CoreApi, PaginatedResponse } from './api';
+import { PaginatedResponse } from './api';
+import { ApiTag } from "./types";
+import { AxiosResponse } from "axios";
 
-export interface ApiTag {
-    name: string;
-    color: string;
-}
-
-export function ApiTagFromName(name: string): ApiTag {
-    return {
-        name,
-        color: '#5d5d5d'
-    };
-}
+const axios = require('axios').default;
 
 export class TagApi {
-    public static index(searchTerm: string, excludeTags: Array<string> = [] ) {
+    public static index(searchTerm: string, excludeTags: Array<string> = []): Promise<AxiosResponse<PaginatedResponse<ApiTag>>> {
         const search = new URLSearchParams();
         search.append('searchTerm', encodeURIComponent(searchTerm));
 
@@ -22,6 +14,18 @@ export class TagApi {
             search.append('exclude', excludeTerms);
         }
 
-        return CoreApi.get<PaginatedResponse<ApiTag>>(`/json/tag?${search.toString()}`);
+        return axios.get(`/json/tag?${search.toString()}`);
+    }
+
+    public static addTagToResource(url: string, tagName: string): Promise<AxiosResponse<ApiTag>> {
+        return axios.post(url, {
+            name: tagName
+        });
+    }
+
+    public static removeTagFromResource(url: string, tagName: string): Promise<AxiosResponse> {
+        tagName = encodeURIComponent(tagName);
+
+        return axios.delete(`${url}/${tagName}`);
     }
 }

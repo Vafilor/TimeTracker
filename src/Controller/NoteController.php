@@ -5,19 +5,38 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiTag;
+use App\Entity\Note;
+use App\Form\AddNoteFormType;
 use App\Form\EditNoteFormType;
 use App\Form\FilterNoteFormType;
+use App\Form\FilterTaskFormType;
+use App\Form\Model\AddNoteModel;
 use App\Form\Model\EditNoteModel;
 use App\Form\Model\FilterNoteModel;
+use App\Form\Model\FilterTaskModel;
 use App\Repository\NoteRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class NoteController extends BaseController
 {
+    private function createIndexFilterForm(FormFactoryInterface $formFactory): FormInterface {
+        return $formFactory->createNamed(
+            '',
+            FilterNoteFormType::class,
+            new FilterNoteModel(),
+            [
+                'csrf_protection' => false,
+                'method' => 'GET',
+                'allow_extra_fields' => true,
+            ]
+        );
+    }
+
     #[Route('/note', name: 'note_index')]
     public function index(
         Request $request,
@@ -30,16 +49,7 @@ class NoteController extends BaseController
         $queryBuilder = $noteRepository->findByUserQueryBuilder($this->getUser());
         $queryBuilder = $noteRepository->preloadTags($queryBuilder);
 
-        $filterForm = $formFactory->createNamed(
-            '',
-            FilterNoteFormType::class,
-            new FilterNoteModel(),
-            [
-                'csrf_protection' => false,
-                'method' => 'GET',
-                'allow_extra_fields' => true,
-            ]
-        );
+        $filterForm = $this->createIndexFilterForm($formFactory);
 
         $filterForm->handleRequest($request);
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
@@ -54,9 +64,58 @@ class NoteController extends BaseController
             'direction' => 'desc'
         ]);
 
-        return $this->render('note/index.html.twig', [
+        $form = $this->createForm(AddNoteFormType::class, new AddNoteModel(), [
+            'action' => $this->generateUrl('note_create')
+        ]);
+
+        return $this->renderForm('note/index.html.twig', [
             'pagination' => $pagination,
-            'filterForm' => $filterForm->createView(),
+            'filterForm' => $filterForm,
+            'form' => $form
+        ]);
+    }
+
+    #[Route('/note/create', name: 'note_create')]
+    public function create(
+        Request $request,
+        NoteRepository $noteRepository,
+        PaginatorInterface $paginator,
+        FormFactoryInterface $formFactory,
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $form = $this->createForm(AddNoteFormType::class, new AddNoteModel(), [
+            'action' => $this->generateUrl('note_create')
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var AddNoteModel $data */
+            $data = $form->getData();
+
+            $newNote = new Note($this->getUser(), $data->getTitle(), $data->getContent());
+
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($newNote);
+            $manager->flush();
+
+            return $this->redirectToRoute('note_index');
+        }
+
+        $queryBuilder = $noteRepository->findByUserQueryBuilder($this->getUser());
+        $queryBuilder = $noteRepository->preloadTags($queryBuilder);
+
+        $filterForm = $this->createIndexFilterForm($formFactory);
+        $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
+            'sort' => 'note.createdAt',
+            'direction' => 'desc'
+        ]);
+
+        return $this->renderForm('note/index.html.twig', [
+            'pagination' => $pagination,
+            'filterForm' => $filterForm,
+            'form' => $form
         ]);
     }
 
@@ -86,7 +145,9 @@ class NoteController extends BaseController
             $data = $form->getData();
 
             $note->setTitle($data->getTitle());
-            $note->setContent($data->getContent());
+            if ($data->hasContent()) {
+                $note->setContent($data->getContent());
+            }
 
             $this->getDoctrine()->getManager()->flush();
 

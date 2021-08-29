@@ -1,7 +1,8 @@
 import $ from "jquery";
 import Observable from "./observable";
-import { JsonResponse, PaginatedResponse } from "../core/api/api";
+import { PaginatedResponse } from "../core/api/api";
 import { createPopper } from "@popperjs/core";
+import { AxiosResponse } from "axios";
 
 /**
  * Autocomplete provides a basic autocomplete for an input/search results set of elements.
@@ -102,8 +103,15 @@ abstract class Autocomplete {
      * This happens when we click outside the search.
      */
     public clearSearchContent() {
-        this.$searchContent.addClass('d-none');
+        this.hideSearchContent();
         this.$searchContent.html('');
+    }
+
+    /**
+     * hideSearchContent makes the search results not display, but still keeps them in the DOM.
+     */
+    public hideSearchContent() {
+        this.$searchContent.addClass('d-none');
     }
 
     /**
@@ -367,7 +375,7 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
      * queryApi is the network request made to get a response given the query.
      * @param query
      */
-    protected abstract queryApi(query: string): Promise<JsonResponse<PaginatedResponse<T>>>;
+    protected abstract queryApi(query: string): Promise<AxiosResponse<PaginatedResponse<T>>>;
 
     /**
      * noResultsTemplate is the element returned to display that there are no results.
@@ -410,6 +418,7 @@ export abstract class PaginatedAutocomplete<T> extends Autocomplete {
             const $template = $(this.template(item));
             $template.addClass('search-result-item');
             $template.addClass(`js-paginated-autocomplete-index-${index}`);
+
 
             $template.on('click', (event) => {
                 this.itemSelected.emit(item);

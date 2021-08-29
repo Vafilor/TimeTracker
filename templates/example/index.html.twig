@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content_body %}
+    <div class="p-5">
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button class="btn btn-primary">Submit</button>
+    {{ form_end(form) }}
+    </div>
+{% endblock %}

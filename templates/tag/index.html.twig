@@ -11,9 +11,25 @@
 
     <div class="filter table-filter mb-3">
         <div class="filter-title">Filter</div>
-        {{ form_start(filterForm) }}
-        {{ form_widget(filterForm) }}
-        <button type="submit" class="btn btn-primary">Search</button>
+        {{ form_start(filterForm, {
+            attr: {
+                'data-controller': "load-form",
+                'data-action': "submit->load-form#start",
+            }
+        }) }}
+        {{ form_row(filterForm.name, { attr: {autocomplete: 'off'}}) }}
+        <button
+                type="submit"
+                class="btn btn-primary"
+                data-load-form-target="button">
+                <span
+                        class="spinner-border spinner-border-sm d-none"
+                        data-load-form-target="loading"
+                        role="status"
+                        aria-hidden="true">
+                </span>
+            Search
+        </button>
         {{ form_end(filterForm) }}
     </div>
 
@@ -22,7 +38,12 @@
     <label class="d-block form-label"><strong>Add Tag</strong></label>
     {{ form_start(form, {attr: {class: 'row g-2'}}) }}
     <div class="col">
-        {{ form_widget(form.name, {attr: {placeholder: 'name'}}) }}
+        {{ form_widget(form.name, {
+            attr: {
+                placeholder: 'name',
+                autocomplete: 'off'
+            }}
+        ) }}
     </div>
     <div class="col-auto">
         {{ form_widget(form.color, {attr: {class: 'w-p-50'}}) }}

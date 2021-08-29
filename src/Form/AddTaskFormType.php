@@ -17,7 +17,11 @@ class AddTaskFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', TextType::class)
+            ->add('name', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'What do you want to achieve?'
+                ]
+            ])
             ->add('description', TextareaType::class, [
                 'required' => false,
             ])

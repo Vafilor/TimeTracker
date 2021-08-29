@@ -82,6 +82,26 @@ class StatisticValueRepository extends ServiceEntityRepository implements FindBy
         return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
+    public function findForResource(TimeEntry|Timestamp $resource): array
+    {
+        $queryBuilder = $this->createDefaultQueryBuilder()
+                             ->join('statistic_value.statistic', 'statistic');
+
+        if ($resource instanceof TimeEntry) {
+            $queryBuilder = $queryBuilder->join('statistic_value.timeEntry', 'timeEntry')
+                ->andWhere('timeEntry = :resource')
+                ->setParameter('resource', $resource)
+            ;
+        } elseif ($resource  instanceof Timestamp) {
+            $queryBuilder = $queryBuilder->join('statistic_value.timestamp', 'timestamp')
+                ->andWhere('timestamp = :resource')
+                ->setParameter('resource', $resource)
+            ;
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
     /**
      * @param Statistic $statistic
      * @param DateRange $dateRange

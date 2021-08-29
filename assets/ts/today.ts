@@ -1,9 +1,6 @@
-import '../styles/today.scss';
-
 import $ from 'jquery';
 import { TimeEntryActionDelegate, TimeEntryIndexItem } from "./components/time_entry";
 import {
-    ApiTimeEntry,
     CreateTimeEntryResponse,
     DateFormat,
     TimeEntryApi,
@@ -12,7 +9,9 @@ import {
 import Flashes from "./components/flashes";
 import LoadingButton from "./components/loading_button";
 import { ConfirmClickEvent, ConfirmDialog } from "./components/confirm_dialog";
-import { ApiErrorResponse, ApiResourceError } from "./core/api/api"; // Adds functions to jQuery
+import { ApiErrorResponse, ApiResourceError } from "./core/api/api";
+import { ApiTimeEntry } from "./core/api/types";
+import { ApiError } from "./core/api/errors"; // Adds functions to jQuery
 
 class TimeEntryList {
     private readonly $container: JQuery;
@@ -56,7 +55,7 @@ class TimeEntryList {
     }
 }
 
-class TodayIndexPage implements TimeEntryActionDelegate {
+export class TodayIndexPage implements TimeEntryActionDelegate {
     private readonly dateFormat: DateFormat;
     private readonly durationFormat: string;
     private readonly flashes: Flashes;
@@ -139,13 +138,11 @@ class TodayIndexPage implements TimeEntryActionDelegate {
 
             this.createTimeEntry(res.data);
         } catch (e) {
-            if (e instanceof ApiErrorResponse) {
-                const runningTimerError = e.getErrorForCode(TimeEntryApiErrorCode.codeRunningTimer) as ApiResourceError;
-                if (runningTimerError) {
-                    this.confirmStopExistingTimer(() => {
-                        this.stopTimeEntryAndCreate(runningTimerError.resource);
-                    });
-                }
+            const runningTimerError = ApiError.findByCode(e.response.data, TimeEntryApiErrorCode.codeRunningTimer)
+            if (runningTimerError) {
+                this.confirmStopExistingTimer(() => {
+                    this.stopTimeEntryAndCreate(runningTimerError.resource);
+                });
             }
         }
 
@@ -168,8 +165,3 @@ class TodayIndexPage implements TimeEntryActionDelegate {
         }
     }
 }
-
-
-$(document).ready( () => {
-    const page = new TodayIndexPage();
-})

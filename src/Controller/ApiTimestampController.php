@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiPagination;
+use App\Api\ApiStatisticValue;
 use App\Api\ApiTimestamp;
 use App\Entity\TagLink;
 use App\Entity\Timestamp;
@@ -84,6 +85,15 @@ class ApiTimestampController extends BaseController
 
         $apiTimestamp = ApiTimestamp::fromEntity($this->dateTimeFormatter, $timestamp, $this->getUser(), $now);
 
+        if (str_starts_with($request->getPathInfo(), '/json')) {
+            $response = [
+                'timestamp' => $apiTimestamp,
+                'view' => $this->renderView('timestamp/partials/_timestamp.html.twig', ['timestamp' => $timestamp])
+            ];
+
+            return $this->jsonNoNulls($response, Response::HTTP_CREATED);
+        }
+
         return $this->jsonNoNulls($apiTimestamp, Response::HTTP_CREATED);
     }
 
@@ -146,8 +156,6 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $now = $this->now();
-
         $newTimestamp = $timestampManager->repeat($timestamp);
 
         $this->getDoctrine()->getManager()->flush();
@@ -156,8 +164,17 @@ class ApiTimestampController extends BaseController
             $dateTimeFormatter,
             $newTimestamp,
             $this->getUser(),
-            $now
+            $this->now()
         );
+
+        if (str_starts_with($request->getPathInfo(), '/json')) {
+            $response = [
+                'timestamp' => $apiTimestamp,
+                'view' => $this->renderView('timestamp/partials/_timestamp.html.twig', ['timestamp' => $newTimestamp])
+            ];
+
+            return $this->jsonNoNulls($response, Response::HTTP_CREATED);
+        }
 
         return $this->jsonNoNulls($apiTimestamp, Response::HTTP_CREATED);
     }
@@ -242,13 +259,25 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        return $this->addStatisticValueRequest(
+        $statisticValue = $this->addStatisticValueRequest(
             $request,
             $statisticRepository,
             $statisticValueRepository,
             $this->getUser(),
             $timestamp
         );
+
+        $apiStatisticValue = ApiStatisticValue::fromEntity($statisticValue, $this->getUser());
+        if (str_starts_with($request->getPathInfo(), '/json')) {
+            $response = [
+                'statisticValue' => $apiStatisticValue,
+                'view' => $this->renderView('statistic_value/partials/_statistic-value.html.twig', ['value' => $statisticValue])
+            ];
+
+            return $this->jsonNoNulls($response, Response::HTTP_CREATED);
+        }
+
+        return $this->jsonNoNulls($apiStatisticValue, Response::HTTP_CREATED);
     }
 
     #[Route('/api/timestamp/{id}/statistic/{statisticId}', name: 'api_timestamp_statistic_delete', methods: ['DELETE'])]

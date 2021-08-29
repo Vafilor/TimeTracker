@@ -4,6 +4,7 @@
 
 {% block content_class %}w-100{% endblock %}
 
+{% block turbo %}false{% endblock %}
 {% block title %}Note: {{ note.title }}{% endblock %}
 
 {% block content_body %}
@@ -11,35 +12,77 @@
      data-duration-format="{{ app.user.durationFormat }}"
      data-note-id="{{ note.idString }}">
 
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('note_index') }}">Notes</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ note.title }}</li>
+        </ol>
+    </nav>
+
     {{ form_start(form) }}
     {{ form_row(form.title) }}
 
-    <div class="js-autocomplete-tags-container d-flex align-items-center mt-2">
-        <div class="js-tags tag-list many-rows" data-initial-tags="{{ tags|json_encode|e('html_attr') }}"></div>
+    <label class="d-block form-label mt-3">Tags</label>
+    <div class="mt-2 d-flex align-items-center">
+        <div
+            {{ stimulus_controller('tag-list', {
+                addUrl: path('json_note_tag_create', {id: note.idString}),
+                removeUrl: path('json_note_tag_delete', {id: note.idString, tagName: '{NAME}'})
+            }) }}
+            class="tag-list tag-list-autocomplete"
+            data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
+            data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+        </div>
 
-        {{ autocomplete.add('tags', { button: { class: 'bg-weak-white btn-outline-primary'}, search: { placeholder: 'tag name' }  }) }}
+        {{ autocomplete.addTag('note') }}
     </div>
 
     <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
         <li class="nav-item" role="presentation">
             <button type="button" class="nav-link active markdown-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#markdown" role="tab" aria-controls="markdown" aria-selected="true">
-                <i class="fas fa-sync-alt fa-spin me-1 d-none js-loading"></i>
+                <span
+                    {{ stimulus_controller('toggle-class', {
+                        className: 'd-none',
+                        key: note.idString
+                    }) }}
+                    data-action="upload-field:update:start@window->toggle-class#remove upload-field:update:finish@window->toggle-class#add"
+                    class="me-1 d-none">
+                    <i class="fas fa-sync-alt fa-spin"></i>
+                </span>
                 Description
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button type="button" class="nav-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</button>
+            <button type="button" class="nav-link" id="markdown-preview-tab" data-bs-toggle="tab" data-bs-target="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</button>
         </li>
         <li class="nav-item" role="presentation">
             <button type="button" class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" role="tab" aria-selected="false">Details</button>
         </li>
     </ul>
     <div class="tab-content" id="description-content">
-        <div class="tab-pane fade show active" id="markdown" role="tabpanel" aria-labelledby="markdown-tab">
-            {{ form_widget(form.content, {attr: { rows: 10, class: 'border-top-0 js-description' }}) }}
+        <div id="markdown" class="tab-pane fade show active markdown-input" role="tabpanel" aria-labelledby="markdown-tab">
+            {{ form_widget(form.content, {
+                attr: {
+                    rows: 10,
+                    class: 'border-top-0 js-description',
+                    'data-controller': 'upload-field',
+                    'data-action': 'upload-field#update',
+                    'data-upload-field-key-value': note.idString,
+                    'data-upload-field-field-name-value': 'content',
+                    'data-upload-field-url-value': path('json_note_update', {id: note.idString} )
+                }})
+            }}
         </div>
-        <div class="tab-pane contained fade" id="preview" role="tabpanel" aria-labelledby="profile-tab">
-            <div id="preview-content"></div>
+        <div id="preview" class="tab-pane contained fade markdown-preview" role="tabpanel" aria-labelledby="profile-tab">
+            <div
+                id="preview-content"
+                {{ stimulus_controller('markdown-updater', {
+                    field: 'value',
+                    key: note.idString
+                }) }}
+                data-action="upload-field:update:finish@window->markdown-updater#convert">
+                {{ note.content|markdown_to_html }}
+            </div>
         </div>
         <div class="tab-pane fade bg-white" id="details" role="tabpanel" aria-labelledby="details-tab">
             <table class="table table-hover table-bordered">
@@ -93,16 +136,4 @@
     </div>
 </div>
 
-{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    {{ encore_entry_link_tags('note') }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('note') }}
 {% endblock %}

@@ -15,13 +15,13 @@
     <label class="visually-hidden" for="{{ name }}-name">name</label>
     <input
             id="{{ name }}-name"
-            {% if _attr.tabIndex is defined%}
-            tabindex="{{ _attr.tabIndex }}"
-            {% endif %}
+            {% for key, value in _attr %}
+                {% if key != 'class' %}
+                {{ key }}="{{ value }}"
+                {% endif %}
+            {% endfor %}
             type="search"
             class="js-input form-control search {{ _attr.class }}"
-            placeholder="{{ _attr.placeholder }}"
-            value="{{ _attr.value }}"
             autocomplete="off">
 {% endmacro %}
 
@@ -77,4 +77,47 @@
         </button>
     </div>
     {{ _self.end() }}
+{% endmacro %}
+
+{% macro addTag(resource) %}
+<div
+    {{ stimulus_controller({
+        'autocomplete-tags': {
+            url: path('tag_index_partial'),
+            minLength: -1,
+            type: 'tag'
+        },
+    }) }}
+    class="autocomplete-2 autocomplete-search-group position-relative"
+    data-action="tag:add@window->autocomplete-tags#excludeTagEvent tag:remove@window->autocomplete-tags#includeTagEvent"
+>
+    <label for="{{ resource }}-tag-search" class="visually-hidden">Search tags</label>
+    <input
+            id="{{ resource }}-tag-search"
+            type="search"
+            class="form-control search"
+            data-autocomplete-tags-target="input"
+            placeholder="tag name"
+            autocomplete="off"
+    />
+    <ul
+            class="list-group results w-100"
+            data-autocomplete-tags-target="results">
+    </ul>
+    <div
+            class="loading"
+            hidden
+            data-autocomplete-tags-target="loading">
+        <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        Searching...
+    </div>
+    <button
+            type="button"
+            class="btn btn-outline-primary autocomplete-search-group-append bg-weak-white"
+            data-action="autocomplete-tags#commitFromTextInput">
+        Add
+    </button>
+</div>
 {% endmacro %}

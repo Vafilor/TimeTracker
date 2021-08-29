@@ -2,11 +2,18 @@
 {% import 'time/partials.html.twig' as time %}
 
 {% block content_class %}w-100{% endblock %}
-
+{% block turbo %}false{% endblock %}
 {% block title %}Tag: {{ tag.name }}{% endblock %}
 
 {% block content_body %}
 <div class="resource">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('tag_index') }}">Tags</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ tag.name }}</li>
+        </ol>
+    </nav>
 
     <h1 class="text-center">{{ tag.name }}</h1>
 
@@ -29,7 +36,17 @@
         <tbody>
         <tr>
             <td>Preview</td>
-            <td><div class="tag js-tag-preview" style="background-color: {{ tag.color }}">{{ tag.name }}</div></td>
+            <td>
+                <div
+                    {{ stimulus_controller({
+                        'style-setter': { key: tag.idString ~ '-color', property: 'backgroundColor' },
+                    }) }}
+                    data-action="value-emitter:change@window->style-setter#setProperty"
+                    class="tag js-tag-preview"
+                    style="background-color: {{ tag.color }}">
+                    {{ tag.name }}
+                </div>
+            </td>
         </tr>
         <tr>
             <td>Created</td>
@@ -49,10 +66,17 @@
 
     {{ form_start(form) }}
     {{ form_label(form.color) }}
-    {{ form_widget(form.color, {attr: {class: 'w-p-50 js-tag-color'}}) }}
+    {{ form_widget(form.color, {
+        attr: {
+            class: 'w-p-50 js-tag-color',
+            'data-controller': 'value-emitter',
+            'data-value-emitter-debounce-value': 100,
+            'data-value-emitter-key-value': tag.idString ~ '-color',
+            'data-action': 'value-emitter#valueChanged'
+        }})
+    }}
 
     {{ form_widget(form) }}
-
 
     <div class="mt-2">
         <button type="submit" class="btn btn-primary">Update</button>
@@ -84,16 +108,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-
-    {{ encore_entry_link_tags('tag') }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('tag') }}
-{% endblock %}
-

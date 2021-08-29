@@ -6,13 +6,16 @@ namespace App\Controller;
 
 use App\Api\ApiTag;
 use App\Entity\Timestamp;
-use App\Form\Model\TimestampEditModel;
-use App\Form\TimestampEditFormType;
+use App\Form\Model\EditTimestampModel;
+use App\Form\EditTimestampFormType;
+use App\Manager\TimestampManager;
+use App\Repository\StatisticValueRepository;
 use App\Repository\TimestampRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TimestampController extends BaseController
@@ -52,6 +55,30 @@ class TimestampController extends BaseController
         return $this->redirectToRoute('timestamp_view', ['id' => $timestamp->getIdString()]);
     }
 
+    #[Route('/timestamp/{id}/repeat', name: 'timestamp_repeat', methods: ["POST"])]
+    public function repeat(
+        Request $request,
+        TimestampManager $timestampManager,
+        TimestampRepository $timestampRepository,
+        string $id): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('repeat_timestamp', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Invalid CSRF token');
+            throw new BadRequestHttpException('Invalid CSRF token');
+        }
+
+        $timestampManager->repeat($timestamp);
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->redirectToRoute('timestamp_index');
+    }
+
     /**
      * @throws NonUniqueResultException
      */
@@ -75,13 +102,13 @@ class TimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $form = $this->createForm(TimestampEditFormType::class, TimestampEditModel::fromEntity($timestamp), [
+        $form = $this->createForm(EditTimestampFormType::class, EditTimestampModel::fromEntity($timestamp), [
             'timezone' => $this->getUser()->getTimezone(),
         ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var TimestampEditModel $data */
+            /** @var EditTimestampModel $data */
             $data = $form->getData();
 
             $timestamp->setCreatedAt($data->getCreatedAt());
@@ -117,5 +144,27 @@ class TimestampController extends BaseController
         $this->addFlash('success', 'Timestamp was removed');
 
         return $this->redirectToRoute('timestamp_index');
+    }
+
+    #[Route('/timestamp/{id}/records', name: 'timestamp_record_index')]
+    public function _recordIndex(
+        Request $request,
+        TimestampRepository $timestampRepository,
+        StatisticValueRepository $statisticValueRepository,
+        PaginatorInterface $paginator,
+        string $id
+    ): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $statisticValues = $statisticValueRepository->findForResource($timestamp);
+
+        return $this->render('statistic_value/partials/_statistic-value-index.html.twig', [
+            'values' => $statisticValues
+        ]);
     }
 }

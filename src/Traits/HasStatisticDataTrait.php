@@ -8,7 +8,6 @@ use App\Api\ApiError;
 use App\Api\ApiFormError;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
-use App\Api\ApiStatisticValue;
 use App\Controller\StatisticController;
 use App\Entity\Statistic;
 use App\Entity\StatisticValue;
@@ -16,7 +15,7 @@ use App\Entity\TimeEntry;
 use App\Entity\Timestamp;
 use App\Entity\User;
 use App\Form\AddStatisticValueFormType;
-use App\Form\Model\AddStatisticValue;
+use App\Form\Model\AddStatisticValueModel;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
 use App\Util\TimeType;
@@ -40,14 +39,13 @@ trait HasStatisticDataTrait
         StatisticValueRepository $statisticValueRepository,
         User $assignedTo,
         Timestamp|TimeEntry $resource
-    )
-    {
+    ): StatisticValue {
         $timeType = TimeType::INSTANT;
         if ($resource instanceof TimeEntry) {
             $timeType = TimeType::INTERVAL;
         }
 
-        $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValue(), [
+        $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValueModel(), [
             'csrf_protection' => false,
             'timezone' => $assignedTo->getTimezone(),
         ]);
@@ -73,11 +71,11 @@ trait HasStatisticDataTrait
             throw new ApiProblemException($formError);
         }
 
-        /** @var AddStatisticValue $data */
+        /** @var AddStatisticValueModel $data */
         $data = $form->getData();
         $value = $data->getValue();
 
-        $statistic = $statisticRepository->findWithUserNameCanonical($assignedTo, $data->getCanonicalStatisticName());
+        $statistic = $statisticRepository->findWithUserNameCanonical($assignedTo, $data->getCanonicalStatisticName(), $timeType);
         if (is_null($statistic)) {
             $statistic = new Statistic($assignedTo, $data->getStatisticName(), $timeType);
             $this->persist($statistic);
@@ -99,9 +97,7 @@ trait HasStatisticDataTrait
 
         $this->persist($statisticValue, true);
 
-        $apiModel = ApiStatisticValue::fromEntity($statisticValue, $assignedTo);
-
-        return $this->jsonNoNulls($apiModel, Response::HTTP_CREATED);
+        return $statisticValue;
     }
 
     public function removeStatisticValueRequest(
