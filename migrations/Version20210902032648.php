@@ -33,13 +33,13 @@ final class Version20210902032648 extends AbstractMigration
     protected function upMysql(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
-
+        $this->addSql('ALTER TABLE task ADD template TINYINT(1) DEFAULT NULL');
     }
 
     protected function downMysql(Schema $schema) : void
     {
         // this down() migration is auto-generated, please modify it to your needs
-
+        $this->addSql('ALTER TABLE task DROP template');
     }
 
     public function upSqlite(Schema $schema): void
