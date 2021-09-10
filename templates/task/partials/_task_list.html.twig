@@ -2,8 +2,9 @@
     <div
         class="list-group-item selectable pointer-hover"
         role="option"
+        data-autocomplete-label="{{ task.name }}"
         data-autocomplete-object="{{ {id: task.idString, name:task.name}|json_encode|e('html_attr') }}"
-        data-autocomplete-value="{{ task.name }}">
+        data-autocomplete-value="{{ task.id }}">
         <span class="task-complete">
             <i class="far {% if task.completed %}fa-check-square{% else %}fa-square{% endif %}"></i>
         </span>

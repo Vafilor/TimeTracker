@@ -30,6 +30,11 @@ class FilterTaskFormType extends AbstractType
                 'required' => false,
                 'false_values' => [null, '0']
             ])
+            ->add('onlyTemplates', CheckboxType::class, [
+                'required' => false,
+                'false_values' => [null, '0'],
+                'label' => 'Only show templates'
+            ])
             ->add('content', SearchType::class, [
                 'required' => false
             ])

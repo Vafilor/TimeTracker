@@ -99,6 +99,19 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
             ;
         }
 
+        if ($filter->isOnlyTemplates()) {
+            $queryBuilder->andWhere('task.template = :truthy')
+                         ->setParameter('truthy', true)
+            ;
+        } else {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->orX(
+                    $queryBuilder->expr()->eq('task.template', ':falsey'),
+                    $queryBuilder->expr()->isNull('task.template')
+                )
+            )->setParameter('falsey', false);
+        }
+
         if ($filter->hasTags()) {
             $tags = $filter->getTagsArray();
             $queryBuilder = $queryBuilder->andWhere('tag.name IN (:tags)')

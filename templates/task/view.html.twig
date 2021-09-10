@@ -52,6 +52,10 @@
         {{ autocomplete.addTag('task') }}
     </div>
 
+    <div class="mt-3">
+        {{ form_row(form.template) }}
+    </div>
+
     {{ form_label(form.completedAt, null, {label_attr: {class: 'd-block mt-3'}}) }}
     <div {{ stimulus_controller('clear-value') }}
         class="d-inline-flex">

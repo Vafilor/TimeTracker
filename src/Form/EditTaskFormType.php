@@ -7,6 +7,7 @@ namespace App\Form;
 use App\Form\Model\AddTagModel;
 use App\Form\Model\EditTaskModel;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -34,6 +35,10 @@ class EditTaskFormType extends AbstractType
             ])
             ->add('parentTask', TextType::class, [
                 'required' => false
+            ])
+            ->add('template', CheckboxType::class, [
+                'required' => false,
+                'label' => 'Is Template'
             ])
         ;
     }

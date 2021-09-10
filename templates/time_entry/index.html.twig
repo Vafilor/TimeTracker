@@ -71,9 +71,46 @@
 
         {{ form_label(filterForm.taskId, null, {label_attr: {class: 'd-block'}}) }}
 
-        {{ autocomplete.list('task', { search: { value: task.name ?? '' } }) }}
+        <div class="row g-0">
+            <div
+                {{ stimulus_controller('app-autocomplete', {
+                    url: path('task_index_partial'),
+                    minLength: -1,
+                    queryName: 'content',
+                    type: 'task',
+                    params: { showCompleted: 1 }|json_encode
+                }) }}
+                class="autocomplete-2 position-relative col-md-4"
+            >
+                <label for="add-task-template" class="visually-hidden">Task template</label>
+                <input
+                        id="add-task-template"
+                        type="search"
+                        data-app-autocomplete-target="input"
+                        class="form-control"
+                        placeholder="task"
+                        value="{{ task.name ?? '' }}"
+                >
 
-        {{ form_widget(filterForm.taskId, {attr: {class: 'd-none js-real-task-input'}}) }}
+                <div class="d-none">
+                    {{ form_widget(filterForm.taskId, {attr: {'data-app-autocomplete-target': 'hidden'}}) }}
+                </div>
+
+                <ul
+                    class="list-group results w-100"
+                    data-app-autocomplete-target="results">
+                </ul>
+                <div
+                    class="loading"
+                    hidden
+                    data-app-autocomplete-target="loading">
+                    <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    Searching...
+                </div>
+            </div>
+        </div>
 
         <div class="d-block">
             <button type="submit" class="btn btn-primary mt-2">Search</button>

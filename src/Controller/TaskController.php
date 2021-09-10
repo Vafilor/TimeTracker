@@ -14,6 +14,7 @@ use App\Form\Model\FilterTaskModel;
 use App\Form\Model\EditTaskModel;
 use App\Form\EditTaskFormType;
 use App\Form\FilterTaskFormType;
+use App\Manager\TaskManager;
 use App\Repository\TaskRepository;
 use DateTime;
 use DateTimeZone;
@@ -38,7 +39,8 @@ class TaskController extends BaseController
         $this->taskRepository = $taskRepository;
     }
 
-    private function createIndexFilterForm(FormFactoryInterface $formFactory): FormInterface {
+    private function createIndexFilterForm(FormFactoryInterface $formFactory): FormInterface
+    {
         return $formFactory->createNamed(
             '',
             FilterTaskFormType::class,
@@ -93,7 +95,9 @@ class TaskController extends BaseController
             ],
         );
 
-        return $this->renderForm('task/index.html.twig', [
+        return $this->renderForm(
+            'task/index.html.twig',
+            [
                 'pagination' => $pagination,
                 'filterForm' => $filterForm,
                 'form' => $form
@@ -154,6 +158,7 @@ class TaskController extends BaseController
     public function create(
         Request $request,
         TaskRepository $taskRepository,
+        TaskManager $taskManager,
         PaginatorInterface $paginator,
         FormFactoryInterface $formFactory
     ): Response {
@@ -178,6 +183,16 @@ class TaskController extends BaseController
             if ($data->hasParentTask()) {
                 $parentTask = $taskRepository->findOrException($data->getParentTask());
                 $newTask->setParent($parentTask);
+            }
+
+            if ($data->hasTaskTemplate()) {
+                $taskTemplate = $taskRepository->findOrException($data->getTaskTemplate());
+                if (!$taskTemplate->isTemplate()) {
+                    $this->addFlash('danger', 'Task template is not set as a template');
+                    return $this->redirectToRoute('task_index');
+                }
+
+                $taskManager->applyTemplate($newTask, $taskTemplate);
             }
 
             $manager = $this->getDoctrine()->getManager();
@@ -236,6 +251,7 @@ class TaskController extends BaseController
             $task->setDescription($data->getDescription());
             $task->setCompletedAt($data->getCompletedAt());
             $task->setDueAt($data->getDueAt());
+            $task->setTemplate($data->isTemplate());
 
             $this->getDoctrine()->getManager()->flush();
 
@@ -331,7 +347,6 @@ class TaskController extends BaseController
         FormFactoryInterface $formFactory,
         PaginatorInterface $paginator
     ): Response {
-
         $form = $formFactory->createNamed(
             '',
             ExampleFormType::class,

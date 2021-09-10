@@ -39,11 +39,14 @@
             {{ form_errors(filterForm) }}
             <div class="d-flex flex-column flex-md-row">
                 {{ form_row(filterForm.showCompleted, { attr: { 'data-controller': 'false-checkbox' }}) }}
-                <div class="ms-md-4">
+                <div class="ms-md-3">
                     {{ form_row(filterForm.showSubtasks, { attr: { 'data-controller': 'false-checkbox' }}) }}
                 </div>
-                <div class="ms-md-4">
+                <div class="ms-md-3">
                     {{ form_row(filterForm.onlyShowPastDue, { attr: { 'data-controller': 'false-checkbox' }}) }}
+                </div>
+                <div class="ms-md-3">
+                    {{ form_row(filterForm.onlyTemplates, { attr: { 'data-controller': 'false-checkbox' }}) }}
                 </div>
             </div>
             {{ form_row(filterForm.content) }}
@@ -135,6 +138,46 @@
                         autocomplete: 'off'
                     }}
                 ) }}
+            </div>
+            <div class="col-3">
+                <div
+                    {{ stimulus_controller('app-autocomplete', {
+                            url: path('task_index_partial'),
+                            minLength: -1,
+                            queryName: 'content',
+                            type: 'task',
+                            params: { showCompleted: 1, onlyTemplates: 1 }|json_encode
+                        }) }}
+                        class="autocomplete-2 position-relative"
+                    >
+
+                    <label for="add-task-template" class="visually-hidden">Task template</label>
+                    <input
+                        id="add-task-template"
+                        type="search"
+                        data-app-autocomplete-target="input"
+                        class="form-control"
+                        placeholder="template"
+                    >
+
+                    <div class="d-none">
+                        {{ form_widget(form.taskTemplate, {attr: {'data-app-autocomplete-target': 'hidden'}}) }}
+                    </div>
+
+                    <ul
+                        class="list-group results w-100"
+                        data-app-autocomplete-target="results">
+                    </ul>
+                    <div
+                        class="loading"
+                        hidden
+                        data-app-autocomplete-target="loading">
+                        <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Searching...
+                    </div>
+                </div>
             </div>
             <div class="d-none">
                 {{ form_rest(form) }}

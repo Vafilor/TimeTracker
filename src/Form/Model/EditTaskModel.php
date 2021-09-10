@@ -14,6 +14,7 @@ class EditTaskModel
     private ?DateTime $completedAt;
     private ?DateTime $dueAt;
     private ?string $parentTask;
+    private bool $template;
 
     public static function fromEntity(Task $task): self
     {
@@ -22,6 +23,7 @@ class EditTaskModel
         $model->setDescription($task->getDescription());
         $model->setCompletedAt($task->getCompletedAt());
         $model->setDueAt($task->getDueAt());
+        $model->setTemplate($task->isTemplate());
 
         if ($task->hasParent()) {
             $model->setParentTask($task->getParent()->getIdString());
@@ -37,6 +39,7 @@ class EditTaskModel
         $this->completedAt = null;
         $this->parentTask = null;
         $this->dueAt = null;
+        $this->template = false;
     }
 
     public function getName(): string
@@ -100,6 +103,17 @@ class EditTaskModel
     public function setDueAt(?DateTime $dueAt): self
     {
         $this->dueAt = $dueAt;
+        return $this;
+    }
+
+    public function isTemplate(): bool
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(bool $template): self
+    {
+        $this->template = $template;
         return $this;
     }
 }
