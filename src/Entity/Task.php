@@ -63,7 +63,7 @@ class Task
     private ?DateTime $dueAt;
 
     /**
-     * @ORM\Column(type="boolean", nullable=true)
+     * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $template;
 
@@ -271,12 +271,12 @@ class Task
         return $lineage;
     }
 
-    public function isTemplate(): ?bool
+    public function isTemplate(): bool
     {
-        return is_null($this->template) ? false : $this->template;
+        return $this->template;
     }
 
-    public function setTemplate(?bool $template): self
+    public function setTemplate(bool $template): self
     {
         $this->template = $template;
 

@@ -21,7 +21,9 @@ final class Version20210902032648 extends AbstractMigration
     public function upPostgresql(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE task ADD template BOOLEAN DEFAULT NULL');
+        $this->addSql('ALTER TABLE task ADD template BOOLEAN');
+        $this->addSql('UPDATE task SET template = false');
+        $this->addSql('ALTER TABLE task ALTER COLUMN template SET NOT NULL');
     }
 
     public function downPostgresql(Schema $schema): void
@@ -33,7 +35,9 @@ final class Version20210902032648 extends AbstractMigration
     protected function upMysql(Schema $schema) : void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE task ADD template TINYINT(1) DEFAULT NULL');
+        $this->addSql('ALTER TABLE task ADD template TINYINT(1)');
+        $this->addSql('UPDATE task SET template = false');
+        $this->addSql('ALTER TABLE task CHANGE template template TINYINT(1) NOT NULL');
     }
 
     protected function downMysql(Schema $schema) : void
