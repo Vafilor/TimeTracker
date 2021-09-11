@@ -68,10 +68,11 @@ class TimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        if (!$this->isCsrfTokenValid('repeat_timestamp', $request->request->get('_token'))) {
-            $this->addFlash('danger', 'Invalid CSRF token');
-            throw new BadRequestHttpException('Invalid CSRF token');
-        }
+//        Temporarily commented out as it is really annoying to open webpage from phone and have request fail
+//        if (!$this->isCsrfTokenValid('repeat_timestamp', $request->request->get('_token'))) {
+//            $this->addFlash('danger', 'Invalid CSRF token');
+//            throw new BadRequestHttpException('Invalid CSRF token');
+//        }
 
         $timestampManager->repeat($timestamp);
         $this->getDoctrine()->getManager()->flush();
