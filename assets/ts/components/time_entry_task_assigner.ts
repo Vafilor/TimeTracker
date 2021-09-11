@@ -50,9 +50,9 @@ export class TimeEntryTaskAssigner extends TaskAssigner {
         this.autocomplete.setQuery(taskName);
 
         if (res.status === 201 && res.data.url) {
-            this.flashes.appendWithLink('success', `Created new task`, res.data.url, res.data.name);
+            this.flashes.appendWithLink('success', `Created new task`, res.data.url, res.data.name, true);
         } else if (res.status === 200 && res.data.url) {
-            this.flashes.appendWithLink('success', `Assigned to task`, res.data.url, res.data.name);
+            this.flashes.appendWithLink('success', `Assigned to task`, res.data.url, res.data.name, true);
         }
     }
 

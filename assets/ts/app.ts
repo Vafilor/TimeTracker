@@ -14,3 +14,9 @@ import '../styles/app.scss';
 
 // start the Stimulus application
 import '../bootstrap';
+
+document.addEventListener('turbo:before-cache', () => {
+    document.querySelectorAll('.alert').forEach(element => {
+        element.remove();
+    });
+});
