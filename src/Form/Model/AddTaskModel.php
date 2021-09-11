@@ -13,6 +13,7 @@ class AddTaskModel
     private ?string $description;
     private ?DateTime $dueAt;
     private ?string $parentTask;
+    private ?string $taskTemplate;
 
     public static function fromEntity(Task $task): self
     {
@@ -34,6 +35,7 @@ class AddTaskModel
         $this->description = '';
         $this->parentTask = null;
         $this->dueAt = null;
+        $this->taskTemplate = null;
     }
 
     public function getName(): string
@@ -86,6 +88,22 @@ class AddTaskModel
     public function setDueAt(?DateTime $dueAt): self
     {
         $this->dueAt = $dueAt;
+        return $this;
+    }
+
+    public function getTaskTemplate(): ?string
+    {
+        return $this->taskTemplate;
+    }
+
+    public function hasTaskTemplate(): bool
+    {
+        return !is_null($this->taskTemplate);
+    }
+
+    public function setTaskTemplate(?string $taskTemplate): self
+    {
+        $this->taskTemplate = $taskTemplate;
         return $this;
     }
 }

@@ -63,6 +63,11 @@ class Task
     private ?DateTime $dueAt;
 
     /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $template;
+
+    /**
      * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="task")
      * @var TimeEntry[]|Collection
      */
@@ -110,6 +115,7 @@ class Task
         $this->tagLinks = new ArrayCollection();
         $this->tasks = new ArrayCollection();
         $this->parent = null;
+        $this->template = false;
     }
 
     public function getName(): string
@@ -263,5 +269,17 @@ class Task
         }
 
         return $lineage;
+    }
+
+    public function isTemplate(): bool
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(bool $template): self
+    {
+        $this->template = $template;
+
+        return $this;
     }
 }

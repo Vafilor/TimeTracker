@@ -33,6 +33,9 @@ class AddTaskFormType extends AbstractType
             ->add('parentTask', TextType::class, [
                 'required' => false
             ])
+            ->add('taskTemplate', TextType::class, [
+                'required' => false
+            ])
         ;
     }
 

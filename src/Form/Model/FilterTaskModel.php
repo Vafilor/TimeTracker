@@ -12,6 +12,7 @@ class FilterTaskModel
     private ?string $parentTask;
     private bool $showSubtasks;
     private bool $onlyShowPastDue;
+    private bool $onlyTemplates;
 
     public function __construct()
     {
@@ -21,6 +22,7 @@ class FilterTaskModel
         $this->parentTask = null;
         $this->showSubtasks = false;
         $this->onlyShowPastDue = false;
+        $this->onlyTemplates = false;
     }
 
     public function getShowCompleted(): bool
@@ -124,6 +126,17 @@ class FilterTaskModel
     public function setOnlyShowPastDue(bool $onlyShowPastDue): self
     {
         $this->onlyShowPastDue = $onlyShowPastDue;
+        return $this;
+    }
+
+    public function isOnlyTemplates(): bool
+    {
+        return $this->onlyTemplates;
+    }
+
+    public function setOnlyTemplates(bool $onlyTemplates): self
+    {
+        $this->onlyTemplates = $onlyTemplates;
         return $this;
     }
 }
