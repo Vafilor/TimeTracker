@@ -1,0 +1,12 @@
+<div
+    {{ stimulus_controller('removable-tag', {
+    'name': tag.name,
+    'color': tag.color
+    }) }}
+    class="tag me-2"
+    style="background-color: {{ tag.color }}">
+    <span class="label">{{tag.name}}</span>
+    <span data-action="click->removable-tag#remove" class="remove js-tag-remove">
+        <i class="fas fa-times"></i>
+    </span>
+</div>

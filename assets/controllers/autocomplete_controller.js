@@ -191,7 +191,10 @@ export default class Autocomplete extends Controller {
 
         const textValue = this.extractTextValue(selected)
         const value = selected.getAttribute("data-autocomplete-value") || textValue
-        const object = selected.getAttribute('data-autocomplete-object')
+        let object = selected.getAttribute('data-autocomplete-object');
+        if (object) {
+            object = JSON.parse(object);
+        }
 
         this.inputTarget.value = textValue
 
@@ -213,7 +216,7 @@ export default class Autocomplete extends Controller {
                     type: this.typeValue,
                     value: value,
                     textValue: textValue,
-                    object: object
+                    object: object,
                 }
             })
         )

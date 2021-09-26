@@ -79,8 +79,9 @@
     {{ _self.end() }}
 {% endmacro %}
 
-{% macro addTag(resource) %}
+{% macro addTag(resource, id) %}
 <div
+    {% if id %}id="{{ id }}"{% endif %}
     {{ stimulus_controller({
         'autocomplete-tags': {
             url: path('tag_index_partial'),
