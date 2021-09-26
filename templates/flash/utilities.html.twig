@@ -7,7 +7,7 @@
 {% endmacro %}
 
 {% macro create(label, message ) %}
-    <div class="alert alert-{{ label }} alert-dismissible fade show flash" role="alert">
+    <div class="alert alert-{{ label }} alert-dismissible fade show flash" role="alert" data-turbo-cache="false">
         {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
         </button>
@@ -15,7 +15,7 @@
 {% endmacro %}
 
 {% macro deleted_warning(message) %}
-    <div class="alert alert-warning fade show flash" role="alert">
+    <div class="alert alert-warning fade show flash" role="alert" data-turbo-cache="false">
         <strong>Warning</strong>
         {{ message }}
     </div>

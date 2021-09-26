@@ -16,7 +16,11 @@ import '../styles/app.scss';
 import '../bootstrap';
 
 document.addEventListener('turbo:before-cache', () => {
-    document.querySelectorAll('.alert').forEach(element => {
-        element.remove();
+    document.querySelectorAll('[data-app-turbo-cache=show]').forEach(element => {
+        element.classList.remove('d-none');
+    });
+
+    document.querySelectorAll('[data-app-turbo-cache=hide]').forEach(element => {
+        element.classList.add('d-none');
     });
 });
