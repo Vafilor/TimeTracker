@@ -16,21 +16,13 @@ export default class extends Controller {
     }
 
     async assign(event) {
-        const { type, value, object } = event.detail;
+        const { type, value, textValue } = event.detail;
         if (type !== 'task') {
             return;
         }
 
-        let name = undefined;
-        let id = undefined;
-
-        if (object) {
-            const data = JSON.parse(object);
-            name = data.name;
-            id = data.id;
-        } else {
-            name = value;
-        }
+        const name = textValue;
+        const id = value;
 
         try {
             const response = await TaskApi.assignToResource(this.urlValue, name, id);
