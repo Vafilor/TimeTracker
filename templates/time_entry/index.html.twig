@@ -55,8 +55,13 @@
             <div
                 {{ stimulus_controller('tag-list') }}
                 class="tag-list tag-list-autocomplete"
-                data-tag-list-tags-csv-value="{{ app.request.query.get('tags') }}"
-                data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+                data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete removable-tag:remove->tag-list#removeTag">
+
+                {% if app.request.query.get('tags')|length != 0 %}
+                    {% for tagName in app.request.query.get('tags')|split(',') %}
+                        {{ include('tag/partials/_removable-tag.html.twig', { tag: { name: tagName, color: '#5d5d5d' }} ) }}
+                    {% endfor %}
+                {% endif %}
 
                 {{ form_widget(filterForm.tags, {
                     attr: {

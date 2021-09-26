@@ -96,13 +96,15 @@
 
     <div class="d-flex align-items-center mt-2">
         <div
-            {{ stimulus_controller('tag-list', {
+            {{ stimulus_controller('sync-tag-list', {
                 addUrl: path('json_time_entry_tag_create', {id: timeEntry.idString}),
                 removeUrl: path('json_time_entry_tag_delete', {id: timeEntry.idString, tagName: '{NAME}'})
             }) }}
             class="tag-list tag-list-autocomplete"
-            data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
-            data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+            data-action="autocomplete.change@window->sync-tag-list#requestAddFromAutocomplete removable-tag:remove->sync-tag-list#removeTag">
+            {% for tag in tags %}
+                {{ include('tag/partials/_removable-tag.html.twig', { tag: tag}) }}
+            {% endfor %}
         </div>
 
         {{ autocomplete.addTag('time-entry') }}
