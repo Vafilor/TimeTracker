@@ -40,13 +40,15 @@
     <label class="d-block form-label mt-3">Tags</label>
     <div class="mt-2 d-flex align-items-center">
         <div
-            {{ stimulus_controller('tag-list', {
+            {{ stimulus_controller('sync-tag-list', {
                 addUrl: path('json_task_tag_create', {id: task.idString}),
                 removeUrl: path('json_task_tag_delete', {id: task.idString, tagName: '{NAME}'})
             }) }}
             class="tag-list tag-list-autocomplete"
-            data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
-            data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+            data-action="autocomplete.change@window->sync-tag-list#requestAddFromAutocomplete removable-tag:remove->sync-tag-list#removeTag">
+            {% for tag in task.tags %}
+                {{ include('tag/partials/_removable-tag.html.twig', { tag: tag}) }}
+            {% endfor %}
         </div>
 
         {{ autocomplete.addTag('task') }}
