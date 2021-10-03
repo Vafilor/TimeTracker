@@ -109,6 +109,10 @@
                     Name - asc
                 {% elseif pagination.isSorted('task.name') and pagination.direction == 'desc' %}
                     Name - desc
+                {% elseif pagination.isSorted('task.completedAt') and pagination.direction == 'asc' %}
+                    Completed - oldest
+                {% elseif pagination.isSorted('task.completedAt') and pagination.direction == 'desc' %}
+                    Completed - latest
                 {% endif %}
             </button>
             <div class="dropdown-menu" aria-labelledby="task-sort">
@@ -117,6 +121,8 @@
                 {{ knp_pagination_sortable(pagination, 'Due soon', 'task.dueAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
                 {{ knp_pagination_sortable(pagination, 'Name - asc', 'task.name', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
                 {{ knp_pagination_sortable(pagination, 'Name - desc', 'task.name', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                {{ knp_pagination_sortable(pagination, 'Completed - oldest', 'task.completedAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                {{ knp_pagination_sortable(pagination, 'Completed - latest', 'task.completedAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
             </div>
         </div>
 

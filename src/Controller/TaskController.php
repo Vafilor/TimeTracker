@@ -76,6 +76,10 @@ class TaskController extends BaseController
             $queryBuilder = $this->taskRepository->applyNoSubtasks($queryBuilder);
         }
 
+        if ($request->query->get('sort', '') === 'task.completedAt') {
+            $queryBuilder = $this->taskRepository->applyCompleted($queryBuilder);
+        }
+
         $pagination = $this->populatePaginationData(
             $request,
             $paginator,

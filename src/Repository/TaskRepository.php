@@ -59,6 +59,11 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         return $queryBuilder->andWhere('task.completedAt IS NULL');
     }
 
+    public function applyCompleted(QueryBuilder $queryBuilder): QueryBuilder
+    {
+        return $queryBuilder->andWhere('task.completedAt IS NOT NULL');
+    }
+
     public function applyNoSubtasks(QueryBuilder $queryBuilder): QueryBuilder
     {
         return $queryBuilder->andWhere('task.parent IS NULL');
