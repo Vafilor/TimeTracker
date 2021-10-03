@@ -2,11 +2,11 @@ import { Controller } from 'stimulus';
 
 export default class extends Controller {
     addFlash(event) {
-        const { type, title, message, url, urlText } = event.detail;
-        this.add(type, title, message, url, urlText);
+        const { type, title, message, url, urlText, dismissTimeout } = event.detail;
+        this.add(type, title, message, url, urlText, dismissTimeout);
     }
 
-    add(type, title, message, url, urlText) {
+    add(type, title, message, url, urlText, dismissTimeout) {
         const ele = document.createElement('div');
         ele.classList.add('alert', `alert-${type}`, 'alert-dismissible', 'fade', 'show', 'flash');
         ele.setAttribute('role', 'alert');
@@ -34,5 +34,13 @@ export default class extends Controller {
         ele.appendChild(btn);
 
         this.element.appendChild(ele);
+
+        if (dismissTimeout) {
+            setTimeout(() => {
+                if(ele) {
+                    ele.remove();
+                }
+            }, dismissTimeout);
+        }
     }
 }
