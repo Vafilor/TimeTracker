@@ -1,6 +1,7 @@
 import { Controller } from 'stimulus';
 import { useDebounce, useDispatch } from 'stimulus-use';
 import { StatisticValueApi } from "../ts/core/api/statistic_value_api";
+import { useFlash } from "../use-flash/use-flash";
 
 export default class extends Controller {
     static debounces = ['updateApi'];
@@ -32,6 +33,7 @@ export default class extends Controller {
     connect() {
         useDispatch(this);
         useDebounce(this);
+        useFlash(this);
     }
 
     updateValue(event) {
@@ -45,14 +47,17 @@ export default class extends Controller {
         try {
             const res = await StatisticValueApi.update(this.updateUrlValue, this.valueValue);
         } catch (e) {
-            // TODO
+            this.flash({
+                type: 'danger',
+                message: e.response.data.detail
+            });
+        } finally {
+            this.setLoading(false);
         }
-
-        this.setLoading(false);
     }
 
     remove() {
-        this.removeApi();
+        return this.removeApi();
     }
 
     /**
@@ -80,20 +85,23 @@ export default class extends Controller {
         this.valueInputTarget.setAttribute('disabled', true);
 
         try {
-            const response = await StatisticValueApi.remove(this.deleteUrlValue);
+            await StatisticValueApi.remove(this.deleteUrlValue);
+            this.dispatch('remove', {
+                value: this.valueValue,
+                id: this.idValue,
+                element: this.element
+            });
         } catch (e) {
-            // TODO
+            this.flash({
+                type: 'danger',
+                message: e.response.data.detail,
+                dismissTimeout: 3000
+            });
+        } finally {
+            this.setLoading(false);
+            this.removeTarget.removeAttribute('disabled');
+            this.element.removeAttribute('disabled');
+            this.valueInputTarget.removeAttribute('disabled');
         }
-
-        this.dispatch('remove', {
-            value: this.valueValue,
-            id: this.idValue,
-            element: this.element
-        });
-
-        this.setLoading(false);
-        this.removeTarget.removeAttribute('disabled');
-        this.element.removeAttribute('disabled');
-        this.valueInputTarget.removeAttribute('disabled');
     }
 }

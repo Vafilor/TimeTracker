@@ -1,5 +1,3 @@
-import $ from "jquery";
-
 export interface SyncUploadEvent {
     content: string;
     success: boolean;

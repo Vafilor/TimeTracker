@@ -41,7 +41,7 @@ class ApiTimeEntry
         $apiTimeEntry->updatedAt = ApiDateTime::formatUserDate($timeEntry->getUpdatedAt(), $user, $format);
         $apiTimeEntry->updatedAtEpoch = $timeEntry->getUpdatedAt()->getTimestamp();
         $apiTimeEntry->description = $timeEntry->getDescription();
-        // TODO does this make another db call?
+
         if ($timeEntry->assignedToTask()) {
             $apiTimeEntry->taskId = $timeEntry->getTask()->getIdString();
         }

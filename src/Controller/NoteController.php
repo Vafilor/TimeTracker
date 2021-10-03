@@ -9,11 +9,9 @@ use App\Entity\Note;
 use App\Form\AddNoteFormType;
 use App\Form\EditNoteFormType;
 use App\Form\FilterNoteFormType;
-use App\Form\FilterTaskFormType;
 use App\Form\Model\AddNoteModel;
 use App\Form\Model\EditNoteModel;
 use App\Form\Model\FilterNoteModel;
-use App\Form\Model\FilterTaskModel;
 use App\Repository\NoteRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -24,7 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class NoteController extends BaseController
 {
-    private function createIndexFilterForm(FormFactoryInterface $formFactory): FormInterface {
+    private function createIndexFilterForm(FormFactoryInterface $formFactory): FormInterface
+    {
         return $formFactory->createNamed(
             '',
             FilterNoteFormType::class,

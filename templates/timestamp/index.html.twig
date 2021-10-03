@@ -1,6 +1,7 @@
 {% extends 'sidebar.html.twig' %}
 {% import 'time/partials.html.twig' as time %}
 {% import 'tag/partials.html.twig' as tags %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
 
 {% block content_class %}w-100{% endblock %}
 
@@ -49,9 +50,52 @@
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
-        <div>
-            <a href="{{ path('timestamp_create') }}" class="btn btn-primary">Create</a>
-        </div>
+        <div class="inline-form-header mb-2">Add Timestamp</div>
+        {{ form_start(form, {
+            attr: {
+                class: 'row g-2',
+                'data-controller': "load-form",
+                'data-action': "submit->load-form#start",
+            }
+        }) }}
+            <div class="col">
+                <div
+                    {{ stimulus_controller({
+                        'tag-list': {},
+                        'focus-redirect': {
+                            targetId: 'timestamp-tag-search'
+                        }
+                    }) }}
+                    class="tag-list tag-list-autocomplete border rounded h-100 bg-weak-white d-flex align-items-center"
+                    data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete removable-tag:remove->tag-list#removeTag">
+                    <span class="ps-2 pe-2 text-placeholder">Tags</span>
+                    {{ form_widget(form.tagIds, {
+                        attr: {
+                            class: 'd-none',
+                            'data-tag-list-target': 'hidden'
+                        }})
+                    }}
+                </div>
+            </div>
+            <div class="col-auto">
+                {{ autocomplete.addTag('timestamp') }}
+            </div>
+            <div class="col-auto">
+                <button
+                        type="submit"
+                        class="btn btn-primary"
+                        data-load-form-target="button">
+                        <span
+                                class="spinner-border spinner-border-sm d-none"
+                                data-load-form-target="loading"
+                                role="status"
+                                aria-hidden="true">
+                        </span>
+                    Create
+                </button>
+            </div>
+        {{ form_rest(form) }}
+        {{ form_end(form) }}
 
         <div class="card-list js-timestamp-list mt-2 mb-2">
             {% for timestamp in pagination.items %}

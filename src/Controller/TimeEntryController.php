@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Api\ApiTag;
 use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Entity\TimeEntry;
@@ -16,8 +15,6 @@ use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
-use DateTime;
-use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -179,12 +176,9 @@ class TimeEntryController extends BaseController
             $this->getDoctrine()->getManager()->flush();
         }
 
-        $apiTags = ApiTag::fromEntities($timeEntry->getTags());
-
         return $this->render('time_entry/view.html.twig', [
             'timeEntry' => $timeEntry,
             'form' => $form->createView(),
-            'tags' => $apiTags
         ]);
     }
 

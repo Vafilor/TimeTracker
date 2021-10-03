@@ -102,7 +102,7 @@
             }) }}
             class="tag-list tag-list-autocomplete"
             data-action="autocomplete.change@window->sync-tag-list#requestAddFromAutocomplete removable-tag:remove->sync-tag-list#removeTag">
-            {% for tag in tags %}
+            {% for tag in timeEntry.tags %}
                 {{ include('tag/partials/_removable-tag.html.twig', { tag: tag}) }}
             {% endfor %}
         </div>

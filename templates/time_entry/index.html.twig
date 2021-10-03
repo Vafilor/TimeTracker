@@ -57,7 +57,7 @@
                 class="tag-list tag-list-autocomplete"
                 data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete removable-tag:remove->tag-list#removeTag">
 
-                {% if app.request.query.get('tags')|length != 0 %}
+                {% if app.request.query.get('tags') %}
                     {% for tagName in app.request.query.get('tags')|split(',') %}
                         {{ include('tag/partials/_removable-tag.html.twig', { tag: { name: tagName, color: '#5d5d5d' }} ) }}
                     {% endfor %}

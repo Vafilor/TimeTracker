@@ -13,6 +13,5 @@
 {% endfor %}
 
 {% if pagination.count < pagination.totalItemCount %}
-{#     TODO huh - no more results?#}
-    <li class="list-group-item no-more-results" role="option" aria-disabled="true">{{ pagination.totalItemCount - pagination.count }} more results</li>
+    <li class="list-group-item more-results" role="option" aria-disabled="true">{{ pagination.totalItemCount - pagination.count }} more results</li>
 {% endif %}

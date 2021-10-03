@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Api\ApiTag;
+use App\Entity\TagLink;
 use App\Entity\Timestamp;
+use App\Form\AddTimestampFormType;
+use App\Form\Model\AddTimestampModel;
 use App\Form\Model\EditTimestampModel;
 use App\Form\EditTimestampFormType;
+use App\Manager\TagManager;
 use App\Manager\TimestampManager;
 use App\Repository\StatisticValueRepository;
 use App\Repository\TimestampRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,22 +42,62 @@ class TimestampController extends BaseController
             'direction' => 'desc'
         ]);
 
-        return $this->render('timestamp/index.html.twig', [
-            'pagination' => $pagination
+        $form = $this->createForm(AddTimestampFormType::class, new AddTimestampModel(), [
+            'action' => $this->generateUrl('timestamp_create')
+        ]);
+
+        return $this->renderForm('timestamp/index.html.twig', [
+            'pagination' => $pagination,
+            'form' => $form
         ]);
     }
 
     #[Route('/timestamp/create', name: 'timestamp_create')]
-    public function create(Request $request): Response
+    public function create(
+        Request $request,
+        EntityManagerInterface $manager,
+        TagManager $tagManager,
+        TimestampRepository $timestampRepository,
+        PaginatorInterface $paginator): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $timestamp = new Timestamp($this->getUser());
+        $form = $this->createForm(AddTimestampFormType::class, new AddTimestampModel(), [
+            'action' => $this->generateUrl('timestamp_create')
+        ]);
 
-        $this->getDoctrine()->getManager()->persist($timestamp);
-        $this->getDoctrine()->getManager()->flush();
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var AddTimestampModel $data */
+            $data = $form->getData();
+            $timestamp = new Timestamp($this->getUser());
+            $manager->persist($timestamp);
 
-        return $this->redirectToRoute('timestamp_view', ['id' => $timestamp->getIdString()]);
+            $tagNames = $tagManager->parseFromString($data->getTagIds());
+            $tagObjects = $tagManager->findOrCreateByNames($tagNames, $this->getUser());
+            foreach ($tagObjects as $tag) {
+                $tagLink = new TagLink($timestamp, $tag);
+                $timestamp->addTagLink($tagLink);
+                $manager->persist($tagLink);
+            }
+
+            $manager->flush();
+
+            return $this->redirectToRoute('timestamp_index');
+        }
+
+        $queryBuilder = $timestampRepository->findByUserQueryBuilder($this->getUser());
+        $queryBuilder = $timestampRepository->preloadTags($queryBuilder);
+
+        $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
+            'sort' => 'timestamp.createdAt',
+            'direction' => 'desc'
+        ]);
+
+        return $this->renderForm('timestamp/index.html.twig', [
+            'pagination' => $pagination,
+            'form' => $form
+        ]);
     }
 
     #[Route('/timestamp/{id}/repeat', name: 'timestamp_repeat', methods: ["POST"])]
