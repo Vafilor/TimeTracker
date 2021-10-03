@@ -203,25 +203,6 @@
             </div>
         {{ form_end(form) }}
 
-{#        <form class="js-task-create row g-2">#}
-{#            <div class="col">#}
-{#                <input#}
-{#                        id="create-task-name"#}
-{#                        type="text"#}
-{#                        class="form-control js-name"#}
-{#                        autocomplete="off"#}
-{#                        placeholder="What do you want to achieve?"#}
-{#                />#}
-{#            </div>#}
-{#            <div class="col-auto">#}
-{#                <button type="button" class="btn btn-primary js-button js-loading-button">#}
-{#                    <span class="js-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>#}
-{#                    <span class="js-loading visually-hidden">Loading...</span>#}
-{#                    <span class="js-text">Create task</span>#}
-{#                </button>#}
-{#            </div>#}
-{#        </form>#}
-
         <div class="stack-list task-list js-task-list mt-2 mb-2">
             {% for task in pagination %}
                 {{ include('task/partials/_task.html.twig', {task: task }) }}
