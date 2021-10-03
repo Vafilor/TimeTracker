@@ -158,7 +158,6 @@ class NoteController extends BaseController
             [
                 'note' => $note,
                 'form' => $form->createView(),
-                'tags' => ApiTag::fromEntities($note->getTags()),
             ]
         );
     }
