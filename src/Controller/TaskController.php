@@ -262,14 +262,11 @@ class TaskController extends BaseController
             $this->addFlash('success', 'Task successfully updated');
         }
 
-        $apiTags = ApiTag::fromEntities($task->getTags());
-
         return $this->render(
             'task/view.html.twig',
             [
                 'task' => $task,
                 'form' => $form->createView(),
-                'tags' => $apiTags,
                 'subtasks' => $task->getSubtasks()
             ]
         );
