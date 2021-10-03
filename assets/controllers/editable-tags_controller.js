@@ -2,7 +2,12 @@ import { Controller } from 'stimulus';
 import { createRemovableTag, createTag } from "../ts/components/tags";
 
 export default class extends Controller {
-    static targets = ['viewTags', 'editButton', 'stopEditButton', 'autocomplete', 'editableTagList'];
+    static targets = [
+        'editableTagList',
+        'editContainer',
+        'editButton',
+        'viewContainer'
+    ];
 
     #editing = false;
 
@@ -21,11 +26,8 @@ export default class extends Controller {
             this.editableTagListTarget.appendChild(newTagElement);
         }
 
-        this.viewTagsTarget.classList.add('d-none');
-        this.editableTagListTarget.classList.remove('d-none');
-        this.autocompleteTarget.classList.remove('d-none');
-        this.editButtonTarget.classList.add('d-none');
-        this.stopEditButtonTarget.classList.remove('d-none');
+        this.viewContainerTarget.classList.add('d-none');
+        this.editContainerTarget.classList.remove('d-none');
     }
 
     stopEditing() {
@@ -33,20 +35,33 @@ export default class extends Controller {
             return;
         }
 
+
         const tags = this.#getTags();
         this.#editing = false;
 
-        this.editableTagListTarget.classList.add('d-none');
-        this.autocompleteTarget.classList.add('d-none');
-
-        this.viewTagsTarget.innerHTML = '';
-        for(const tag of tags) {
-            this.viewTagsTarget.appendChild(createTag(tag.name, tag.color));
+        // Remove all existing tags
+        for (const existingTagElement of this.viewContainerTarget.querySelectorAll('.tag')) {
+            existingTagElement.remove();
+        }
+        // Remove the no-tags element, if it exists.
+        const noTagsElement = this.viewContainerTarget.querySelector('[data-type=no-data]');
+        if (noTagsElement) {
+            noTagsElement.remove();
         }
 
-        this.editButtonTarget.classList.remove('d-none');
-        this.stopEditButtonTarget.classList.add('d-none');
-        this.viewTagsTarget.classList.remove('d-none');
+        for(const tag of tags) {
+            this.viewContainerTarget.insertBefore(createTag(tag.name, tag.color), this.editButtonTarget);
+        }
+
+        if (tags.length === 0) {
+            const noTagsElement = document.createElement('span');
+            noTagsElement.textContent = 'No tags';
+            noTagsElement.dataset.type = 'no-data';
+            this.viewContainerTarget.insertBefore(noTagsElement, this.editButtonTarget);
+        }
+
+        this.viewContainerTarget.classList.remove('d-none');
+        this.editContainerTarget.classList.add('d-none');
     }
 
     /**
@@ -65,7 +80,7 @@ export default class extends Controller {
                 });
             }
         } else {
-            for (const tagView of this.viewTagsTarget.querySelectorAll('[data-name]')) {
+            for (const tagView of this.viewContainerTarget.querySelectorAll('[data-name]')) {
                 tags.push({
                     name: tagView.dataset.name,
                     color: tagView.dataset.color

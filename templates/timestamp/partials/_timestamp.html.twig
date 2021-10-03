@@ -6,16 +6,18 @@
     class="card-list-item js-timestamp"
     data-id="{{ timestamp.idString }}"
 >
-    <div
-        {{ stimulus_controller('editable-tags') }}
-        class="tag-list many-rows mt-1">
-        <div>
-            <div data-editable-tags-target="viewTags" data-app-turbo-cache="show" class="d-inline-block">
+    <div {{ stimulus_controller('editable-tags') }}>
+        <div
+            data-editable-tags-target="viewContainer"
+            class="d-inline-flex flex-wrap align-items-baseline tag-list many-rows"
+            data-app-turbo-cache="show">
+            {% apply spaceless %}
                 {% for tag in timestamp.tags %}
                     {{ tags.view(tag.name, tag.color) }}
+                {% else %}
+                    <span data-type="no-data">No tags</span>
                 {% endfor %}
-            </div>
-            <button
+                <button
                     {{ stimulus_controller('bootstrap-tooltip') }}
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
@@ -25,34 +27,33 @@
                     data-app-turbo-cache="show"
                     class="btn">
                 <i class="fas fa-pencil-alt"></i>
-            </button>
+                </button>
+            {% endapply %}
         </div>
-        <div>
+        <div class="d-none" data-editable-tags-target="editContainer">
             <div
                 {{ stimulus_controller('sync-tag-list', {
                     addUrl: path('json_timestamp_tag_create', {id: timestamp.idString}),
                     removeUrl: path('json_timestamp_tag_delete', {id: timestamp.idString, tagName: '{NAME}'}),
                     autocompleteId: timestamp.idString
                 }) }}
-                class="tag-list tag-list-autocomplete d-inline-block d-none"
+                class="tag-list many-rows tag-list-autocomplete"
                 data-editable-tags-target="editableTagList"
                 data-action="removable-tag:remove->sync-tag-list#removeTag"
                 data-app-turbo-cache="hide">
             </div>
-            <div class="d-inline-block d-none" data-editable-tags-target="autocomplete" data-app-turbo-cache="hide">
+            <div data-app-turbo-cache="hide">
                 {{ autocomplete.addTag('timestamp_' ~ timestamp.idString, timestamp.idString) }}
+                <button
+                        {{ stimulus_controller('bootstrap-tooltip') }}
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Done Editing"
+                        data-action="editable-tags#stopEditing"
+                        class="btn text-primary">
+                    <i class="fas fa-check"></i>
+                </button>
             </div>
-            <button
-                    {{ stimulus_controller('bootstrap-tooltip') }}
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="Done Editing"
-                    data-editable-tags-target="stopEditButton"
-                    data-action="editable-tags#stopEditing"
-                    class="btn text-primary d-none"
-                    data-app-turbo-cache="hide">
-                <i class="fas fa-check"></i>
-            </button>
         </div>
     </div>
     <div class="mt-2">

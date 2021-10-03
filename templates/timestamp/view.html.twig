@@ -20,19 +20,20 @@
         </nav>
 
         <label class="d-block form-label mt-3">Tags</label>
-        <div class="mt-2 d-flex align-items-center">
+        <div class="mt-2 d-flex flex-wrap align-items-center">
             <div
-                {{ stimulus_controller('tag-list', {
+                {{ stimulus_controller('sync-tag-list', {
                     addUrl: path('json_timestamp_tag_create', {id: timestamp.idString}),
                     removeUrl: path('json_timestamp_tag_delete', {id: timestamp.idString, tagName: '{NAME}'})
                 }) }}
                 class="tag-list tag-list-autocomplete"
-                data-tag-list-tags-value="{{ tags|json_encode|e('html_attr') }}"
-                data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete tag:add@window->tag-list#add tag:remove@window->tag-list#remove">
+                data-action="autocomplete.change@window->sync-tag-list#requestAddFromAutocomplete removable-tag:remove->sync-tag-list#removeTag">
+                {% for tag in tags %}
+                    {{ include('tag/partials/_removable-tag.html.twig', { tag: tag}) }}
+                {% endfor %}
             </div>
-
-            {{ autocomplete.addTag('timestamp') }}
         </div>
+        {{ autocomplete.addTag('timestamp') }}
 
         {{ form_start(form) }}
         {{ form_row(form.createdAt, {attr: {class: 'unset-width'}})}}
@@ -45,13 +46,13 @@
             class="d-flex mt-2 js-add-statistic add-statistic">
 
             <div
-                    {{ stimulus_controller({
-                        'autocomplete': {
-                            url: path('partial_statistic_index', { timeType: 'instant' }),
-                            minLength: -1,
-                        },
-                    }) }}
-                    class="autocomplete-2 position-relative"
+                {{ stimulus_controller({
+                    'autocomplete': {
+                        url: path('partial_statistic_index', { timeType: 'instant' }),
+                        minLength: -1,
+                    },
+                }) }}
+                class="autocomplete-2 position-relative"
             >
                 <label for="timestamp-statistic-search" class="visually-hidden">Search statistics</label>
                 <input
