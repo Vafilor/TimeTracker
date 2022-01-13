@@ -20,7 +20,8 @@
         </nav>
 
         <label class="d-block form-label mt-3">Tags</label>
-        <div class="mt-2 d-flex flex-wrap align-items-center">
+
+        <div class="d-flex flex-wrap align-items-center mt-2">
             <div
                 {{ stimulus_controller('sync-tag-list', {
                     addUrl: path('json_timestamp_tag_create', {id: timestamp.idString}),
@@ -32,8 +33,8 @@
                     {{ include('tag/partials/_removable-tag.html.twig', { tag: tag}) }}
                 {% endfor %}
             </div>
+            {{ autocomplete.addTag('timestamp') }}
         </div>
-        {{ autocomplete.addTag('timestamp') }}
 
         {{ form_start(form) }}
         {{ form_row(form.createdAt, {attr: {class: 'unset-width'}})}}

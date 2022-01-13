@@ -61,13 +61,15 @@
             <div class="col">
                 <div
                     {{ stimulus_controller({
-                        'tag-list': {},
+                        'tag-list': {
+                            autocompleteId: 'timestamp_tag_index'
+                        },
                         'focus-redirect': {
                             targetId: 'timestamp-tag-search'
                         }
                     }) }}
                     class="tag-list tag-list-autocomplete border rounded h-100 bg-weak-white d-flex align-items-center"
-                    data-action="autocomplete.change@window->tag-list#requestAddFromAutocomplete removable-tag:remove->tag-list#removeTag">
+                    data-action="removable-tag:remove->tag-list#removeTag">
                     <span class="ps-2 pe-2 text-placeholder">Tags</span>
                     {{ form_widget(form.tagIds, {
                         attr: {
@@ -78,7 +80,7 @@
                 </div>
             </div>
             <div class="col-auto">
-                {{ autocomplete.addTag('timestamp') }}
+                {{ autocomplete.addTag('timestamp', 'timestamp_tag_index') }}
             </div>
             <div class="col-auto">
                 <button

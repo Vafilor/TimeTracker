@@ -7,6 +7,7 @@ namespace App\Twig;
 use DateInterval;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class AppExtension extends AbstractExtension implements ServiceSubscriberInterface
@@ -17,7 +18,9 @@ class AppExtension extends AbstractExtension implements ServiceSubscriberInterfa
 
     public function getFilters()
     {
-        return [];
+        return [
+            new TwigFilter('keyList', [RequestRuntime::class, 'keyList']),
+        ];
     }
 
     public function getFunctions()

@@ -4,29 +4,34 @@
     </button>
     <div class="text-light d-md-block d-sm-none"></div>
     <ul class="nav nav-pills">
+
+
+
         {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
             <li class="nav-item dropdown">
-                <div class="profile-button">
-                    <a class="text-light nav-link" id="user-profile" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-user-circle"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userProfile">
-                        <div>
-                            <div class="profile-picture-container d-inline-block">
-                                <img class="profile-picture" src="{{ app.user.gravatarUrl(80) }}" alt="User profile picture">
-                            </div>
-                            <div class="user-information d-inline-block">
-                                <h5>{{ app.user.username }}</h5>
-                                <h6>{{ app.user.email }}</h6>
-                            </div>
+                <button type="button" class="text-light nav-link dropdown-toggle" id="user-profile" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="userProfile">
+                    <div class="ps-1 pe-1">
+                        <div class="profile-picture-container d-inline-block">
+                            <img class="profile-picture" src="{{ app.user.gravatarUrl(80) }}" alt="User profile picture" />
                         </div>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ path('user_view', {id: app.user.idString}) }}">Settings</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{ path('app_logout') }}">
-                            Logout
-                        </a>
+                        <div class="user-information d-inline-block">
+                            <h5>{{ app.user.username }}</h5>
+                            <h6>{{ app.user.email }}</h6>
+                        </div>
                     </div>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item"
+                       href="{{ path('user_view', {id: app.user.idString}) }}">
+                        Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item"
+                       href="{{ path('app_logout') }}">
+                        Logout
+                    </a>
                 </div>
             </li>
         {% endif %}

@@ -308,7 +308,7 @@ class TaskController extends BaseController
 
         $this->flush();
 
-        return $this->redirectToRoute('task_view', ['id' => $task->getIdString()]);
+        return $this->redirectToRoute('task_index');
     }
 
     #[Route('/task/{id}/delete', name: 'task_delete')]

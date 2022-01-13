@@ -3,6 +3,25 @@ import { createRemovableTag } from "../ts/components/tags";
 
 export default class extends Controller {
     static targets = ['hidden'];
+    static values = {
+        autocompleteId: String
+    }
+
+    connect() {
+        if (this.hasAutocompleteIdValue) {
+            this.requestAddFromAutocomplete = this.requestAddFromAutocomplete.bind(this);
+            document.getElementById(this.autocompleteIdValue).addEventListener('autocomplete.change', this.requestAddFromAutocomplete);
+        }
+    }
+
+    disconnect() {
+        if (this.hasAutocompleteIdValue) {
+            const element = document.getElementById(this.autocompleteIdValue);
+            if (element) {
+                element.removeEventListener('autocomplete.change', this.requestAddFromAutocomplete);
+            }
+        }
+    }
 
     #updateHiddenElement() {
         const tags = this.element.querySelectorAll(`[data-controller="removable-tag"]`);

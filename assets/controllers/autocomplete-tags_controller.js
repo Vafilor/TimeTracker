@@ -1,6 +1,8 @@
 import AppAutocomplete from "./app-autocomplete_controller";
 
 export default class extends AppAutocomplete {
+    // TODO just use one - what's the advantage of using the array vs csv?
+    // If you can't pass in array, use it as a private varaible, not as a pass-in-able value
     static values = {
         excludeTagsCsv: String,
         excludeTags: Array
