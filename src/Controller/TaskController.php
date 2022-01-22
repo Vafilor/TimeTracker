@@ -308,6 +308,8 @@ class TaskController extends BaseController
 
         $this->flush();
 
+        $this->addFlash('success', "Completed '{$task->getName()}'");
+
         return $this->redirectToRoute('task_index');
     }
 
