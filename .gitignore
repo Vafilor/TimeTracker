@@ -40,3 +40,7 @@ yarn-error.log
 ###> application
 /src/Command/export
 ###< application
+
+###> Mac
+.DS_Store
+###< Mac
