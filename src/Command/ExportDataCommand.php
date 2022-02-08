@@ -29,12 +29,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(
+    name: 'app:data:export',
+    description: 'Export the data in the database to several files',
+)]
 class ExportDataCommand extends Command
 {
-    protected static $defaultName = 'app:data:export';
-    protected static $defaultDescription = 'Export the data in the database to several files';
-
     private Serializer $serializer;
     private TagRepository $tagRepository;
     private UserRepository $userRepository;
@@ -46,7 +48,6 @@ class ExportDataCommand extends Command
     private NoteRepository $noteRepository;
 
     public function __construct(
-        string $name = null,
         SerializerInterface $serializer,
         TagRepository $tagRepository,
         UserRepository $userRepository,
@@ -57,7 +58,6 @@ class ExportDataCommand extends Command
         StatisticValueRepository $statisticValueRepository,
         NoteRepository $noteRepository
     ) {
-        parent::__construct($name);
         $this->serializer = $serializer;
         $this->tagRepository = $tagRepository;
         $this->userRepository = $userRepository;
@@ -67,6 +67,8 @@ class ExportDataCommand extends Command
         $this->statisticRepository = $statisticRepository;
         $this->statisticValueRepository = $statisticValueRepository;
         $this->noteRepository = $noteRepository;
+
+        parent::__construct();
     }
 
     protected function configure(): void

@@ -9,19 +9,21 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(
+    name: 'app:user:create',
+    description: 'Creates a user',
+)]
 class CreateUserCommand extends Command
 {
-    protected static $defaultName = 'app:user:create';
-    protected static $defaultDescription = 'Creates a user';
-
     private UserManager $userManager;
 
-    public function __construct(string $name = null, UserManager $userManager)
+    public function __construct(UserManager $userManager)
     {
         $this->userManager = $userManager;
 
-        parent::__construct($name);
+        parent::__construct();
     }
 
     protected function configure()

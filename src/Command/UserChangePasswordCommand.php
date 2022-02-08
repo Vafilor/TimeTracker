@@ -10,19 +10,22 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(
+    name: 'app:user:change-password',
+    description: "Changes a user's password",
+)]
 class UserChangePasswordCommand extends Command
 {
-    protected static $defaultName = 'app:user:change-password';
-    protected static $defaultDescription = "Changes a user's password";
 
     private UserManager $userManager;
 
-    public function __construct(string $name = null, UserManager $userManager)
+    public function __construct(UserManager $userManager)
     {
         $this->userManager = $userManager;
 
-        parent::__construct($name);
+        parent::__construct();
     }
 
     /**
