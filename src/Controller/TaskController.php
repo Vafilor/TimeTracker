@@ -343,28 +343,4 @@ class TaskController extends BaseController
 
         return $this->redirectToRoute('task_index');
     }
-
-    #[Route('/example', name: 'example', methods: ["GET"])]
-    public function example(
-        Request $request,
-        FormFactoryInterface $formFactory,
-        PaginatorInterface $paginator
-    ): Response {
-        $form = $formFactory->createNamed(
-            '',
-            ExampleFormType::class,
-            new FilterTaskModel(),
-            [
-                'method' => 'GET',
-                'csrf_protection' => false,
-                'allow_extra_fields' => true,
-            ]
-        );
-
-        $form->handleRequest($request);
-
-        return $this->renderForm('example/index.html.twig', [
-            'form' => $form
-        ]);
-    }
 }
