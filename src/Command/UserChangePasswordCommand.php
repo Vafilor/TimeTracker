@@ -34,7 +34,6 @@ class UserChangePasswordCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
             ->addArgument('username', InputArgument::REQUIRED, 'The username of the user who you want to change the password for')
             ->addArgument('password', InputArgument::REQUIRED, 'The new password')
         ;

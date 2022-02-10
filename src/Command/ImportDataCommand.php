@@ -91,7 +91,6 @@ class ImportDataCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
             ->addArgument('path', InputArgument::OPTIONAL, 'Path to the input files.')
         ;
     }

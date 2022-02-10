@@ -74,7 +74,6 @@ class ExportDataCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
             ->addArgument('path', InputArgument::OPTIONAL, 'Path to output the files to. Files will be saved in a folder')
         ;
     }
