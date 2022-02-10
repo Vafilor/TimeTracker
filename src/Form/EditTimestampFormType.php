@@ -21,7 +21,9 @@ class EditTimestampFormType extends AbstractType
                 'with_seconds' => true,
                 'view_timezone' => $options['timezone']
             ])
-            ->add('description', TextAreaType::class)
+            ->add('description', TextAreaType::class, [
+                'required' => false
+            ])
         ;
     }
 

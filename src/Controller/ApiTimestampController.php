@@ -162,9 +162,8 @@ class ApiTimestampController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var EditTimestampModel $data */
             $data = $form->getData();
-            if ($data->hasDescription()) {
-                $timestamp->setDescription($data->getDescription());
-            }
+
+            $timestamp->setDescription($data->getDescription());
 
             $this->flush();
         } elseif (!$form->isValid()) {

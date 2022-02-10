@@ -41,8 +41,12 @@ class EditTimestampModel
         return null !== $this->description;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
+        if (null === $this->description) {
+            return '';
+        }
+        
         return $this->description;
     }
 
