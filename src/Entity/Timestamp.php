@@ -25,6 +25,14 @@ class Timestamp
     use AssignableToUserTrait;
 
     /**
+     * Any content you wish to add to a timestamp,
+     * like "server reports out of memory error this time"
+     *
+     * @ORM\Column(type="text")
+     */
+    private string $description;
+
+    /**
      * @ORM\ManyToOne(targetEntity=User::class)
      * @ORM\JoinColumn(nullable=false)
      * @var User
@@ -48,6 +56,7 @@ class Timestamp
         $this->id = Uuid::uuid4();
         $this->markCreated();
         $this->assignTo($assignedTo);
+        $this->description = '';
         $this->tagLinks = new ArrayCollection();
         $this->statisticValues = new ArrayCollection();
     }
@@ -73,5 +82,16 @@ class Timestamp
     public function getStatisticValues(): Collection|array
     {
         return $this->statisticValues;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
     }
 }

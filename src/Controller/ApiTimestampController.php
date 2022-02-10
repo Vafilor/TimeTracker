@@ -4,20 +4,30 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Api\ApiFormError;
 use App\Api\ApiPagination;
+use App\Api\ApiProblem;
+use App\Api\ApiProblemException;
 use App\Api\ApiStatisticValue;
+use App\Api\ApiTimeEntry;
 use App\Api\ApiTimestamp;
 use App\Entity\TagLink;
 use App\Entity\Timestamp;
+use App\Form\EditTimeEntryFormType;
+use App\Form\EditTimestampFormType;
+use App\Form\Model\EditTimeEntryModel;
+use App\Form\Model\EditTimestampModel;
 use App\Manager\TagManager;
 use App\Manager\TimestampManager;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
+use App\Repository\TimeEntryRepository;
 use App\Repository\TimestampRepository;
 use App\Traits\HasStatisticDataTrait;
 use App\Traits\TaggableController;
+use InvalidArgumentException;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -115,6 +125,51 @@ class ApiTimestampController extends BaseController
 
         if (!$timestamp->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
+        }
+
+        $apiTimestamp = ApiTimestamp::fromEntity($this->dateTimeFormatter, $timestamp, $this->getUser(), $this->now());
+
+        return $this->jsonNoNulls($apiTimestamp);
+    }
+
+    #[Route('/api/timestamp/{id}', name: 'api_timestamp_edit', methods: ["PUT"])]
+    #[Route('/json/timestamp/{id}', name: 'json_timestamp_update', methods: ['PUT'])]
+    public function edit(
+        Request $request,
+        TimestampRepository $timestampRepository,
+        string $id
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $timestamp = $timestampRepository->findOrException($id);
+        if (!$timestamp->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $form = $this->createForm(EditTimestampFormType::class, EditTimestampModel::fromEntity($timestamp), [
+            'timezone' => $this->getUser()->getTimezone(),
+            'csrf_protection' => false,
+        ]);
+
+        $data = $this->getJsonBody($request);
+
+        try {
+            $form->submit($data);
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var EditTimestampModel $data */
+            $data = $form->getData();
+            if ($data->hasDescription()) {
+                $timestamp->setDescription($data->getDescription());
+            }
+
+            $this->flush();
+        } elseif (!$form->isValid()) {
+            $formError = new ApiFormError($form->getErrors(true));
+            throw new ApiProblemException($formError);
         }
 
         $apiTimestamp = ApiTimestamp::fromEntity($this->dateTimeFormatter, $timestamp, $this->getUser(), $this->now());

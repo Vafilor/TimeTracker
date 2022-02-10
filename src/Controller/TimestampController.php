@@ -158,10 +158,13 @@ class TimestampController extends BaseController
             $data = $form->getData();
 
             $timestamp->setCreatedAt($data->getCreatedAt());
+            $timestamp->setDescription($data->getDescription());
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->flush();
 
             $this->addFlash('success', 'Updated timestamp');
+
+            return $this->redirectToRoute('timestamp_index');
         }
 
         return $this->render('timestamp/view.html.twig', [

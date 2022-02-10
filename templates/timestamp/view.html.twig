@@ -39,12 +39,36 @@
         {{ form_start(form) }}
         {{ form_row(form.createdAt, {attr: {class: 'unset-width'}})}}
 
-        <label>Data</label>
+        <label>
+            <span
+                {{ stimulus_controller('toggle-class', {
+                    className: 'd-none',
+                    key: timestamp.idString
+                }) }}
+                data-action="upload-field:update:start@window->toggle-class#remove upload-field:update:finish@window->toggle-class#add"
+                class="me-1 d-none">
+                <i class="fas fa-sync-alt fa-spin"></i>
+            </span>
+            Description
+        </label>
+        {{ form_widget(form.description, {
+            attr: {
+                rows: 10,
+                class: 'js-description mt-1',
+                'data-controller': 'upload-field',
+                'data-action': 'upload-field#update',
+                'data-upload-field-key-value': timestamp.idString,
+                'data-upload-field-field-name-value': 'description',
+                'data-upload-field-url-value': path('json_timestamp_update', {id: timestamp.idString} )
+            }}
+        ) }}
+
+        <label class="mt-2">Data</label>
         <div
             {{ stimulus_controller('create-statistic-value', {
                 createUrl: path('json_timestamp_statistic_create', { id: timestamp.id })
             }) }}
-            class="d-flex mt-2 js-add-statistic add-statistic">
+            class="d-flex mt-1 js-add-statistic add-statistic">
 
             <div
                 {{ stimulus_controller({
