@@ -8,6 +8,8 @@ use App\Traits\CreateTimestampableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
+use DateTime;
+use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -36,6 +38,15 @@ class Note
     private string $content;
 
     /**
+     * This is the date the note is for. So, if I'm writing down some notes on what happened on
+     * 1.1.2020, I can set that to this variable. I may remember things on different times and add to them
+     * later, or I may add a note for a day later.
+     *
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private ?DateTime $forDate;
+
+    /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="notes")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -56,6 +67,7 @@ class Note
         $this->content = $content;
         $this->assignedTo = $assignedTo;
         $this->tagLinks = new ArrayCollection();
+        $this->forDate = null;
     }
 
     public function getTitle(): string
@@ -79,6 +91,19 @@ class Note
     {
         $this->content = $content;
 
+        return $this;
+    }
+
+    public function getForDate(): ?DateTime
+    {
+        return $this->forDate;
+    }
+
+    public function setForDate(?DateTime $forDate): self
+    {
+        $forDate?->setTimezone(new DateTimeZone('UTC'));
+
+        $this->forDate = $forDate;
         return $this;
     }
 }
