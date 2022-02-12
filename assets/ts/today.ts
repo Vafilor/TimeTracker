@@ -137,6 +137,8 @@ export class TodayIndexPage implements TimeEntryActionDelegate {
             const res = await TimeEntryApi.create({htmlTemplate: 'regular'}, this.dateFormat);
 
             this.createTimeEntry(res.data);
+
+            $('.js-no-today-content').addClass('d-none');
         } catch (e) {
             const runningTimerError = ApiError.findByCode(e.response.data, TimeEntryApiErrorCode.codeRunningTimer)
             if (runningTimerError) {

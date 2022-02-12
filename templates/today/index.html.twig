@@ -36,7 +36,7 @@
         {% for timeEntry in pagination.items %}
             {{ include('time_entry/partials/_time-entry.html.twig', {timeEntry: timeEntry }) }}
         {% else %}
-            <div class="text-center">No results found</div>
+            <div class="text-center js-no-today-content">No results found</div>
         {% endfor %}
     </div>
 
