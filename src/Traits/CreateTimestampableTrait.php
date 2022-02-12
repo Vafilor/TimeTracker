@@ -12,9 +12,8 @@ trait CreateTimestampableTrait
 {
     /**
      * @ORM\Column(type="datetime")
-     * @var DateTime
      */
-    protected $createdAt;
+    protected DateTime $createdAt;
 
     /**
      * markCreated sets the createdAt value to the input in UTC, or, if it is null, to

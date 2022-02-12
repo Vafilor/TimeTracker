@@ -13,9 +13,8 @@ trait UpdateTimestampableTrait
 {
     /**
      * @ORM\Column(type="datetime")
-     * @var DateTime
      */
-    protected $updatedAt;
+    protected DateTime $updatedAt;
 
     public function setUpdatedAt(DateTime $updatedAt): static
     {
