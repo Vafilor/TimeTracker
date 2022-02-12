@@ -30,11 +30,12 @@ final class Version20220212062938 extends TimeTrackerMigration
 
     protected function upMysql(Schema $schema) : void
     {
-
+        $this->addSql('ALTER TABLE note ADD for_date DATETIME DEFAULT NULL');
     }
 
     protected function downMysql(Schema $schema) : void
     {
+        $this->addSql('ALTER TABLE note DROP for_date');
     }
 
     public function upSqlite(Schema $schema): void
