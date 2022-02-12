@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form\Model;
 
+use DateTime;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AddNoteModel
@@ -13,11 +14,13 @@ class AddNoteModel
      */
     private string $title;
     private string $content;
+    private ?DateTime $forDate;
 
     public function __construct(string $title = '', string $content = '')
     {
         $this->title = $title;
         $this->content = $content;
+        $this->forDate = null;
     }
 
     public function getTitle(): string
@@ -47,6 +50,17 @@ class AddNoteModel
         }
 
         $this->content = $content;
+        return $this;
+    }
+
+    public function getForDate(): ?DateTime
+    {
+        return $this->forDate;
+    }
+
+    public function setForDate(?DateTime $forDate): self
+    {
+        $this->forDate = $forDate;
         return $this;
     }
 }

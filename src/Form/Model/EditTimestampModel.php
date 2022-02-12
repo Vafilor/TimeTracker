@@ -46,7 +46,7 @@ class EditTimestampModel
         if (null === $this->description) {
             return '';
         }
-        
+
         return $this->description;
     }
 

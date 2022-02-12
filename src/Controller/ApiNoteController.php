@@ -38,7 +38,10 @@ class ApiNoteController extends BaseController
         $form = $this->createForm(
             AddNoteFormType::class,
             new AddNoteModel(),
-            ['csrf_protection' => false]
+            [
+                'csrf_protection' => false,
+                'timezone' => $this->getUser()->getTimezone()
+            ]
         );
 
         $data = $this->getJsonBody($request);

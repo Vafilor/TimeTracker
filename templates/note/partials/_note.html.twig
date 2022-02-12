@@ -8,7 +8,13 @@
     <div class="d-flex justify-content-between">
         <div class="d-inline-flex flex-column">
             <div>{{ note.title }}</div>
-            <div class="datetime">{{ time.user_datetime(note.createdAt, app.user)}}</div>
+            <div class="datetime">
+                {% if note.forDate %}
+                    {{ time.user_date(note.forDate, app.user)}}
+                {% else %}
+                    {{ time.user_datetime(note.createdAt, app.user)}}
+                {% endif %}
+            </div>
         </div>
         <div>
             <a href="{{ path('note_view', {id: note.idString}) }}" class="btn btn-primary js-view ms-2">View</a>

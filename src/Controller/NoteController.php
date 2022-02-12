@@ -64,7 +64,8 @@ class NoteController extends BaseController
         ]);
 
         $form = $this->createForm(AddNoteFormType::class, new AddNoteModel(), [
-            'action' => $this->generateUrl('note_create')
+            'action' => $this->generateUrl('note_create'),
+            'timezone' => $this->getUser()->getTimezone()
         ]);
 
         return $this->renderForm('note/index.html.twig', [
@@ -84,7 +85,8 @@ class NoteController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $form = $this->createForm(AddNoteFormType::class, new AddNoteModel(), [
-            'action' => $this->generateUrl('note_create')
+            'action' => $this->generateUrl('note_create'),
+            'timezone' => $this->getUser()->getTimezone(),
         ]);
 
         $form->handleRequest($request);
@@ -94,6 +96,7 @@ class NoteController extends BaseController
             $data = $form->getData();
 
             $newNote = new Note($this->getUser(), $data->getTitle(), $data->getContent());
+            $newNote->setForDate($data->getForDate());
 
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($newNote);
@@ -136,6 +139,7 @@ class NoteController extends BaseController
         $form = $this->createForm(
             EditNoteFormType::class,
             $noteModel,
+            ['timezone' => $this->getUser()->getTimezone()]
         );
 
         $form->handleRequest($request);
@@ -147,8 +151,9 @@ class NoteController extends BaseController
             if ($data->hasContent()) {
                 $note->setContent($data->getContent());
             }
+            $note->setForDate($data->getForDate());
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->flush();
 
             $this->addFlash('success', 'Note successfully updated');
         }
