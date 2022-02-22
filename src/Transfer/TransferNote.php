@@ -17,6 +17,7 @@ class TransferNote
     public string $title;
     public string $content;
     public string $assignedTo;
+    public ?int $forDate;
 
     /**
      * @var TransferTagLink[]
@@ -32,6 +33,11 @@ class TransferNote
         $transfer->updatedAt = $entity->getUpdatedAt()->getTimestamp();
         $transfer->title = $entity->getTitle();
         $transfer->content = $entity->getContent();
+
+        if (null !== $entity->getForDate()) {
+            $transfer->forDate = $entity->getForDate()->getTimestamp();
+        }
+
         $transfer->assignedTo = $entity->getAssignedTo()->getUsername();
         $transfer->tags = TransferTagLink::fromTags($entity->getTags());
 
@@ -58,6 +64,9 @@ class TransferNote
         $note->setId(Uuid::fromString($this->id));
         $note->setCreatedAt(DateTimeUtil::dateFromTimestamp($this->createdAt));
         $note->setUpdatedAt(DateTimeUtil::dateFromTimestamp($this->updatedAt));
+        if (null !== $this->forDate) {
+            $note->setForDate(DateTimeUtil::dateFromTimestamp($this->forDate));
+        }
 
         return $note;
     }
