@@ -58,6 +58,10 @@
         {{ form_row(form.template) }}
     </div>
 
+    {{ form_row(form.priority) }}
+
+    {{ form_row(form.timeEstimate) }}
+
     {{ form_label(form.completedAt, null, {label_attr: {class: 'd-block mt-3'}}) }}
     <div {{ stimulus_controller('clear-value') }}
         class="d-inline-flex">

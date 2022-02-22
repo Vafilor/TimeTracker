@@ -26,5 +26,4 @@ class DateTimeUtil
 
         return $dateTime;
     }
-
 }

@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace App\Form\Model;
 
 use App\Entity\Task;
+use DateInterval;
 use DateTime;
 
 class EditTaskModel
 {
     private string $name;
     private ?string $description;
+    private int $priority;
     private ?DateTime $completedAt;
     private ?DateTime $dueAt;
+    private ?int $timeEstimate;
     private ?string $parentTask;
     private bool $template;
 
@@ -24,6 +27,8 @@ class EditTaskModel
         $model->setCompletedAt($task->getCompletedAt());
         $model->setDueAt($task->getDueAt());
         $model->setTemplate($task->isTemplate());
+        $model->timeEstimate = $task->getTimeEstimate();
+        $model->priority = $task->getPriority();
 
         if ($task->hasParent()) {
             $model->setParentTask($task->getParent()->getIdString());
@@ -40,6 +45,8 @@ class EditTaskModel
         $this->parentTask = null;
         $this->dueAt = null;
         $this->template = false;
+        $this->timeEstimate = null;
+        $this->priority = 0;
     }
 
     public function getName(): string
@@ -114,6 +121,28 @@ class EditTaskModel
     public function setTemplate(bool $template): self
     {
         $this->template = $template;
+        return $this;
+    }
+
+    public function getTimeEstimate(): ?int
+    {
+        return $this->timeEstimate;
+    }
+
+    public function setTimeEstimate(?int $timeEstimate): self
+    {
+        $this->timeEstimate = $timeEstimate;
+        return $this;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): self
+    {
+        $this->priority = $priority;
         return $this;
     }
 }

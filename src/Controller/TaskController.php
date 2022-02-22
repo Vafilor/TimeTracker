@@ -80,6 +80,15 @@ class TaskController extends BaseController
             $queryBuilder = $this->taskRepository->applyCompleted($queryBuilder);
         }
 
+        if ($request->query->get('sort', '') === 'task.timeEstimate') {
+            $direction = $request->query->get('direction');
+
+            // We add a fake column h_timeEstimate since timeEstimate values can be null
+            // The logic is in orderByTimeEstimate
+            $request->query->set('sort', 'h_timeEstimate');
+            $queryBuilder = $this->taskRepository->orderByTimeEstimate($queryBuilder, $direction);
+        }
+
         $pagination = $this->populatePaginationData(
             $request,
             $paginator,
@@ -256,10 +265,14 @@ class TaskController extends BaseController
             $task->setCompletedAt($data->getCompletedAt());
             $task->setDueAt($data->getDueAt());
             $task->setTemplate($data->isTemplate());
+            $task->setPriority($data->getPriority());
+            $task->setTimeEstimate($data->getTimeEstimate());
 
-            $this->getDoctrine()->getManager()->flush();
+            $this->flush();
 
             $this->addFlash('success', 'Task successfully updated');
+
+            return $this->redirectToRoute('task_index');
         }
 
         return $this->render(

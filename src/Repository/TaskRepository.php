@@ -69,6 +69,11 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         return $queryBuilder->andWhere('task.parent IS NULL');
     }
 
+    public function applyNullTimeEstimateSlowest(QueryBuilder $queryBuilder): QueryBuilder
+    {
+        return $queryBuilder->andWhere('task.completedAt IS NOT NULL');
+    }
+
     /**
      * @throws \Exception
      */
@@ -186,5 +191,12 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         ;
 
         return $queryBuilder;
+    }
+
+    public function orderByTimeEstimate(QueryBuilder $queryBuilder, string $direction): QueryBuilder
+    {
+        $value = $direction === 'asc' ? PHP_INT_MAX : PHP_INT_MIN;
+
+        return $queryBuilder->addSelect("CASE WHEN task.timeEstimate IS NULL THEN $value ELSE task.timeEstimate END as HIDDEN h_timeEstimate");
     }
 }

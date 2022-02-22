@@ -25,6 +25,18 @@
                         <td>{{ time.user_datetime(task.dueAt, app.user) }}</td>
                     </tr>
                 {% endif %}
+                {% if task.timeEstimate%}
+                    <tr>
+                        <td class="pr-1">Estimate:</td>
+                        <td {% if task.priority%}{% endif %}>{{ task.timeEstimateFormatted }}</td>
+                    </tr>
+                {% endif %}
+                {% if task.priority %}
+                    <tr>
+                        <td class="pr-1">Priority</td>
+                        <td>{{ task.priority }}</td>
+                    </tr>
+                {% endif %}
                 {% if task.completed %}
                     <tr>
                         <td class="pr-1">Completed</td>

@@ -11,6 +11,8 @@ use App\Traits\SoftDeletableTrait;
 use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
+use App\Util\DateTimeUtil;
+use DateInterval;
 use DateTime;
 use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -58,6 +60,13 @@ class Task
     private int $priority;
 
     /**
+     * How long the task is estimated to take in seconds.
+     *
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private ?int $timeEstimate;
+
+    /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     private ?DateTime $dueAt;
@@ -92,8 +101,9 @@ class Task
 
     /**
      * @ORM\OneToMany(targetEntity=Task::class, mappedBy="parent")
+     * @var Collection|Task[]
      */
-    private $tasks;
+    private Collection $tasks;
 
     public static function canonicalizeName(string $name): string
     {
@@ -107,15 +117,16 @@ class Task
         $this->assignTo($assignedTo);
         $this->setName($name);
         $this->updatedAt = $this->createdAt;
-        $this->timeEntries = new ArrayCollection();
         $this->description = '';
         $this->completedAt = null;
         $this->dueAt = null;
         $this->priority = 0;
-        $this->tagLinks = new ArrayCollection();
-        $this->tasks = new ArrayCollection();
         $this->parent = null;
         $this->template = false;
+        $this->timeEstimate = null;
+        $this->timeEntries = new ArrayCollection();
+        $this->tagLinks = new ArrayCollection();
+        $this->tasks = new ArrayCollection();
     }
 
     public function getName(): string
@@ -280,6 +291,35 @@ class Task
     {
         $this->template = $template;
 
+        return $this;
+    }
+
+    public function getTimeEstimate(): ?int
+    {
+        return $this->timeEstimate;
+    }
+
+    public function getTimeEstimateFormatted(): ?string
+    {
+        if (null === $this->timeEstimate) {
+            return null;
+        }
+
+        $interval = DateTimeUtil::dateIntervalFromSeconds($this->timeEstimate);
+        $format = '';
+
+        if ($interval->h > 0) {
+            $format = '%hh';
+        }
+
+        $format .= " %im %ss";
+
+        return $interval->format($format);
+    }
+
+    public function setTimeEstimate(?int $timeEstimate): self
+    {
+        $this->timeEstimate = $timeEstimate;
         return $this;
     }
 }
