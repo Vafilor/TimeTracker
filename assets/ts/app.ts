@@ -15,12 +15,4 @@ import '../styles/app.scss';
 // start the Stimulus application
 import '../bootstrap';
 
-document.addEventListener('turbo:before-cache', () => {
-    document.querySelectorAll('[data-app-turbo-cache=show]').forEach(element => {
-        element.classList.remove('d-none');
-    });
-
-    document.querySelectorAll('[data-app-turbo-cache=hide]').forEach(element => {
-        element.classList.add('d-none');
-    });
-});
+import '../turbo/turbo-helper';
