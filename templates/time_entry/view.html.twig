@@ -73,8 +73,7 @@
             </button>
         </div>
 
-        <div
-            class="mt-2">
+        <div class="mt-2">
             {% if not timeEntry.over %}
                 <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
                     <span class="visually-hidden">Loading...</span>
@@ -112,8 +111,8 @@
 
     {{ form_start(form, {attr: {class: 'mt-2'}}) }}
 
-    <div class="d-flex">
-        <div>
+    <div class="d-flex flex-wrap">
+        <div class="me-4">
             <div>
                 {{ form_label(form.startedAt) }}
                 {% if form.endedAt.vars.errors|length != 0 %}
@@ -125,7 +124,7 @@
             </div>
         </div>
 
-        <div class="ms-4">
+        <div>
             <div>
                 {{ form_label(form.endedAt) }}
                 {% if form.startedAt.vars.errors|length != 0 %}
