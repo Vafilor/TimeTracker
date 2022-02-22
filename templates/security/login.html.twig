@@ -8,6 +8,12 @@
         <div class="content">
             <h1 class="text-center title">Time Tracker</h1>
 
+            {% if error %}
+                <div class="login-error invalid-feedback d-block">
+                    <span class="form-error-icon badge badge-danger text-uppercase">Error</span>
+                    {{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
+
             <form method="post">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
 
@@ -23,12 +29,6 @@
 
                 <input type="checkbox" id="remember_me" name="_remember_me" checked/>
                 <label for="remember_me">Keep me logged in</label>
-
-                {% if error %}
-                    <div class="login-error invalid-feedback d-block">
-                        <span class="form-error-icon badge badge-danger text-uppercase">Error</span>
-                        {{ error.messageKey|trans(error.messageData, 'security') }}</div>
-                {% endif %}
 
                 <input type="submit" id="_submit" name="_submit" class="btn btn-primary form-control" value="Log in" />
             </form>
