@@ -4,53 +4,36 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @ORM\MappedSuperclass()
- */
+#[ORM\MappedSuperclass]
 abstract class BaseUser implements UserInterface
 {
-    /**
-     * @ORM\Column(type="string", length=180, unique=true)
-     */
+    #[ORM\Column(type: "string", length: 180, unique: true)]
     protected string $email;
 
-    /**
-     * @ORM\Column(type="string", length=180, unique=true)
-     */
+    #[ORM\Column(type: "string", length: 180, unique: true)]
     protected string $username;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: "boolean")]
     protected bool $enabled;
 
-    /**
-     * @ORM\Column(type="string", length=180, nullable=true)
-     */
+     #[ORM\Column(type: "string", length: 180, nullable: true)]
     protected ?string $confirmationToken;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+     #[ORM\Column(type: "datetime", nullable: true)]
     private DateTime $passwordRequestedAt;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+     #[ORM\Column(type: "json")]
     protected ?array $roles = [];
 
     /**
      * The hashed password
-     * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: "string")]
     protected string $password;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: "boolean")]
     private bool $isVerified;
 
     public function __construct()

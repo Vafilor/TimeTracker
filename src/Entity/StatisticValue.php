@@ -13,43 +13,29 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity(repositoryClass=StatisticValueRepository::class)
- */
+#[ORM\Entity(repositoryClass: StatisticValueRepository::class)]
 class StatisticValue
 {
     use UUIDTrait;
     use CreateTimestampableTrait;
 
-    /**
-     * @ORM\Column(type="float")
-     */
+    #[ORM\Column(type: "float")]
     private float $value;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     protected DateTime $startedAt;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     protected ?DateTime $endedAt;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Statistic::class, inversedBy="statisticValues")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Statistic::class, inversedBy: "statisticValues")]
+    #[ORM\JoinColumn(nullable: false)]
     private Statistic $statistic;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=TimeEntry::class, inversedBy="statisticValues")
-     */
+    #[ORM\ManyToOne(targetEntity: TimeEntry::class, inversedBy: "statisticValues")]
     private ?TimeEntry $timeEntry;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Timestamp::class, inversedBy="statisticValues")
-     */
+    #[ORM\ManyToOne(targetEntity: Timestamp::class, inversedBy: "statisticValues")]
     private ?Timestamp $timestamp;
 
     public static function fromResource(Statistic $statistic, float $value, Timestamp|TimeEntry $resource): StatisticValue

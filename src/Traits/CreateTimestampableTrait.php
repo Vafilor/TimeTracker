@@ -10,17 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait CreateTimestampableTrait
 {
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     protected DateTime $createdAt;
 
     /**
      * markCreated sets the createdAt value to the input in UTC, or, if it is null, to
      * 'now' in UTC.
-     *
-     * @param DateTime|null $createdAt
-     * @return static
      */
     public function markCreated(?DateTime $createdAt = null): static
     {

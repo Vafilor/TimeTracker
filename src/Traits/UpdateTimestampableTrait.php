@@ -11,9 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait UpdateTimestampableTrait
 {
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     protected DateTime $updatedAt;
 
     public function setUpdatedAt(DateTime $updatedAt): static
@@ -23,9 +21,7 @@ trait UpdateTimestampableTrait
         return $this;
     }
 
-    /**
-     * @ORM\PreUpdate()
-     */
+    #[ORM\PreUpdate]
     public function onPreUpdate(PreUpdateEventArgs $event)
     {
         $this->updatedAt = new DateTime('now', new DateTimeZone('UTC'));

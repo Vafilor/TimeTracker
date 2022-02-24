@@ -21,10 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity(repositoryClass=TaskRepository::class)
- * @ORM\HasLifecycleCallbacks()
- */
+#[ORM\Entity(repositoryClass: TaskRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Task
 {
     use UUIDTrait;
@@ -34,75 +32,56 @@ class Task
     use TaggableTrait;
     use AssignableToUserTrait;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private ?DateTime $completedAt;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private string $name;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private string $canonicalName;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private string $description;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: "integer")]
     private int $priority;
 
     /**
      * How long the task is estimated to take in seconds.
-     *
-     * @ORM\Column(type="integer", nullable=true)
      */
+    #[ORM\Column(type: "integer", nullable: true)]
     private ?int $timeEstimate;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private ?DateTime $dueAt;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[ORM\Column(type: "boolean", nullable: false)]
     private bool $template;
 
     /**
-     * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="task")
      * @var TimeEntry[]|Collection
      */
+    #[ORM\OneToMany(mappedBy: "task", targetEntity: TimeEntry::class)]
     private Collection $timeEntries;
 
     /**
-     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="task")
      * @var TagLink[]|Collection
      */
+    #[ORM\OneToMany(mappedBy: "task", targetEntity: TagLink::class)]
     private Collection $tagLinks;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tasks")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "tasks")]
+    #[ORM\JoinColumn(nullable: false)]
     private User $assignedTo;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="tasks")
-     */
+    #[ORM\ManyToOne(targetEntity: Task::class, inversedBy: "tasks")]
     private ?Task $parent;
 
     /**
-     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="parent")
      * @var Collection|Task[]
      */
+    #[ORM\OneToMany(mappedBy: "parent", targetEntity: Task::class)]
     private Collection $tasks;
 
     public static function canonicalizeName(string $name): string

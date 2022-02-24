@@ -16,9 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity(repositoryClass=StatisticRepository::class)
- */
+ #[ORM\Entity(repositoryClass: StatisticRepository::class)]
 class Statistic
 {
     use UUIDTrait;
@@ -26,62 +24,50 @@ class Statistic
     use TaggableTrait;
     use AssignableToUserTrait;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $icon;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private string $name;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private string $canonicalName;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private string $description;
 
     /**
-     * @ORM\Column(type="string", length=7)
-     *
      * Hex color string, includes #. e.g. #FF0000
      */
+    #[ORM\Column(type:"string", length:7)]
     private string $color;
 
     /**
-     * @ORM\Column(type="string")
-     *
      * The unit of the statistic, like meters, cups, beats per minute.
      */
+    #[ORM\Column(type: "string")]
     private string $unit;
 
     /**
-     * @ORM\Column(type="string", length=255)
      * @var string One of 'instance' | 'interval'
      */
+    #[ORM\Column(type: "string", length: 255)]
     private string $timeType;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class)
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private User $assignedTo;
 
     /**
-     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="statistic", orphanRemoval=true)
-     * @var TagLink[]
+     * @var TagLink[]|Collection
      */
-    private $tagLinks;
+    #[ORM\OneToMany(mappedBy: "statistic", targetEntity: TagLink::class, orphanRemoval: true)]
+    private Collection $tagLinks;
 
     /**
-     * @ORM\OneToMany(targetEntity=StatisticValue::class, mappedBy="statistic", orphanRemoval=true)
      * @var StatisticValue[]|Collection
      */
+    #[ORM\OneToMany(mappedBy: "statistic", targetEntity: StatisticValue::class, orphanRemoval: true)]
     private Collection $statisticValues;
 
     public static function canonicalizeName(string $name): string

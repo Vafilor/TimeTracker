@@ -15,42 +15,33 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity(repositoryClass=TagRepository::class)
- */
+#[ORM\Entity(repositoryClass: TagRepository::class)]
 class Tag
 {
     use UUIDTrait;
     use CreateTimestampableTrait;
     use AssignableToUserTrait;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private string $name;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private string $canonicalName;
 
     /**
-     * @ORM\Column(type="string", length=7)
-     *
      * Hex color string, includes #. e.g. #FF0000
      */
+    #[ORM\Column(type: "string", length: 7)]
     private string $color;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class)
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private User $assignedTo;
 
     /**
-     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="tag", orphanRemoval=true)
      * @var TagLink[]|Collection
      */
+    #[ORM\OneToMany(mappedBy: "tag", targetEntity: TagLink::class, orphanRemoval: true)]
     private Collection $tagLinks;
 
     public function __construct(

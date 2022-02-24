@@ -8,52 +8,36 @@ use App\Repository\TagLinkRepository;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 
-/**
- * @ORM\Entity(repositoryClass=TagLinkRepository::class)
- */
+#[ORM\Entity(repositoryClass: TagLinkRepository::class)]
 class TagLink
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private ?int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=TimeEntry::class, inversedBy="tagLinks")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: TimeEntry::class, inversedBy: "tagLinks")]
+    #[ORM\JoinColumn(nullable: true)]
     private ?TimeEntry $timeEntry;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Timestamp::class, inversedBy="tagLinks")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Timestamp::class, inversedBy: "tagLinks")]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Timestamp $timestamp;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="tagLinks")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Task::class, inversedBy: "tagLinks")]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Task $task;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Note::class, inversedBy="tagLinks")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Note::class, inversedBy: "tagLinks")]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Note $note;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="tagLinks")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: "tagLinks")]
+    #[ORM\JoinColumn(nullable: false)]
     private Tag $tag;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Statistic::class, inversedBy="tagLinks")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Statistic::class, inversedBy: "tagLinks")]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Statistic $statistic;
 
     public function __construct(TimeEntry|Timestamp|Task|Statistic|Note $resource, Tag $tag)

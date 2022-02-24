@@ -14,9 +14,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity(repositoryClass=TimestampRepository::class)
- */
+#[ORM\Entity(repositoryClass: TimestampRepository::class)]
 class Timestamp
 {
     use UUIDTrait;
@@ -27,28 +25,24 @@ class Timestamp
     /**
      * Any content you wish to add to a timestamp,
      * like "server reports out of memory error this time"
-     *
-     * @ORM\Column(type="text")
      */
+    #[ORM\Column(type: "text")]
     private string $description;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class)
-     * @ORM\JoinColumn(nullable=false)
-     * @var User
-     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private User $assignedTo;
 
     /**
-     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timestamp", orphanRemoval=true)
      * @var TagLink[]|Collection
      */
+    #[ORM\OneToMany(mappedBy: "timestamp", targetEntity: TagLink::class, orphanRemoval: true)]
     private Collection $tagLinks;
 
     /**
-     * @ORM\OneToMany(targetEntity=StatisticValue::class, mappedBy="timestamp", orphanRemoval=true)
      * @var StatisticValue[]|Collection
      */
+    #[ORM\OneToMany(mappedBy: "timestamp", targetEntity: StatisticValue::class, orphanRemoval: true)]
     private Collection $statisticValues;
 
     public function __construct(User $assignedTo)

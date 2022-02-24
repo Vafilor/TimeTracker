@@ -15,10 +15,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity(repositoryClass=NoteRepository::class)
- * @ORM\HasLifecycleCallbacks()
- */
+#[ORM\Entity(repositoryClass: NoteRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Note
 {
     use UUIDTrait;
@@ -27,35 +25,28 @@ class Note
     use AssignableToUserTrait;
     use TaggableTrait;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private string $title;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private string $content;
 
     /**
      * This is the date the note is for. So, if I'm writing down some notes on what happened on
      * 1.1.2020, I can set that to this variable. I may remember things on different times and add to them
      * later, or I may add a note for a day later.
-     *
-     * @ORM\Column(type="datetime", nullable=true)
      */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private ?DateTime $forDate;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="notes")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "notes")]
+    #[ORM\JoinColumn(nullable: false)]
     private User $assignedTo;
 
     /**
-     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="note")
      * @var TagLink[]|Collection
      */
+    #[ORM\OneToMany(targetEntity: TagLink::class, mappedBy: "note")]
     private Collection $tagLinks;
 
     public function __construct(User $assignedTo, string $title = '', string $content = '')

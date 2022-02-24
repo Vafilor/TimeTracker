@@ -9,11 +9,8 @@ use Ramsey\Uuid\UuidInterface;
 
 trait UUIDTrait
 {
-    /**
-     * @var UuidInterface
-     * @ORM\Id()
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: "uuid", unique: true)]
     protected UuidInterface $id;
 
     public function getId(): UuidInterface

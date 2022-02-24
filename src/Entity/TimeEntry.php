@@ -21,10 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity(repositoryClass=TimeEntryRepository::class)
- * @ORM\HasLifecycleCallbacks()
-*/
+#[ORM\Entity(repositoryClass: TimeEntryRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class TimeEntry
 {
     use UUIDTrait;
@@ -34,42 +32,32 @@ class TimeEntry
     use TaggableTrait;
     use AssignableToUserTrait;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     protected DateTime $startedAt;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     protected ?DateTime $endedAt;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private string $description;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="timeEntries")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "timeEntries")]
+    #[ORM\JoinColumn(nullable: false)]
     private User $assignedTo;
 
     /**
-     * @ORM\OneToMany(targetEntity=TagLink::class, mappedBy="timeEntry")
      * @var TagLink[]|Collection
      */
+    #[ORM\OneToMany(mappedBy: "timeEntry", targetEntity: TagLink::class)]
     private Collection $tagLinks;
 
     /**
-     * @ORM\OneToMany(targetEntity=StatisticValue::class, mappedBy="timeEntry")
      * @var StatisticValue[]|Collection
      */
+    #[ORM\OneToMany(targetEntity: StatisticValue::class, mappedBy: "timeEntry")]
     private Collection $statisticValues;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Task::class, inversedBy="timeEntries")
-     */
+    #[ORM\ManyToOne(targetEntity: Task::class, inversedBy: "timeEntries")]
     private ?Task $task;
 
     public function __construct(User $assignedTo, DateTime $createdAt = null)

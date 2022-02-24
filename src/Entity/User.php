@@ -13,56 +13,44 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="users")
- */
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: "users")]
 class User extends BaseUser
 {
     use UUIDTrait;
     use CreateTimestampableTrait;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: "string")]
     private string $timezone;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: "string")]
     private string $dateFormat;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: "string")]
     private string $dateTimeFormat;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: "string")]
     private string $todayDateTimeFormat;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: "string")]
     private string $durationFormat;
 
     /**
-     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="assignedTo", orphanRemoval=true)
      * @var Task[]|Collection
      */
+    #[ORM\OneToMany(mappedBy: "assignedTo", targetEntity: Task::class, orphanRemoval: true)]
     private Collection $tasks;
 
     /**
-     * @ORM\OneToMany(targetEntity=TimeEntry::class, mappedBy="assignedTo")
      * @var TimeEntry[]|Collection
      */
+    #[ORM\OneToMany(mappedBy: "assignedTo", targetEntity: TimeEntry::class)]
     private Collection $timeEntries;
 
     /**
-     * @ORM\OneToMany(targetEntity=Note::class, mappedBy="assignedTo")
      * @var TimeEntry[]|Collection
      */
+    #[ORM\OneToMany(mappedBy: "assignedTo", targetEntity: Note::class)]
     private Collection $notes;
 
     public function __construct(DateTime $createdAt = null)
@@ -70,7 +58,6 @@ class User extends BaseUser
         parent::__construct();
 
         $this->id = Uuid::uuid4();
-        $this->timeEntries = new ArrayCollection();
         $this->timezone = "America/Los_Angeles";
         $this->dateFormat = 'm/d/Y';
         $this->dateTimeFormat = 'm/d/Y h:i:s A';
