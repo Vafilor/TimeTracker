@@ -46,7 +46,7 @@ class TurboFrameRedirectSubscriber implements EventSubscriberInterface
         $location = $response->headers->get('Location');
 
         if ($location === $this->urlGenerator->generate('app_login')) {
-            return true;
+            return false;
         }
 
         return (bool) $request->headers->get('Turbo-Frame-Redirect');
