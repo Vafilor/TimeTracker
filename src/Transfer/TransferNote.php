@@ -24,6 +24,10 @@ class TransferNote
      */
     public array $tags = [];
 
+    public function __construct() {
+        $this->forDate = null;
+    }
+
     public static function fromEntity(Note $entity): self
     {
         $transfer = new TransferNote();
