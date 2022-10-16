@@ -61,6 +61,10 @@ class EditTaskFormType extends AbstractType
                 'required' => false,
                 'label' => 'Is Template'
             ])
+            ->add('active', CheckboxType::class, [
+                'required' => false,
+                'label' => 'Active'
+            ])
         ;
 
         $builder->get('timeEstimate')->addViewTransformer($this->textDateIntervalTransformer);

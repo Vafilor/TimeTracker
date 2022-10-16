@@ -60,6 +60,12 @@ class Task
     private bool $template;
 
     /**
+     * If true, the task is currently being worked on, or, it's a target to work on.
+     */
+    #[ORM\Column(type: "boolean", nullable: false)]
+    private bool $active;
+
+    /**
      * @var TimeEntry[]|Collection
      */
     #[ORM\OneToMany(mappedBy: "task", targetEntity: TimeEntry::class)]
@@ -103,6 +109,7 @@ class Task
         $this->parent = null;
         $this->template = false;
         $this->timeEstimate = null;
+        $this->active = false;
         $this->timeEntries = new ArrayCollection();
         $this->tagLinks = new ArrayCollection();
         $this->tasks = new ArrayCollection();
@@ -231,6 +238,17 @@ class Task
     {
         $this->parent = null;
 
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
         return $this;
     }
 

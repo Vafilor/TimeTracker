@@ -14,6 +14,7 @@ class AddTaskModel
     private ?DateTime $dueAt;
     private ?string $parentTask;
     private ?string $taskTemplate;
+    private bool $active;
 
     public static function fromEntity(Task $task): self
     {
@@ -21,6 +22,7 @@ class AddTaskModel
         $model->setName($task->getName());
         $model->setDescription($task->getDescription());
         $model->setDueAt($task->getDueAt());
+        $model->active = $task->isActive();
 
         if ($task->hasParent()) {
             $model->setParentTask($task->getParent()->getIdString());
@@ -36,6 +38,7 @@ class AddTaskModel
         $this->parentTask = null;
         $this->dueAt = null;
         $this->taskTemplate = null;
+        $this->active = false;
     }
 
     public function getName(): string
@@ -104,6 +107,17 @@ class AddTaskModel
     public function setTaskTemplate(?string $taskTemplate): self
     {
         $this->taskTemplate = $taskTemplate;
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
         return $this;
     }
 }

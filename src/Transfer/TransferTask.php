@@ -24,6 +24,7 @@ class TransferTask
     public int $priority;
     public ?string $parentId = null;
     public ?int $timeEstimate = null;
+    public bool $active = false;
 
     /**
      * @var TransferTagLink[]
@@ -43,6 +44,7 @@ class TransferTask
         $transfer->priority = $task->getPriority();
         $transfer->canonicalName = $task->getCanonicalName();
         $transfer->timeEstimate = $task->getTimeEstimate();
+        $transfer->active = $task->isActive();
 
         if ($task->isDeleted()) {
             $transfer->deletedAt = $task->getDeletedAt()->getTimestamp();
@@ -90,6 +92,7 @@ class TransferTask
         $task->setDescription($this->description);
         $task->setPriority($this->priority);
         $task->setTimeEstimate($this->timeEstimate);
+        $task->setActive($this->active);
 
         if ($this->completedAt) {
             $task->setCompletedAt(DateTimeUtil::dateFromTimestamp($this->completedAt));

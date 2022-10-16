@@ -18,6 +18,7 @@ class EditTaskModel
     private ?int $timeEstimate;
     private ?string $parentTask;
     private bool $template;
+    private bool $active;
 
     public static function fromEntity(Task $task): self
     {
@@ -29,6 +30,7 @@ class EditTaskModel
         $model->setTemplate($task->isTemplate());
         $model->timeEstimate = $task->getTimeEstimate();
         $model->priority = $task->getPriority();
+        $model->active = $task->isActive();
 
         if ($task->hasParent()) {
             $model->setParentTask($task->getParent()->getIdString());
@@ -47,6 +49,7 @@ class EditTaskModel
         $this->template = false;
         $this->timeEstimate = null;
         $this->priority = 0;
+        $this->active = false;
     }
 
     public function getName(): string
@@ -143,6 +146,17 @@ class EditTaskModel
     public function setPriority(int $priority): self
     {
         $this->priority = $priority;
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
         return $this;
     }
 }
