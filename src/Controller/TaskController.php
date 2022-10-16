@@ -242,6 +242,8 @@ class TaskController extends BaseController
 
         $tasks = $taskRepository->findActiveTasks($this->getUser())
             ->orderBy('task.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult()
         ;
 
         return $this->render('task/active.html.twig', [
