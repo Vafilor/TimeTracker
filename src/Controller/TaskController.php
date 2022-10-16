@@ -236,6 +236,19 @@ class TaskController extends BaseController
        ]);
     }
 
+    #[Route('/today/task/active', name: 'task_active')]
+    public function active(Request $request, TaskRepository $taskRepository): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $tasks = $taskRepository->findActiveTasks($this->getUser())
+            ->orderBy('task.createdAt', 'DESC')
+        ;
+
+        return $this->render('task/active.html.twig', [
+            'tasks' => $tasks
+        ]);
+    }
+
     #[Route('/task/{id}/view', name: 'task_view')]
     public function view(
         Request $request,
@@ -267,6 +280,7 @@ class TaskController extends BaseController
             $task->setTemplate($data->isTemplate());
             $task->setPriority($data->getPriority());
             $task->setTimeEstimate($data->getTimeEstimate());
+            $task->setActive($data->isActive());
 
             $this->flush();
 

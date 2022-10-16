@@ -1,0 +1,33 @@
+{% extends 'sidebar.html.twig' %}
+{% import 'time/partials.html.twig' as time %}
+{% import 'components/autocomplete.html.twig' as autocomplete %}
+
+{% block content_class %}w-100{% endblock %}
+
+{% block title %}Active Tasks{% endblock %}
+
+{% block content_body %}
+<div class="resource">
+    <h1 class="text-center">Active Tasks</h1>
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('today_index') }}">Entries</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ path('report_today') }}">Report</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Active Tasks</a>
+        </li>
+    </ul>
+
+    <div class="stack-list task-list js-task-list mt-2 mb-2">
+        {% for task in tasks %}
+            {{ include('task/partials/_task.html.twig', {task: task }) }}
+        {% else %}
+            <div class="text-center mt-2 mb-2 js-no-tasks">No tasks found</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

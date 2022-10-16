@@ -199,4 +199,11 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
 
         return $queryBuilder->addSelect("CASE WHEN task.timeEstimate IS NULL THEN $value ELSE task.timeEstimate END as HIDDEN h_timeEstimate");
     }
+
+    public function findActiveTasks(User $user): QueryBuilder {
+        return $this->findByUserQueryBuilder($user)
+            ->andWhere('task.active = :active')
+            ->andWhere('task.completedAt IS NULL')
+        ;
+    }
 }
