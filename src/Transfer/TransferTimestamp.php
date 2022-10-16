@@ -21,6 +21,11 @@ class TransferTimestamp
      */
     public array $tags = [];
 
+    public function __construct()
+    {
+        $this->description = '';
+    }
+
     public static function fromEntity(Timestamp $timestamp): TransferTimestamp
     {
         $transfer = new TransferTimestamp();
