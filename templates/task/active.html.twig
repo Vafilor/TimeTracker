@@ -22,12 +22,26 @@
         </li>
     </ul>
 
-    <div class="stack-list task-list js-task-list mt-2 mb-2">
-        {% for task in tasks %}
-            {{ include('task/partials/_task.html.twig', {task: task }) }}
+    {{ form_start(form, {
+        attr: {
+            "data-controller": "task-action-form",
+            "data-action": "task-complete:complete->task-action-form#onComplete",
+            class: "stack-list task-list js-task-list mt-2 mb-2"
+        }})
+    }}
+        {% for task in pagination %}
+            {{ include('task/partials/_task.html.twig', {task: task, loadOnComplete: true }) }}
         {% else %}
             <div class="text-center mt-2 mb-2 js-no-tasks">No tasks found</div>
         {% endfor %}
-    </div>
+
+        <div class="d-none">
+        {{ form_row(form.taskId, { attr: {"data-task-action-form-target": "taskId"} }) }}
+        {{ form_row(form.action, { attr: {"data-task-action-form-target": "action"} }) }}
+        {{ form_row(form.value, { attr: {"data-task-action-form-target": "value"} }) }}
+        </div>
+    {{ form_end(form) }}
+
+    {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 </div>
 {% endblock %}

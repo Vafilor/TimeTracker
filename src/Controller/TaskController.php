@@ -7,8 +7,10 @@ namespace App\Controller;
 use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Entity\Task;
+use App\Form\ActionTaskFormType;
 use App\Form\AddTaskFormType;
 use App\Form\ExampleFormType;
+use App\Form\Model\ActionTaskModel;
 use App\Form\Model\AddTaskModel;
 use App\Form\Model\FilterTaskModel;
 use App\Form\Model\EditTaskModel;
@@ -19,6 +21,7 @@ use App\Repository\TaskRepository;
 use DateTime;
 use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
+use LogicException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -237,17 +240,30 @@ class TaskController extends BaseController
     }
 
     #[Route('/today/task/active', name: 'task_active')]
-    public function active(Request $request, TaskRepository $taskRepository): Response {
+    public function active(Request $request, TaskRepository $taskRepository, PaginatorInterface $paginator): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $tasks = $taskRepository->findActiveTasks($this->getUser())
+        $queryBuilder = $taskRepository->findActiveTasks($this->getUser())
             ->orderBy('task.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult()
         ;
 
-        return $this->render('task/active.html.twig', [
-            'tasks' => $tasks
+        $pagination = $this->populatePaginationData(
+            $request,
+            $paginator,
+            $queryBuilder,
+            [
+                'sort' => 'task.createdAt',
+                'direction' => 'desc'
+            ]
+        );
+
+        $form = $this->createForm(ActionTaskFormType::class, new ActionTaskModel(), [
+            'action' => $this->generateUrl('task_form_complete')
+        ]);
+
+        return $this->renderForm('task/active.html.twig', [
+            'pagination' => $pagination,
+            'form' => $form
         ]);
     }
 
@@ -340,6 +356,43 @@ class TaskController extends BaseController
         $this->addFlash('success', "Completed '{$task->getName()}'");
 
         return $this->redirectToRoute('task_index');
+    }
+
+    #[Route('/task/complete', name: 'task_form_complete')]
+    public function formComplete(Request $request, TaskRepository $taskRepository): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $form = $this->createForm(ActionTaskFormType::class, new ActionTaskModel());
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var ActionTaskModel $data */
+            $data = $form->getData();
+
+            $task = $taskRepository->findOrException($data->getTaskId());
+            if (!$task->isAssignedTo($this->getUser())) {
+                throw $this->createAccessDeniedException();
+            }
+
+            if ($data->getAction() !== "complete") {
+                throw new LogicException("Only complete is supported");
+            }
+
+            $completed = $data->getValue() === "true";
+            if ($completed && !$task->completed()) {
+                $task->complete();
+            } elseif (!$completed && $task->completed()) {
+                $task->clearCompleted();
+            }
+
+            $this->flush();
+            $this->addFlash('success', "Completed '{$task->getName()}'");
+        }
+
+        $redirectTo = $request->request->get('redirect', 'task_active');
+
+        return $this->redirectToRoute($redirectTo);
     }
 
     #[Route('/task/{id}/delete', name: 'task_delete')]

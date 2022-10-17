@@ -3,12 +3,20 @@
 
 <div
     class="stack-list-item task-list-item js-task {% if task.completed %} completed {% endif %}"
+    {{ stimulus_controller('task-complete', {
+        id: task.idString,
+        loadOnComplete: loadOnComplete ?? false
+    }) }}
     data-id="{{ task.idString }}"
     data-name="{{ task.name }}"
     data-completed="{{ task.completed }}"
 >
     <div class="d-flex align-items-baseline">
-        <div class="spinner spinner-border spinner-border-sm text-primary d-none js-loading  me-2" role="status">
+        <div
+            {{ stimulus_target('task-complete', 'spinner') }}
+            class="spinner spinner-border spinner-border-sm text-primary d-none js-loading me-2"
+            role="status"
+        >
             <span class="visually-hidden">Loading...</span>
         </div>
         <div class="form-check complete-input flex-grow-1">
@@ -16,6 +24,7 @@
                 id="{{ task.idString }}"
                 type="checkbox"
                 class="form-check-input js-task-completed"
+                {{ stimulus_action('task-complete', 'complete') }}
                 {% if task.completed %} checked="checked" {% endif %} />
             <label class="js-name-label text-break mb-0 {% if task.completed %}completed{% endif %}" for="{{ task.idString }}">{{ task.name }}</label>
             <table class="text-small">
