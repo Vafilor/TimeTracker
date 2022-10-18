@@ -118,15 +118,13 @@
             </div>
         {{ form_rest(form) }}
 
-        {% if pagination.count == 0 %}
-            <div class="text-center mt-2">No results found</div>
-        {% else %}
-            <div class="stack-list js-note-list mt-2 mb-2">
-                {% for note in pagination.items %}
-                    {{ include('note/partials/_note.html.twig', {note: note }) }}
-                {% endfor %}
-            </div>
-        {% endif %}
+        <div class="stack-list js-note-list mt-2 mb-2">
+            {% for note in pagination.items %}
+                {{ include('note/partials/_note.html.twig', {note: note }) }}
+            {% else %}
+                <div class="text-center mt-2 mb-2">No notes found</div>
+            {% endfor %}
+        </div>
 
         {{ knp_pagination_render(pagination, null, {}, {align: 'center'}) }}
     </div>

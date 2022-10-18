@@ -153,13 +153,18 @@
             Create time entry
         </button>
     </div>
-    <div class="card-list js-time-entry-list mb-2">
-    {% for timeEntry in pagination.items %}
-        {{ include('time_entry/partials/_time-entry-small.html.twig', {timeEntry: timeEntry }) }}
+
+    {% if pagination.count %}
+        <div class="card-list js-time-entry-list mb-2">
+        {% for timeEntry in pagination.items %}
+            {{ include('time_entry/partials/_time-entry-small.html.twig', {timeEntry: timeEntry }) }}
+        {% endfor %}
+        </div>
     {% else %}
-        <div class="text-center">No results found</div>
-    {% endfor %}
-    </div>
+        <div class="stack-list">
+            <div class="text-center pt-2 pb-2">No results found</div>
+        </div>
+    {% endif %}
 
     {{ knp_pagination_render(pagination, null, {}, {align: 'center'}) }}
 </div>
