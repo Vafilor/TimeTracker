@@ -12,7 +12,6 @@ use App\Traits\TaggableTrait;
 use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use App\Util\DateTimeUtil;
-use DateInterval;
 use DateTime;
 use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -65,6 +64,9 @@ class Task
     #[ORM\Column(type: "boolean", nullable: false)]
     private bool $active;
 
+    #[ORM\Column(type: "datetime", nullable: true)]
+    private ?DateTime $closedAt;
+
     /**
      * @var TimeEntry[]|Collection
      */
@@ -104,6 +106,7 @@ class Task
         $this->updatedAt = $this->createdAt;
         $this->description = '';
         $this->completedAt = null;
+        $this->closedAt = null;
         $this->dueAt = null;
         $this->priority = 0;
         $this->parent = null;
@@ -317,6 +320,17 @@ class Task
     public function setTimeEstimate(?int $timeEstimate): self
     {
         $this->timeEstimate = $timeEstimate;
+        return $this;
+    }
+
+    public function getClosedAt(): ?DateTime
+    {
+        return $this->closedAt;
+    }
+
+    public function setClosedAt(?DateTime $closedAt): self
+    {
+        $this->closedAt = $closedAt;
         return $this;
     }
 }
