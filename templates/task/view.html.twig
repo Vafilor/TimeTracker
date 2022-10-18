@@ -242,6 +242,12 @@
                 <a href="{{ path('task_complete', {id: task.id, value: 'complete'}) }}" class="btn btn-secondary ms-2">Complete</a>
             {% endif %}
 
+            {% if task.closed %}
+                <a href="{{ path('task_close', {id: task.id, value: 'open'}) }}" class="btn btn-warning ms-2">Re-open</a>
+            {% else %}
+                <a href="{{ path('task_close', {id: task.id, value: 'close'}) }}" class="btn btn-warning ms-2">Close</a>
+            {% endif %}
+
             <button
                     type="button"
                     class="btn btn-danger ms-2"

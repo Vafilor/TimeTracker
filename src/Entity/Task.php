@@ -328,9 +328,31 @@ class Task
         return $this->closedAt;
     }
 
+    public function closed(): bool
+    {
+        return null !== $this->closedAt;
+    }
+
     public function setClosedAt(?DateTime $closedAt): self
     {
         $this->closedAt = $closedAt;
+        return $this;
+    }
+
+    public function close(?DateTime $closedAt = null): self
+    {
+        if (is_null($closedAt)) {
+            $closedAt = new DateTime('now', new DateTimeZone('UTC'));
+        }
+
+        $this->closedAt = $closedAt;
+
+        return $this;
+    }
+
+    public function clearClosed(): self
+    {
+        $this->closedAt = null;
         return $this;
     }
 }

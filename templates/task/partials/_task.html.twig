@@ -24,8 +24,13 @@
                 id="{{ task.idString }}"
                 type="checkbox"
                 class="form-check-input js-task-completed"
+                {% if task.closed %}disabled{% endif %}
                 {{ stimulus_action('task-complete', 'complete') }}
-                {% if task.completed %} checked="checked" {% endif %} />
+                {% if task.completed %} checked="checked" {% endif %}
+            />
+            {% if task.closed %}
+                <span class="badge bg-warning">closed</span>
+            {% endif %}
             <label class="js-name-label text-break mb-0 {% if task.completed %}completed{% endif %}" for="{{ task.idString }}">{{ task.name }}</label>
             <table class="text-small">
                 {% if task.dueAt %}

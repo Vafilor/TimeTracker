@@ -76,6 +76,7 @@ class TaskController extends BaseController
             $this->taskRepository->applyFilter($queryBuilder, $data);
         } else {
             $queryBuilder = $this->taskRepository->applyNotCompleted($queryBuilder);
+            $queryBuilder = $this->taskRepository->applyNotClosed($queryBuilder);
             $queryBuilder = $this->taskRepository->applyNoSubtasks($queryBuilder);
         }
 
@@ -394,6 +395,32 @@ class TaskController extends BaseController
 
         return $this->redirectToRoute($redirectTo);
     }
+
+    #[Route('/task/{id}/close', name: 'task_close')]
+    public function close(Request $request, TaskRepository $taskRepository, string $id): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $task = $taskRepository->findOrException($id);
+        if (!$task->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $closed = $request->query->get('value', 'closed') === 'close';
+        if ($closed && !$task->closed()) {
+            $task->close();
+        } elseif (!$closed && $task->closed()) {
+            $task->clearClosed();
+        }
+
+        $this->flush();
+
+        $action = $closed ? "Closed" : "Re-opened";
+        $this->addFlash('success', "$action '{$task->getName()}'");
+
+        return $this->redirectToRoute('task_index');
+    }
+
 
     #[Route('/task/{id}/delete', name: 'task_delete')]
     public function remove(Request $request, TaskRepository $taskRepository, string $id): Response

@@ -67,6 +67,7 @@ class ApiTaskController extends BaseController
             throw new ApiProblemException($formError);
         } else {
             $queryBuilder = $taskRepository->applyNotCompleted($queryBuilder);
+            $queryBuilder = $taskRepository->applyNotClosed($queryBuilder);
         }
 
         $pagination = $this->populatePaginationData(

@@ -22,6 +22,10 @@ class FilterTaskFormType extends AbstractType
                 'required' => false,
                 'false_values' => [null, '0']
             ])
+            ->add('showClosed', CheckboxType::class, [
+                'required' => false,
+                'false_values' => [null, '0']
+            ])
             ->add('showSubtasks', CheckboxType::class, [
                 'required' => false,
                 'false_values' => [null, '0']

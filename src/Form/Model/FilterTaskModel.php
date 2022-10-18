@@ -7,6 +7,7 @@ namespace App\Form\Model;
 class FilterTaskModel
 {
     private bool $showCompleted;
+    private bool $showClosed;
     private ?string $content;
     private ?string $tags;
     private ?string $parentTask;
@@ -17,6 +18,7 @@ class FilterTaskModel
     public function __construct()
     {
         $this->showCompleted = false;
+        $this->showClosed = false;
         $this->content = null;
         $this->tags = null;
         $this->parentTask = null;
@@ -33,6 +35,17 @@ class FilterTaskModel
     public function setShowCompleted(bool $showCompleted): self
     {
         $this->showCompleted = $showCompleted;
+        return $this;
+    }
+
+    public function getShowClosed(): bool
+    {
+        return $this->showClosed;
+    }
+
+    public function setShowClosed(bool $showClosed): self
+    {
+        $this->showClosed = $showClosed;
         return $this;
     }
 

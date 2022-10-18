@@ -38,7 +38,10 @@
             }) }}
             {{ form_errors(filterForm) }}
             <div class="d-flex flex-column flex-md-row">
-                {{ form_row(filterForm.showCompleted, { attr: { 'data-controller': 'false-checkbox' }}) }}
+                    {{ form_row(filterForm.showCompleted, { attr: { 'data-controller': 'false-checkbox' }}) }}
+                <div class="ms-md-3">
+                    {{ form_row(filterForm.showClosed, { attr: { 'data-controller': 'false-checkbox' }}) }}
+                </div>
                 <div class="ms-md-3">
                     {{ form_row(filterForm.showSubtasks, { attr: { 'data-controller': 'false-checkbox' }}) }}
                 </div>
