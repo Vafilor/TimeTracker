@@ -35,14 +35,14 @@
             Create time entry
         </button>
     </div>
-    {% if pagination.count %}
         <div class="card-list js-time-entry-list mb-2">
             {% for timeEntry in pagination.items %}
                 {{ include('time_entry/partials/_time-entry.html.twig', {timeEntry: timeEntry }) }}
             {% endfor %}
         </div>
-    {% else %}
-        <div class="stack-list">
+
+    {% if not pagination.count %}
+        <div class="stack-list js-no-today-content">
             <div class="text-center pt-2 pb-2">No time entries</div>
         </div>
     {% endif %}
