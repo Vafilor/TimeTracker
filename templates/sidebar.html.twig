@@ -23,7 +23,11 @@
 
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
             <ul class="list-unstyled sidebar-sticky text-center text-md-start">
-                <li><a href="{{ path('today_index') }}" {% if path == '/today' or path == '/' or path starts with '/report/today' %} class="active" {% endif %}>Today</a></li>
+                <li><a href="{{ path('today_index') }}"
+                    {% if path starts with '/today' or path == '/' or path starts with '/report/today' %}
+                        class="active"
+                    {% endif %}
+                    >Today</a></li>
                 <li><a href="{{ path('time_entry_index') }}" {% if path starts with '/time-entry' %} class="active" {% endif %}>Time Entries</a></li>
                 <li><a href="{{ path('task_index') }}" {% if path starts with '/task' %} class="active"{% endif %}>Tasks</a></li>
                 <li><a href="{{ path('timestamp_index') }}" {% if path starts with '/timestamp' %} class="active"{% endif %}>Timestamps</a></li>
