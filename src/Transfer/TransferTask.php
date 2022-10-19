@@ -21,6 +21,7 @@ class TransferTask
     public string $assignedTo;
     public string $description;
     public ?int $completedAt = null;
+    public ?int $closedAt = null;
     public int $priority;
     public ?string $parentId = null;
     public ?int $timeEstimate = null;
@@ -52,6 +53,10 @@ class TransferTask
 
         if ($task->completed()) {
             $transfer->completedAt = $task->getCompletedAt()->getTimestamp();
+        }
+
+        if ($task->closed()) {
+            $transfer->closedAt = $task->getClosedAt()->getTimestamp();
         }
 
         if (!is_null($task->getDueAt())) {
@@ -96,6 +101,10 @@ class TransferTask
 
         if ($this->completedAt) {
             $task->setCompletedAt(DateTimeUtil::dateFromTimestamp($this->completedAt));
+        }
+
+        if ($this->closedAt) {
+            $task->setClosedAt(DateTimeUtil::dateFromTimestamp($this->closedAt));
         }
 
         if ($this->dueAt) {
