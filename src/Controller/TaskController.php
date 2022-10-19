@@ -244,9 +244,7 @@ class TaskController extends BaseController
     public function active(Request $request, TaskRepository $taskRepository, PaginatorInterface $paginator): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
-        $queryBuilder = $taskRepository->findActiveTasks($this->getUser())
-            ->orderBy('task.createdAt', 'DESC')
-        ;
+        $queryBuilder = $taskRepository->findActiveTasks($this->getUser());
 
         $pagination = $this->populatePaginationData(
             $request,

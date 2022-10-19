@@ -22,6 +22,48 @@
         </li>
     </ul>
 
+    <div class="dropdown mt-2 mb-2">
+        <label>Sort</label>
+        <button
+                id="task-sort"
+                {{ stimulus_controller('bootstrap-dropdown') }}
+                class="btn dropdown-toggle bg-white border border-gray ms-2"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+            {% if pagination.isSorted('task.createdAt') and pagination.direction == 'desc' %}
+                Newest
+            {% elseif pagination.isSorted('task.createdAt') and pagination.direction == 'asc'  %}
+                Oldest
+            {% elseif pagination.isSorted('task.timeEstimate') and pagination.direction == 'asc' %}
+                Fastest (estimate)
+            {% elseif pagination.isSorted('task.timeEstimate') and pagination.direction == 'desc' %}
+                Slowest (estimate)
+            {% elseif pagination.isSorted('task.priority') and pagination.direction == 'asc' %}
+                Lowest Priority
+            {% elseif pagination.isSorted('task.priority') and pagination.direction == 'desc' %}
+                Highest Priority
+            {% elseif pagination.isSorted('task.dueAt') and pagination.direction == 'asc' %}
+                Due soon
+            {% elseif pagination.isSorted('task.name') and pagination.direction == 'asc' %}
+                Name - asc
+            {% elseif pagination.isSorted('task.name') and pagination.direction == 'desc' %}
+                Name - desc
+            {% endif %}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="task-sort">
+            {{ knp_pagination_sortable(pagination, 'Newest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+            {{ knp_pagination_sortable(pagination, 'Oldest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+            {{ knp_pagination_sortable(pagination, 'Fastest (estimate)', 'task.timeEstimate', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+            {{ knp_pagination_sortable(pagination, 'Slowest (estimate)', 'task.timeEstimate', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+            {{ knp_pagination_sortable(pagination, 'Highest Priority', 'task.priority', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+            {{ knp_pagination_sortable(pagination, 'Lowest Priority', 'task.priority', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+            {{ knp_pagination_sortable(pagination, 'Due soon', 'task.dueAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+            {{ knp_pagination_sortable(pagination, 'Name - asc', 'task.name', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+            {{ knp_pagination_sortable(pagination, 'Name - desc', 'task.name', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+        </div>
+    </div>
+
     {{ form_start(form, {
         attr: {
             "data-controller": "task-action-form",
