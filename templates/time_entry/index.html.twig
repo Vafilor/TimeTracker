@@ -17,7 +17,12 @@
 
     <div class="filter table-filter mb-3">
         <div class="filter-title">Filter</div>
-        {{ form_start(filterForm) }}
+        {{ form_start(filterForm, {
+            attr: {
+                'data-controller': 'load-form page-filter-form',
+                'data-action': 'submit->load-form#start submit->page-filter-form#submit'
+            }
+        }) }}
         {{ form_errors(filterForm) }}
 
         <div class="d-flex flex-wrap mb-1">
@@ -118,7 +123,18 @@
         </div>
 
         <div class="d-block">
-            <button type="submit" class="btn btn-primary mt-2">Search</button>
+            <button
+                    type="submit"
+                    class="btn btn-primary mt-2"
+                    data-load-form-target="button">
+                <span
+                    class="spinner-border spinner-border-sm d-none"
+                    data-load-form-target="loading"
+                    role="status"
+                    aria-hidden="true">
+                </span>
+                Search
+            </button>
         </div>
 
         {{ form_end(filterForm) }}

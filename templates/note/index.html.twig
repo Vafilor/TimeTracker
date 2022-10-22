@@ -16,8 +16,8 @@
             <div class="filter-title">Filter</div>
             {{ form_start(filterForm, {
                 attr: {
-                    'data-controller': "load-form",
-                    'data-action': "submit->load-form#start",
+                    'data-controller': "load-form page-filter-form",
+                    'data-action': "submit->load-form#start submit->page-filter-form#submit",
                 }
             }) }}
 
