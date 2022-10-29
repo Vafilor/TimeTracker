@@ -1,7 +1,7 @@
 {
     "devDependencies": {
         "@fortawesome/fontawesome-free": "^5.15.3",
-        "@hotwired/turbo": "^7.0.0",
+        "@hotwired/turbo": "^7.0.0-beta.5",
         "@popperjs/core": "^2.9.2",
         "@symfony/stimulus-bridge": "^2.1.0",
         "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/Resources/assets",
