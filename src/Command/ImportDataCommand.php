@@ -105,7 +105,7 @@ class ImportDataCommand extends Command
         }
 
         while (strlen($inputPath) > 0 && str_ends_with($inputPath, DIRECTORY_SEPARATOR)) {
-            $inputPath = substr($inputPath, 0, count($inputPath) - 1);
+            $inputPath = substr($inputPath, 0, strlen($inputPath) - 1);
         }
 
         if (strlen($inputPath) === 0) {
