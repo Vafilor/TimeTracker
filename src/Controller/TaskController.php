@@ -340,6 +340,11 @@ class TaskController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
+        if ($task->isTemplate()) {
+            $this->addFlash('danger', 'Can not complete template tasks');
+            return $this->redirectToRoute('task_index');
+        }
+
         $completed = 'complete' === $request->query->get('value', 'complete');
         if ($completed && !$task->completed()) {
             $task->complete();
@@ -360,6 +365,7 @@ class TaskController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $form = $this->createForm(ActionTaskFormType::class, new ActionTaskModel());
+        $redirectTo = $request->request->get('redirect', 'task_active');
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -375,6 +381,11 @@ class TaskController extends BaseController
                 throw new LogicException('Only complete is supported');
             }
 
+            if ($task->isTemplate()) {
+                $this->addFlash('danger', 'Can not complete template tasks');
+                return $this->redirectToRoute($redirectTo);
+            }
+
             $completed = 'true' === $data->getValue();
             if ($completed && !$task->completed()) {
                 $task->complete();
@@ -385,8 +396,6 @@ class TaskController extends BaseController
             $this->flush();
             $this->addFlash('success', "Completed '{$task->getName()}'");
         }
-
-        $redirectTo = $request->request->get('redirect', 'task_active');
 
         return $this->redirectToRoute($redirectTo);
     }
@@ -399,6 +408,11 @@ class TaskController extends BaseController
         $task = $taskRepository->findOrException($id);
         if (!$task->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
+        }
+
+        if ($task->isTemplate()) {
+            $this->addFlash('danger', 'Can not close template tasks');
+            return $this->redirectToRoute('task_index');
         }
 
         $closed = 'close' === $request->query->get('value', 'closed');

@@ -238,12 +238,50 @@
             <button type="submit" class="btn btn-primary">Update</button>
             {% if task.completed %}
                 <a href="{{ path('task_complete', {id: task.id, value: 'uncomplete'}) }}" class="btn btn-secondary ms-2">Uncomplete</a>
+            {% elseif task.template %}
+                <span
+                        {{ stimulus_controller('bootstrap-tooltip') }}
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Can not complete template tasks">
+                    <a
+                            href="{{ path('task_complete', {id: task.id, value: 'complete'}) }}"
+                            role="button"
+                            class="btn btn-secondary ms-2 disabled"
+                            tabindex="-1"
+                            aria-disabled="true"
+                    >
+                        Complete
+                    </a>
+                </span>
             {% else %}
-                <a href="{{ path('task_complete', {id: task.id, value: 'complete'}) }}" class="btn btn-secondary ms-2">Complete</a>
+                <a
+                    href="{{ path('task_complete', {id: task.id, value: 'complete'}) }}"
+                    role="button"
+                    class="btn btn-secondary ms-2"
+                >
+                    Complete
+                </a>
             {% endif %}
 
             {% if task.closed %}
                 <a href="{{ path('task_close', {id: task.id, value: 'open'}) }}" class="btn btn-warning ms-2">Re-open</a>
+            {% elseif task.template %}
+            <span
+                {{ stimulus_controller('bootstrap-tooltip') }}
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="Can not close template tasks">
+                <a
+                    href="{{ path('task_close', {id: task.id, value: 'close'}) }}"
+                    class="btn btn-warning ms-2 disabled"
+                    role="button"
+                    tabindex="-1"
+                    aria-disabled="true"
+                >
+                    Close
+                </a>
+            </span>
             {% else %}
                 <a href="{{ path('task_close', {id: task.id, value: 'close'}) }}" class="btn btn-warning ms-2">Close</a>
             {% endif %}

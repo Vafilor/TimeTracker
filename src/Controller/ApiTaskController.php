@@ -208,6 +208,12 @@ class ApiTaskController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
+        if ($task->isTemplate()) {
+            $problem = ApiProblem::invalidAction('invalid_action', 'Can not complete a template task');
+
+            throw new ApiProblemException($problem);
+        }
+
         $completed = true;
         $data = $this->getJsonBody($request);
         if (array_key_exists('completed', $data)) {
