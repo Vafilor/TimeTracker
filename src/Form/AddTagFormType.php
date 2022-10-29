@@ -18,7 +18,7 @@ class AddTagFormType extends AbstractType
         $builder
             ->add('name', TextType::class)
             ->add('color', ColorType::class, [
-                'required' => false
+                'required' => false,
             ])
         ;
     }

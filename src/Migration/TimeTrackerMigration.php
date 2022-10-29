@@ -14,16 +14,19 @@ use Exception;
  */
 abstract class TimeTrackerMigration extends AbstractMigration
 {
-    public abstract function upPostgresql(Schema $schema): void;
-    public abstract function downPostgresql(Schema $schema): void;
+    abstract public function upPostgresql(Schema $schema): void;
 
-    protected abstract function upMysql(Schema $schema) : void;
-    protected abstract function downMysql(Schema $schema) : void;
+    abstract public function downPostgresql(Schema $schema): void;
 
-    public abstract function upSqlite(Schema $schema): void;
-    public abstract function downSqlite(Schema $schema): void;
+    abstract protected function upMysql(Schema $schema): void;
 
-    public function up(Schema $schema) : void
+    abstract protected function downMysql(Schema $schema): void;
+
+    abstract public function upSqlite(Schema $schema): void;
+
+    abstract public function downSqlite(Schema $schema): void;
+
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
         $platformName = $this->platform->getName();
@@ -42,7 +45,7 @@ abstract class TimeTrackerMigration extends AbstractMigration
         }
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $platformName = $this->platform->getName();

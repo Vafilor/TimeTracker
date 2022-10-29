@@ -41,6 +41,7 @@ class TransferTimestamp
 
     /**
      * @param Timestamp[]|iterable $entities
+     *
      * @return TransferTimestamp[]
      */
     public static function fromEntities(iterable $entities): array

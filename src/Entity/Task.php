@@ -31,65 +31,65 @@ class Task
     use TaggableTrait;
     use AssignableToUserTrait;
 
-    #[ORM\Column(type: "datetime", nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTime $completedAt;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $canonicalName;
 
-    #[ORM\Column(type: "text")]
+    #[ORM\Column(type: 'text')]
     private string $description;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private int $priority;
 
     /**
      * How long the task is estimated to take in seconds.
      */
-    #[ORM\Column(type: "integer", nullable: true)]
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $timeEstimate;
 
-    #[ORM\Column(type: "datetime", nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTime $dueAt;
 
-    #[ORM\Column(type: "boolean", nullable: false)]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $template;
 
     /**
      * If true, the task is currently being worked on, or, it's a target to work on.
      */
-    #[ORM\Column(type: "boolean", nullable: false)]
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $active;
 
-    #[ORM\Column(type: "datetime", nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTime $closedAt;
 
     /**
      * @var TimeEntry[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "task", targetEntity: TimeEntry::class)]
+    #[ORM\OneToMany(mappedBy: 'task', targetEntity: TimeEntry::class)]
     private Collection $timeEntries;
 
     /**
      * @var TagLink[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "task", targetEntity: TagLink::class)]
+    #[ORM\OneToMany(mappedBy: 'task', targetEntity: TagLink::class)]
     private Collection $tagLinks;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "tasks")]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false)]
     private User $assignedTo;
 
-    #[ORM\ManyToOne(targetEntity: Task::class, inversedBy: "tasks")]
+    #[ORM\ManyToOne(targetEntity: Task::class, inversedBy: 'tasks')]
     private ?Task $parent;
 
     /**
      * @var Collection|Task[]
      */
-    #[ORM\OneToMany(mappedBy: "parent", targetEntity: Task::class)]
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: Task::class)]
     private Collection $tasks;
 
     public static function canonicalizeName(string $name): string
@@ -134,7 +134,7 @@ class Task
 
         $this->canonicalName = self::canonicalizeName($name);
 
-        if (strlen($this->canonicalName) === 0) {
+        if (0 === strlen($this->canonicalName)) {
             throw new InvalidArgumentException('Name can not be blank once whitespace is removed.');
         }
 
@@ -201,6 +201,7 @@ class Task
     public function setPriority(int $priority): Task
     {
         $this->priority = $priority;
+
         return $this;
     }
 
@@ -252,6 +253,7 @@ class Task
     public function setActive(bool $active): self
     {
         $this->active = $active;
+
         return $this;
     }
 
@@ -265,7 +267,7 @@ class Task
 
     /**
      * The lineage of the task, starting with the upper-most. So,
-     * [Grandchild Task, Parent Task, Task]
+     * [Grandchild Task, Parent Task, Task].
      *
      * @return Task[]
      */
@@ -312,7 +314,7 @@ class Task
             $format = '%hh';
         }
 
-        $format .= " %im %ss";
+        $format .= ' %im %ss';
 
         return $interval->format($format);
     }
@@ -320,6 +322,7 @@ class Task
     public function setTimeEstimate(?int $timeEstimate): self
     {
         $this->timeEstimate = $timeEstimate;
+
         return $this;
     }
 
@@ -336,6 +339,7 @@ class Task
     public function setClosedAt(?DateTime $closedAt): self
     {
         $this->closedAt = $closedAt;
+
         return $this;
     }
 
@@ -353,6 +357,7 @@ class Task
     public function clearClosed(): self
     {
         $this->closedAt = null;
+
         return $this;
     }
 }

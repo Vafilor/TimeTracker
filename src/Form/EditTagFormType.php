@@ -22,7 +22,7 @@ class EditTagFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-                                   'data_class' => EditTagModel::class
+                                   'data_class' => EditTagModel::class,
                                ]);
     }
 }

@@ -19,20 +19,20 @@ class AddStatisticFormType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'attr' => [
-                    'placeholder' => 'name'
-                ]
+                    'placeholder' => 'name',
+                ],
             ])
             ->add('description', TextType::class, [
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'description'
-                ]
+                    'placeholder' => 'description',
+                ],
             ])
             ->add('timeType', ChoiceType::class, [
                 'choices' => [
                     TimeType::INSTANT => 'instant',
-                    TimeType::INTERVAL => 'interval'
-                ]
+                    TimeType::INTERVAL => 'interval',
+                ],
             ])
         ;
     }

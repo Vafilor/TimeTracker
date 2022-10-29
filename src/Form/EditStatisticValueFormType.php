@@ -18,8 +18,8 @@ class EditStatisticValueFormType extends AbstractType
             ->add('value', NumberType::class, [
                 'html5' => true,
                 'attr' => [
-                    'step' => 0.00001
-                ]
+                    'step' => 0.00001,
+                ],
             ])
         ;
     }

@@ -24,7 +24,8 @@ class TransferNote
      */
     public array $tags = [];
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->forDate = null;
     }
 
@@ -50,6 +51,7 @@ class TransferNote
 
     /**
      * @param Note[]|iterable $entities
+     *
      * @return self[]
      */
     public static function fromEntities(iterable $entities): array

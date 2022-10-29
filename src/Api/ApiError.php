@@ -23,6 +23,7 @@ class ApiError
     public static function propertyError(string $code, string $message, string $property, array $extraData = []): ApiError
     {
         $extra = array_merge(['property' => $property], $extraData);
+
         return new ApiError($code, $message, $extra);
     }
 
@@ -37,7 +38,7 @@ class ApiError
     {
         return array_merge($this->extraData, [
             'code' => $this->code,
-            'message' => $this->message
+            'message' => $this->message,
         ]);
     }
 }

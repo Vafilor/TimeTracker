@@ -11,9 +11,7 @@ trait DatabaseUtilitiesTrait
     abstract protected function getDoctrine(): ManagerRegistry;
 
     /**
-     * Utility method to get the doctrine manager, persist the input object
-     * @param mixed $obj
-     * @param bool $flush
+     * Utility method to get the doctrine manager, persist the input object.
      */
     public function persist(mixed $obj, bool $flush = false): void
     {
@@ -34,9 +32,7 @@ trait DatabaseUtilitiesTrait
     }
 
     /**
-     * Utility method to get the doctrine manager, remove the input object
-     * @param mixed $obj
-     * @param bool $flush
+     * Utility method to get the doctrine manager, remove the input object.
      */
     public function doctrineRemove(mixed $obj, bool $flush = false): void
     {

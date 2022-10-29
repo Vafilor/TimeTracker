@@ -39,8 +39,7 @@ class ApiTask
 
     /**
      * @param Task[] $entities
-     * @param User $user
-     * @param string $format
+     *
      * @return ApiTask[]
      */
     public static function fromEntities(iterable $entities, User $user, string $format = DateFormatType::DATE_TIME): array

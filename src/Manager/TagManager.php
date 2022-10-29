@@ -24,7 +24,6 @@ class TagManager
      * parseFromString will take a comma delimited string of tag names and return an array of them.
      * Leading and trailing whitesapce from each name is removed.
      *
-     * @param string $names
      * @return string[]
      */
     public function parseFromString(string $names): array
@@ -39,10 +38,6 @@ class TagManager
 
     /**
      * Finds a tag for a given name/user. If it does not exist, it is created and persisted to the database.
-     *
-     * @param string $name
-     * @param User $assignedTo
-     * @return Tag
      */
     public function findOrCreateByName(string $name, User $assignedTo): Tag
     {
@@ -61,7 +56,8 @@ class TagManager
      * to the database.
      *
      * @param string[] $names
-     * @param User $user the creator of the tags
+     * @param User     $user  the creator of the tags
+     *
      * @return Tag[]
      */
     public function findOrCreateByNames(array $names, User $user): array

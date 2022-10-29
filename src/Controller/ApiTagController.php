@@ -24,8 +24,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiTagController extends BaseController
 {
-    #[Route('/api/tag', name: 'api_tag_index', methods: ["GET"])]
-    #[Route('/json/tag', name: 'json_tag_index', methods: ["GET"])]
+    #[Route('/api/tag', name: 'api_tag_index', methods: ['GET'])]
+    #[Route('/json/tag', name: 'json_tag_index', methods: ['GET'])]
     public function index(
         Request $request,
         TagRepository $tagRepository,
@@ -37,7 +37,7 @@ class ApiTagController extends BaseController
         $excludeString = $request->query->get('exclude', '');
         $excludeItems = [];
 
-        if ($excludeString !== '') {
+        if ('' !== $excludeString) {
             $excludeItems = explode(',', urldecode($excludeString));
         }
 
@@ -45,7 +45,7 @@ class ApiTagController extends BaseController
             ->andWhere('tag.canonicalName LIKE :term')
             ->setParameter('term', "%$term%");
 
-        if (count($excludeItems) !== 0) {
+        if (0 !== count($excludeItems)) {
             $queryBuilder = $queryBuilder->andWhere('tag.name NOT IN (:exclude)')
                 ->setParameter('exclude', $excludeItems);
         }
@@ -56,7 +56,7 @@ class ApiTagController extends BaseController
             $queryBuilder,
             [
                 'sort' => 'tag.name',
-                'direction' => 'asc'
+                'direction' => 'asc',
             ]
         );
 
@@ -65,7 +65,7 @@ class ApiTagController extends BaseController
         return $this->jsonNoNulls(ApiPagination::fromPagination($pagination, $items));
     }
 
-    #[Route('/api/tag', name: 'api_tag_create', methods: ["POST"])]
+    #[Route('/api/tag', name: 'api_tag_create', methods: ['POST'])]
     public function create(
         Request $request,
         TagRepository $tagRepository

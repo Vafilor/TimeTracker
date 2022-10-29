@@ -9,21 +9,20 @@ use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiTag;
 use App\Entity\Statistic;
-use App\Form\Model\EditStatisticModel;
-use App\Form\Model\AddStatisticModel;
-use App\Form\EditStatisticFormType;
 use App\Form\AddStatisticFormType;
+use App\Form\EditStatisticFormType;
+use App\Form\Model\AddStatisticModel;
+use App\Form\Model\EditStatisticModel;
 use App\Repository\StatisticRepository;
 use App\Util\TimeType;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StatisticController extends BaseController
 {
-    const CODE_NAME_TAKEN = 'code_name_taken';
+    public const CODE_NAME_TAKEN = 'code_name_taken';
 
     #[Route('/statistic', name: 'statistic_index')]
     public function index(
@@ -38,16 +37,16 @@ class StatisticController extends BaseController
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'statistic.createdAt',
-            'direction' => 'desc'
+            'direction' => 'desc',
         ]);
 
         $form = $this->createForm(AddStatisticFormType::class, new AddStatisticModel(), [
-            'action' => $this->generateUrl('statistic_create')
+            'action' => $this->generateUrl('statistic_create'),
         ]);
 
         return $this->renderForm('statistic/index.html.twig', [
             'pagination' => $pagination,
-            'form' => $form
+            'form' => $form,
         ]);
     }
 
@@ -86,12 +85,12 @@ class StatisticController extends BaseController
             $queryBuilder,
             [
                 'sort' => 'statistic.name',
-                'direction' => 'asc'
+                'direction' => 'asc',
             ]
         );
 
         return $this->render('statistic/partials/_statistic_list.html.twig', [
-            'pagination' => $pagination
+            'pagination' => $pagination,
         ]);
     }
 
@@ -114,6 +113,7 @@ class StatisticController extends BaseController
             $existingStatistic = $statisticRepository->findWithUserNameCanonical($this->getUser(), $canonicalName, $data->getTimeType());
             if (!is_null($existingStatistic)) {
                 $this->addFlash('danger', "Statistic '$name' already exists for user '{$this->getUser()->getUsername()}'");
+
                 return $this->redirectToRoute('statistic_index');
             }
 
@@ -133,12 +133,12 @@ class StatisticController extends BaseController
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'statistic.createdAt',
-            'direction' => 'desc'
+            'direction' => 'desc',
         ]);
 
         return $this->renderForm('statistic/index.html.twig', [
             'pagination' => $pagination,
-            'form' => $form
+            'form' => $form,
         ]);
     }
 
@@ -192,8 +192,7 @@ class StatisticController extends BaseController
         Request $request,
         StatisticRepository $statisticRepository,
         string $id
-    ): Response
-    {
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $statistic = $statisticRepository->findOrException($id);

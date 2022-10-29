@@ -35,6 +35,7 @@ class AddNoteModel
         }
 
         $this->title = $title;
+
         return $this;
     }
 
@@ -50,6 +51,7 @@ class AddNoteModel
         }
 
         $this->content = $content;
+
         return $this;
     }
 
@@ -61,6 +63,7 @@ class AddNoteModel
     public function setForDate(?DateTime $forDate): self
     {
         $this->forDate = $forDate;
+
         return $this;
     }
 }

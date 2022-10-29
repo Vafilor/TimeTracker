@@ -23,7 +23,7 @@ class EditStatisticValueModel
     {
         $this->value = $value;
     }
-    
+
     public function getValue(): float
     {
         return $this->value;
@@ -32,6 +32,7 @@ class EditStatisticValueModel
     public function setValue(?float $value): self
     {
         $this->value = $value;
+
         return $this;
     }
 }

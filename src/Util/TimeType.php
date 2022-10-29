@@ -6,12 +6,12 @@ namespace App\Util;
 
 class TimeType
 {
-    const INSTANT = 'instant';
-    const INTERVAL = 'interval';
+    public const INSTANT = 'instant';
+    public const INTERVAL = 'interval';
 
     public static function isValid(string $type): bool
     {
-        return $type === self::INSTANT || $type === self::INTERVAL;
+        return self::INSTANT === $type || self::INTERVAL === $type;
     }
 
     public static function invalidErrorMessage(string $type): string

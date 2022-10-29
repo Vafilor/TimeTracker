@@ -38,11 +38,6 @@ class ApiTimestamp
 
     /**
      * @param Timestamp[] $entities
-     * @param DateTimeFormatter $dateTimeFormatter
-     * @param User $user
-     * @param DateTime $now
-     * @param string $format
-     * @return array
      */
     public static function fromEntities(
         iterable $entities,

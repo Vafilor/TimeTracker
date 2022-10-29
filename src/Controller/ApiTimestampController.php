@@ -9,13 +9,10 @@ use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiStatisticValue;
-use App\Api\ApiTimeEntry;
 use App\Api\ApiTimestamp;
 use App\Entity\TagLink;
 use App\Entity\Timestamp;
-use App\Form\EditTimeEntryFormType;
 use App\Form\EditTimestampFormType;
-use App\Form\Model\EditTimeEntryModel;
 use App\Form\Model\EditTimestampModel;
 use App\Manager\TagManager;
 use App\Manager\TimestampManager;
@@ -23,7 +20,6 @@ use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
-use App\Repository\TimeEntryRepository;
 use App\Repository\TimestampRepository;
 use App\Traits\HasStatisticDataTrait;
 use App\Traits\TaggableController;
@@ -47,7 +43,7 @@ class ApiTimestampController extends BaseController
         $this->dateTimeFormatter = $dateTimeFormatter;
     }
 
-    #[Route('/api/timestamp', name: 'api_timestamp_index', methods: ["GET"])]
+    #[Route('/api/timestamp', name: 'api_timestamp_index', methods: ['GET'])]
     public function index(
         Request $request,
         TimestampRepository $timestampRepository,
@@ -61,7 +57,7 @@ class ApiTimestampController extends BaseController
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'timestamp.createdAt',
-            'direction' => 'desc'
+            'direction' => 'desc',
         ]);
 
         $items = ApiTimestamp::fromEntities($pagination->getItems(), $this->dateTimeFormatter, $this->getUser(), $this->now());
@@ -69,7 +65,7 @@ class ApiTimestampController extends BaseController
         return $this->jsonNoNulls(ApiPagination::fromPagination($pagination, $items));
     }
 
-    #[Route('/api/timestamp', name: 'api_timestamp_create', methods: ["POST"])]
+    #[Route('/api/timestamp', name: 'api_timestamp_create', methods: ['POST'])]
     public function create(Request $request, TagManager $tagManager): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -98,7 +94,7 @@ class ApiTimestampController extends BaseController
         if (str_starts_with($request->getPathInfo(), '/json')) {
             $response = [
                 'timestamp' => $apiTimestamp,
-                'view' => $this->renderView('timestamp/partials/_timestamp.html.twig', ['timestamp' => $timestamp])
+                'view' => $this->renderView('timestamp/partials/_timestamp.html.twig', ['timestamp' => $timestamp]),
             ];
 
             return $this->jsonNoNulls($response, Response::HTTP_CREATED);
@@ -107,7 +103,7 @@ class ApiTimestampController extends BaseController
         return $this->jsonNoNulls($apiTimestamp, Response::HTTP_CREATED);
     }
 
-    #[Route('/api/timestamp/{id}', name: 'api_timestamp_view', methods: ["GET"])]
+    #[Route('/api/timestamp/{id}', name: 'api_timestamp_view', methods: ['GET'])]
     public function view(
         Request $request,
         TimestampRepository $timestampRepository,
@@ -132,7 +128,7 @@ class ApiTimestampController extends BaseController
         return $this->jsonNoNulls($apiTimestamp);
     }
 
-    #[Route('/api/timestamp/{id}', name: 'api_timestamp_edit', methods: ["PUT"])]
+    #[Route('/api/timestamp/{id}', name: 'api_timestamp_edit', methods: ['PUT'])]
     #[Route('/json/timestamp/{id}', name: 'json_timestamp_update', methods: ['PUT'])]
     public function edit(
         Request $request,
@@ -176,7 +172,7 @@ class ApiTimestampController extends BaseController
         return $this->jsonNoNulls($apiTimestamp);
     }
 
-    #[Route('/api/timestamp/{id}/delete', name: 'api_timestamp_delete', methods: ["DELETE"])]
+    #[Route('/api/timestamp/{id}/delete', name: 'api_timestamp_delete', methods: ['DELETE'])]
     public function remove(
         Request $request,
         TimestampRepository $timestampRepository,
@@ -224,7 +220,7 @@ class ApiTimestampController extends BaseController
         if (str_starts_with($request->getPathInfo(), '/json')) {
             $response = [
                 'timestamp' => $apiTimestamp,
-                'view' => $this->renderView('timestamp/partials/_timestamp.html.twig', ['timestamp' => $newTimestamp])
+                'view' => $this->renderView('timestamp/partials/_timestamp.html.twig', ['timestamp' => $newTimestamp]),
             ];
 
             return $this->jsonNoNulls($response, Response::HTTP_CREATED);
@@ -282,8 +278,8 @@ class ApiTimestampController extends BaseController
         );
     }
 
-    #[Route('/api/timestamp/{id}/tags', name: 'api_timestamp_tags', methods: ["GET"])]
-    #[Route('/json/timestamp/{id}/tags', name: 'json_timestamp_tags', methods: ["GET"])]
+    #[Route('/api/timestamp/{id}/tags', name: 'api_timestamp_tags', methods: ['GET'])]
+    #[Route('/json/timestamp/{id}/tags', name: 'json_timestamp_tags', methods: ['GET'])]
     public function indexTag(
         Request $request,
         TimestampRepository $timestampRepository,
@@ -325,7 +321,7 @@ class ApiTimestampController extends BaseController
         if (str_starts_with($request->getPathInfo(), '/json')) {
             $response = [
                 'statisticValue' => $apiStatisticValue,
-                'view' => $this->renderView('statistic_value/partials/_statistic-value.html.twig', ['value' => $statisticValue])
+                'view' => $this->renderView('statistic_value/partials/_statistic-value.html.twig', ['value' => $statisticValue]),
             ];
 
             return $this->jsonNoNulls($response, Response::HTTP_CREATED);

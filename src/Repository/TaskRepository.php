@@ -18,9 +18,9 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Task|null find($id, $lockMode = null, $lockVersion = null)
- * @method Task findOrException($id, $lockMode = null, $lockVersion = null)
+ * @method Task      findOrException($id, $lockMode = null, $lockVersion = null)
  * @method Task|null findOneBy(array $criteria, array $orderBy = null)
- * @method Task findOneByOrException(array $criteria, array $orderBy = null)
+ * @method Task      findOneByOrException(array $criteria, array $orderBy = null)
  * @method Task[]    findAll()
  * @method Task[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  * @method Task[] findByKeys(string $key, mixed $values);
@@ -37,7 +37,7 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
 
     public function createDefaultQueryBuilder(bool $includeDeleted = false): QueryBuilder
     {
-        $queryBuilder =  $this->createQueryBuilder('task');
+        $queryBuilder = $this->createQueryBuilder('task');
 
         if (!$includeDeleted) {
             $queryBuilder = $queryBuilder->andWhere('task.deletedAt IS NULL');
@@ -148,8 +148,8 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
     }
 
     /**
-     * @param string|Task $task the taskId or task entity.
-     * @return int
+     * @param string|Task $task the taskId or task entity
+     *
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
@@ -181,7 +181,7 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
                              ->andWhere('task.completedAt IS NULL')
                              ->setParameters([
                                  'user' => $user,
-                                 'name' => $name
+                                 'name' => $name,
                              ])
         ;
 
@@ -204,12 +204,13 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
 
     public function orderByTimeEstimate(QueryBuilder $queryBuilder, string $direction): QueryBuilder
     {
-        $value = $direction === 'asc' ? PHP_INT_MAX : PHP_INT_MIN;
+        $value = 'asc' === $direction ? PHP_INT_MAX : PHP_INT_MIN;
 
         return $queryBuilder->addSelect("CASE WHEN task.timeEstimate IS NULL THEN $value ELSE task.timeEstimate END as HIDDEN h_timeEstimate");
     }
 
-    public function findActiveTasks(User $user): QueryBuilder {
+    public function findActiveTasks(User $user): QueryBuilder
+    {
         return $this->findByUserQueryBuilder($user)
             ->andWhere('task.active = :active')
             ->andWhere('task.completedAt IS NULL')

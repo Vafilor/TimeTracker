@@ -32,6 +32,7 @@ class ApiNote
 
     /**
      * @param Note[]|iterable $entities
+     *
      * @return ApiNote[]
      */
     public static function fromEntities(iterable $entities, User $user, string $format = DateFormatType::DATE_TIME): array

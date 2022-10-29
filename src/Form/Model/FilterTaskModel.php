@@ -35,6 +35,7 @@ class FilterTaskModel
     public function setShowCompleted(bool $showCompleted): self
     {
         $this->showCompleted = $showCompleted;
+
         return $this;
     }
 
@@ -46,6 +47,7 @@ class FilterTaskModel
     public function setShowClosed(bool $showClosed): self
     {
         $this->showClosed = $showClosed;
+
         return $this;
     }
 
@@ -66,6 +68,7 @@ class FilterTaskModel
     public function setContent(?string $content): self
     {
         $this->content = $content;
+
         return $this;
     }
 
@@ -76,7 +79,7 @@ class FilterTaskModel
 
     public function hasTags(): bool
     {
-        return !is_null($this->tags) && $this->tags !== '';
+        return !is_null($this->tags) && '' !== $this->tags;
     }
 
     /**
@@ -84,7 +87,7 @@ class FilterTaskModel
      */
     public function getTagsArray(): array
     {
-        if (is_null($this->tags) || $this->tags === '') {
+        if (is_null($this->tags) || '' === $this->tags) {
             return [];
         }
 
@@ -101,6 +104,7 @@ class FilterTaskModel
     public function setTags(?string $tags): self
     {
         $this->tags = $tags;
+
         return $this;
     }
 
@@ -117,6 +121,7 @@ class FilterTaskModel
     public function setParentTask(?string $parentTask): self
     {
         $this->parentTask = $parentTask;
+
         return $this;
     }
 
@@ -128,6 +133,7 @@ class FilterTaskModel
     public function setShowSubtasks(bool $showSubtasks): FilterTaskModel
     {
         $this->showSubtasks = $showSubtasks;
+
         return $this;
     }
 
@@ -139,6 +145,7 @@ class FilterTaskModel
     public function setOnlyShowPastDue(bool $onlyShowPastDue): self
     {
         $this->onlyShowPastDue = $onlyShowPastDue;
+
         return $this;
     }
 
@@ -150,6 +157,7 @@ class FilterTaskModel
     public function setOnlyTemplates(bool $onlyTemplates): self
     {
         $this->onlyTemplates = $onlyTemplates;
+
         return $this;
     }
 }

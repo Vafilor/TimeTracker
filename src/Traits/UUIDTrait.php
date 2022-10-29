@@ -10,7 +10,7 @@ use Ramsey\Uuid\UuidInterface;
 trait UUIDTrait
 {
     #[ORM\Id]
-    #[ORM\Column(type: "uuid", unique: true)]
+    #[ORM\Column(type: 'uuid', unique: true)]
     protected UuidInterface $id;
 
     public function getId(): UuidInterface

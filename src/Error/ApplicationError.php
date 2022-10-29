@@ -8,5 +8,4 @@ use Error;
 
 class ApplicationError extends Error
 {
-
 }

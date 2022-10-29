@@ -3,14 +3,13 @@
 namespace App\Command;
 
 use App\Manager\UserManager;
-use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
     name: 'app:user:change-password',
@@ -18,7 +17,6 @@ use Symfony\Component\Console\Attribute\AsCommand;
 )]
 class UserChangePasswordCommand extends Command
 {
-
     private UserManager $userManager;
 
     public function __construct(UserManager $userManager)
@@ -72,10 +70,11 @@ class UserChangePasswordCommand extends Command
             $this->userManager->changePassword($username, $password);
         } catch (NotFoundHttpException $exception) {
             $io->error("User not found for username '$username'");
+
             return Command::FAILURE;
         }
 
-        $io->success("Password has been changed successfully");
+        $io->success('Password has been changed successfully');
 
         return Command::SUCCESS;
     }

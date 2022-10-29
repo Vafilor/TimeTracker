@@ -9,6 +9,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 trait FindOrExceptionTrait
 {
     abstract public function find($id, $lockMode = null, $lockVersion = null);
+
     abstract public function findOneBy(array $criteria, array $orderBy = null);
 
     public function findOrException($id, $lockMode = null, $lockVersion = null)

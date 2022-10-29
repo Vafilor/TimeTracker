@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -9,31 +11,31 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\MappedSuperclass]
 abstract class BaseUser implements UserInterface
 {
-    #[ORM\Column(type: "string", length: 180, unique: true)]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     protected string $email;
 
-    #[ORM\Column(type: "string", length: 180, unique: true)]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     protected string $username;
 
-    #[ORM\Column(type: "boolean")]
+    #[ORM\Column(type: 'boolean')]
     protected bool $enabled;
 
-     #[ORM\Column(type: "string", length: 180, nullable: true)]
+    #[ORM\Column(type: 'string', length: 180, nullable: true)]
     protected ?string $confirmationToken;
 
-     #[ORM\Column(type: "datetime", nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private DateTime $passwordRequestedAt;
 
-     #[ORM\Column(type: "json")]
+    #[ORM\Column(type: 'json')]
     protected ?array $roles = [];
 
     /**
-     * The hashed password
+     * The hashed password.
      */
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     protected string $password;
 
-    #[ORM\Column(type: "boolean")]
+    #[ORM\Column(type: 'boolean')]
     private bool $isVerified;
 
     public function __construct()
@@ -66,8 +68,10 @@ abstract class BaseUser implements UserInterface
         return (string) $this->username;
     }
 
-    public function setUsername(string $username): self {
+    public function setUsername(string $username): self
+    {
         $this->username = $username;
+
         return $this;
     }
 
@@ -122,18 +126,21 @@ abstract class BaseUser implements UserInterface
         // $this->plainPassword = null;
     }
 
-    public function setConfirmationToken(string $token): self {
+    public function setConfirmationToken(string $token): self
+    {
         $this->enabled = false;
         $this->confirmationToken = $token;
 
         return $this;
     }
 
-    public function getConfirmationToken(): ?string {
+    public function getConfirmationToken(): ?string
+    {
         return $this->confirmationToken;
     }
 
-    public function confirmUser(): self {
+    public function confirmUser(): self
+    {
         $this->enabled = true;
         $this->confirmationToken = null;
 
@@ -148,6 +155,7 @@ abstract class BaseUser implements UserInterface
     public function setEnabled(bool $enabled): self
     {
         $this->enabled = $enabled;
+
         return $this;
     }
 

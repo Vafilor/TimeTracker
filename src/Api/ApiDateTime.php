@@ -15,11 +15,11 @@ class ApiDateTime
     public static function formatUserDate(DateTime $dateTime, User $user, string $format): string
     {
         $dateTz = $dateTime->setTimezone(new DateTimeZone($user->getTimezone()));
-        if ($format === DateFormatType::DATE) {
+        if (DateFormatType::DATE === $format) {
             return $dateTz->format($user->getDateFormat());
-        } elseif ($format === DateFormatType::DATE_TIME) {
+        } elseif (DateFormatType::DATE_TIME === $format) {
             return $dateTz->format($user->getDateTimeFormat());
-        } elseif ($format === DateFormatType::DATE_TIME_TODAY) {
+        } elseif (DateFormatType::DATE_TIME_TODAY === $format) {
             return $dateTz->format($user->getTodayDateTimeFormat());
         } else {
             $message = DateFormatType::invalidErrorMessage($format);

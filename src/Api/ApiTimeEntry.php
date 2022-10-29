@@ -25,11 +25,9 @@ class ApiTimeEntry
     public array $tags;
 
     /**
-     * @param TimeEntry $timeEntry
-     * @param User $user
      * @param string $format 'date' | 'today'
+     *
      * @throws \Exception
-     * @return ApiTimeEntry
      */
     public static function fromEntity(TimeEntry $timeEntry, User $user, string $format = DateFormatType::DATE_TIME): ApiTimeEntry
     {
@@ -59,9 +57,9 @@ class ApiTimeEntry
 
     /**
      * @param TimeEntry[] $entities
-     * @param User $user
-     * @param string $format
+     *
      * @return ApiTimeEntry[]
+     *
      * @throws \Exception
      */
     public static function fromEntities(iterable $entities, User $user, string $format = DateFormatType::DATE_TIME): array

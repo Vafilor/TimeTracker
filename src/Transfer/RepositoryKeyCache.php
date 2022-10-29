@@ -51,7 +51,7 @@ class RepositoryKeyCache
         $this->keyToObject = [];
 
         $this->keyToObject = [
-            $key => Collections::mapByKeyUnique($items, $key)
+            $key => Collections::mapByKeyUnique($items, $key),
         ];
 
         return $this;
@@ -64,7 +64,7 @@ class RepositoryKeyCache
         $this->keyToObject = [];
 
         $this->keyToObject = [
-            'id' => Collections::mapByKeyUnique($items, 'idString')
+            'id' => Collections::mapByKeyUnique($items, 'idString'),
         ];
 
         return $this;

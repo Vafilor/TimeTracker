@@ -14,43 +14,43 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: "users")]
+#[ORM\Table(name: 'users')]
 class User extends BaseUser
 {
     use UUIDTrait;
     use CreateTimestampableTrait;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     private string $timezone;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     private string $dateFormat;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     private string $dateTimeFormat;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     private string $todayDateTimeFormat;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     private string $durationFormat;
 
     /**
      * @var Task[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "assignedTo", targetEntity: Task::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'assignedTo', targetEntity: Task::class, orphanRemoval: true)]
     private Collection $tasks;
 
     /**
      * @var TimeEntry[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "assignedTo", targetEntity: TimeEntry::class)]
+    #[ORM\OneToMany(mappedBy: 'assignedTo', targetEntity: TimeEntry::class)]
     private Collection $timeEntries;
 
     /**
      * @var TimeEntry[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "assignedTo", targetEntity: Note::class)]
+    #[ORM\OneToMany(mappedBy: 'assignedTo', targetEntity: Note::class)]
     private Collection $notes;
 
     public function __construct(DateTime $createdAt = null)
@@ -58,7 +58,7 @@ class User extends BaseUser
         parent::__construct();
 
         $this->id = Uuid::uuid4();
-        $this->timezone = "America/Los_Angeles";
+        $this->timezone = 'America/Los_Angeles';
         $this->dateFormat = 'm/d/Y';
         $this->dateTimeFormat = 'm/d/Y h:i:s A';
         $this->todayDateTimeFormat = 'h:i:s A';
@@ -100,6 +100,7 @@ class User extends BaseUser
     public function setTimezone(string $timezone): self
     {
         $this->timezone = $timezone;
+
         return $this;
     }
 
@@ -111,6 +112,7 @@ class User extends BaseUser
     public function setDateFormat(string $dateFormat): User
     {
         $this->dateFormat = $dateFormat;
+
         return $this;
     }
 
@@ -122,6 +124,7 @@ class User extends BaseUser
     public function setDateTimeFormat(string $dateTimeFormat): User
     {
         $this->dateTimeFormat = $dateTimeFormat;
+
         return $this;
     }
 
@@ -133,6 +136,7 @@ class User extends BaseUser
     public function setTodayDateTimeFormat(string $todayDateTimeFormat): User
     {
         $this->todayDateTimeFormat = $todayDateTimeFormat;
+
         return $this;
     }
 
@@ -144,6 +148,7 @@ class User extends BaseUser
     public function setDurationFormat(string $durationFormat): self
     {
         $this->durationFormat = $durationFormat;
+
         return $this;
     }
 

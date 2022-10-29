@@ -20,8 +20,8 @@ class AddStatisticValueFormType extends AbstractType
             ->add('statisticName', TextType::class)
             ->add('value', NumberType::class, [
                 'attr' => [
-                    'placeholder' => 'value'
-                ]
+                    'placeholder' => 'value',
+                ],
             ])
             ->add('day', DateType::class, [
                 'required' => false,

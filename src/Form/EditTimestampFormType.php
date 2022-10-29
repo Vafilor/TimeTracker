@@ -19,10 +19,10 @@ class EditTimestampFormType extends AbstractType
             ->add('createdAt', DateTimeType::class, [
                 'widget' => 'single_text',
                 'with_seconds' => true,
-                'view_timezone' => $options['timezone']
+                'view_timezone' => $options['timezone'],
             ])
             ->add('description', TextAreaType::class, [
-                'required' => false
+                'required' => false,
             ])
         ;
     }
@@ -30,7 +30,7 @@ class EditTimestampFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-                                   'data_class' => EditTimestampModel::class
+                                   'data_class' => EditTimestampModel::class,
                                ]);
 
         $resolver->setRequired(['timezone']);

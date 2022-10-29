@@ -28,6 +28,7 @@ class EditTagModel
     public function setColor(string $color): self
     {
         $this->color = $color;
+
         return $this;
     }
 }

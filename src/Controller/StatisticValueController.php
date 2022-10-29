@@ -6,9 +6,9 @@ namespace App\Controller;
 
 use App\Error\StatisticValueDayConflict;
 use App\Form\AddStatisticValueFormType;
+use App\Form\EditStatisticValueFormType;
 use App\Form\Model\AddStatisticValueModel;
 use App\Form\Model\EditStatisticValueModel;
-use App\Form\EditStatisticValueFormType;
 use App\Manager\StatisticValueManager;
 use App\Repository\StatisticValueRepository;
 use DateTimeZone;
@@ -25,15 +25,14 @@ class StatisticValueController extends BaseController
         StatisticValueManager $statisticValueManager,
         StatisticValueRepository $statisticValueRepository,
         PaginatorInterface $paginator
-    ): Response
-    {
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $statisticValueRepository->findWithUserQueryBuilder($this->getUser());
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'statistic_value.startedAt',
-            'direction' => 'DESC'
+            'direction' => 'DESC',
         ]);
 
         $data = $statisticValueManager->groupByDay(
@@ -43,8 +42,8 @@ class StatisticValueController extends BaseController
         );
 
         $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValueModel(), [
-            'timezone'=> $this->getUser()->getTimezone(),
-            'action' => $this->generateUrl('statistic_value_create')
+            'timezone' => $this->getUser()->getTimezone(),
+            'action' => $this->generateUrl('statistic_value_create'),
         ]);
 
         $form->handleRequest($request);
@@ -52,7 +51,7 @@ class StatisticValueController extends BaseController
         return $this->renderForm('statistic_value/index.html.twig', [
             'pagination' => $pagination,
             'data' => $data,
-            'form' => $form
+            'form' => $form,
         ]);
     }
 
@@ -82,7 +81,7 @@ class StatisticValueController extends BaseController
 
         return $this->render('statistic_value/view.html.twig', [
             'statisticValue' => $statisticValue,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -91,8 +90,7 @@ class StatisticValueController extends BaseController
         Request $request,
         StatisticValueRepository $statisticValueRepository,
         string $id
-    ): Response
-    {
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $statisticValue = $statisticValueRepository->findOrException($id);
@@ -107,18 +105,17 @@ class StatisticValueController extends BaseController
         return $this->redirectToRoute('statistic_value_index');
     }
 
-    #[Route('/record/create', name: 'statistic_value_create', methods: ["POST"])]
+    #[Route('/record/create', name: 'statistic_value_create', methods: ['POST'])]
     public function addForDay(
         Request $request,
         StatisticValueManager $statisticValueManager,
         StatisticValueRepository $statisticValueRepository,
         PaginatorInterface $paginator
-    ): Response
-    {
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValueModel(), [
-            'timezone'=> $this->getUser()->getTimezone(),
+            'timezone' => $this->getUser()->getTimezone(),
         ]);
 
         $form->handleRequest($request);
@@ -143,7 +140,7 @@ class StatisticValueController extends BaseController
         $queryBuilder = $statisticValueRepository->findWithUserQueryBuilder($this->getUser());
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'statistic_value.startedAt',
-            'direction' => 'DESC'
+            'direction' => 'DESC',
         ]);
 
         $data = $statisticValueManager->groupByDay(
@@ -155,7 +152,7 @@ class StatisticValueController extends BaseController
         return $this->renderForm('statistic_value/index.html.twig', [
             'pagination' => $pagination,
             'data' => $data,
-            'form' => $form
+            'form' => $form,
         ]);
     }
 }

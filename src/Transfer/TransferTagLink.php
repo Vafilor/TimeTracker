@@ -14,6 +14,7 @@ class TransferTagLink
 
     /**
      * @param iterable|Tag[] $tags
+     *
      * @return TransferTagLink[]
      */
     public static function fromTags(iterable $tags): array

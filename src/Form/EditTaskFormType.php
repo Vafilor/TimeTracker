@@ -46,24 +46,24 @@ class EditTaskFormType extends AbstractType
                 'attr' => [
                     'placeholder' => '2h5m25s',
                 ],
-                'invalid_message' => "This value is invalid. It must be of the form %hours%h%minutes%m%seconds%s or any combination",
+                'invalid_message' => 'This value is invalid. It must be of the form %hours%h%minutes%m%seconds%s or any combination',
                 'invalid_message_parameters' => [
                     '%hours%' => 2,
                     '%minutes%' => 35,
-                    '%seconds%' => 25
+                    '%seconds%' => 25,
                 ],
                 'required' => false,
             ])
             ->add('parentTask', TextType::class, [
-                'required' => false
+                'required' => false,
             ])
             ->add('template', CheckboxType::class, [
                 'required' => false,
-                'label' => 'Is Template'
+                'label' => 'Is Template',
             ])
             ->add('active', CheckboxType::class, [
                 'required' => false,
-                'label' => 'Active'
+                'label' => 'Active',
             ])
         ;
 

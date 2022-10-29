@@ -6,8 +6,6 @@ namespace App\Api;
 
 use App\Entity\Tag;
 use App\Entity\TagLink;
-use App\Entity\Task;
-use App\Entity\User;
 
 class ApiTag
 {
@@ -21,6 +19,7 @@ class ApiTag
 
     /**
      * @param Tag[]|iterable $entities
+     *
      * @return ApiTag[]
      */
     public static function fromEntities(iterable $entities): array
@@ -35,6 +34,7 @@ class ApiTag
 
     /**
      * @param TagLink[]|iterable $entities
+     *
      * @return ApiTag[]
      */
     public static function fromTagLinks(iterable $entities): array

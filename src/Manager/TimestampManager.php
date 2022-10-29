@@ -22,9 +22,6 @@ class TimestampManager
      * The tags and other properties are copied from the input timestamp.
      *
      * The new entities are persisted to doctrine, but not flushed.
-     *
-     * @param Timestamp $timestamp
-     * @return Timestamp
      */
     public function repeat(Timestamp $timestamp): Timestamp
     {

@@ -33,12 +33,19 @@ use Throwable;
 trait TaggableController
 {
     abstract protected function createForm(string $type, $data = null, array $options = []): FormInterface;
+
     abstract protected function json($data, int $status = 200, array $headers = [], array $context = []): JsonResponse;
+
     abstract protected function createNotFoundException(string $message = 'Not Found', Throwable $previous = null): NotFoundHttpException;
+
     abstract public function getJsonBody(Request $request, array $default = null): array;
+
     abstract public function persist(mixed $obj, bool $flush = false): void;
+
     abstract public function doctrineRemove(mixed $obj, bool $flush = false): void;
+
     abstract public function jsonNoNulls($data, int $status = 200, array $headers = [], array $context = []): JsonResponse;
+
     abstract public function jsonNoContent(): JsonResponse;
 
     public function addTagRequest(
@@ -61,9 +68,7 @@ trait TaggableController
         }
 
         if (!$form->isSubmitted()) {
-            throw new ApiProblemException(
-                ApiFormError::invalidAction('bad_data', 'Form not submitted')
-            );
+            throw new ApiProblemException(ApiFormError::invalidAction('bad_data', 'Form not submitted'));
         }
 
         if (!$form->isValid()) {
@@ -105,12 +110,7 @@ trait TaggableController
         if (is_null($existingLink)) {
             $className = TypeUtil::getClassName($resource);
 
-            throw new ApiProblemException(
-                ApiProblem::invalidAction(
-                    TagController::CODE_TAG_NOT_ASSOCIATED,
-                    "Tag '$tagName' is not associated to this $className"
-                )
-            );
+            throw new ApiProblemException(ApiProblem::invalidAction(TagController::CODE_TAG_NOT_ASSOCIATED, "Tag '$tagName' is not associated to this $className"));
         }
 
         $this->doctrineRemove($existingLink, true);

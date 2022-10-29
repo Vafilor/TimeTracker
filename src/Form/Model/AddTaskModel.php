@@ -49,6 +49,7 @@ class AddTaskModel
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -64,6 +65,7 @@ class AddTaskModel
         }
 
         $this->description = $description;
+
         return $this;
     }
 
@@ -80,6 +82,7 @@ class AddTaskModel
     public function setParentTask(?string $parentTask): self
     {
         $this->parentTask = $parentTask;
+
         return $this;
     }
 
@@ -91,6 +94,7 @@ class AddTaskModel
     public function setDueAt(?DateTime $dueAt): self
     {
         $this->dueAt = $dueAt;
+
         return $this;
     }
 
@@ -107,6 +111,7 @@ class AddTaskModel
     public function setTaskTemplate(?string $taskTemplate): self
     {
         $this->taskTemplate = $taskTemplate;
+
         return $this;
     }
 
@@ -118,6 +123,7 @@ class AddTaskModel
     public function setActive(bool $active): self
     {
         $this->active = $active;
+
         return $this;
     }
 }

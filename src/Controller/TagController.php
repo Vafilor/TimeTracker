@@ -6,11 +6,11 @@ namespace App\Controller;
 
 use App\Entity\Tag;
 use App\Form\AddTagFormType;
-use App\Form\Model\EditTagModel;
-use App\Form\Model\FilterTagModel;
-use App\Form\Model\AddTagModel;
 use App\Form\EditTagFormType;
 use App\Form\FilterTagFormType;
+use App\Form\Model\AddTagModel;
+use App\Form\Model\EditTagModel;
+use App\Form\Model\FilterTagModel;
 use App\Repository\TagRepository;
 use App\Util\DateTimeUtil;
 use Knp\Component\Pager\PaginatorInterface;
@@ -21,8 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TagController extends BaseController
 {
-    const CODE_NAME_TAKEN = 'code_name_taken';
-    const CODE_TAG_NOT_ASSOCIATED = 'tag_not_associated';
+    public const CODE_NAME_TAKEN = 'code_name_taken';
+    public const CODE_TAG_NOT_ASSOCIATED = 'tag_not_associated';
 
     private function createIndexFilterForm(FormFactoryInterface $formFactory)
     {
@@ -64,17 +64,17 @@ class TagController extends BaseController
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'tag.name',
-            'direction' => 'asc'
+            'direction' => 'asc',
         ]);
 
         $createForm = $this->createForm(AddTagFormType::class, new AddTagModel(), [
-            'action' => $this->generateUrl('tag_create')
+            'action' => $this->generateUrl('tag_create'),
         ]);
 
         return $this->renderForm('tag/index.html.twig', [
             'pagination' => $pagination,
             'form' => $createForm,
-            'filterForm' => $filterForm
+            'filterForm' => $filterForm,
         ]);
     }
 
@@ -99,6 +99,7 @@ class TagController extends BaseController
             $existingTag = $tagRepository->findWithUserName($this->getUser(), $name);
             if (!is_null($existingTag)) {
                 $this->addFlash('danger', "Tag '$name' already exists for user '{$this->getUser()->getUsername()}'");
+
                 return $this->redirectToRoute('tag_view', ['id' => $existingTag->getIdString()]);
             }
 
@@ -113,19 +114,19 @@ class TagController extends BaseController
 
         $filterForm = $this->createIndexFilterForm($formFactory);
         $createForm = $this->createForm(AddTagFormType::class, new AddTagModel(), [
-            'action' => $this->generateUrl('tag_create')
+            'action' => $this->generateUrl('tag_create'),
         ]);
 
         $queryBuilder = $tagRepository->findWithUser($this->getUser());
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'tag.name',
-            'direction' => 'asc'
+            'direction' => 'asc',
         ]);
 
         return $this->redirectToRoute('tag_index', [
             'pagination' => $pagination,
             'filterForm' => $filterForm,
-            'form' => $createForm
+            'form' => $createForm,
         ]);
     }
 
@@ -161,7 +162,7 @@ class TagController extends BaseController
             'tag' => $tag,
             'form' => $form->createView(),
             'references' => $count,
-            'duration' => DateTimeUtil::dateIntervalFromSeconds($totalTime)
+            'duration' => DateTimeUtil::dateIntervalFromSeconds($totalTime),
         ]);
     }
 
@@ -185,7 +186,7 @@ class TagController extends BaseController
         return $this->redirectToRoute('tag_index');
     }
 
-    #[Route('/tag_partial', name: 'tag_index_partial', methods: ["GET"])]
+    #[Route('/tag_partial', name: 'tag_index_partial', methods: ['GET'])]
     public function partialIndex(
         Request $request,
         TagRepository $tagRepository,
@@ -197,7 +198,7 @@ class TagController extends BaseController
         $excludeString = $request->query->get('exclude', '');
         $excludeItems = [];
 
-        if ($excludeString !== '') {
+        if ('' !== $excludeString) {
             $excludeItems = explode(',', urldecode($excludeString));
         }
 
@@ -205,7 +206,7 @@ class TagController extends BaseController
             ->andWhere('tag.canonicalName LIKE :term')
             ->setParameter('term', "%$term%");
 
-        if (count($excludeItems) !== 0) {
+        if (0 !== count($excludeItems)) {
             $queryBuilder = $queryBuilder->andWhere('tag.name NOT IN (:exclude)')
                 ->setParameter('exclude', $excludeItems);
         }
@@ -216,13 +217,12 @@ class TagController extends BaseController
             $queryBuilder,
             [
                 'sort' => 'tag.name',
-                'direction' => 'asc'
+                'direction' => 'asc',
             ]
         );
 
-
         return $this->render('tag/partials/_tag_list.html.twig', [
-            'pagination' => $pagination
+            'pagination' => $pagination,
         ]);
     }
 }

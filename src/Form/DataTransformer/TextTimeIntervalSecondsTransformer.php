@@ -17,7 +17,7 @@ class TextTimeIntervalSecondsTransformer implements DataTransformerInterface
      */
     public function transform($intervalRaw): string
     {
-        if (null === $intervalRaw || $intervalRaw === '') {
+        if (null === $intervalRaw || '' === $intervalRaw) {
             return '';
         }
 
@@ -29,7 +29,7 @@ class TextTimeIntervalSecondsTransformer implements DataTransformerInterface
     }
 
     /**
-     * Transforms a string (time interval 2h5m9s) to integer seconds
+     * Transforms a string (time interval 2h5m9s) to integer seconds.
      *
      * @throws TransformationFailedException if time interval is invalid
      */
@@ -44,7 +44,7 @@ class TextTimeIntervalSecondsTransformer implements DataTransformerInterface
         $textInterval = str_replace(' ', '', $textInterval);
 
         if (str_starts_with($textInterval, '-')) {
-            throw new TransformationFailedException("Time Interval can not be negative");
+            throw new TransformationFailedException('Time Interval can not be negative');
         }
 
         // Capitalize format characters for consistency
@@ -58,24 +58,24 @@ class TextTimeIntervalSecondsTransformer implements DataTransformerInterface
 
         $value = $textInterval;
         $parts = explode('H', $value);
-        if (count($parts) === 2) {
+        if (2 === count($parts)) {
             $hours = $parts[0];
             $value = $parts[1];
         }
 
         $parts = explode('M', $value);
-        if (count($parts) === 2) {
+        if (2 === count($parts)) {
             $minutes = $parts[0];
             $value = $parts[1];
         }
 
         $parts = explode('S', $value);
-        if (count($parts) !== 0 && is_integer($parts[0])) {
+        if (0 !== count($parts) && is_integer($parts[0])) {
             $seconds = $parts[0];
         }
 
         if (null === $hours && null === $minutes && null === $seconds) {
-            throw new TransformationFailedException("No valid hours, minutes, or seconds found");
+            throw new TransformationFailedException('No valid hours, minutes, or seconds found');
         }
 
         $totalSeconds = 0;

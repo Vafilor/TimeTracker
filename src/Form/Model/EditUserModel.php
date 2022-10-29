@@ -35,6 +35,7 @@ class EditUserModel
     public function setTimezone(string $timezone): self
     {
         $this->timezone = $timezone;
+
         return $this;
     }
 
@@ -46,6 +47,7 @@ class EditUserModel
     public function setDateFormat(string $dateFormat): self
     {
         $this->dateFormat = $dateFormat;
+
         return $this;
     }
 
@@ -57,6 +59,7 @@ class EditUserModel
     public function setDateTimeFormat(string $dateTimeFormat): self
     {
         $this->dateTimeFormat = $dateTimeFormat;
+
         return $this;
     }
 
@@ -68,6 +71,7 @@ class EditUserModel
     public function setTodayDateTimeFormat(string $todayDateTimeFormat): self
     {
         $this->todayDateTimeFormat = $todayDateTimeFormat;
+
         return $this;
     }
 
@@ -79,6 +83,7 @@ class EditUserModel
     public function setDurationFormat(string $durationFormat): self
     {
         $this->durationFormat = $durationFormat;
+
         return $this;
     }
 }

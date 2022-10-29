@@ -21,6 +21,7 @@ class AddTimestampModel
     public function setTagIds(string $tagIds): self
     {
         $this->tagIds = $tagIds;
+
         return $this;
     }
 }

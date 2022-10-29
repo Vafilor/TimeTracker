@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Entity\Task;
-use App\Entity\User;
 use App\Form\Model\EditTimeEntryModel;
-use App\Repository\TaskRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -24,7 +20,7 @@ class EditTimeEntryFormType extends AbstractType
                 'widget' => 'single_text',
                 'with_seconds' => true,
                 'view_timezone' => $options['timezone'],
-                'required' => false
+                'required' => false,
             ])
             ->add('endedAt', DateTimeType::class, [
                 'widget' => 'single_text',
@@ -44,4 +40,3 @@ class EditTimeEntryFormType extends AbstractType
         $resolver->setRequired(['timezone']);
     }
 }
-

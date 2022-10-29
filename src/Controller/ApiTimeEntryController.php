@@ -10,16 +10,15 @@ use App\Api\ApiPagination;
 use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiStatisticValue;
-use App\Api\ApiTag;
 use App\Api\ApiTask;
 use App\Api\ApiTimeEntry;
 use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Entity\TimeEntry;
-use App\Form\Model\FilterTimeEntryModel;
-use App\Form\Model\EditTimeEntryModel;
 use App\Form\EditTimeEntryFormType;
 use App\Form\FilterTimeEntryFormType;
+use App\Form\Model\EditTimeEntryModel;
+use App\Form\Model\FilterTimeEntryModel;
 use App\Manager\TagManager;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
@@ -48,8 +47,8 @@ class ApiTimeEntryController extends BaseController
     /**
      * @throws Exception
      */
-    #[Route('/api/time-entry', name: 'api_time_entry_index', methods: ["GET"])]
-    #[Route('/json/time-entry', name: 'json_time_entry_index', methods: ["GET"])]
+    #[Route('/api/time-entry', name: 'api_time_entry_index', methods: ['GET'])]
+    #[Route('/json/time-entry', name: 'json_time_entry_index', methods: ['GET'])]
     public function index(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
@@ -82,7 +81,7 @@ class ApiTimeEntryController extends BaseController
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'time_entry.startedAt',
-            'direction' => 'desc'
+            'direction' => 'desc',
         ]);
 
         $items = ApiTimeEntry::fromEntities($pagination->getItems(), $this->getUser());
@@ -100,7 +99,7 @@ class ApiTimeEntryController extends BaseController
     /**
      * @throws Exception
      */
-    #[Route('/api/time-entry/today', name: 'api_time_entry_today', methods: ["GET"])]
+    #[Route('/api/time-entry/today', name: 'api_time_entry_today', methods: ['GET'])]
     public function today(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
@@ -139,7 +138,7 @@ class ApiTimeEntryController extends BaseController
         return $this->jsonNoNulls(ApiPagination::fromPagination($pagination, $items));
     }
 
-    #[Route('/api/time-entry', name: 'api_time_entry_create', methods: ["POST"])]
+    #[Route('/api/time-entry', name: 'api_time_entry_create', methods: ['POST'])]
     #[Route('/json/time-entry', name: 'json_time_entry_create', methods: ['POST'])]
     public function create(
         Request $request,
@@ -151,13 +150,7 @@ class ApiTimeEntryController extends BaseController
 
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($runningTimeEntry)) {
-            throw new ApiProblemException(
-                ApiProblem::invalidAction(
-                    TimeEntryController::CODE_RUNNING_TIMER,
-                    'You have a running timer',
-                    ['resource' => $runningTimeEntry->getIdString()]
-                )
-            );
+            throw new ApiProblemException(ApiProblem::invalidAction(TimeEntryController::CODE_RUNNING_TIMER, 'You have a running timer', ['resource' => $runningTimeEntry->getIdString()]));
         }
 
         $manager = $this->getDoctrine()->getManager();
@@ -197,18 +190,18 @@ class ApiTimeEntryController extends BaseController
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser(), $timeFormat);
         $data = [
             'timeEntry' => $apiTimeEntry,
-            'url' => $url
+            'url' => $url,
         ];
 
         $template = $request->query->get('template', 'false');
-        if ($template !== 'false') {
-            if ($template === 'regular') {
+        if ('false' !== $template) {
+            if ('regular' === $template) {
                 $data['template'] = $this->renderView('time_entry/partials/_time-entry.html.twig', [
-                    'timeEntry' => $timeEntry
+                    'timeEntry' => $timeEntry,
                 ]);
-            } elseif ($template === 'small') {
+            } elseif ('small' === $template) {
                 $data['template'] = $this->renderView('time_entry/partials/_time-entry-small.html.twig', [
-                    'timeEntry' => $timeEntry
+                    'timeEntry' => $timeEntry,
                 ]);
             } else {
                 $problem = ApiProblem::withErrors(
@@ -224,7 +217,7 @@ class ApiTimeEntryController extends BaseController
         return $this->jsonNoNulls($data, Response::HTTP_CREATED);
     }
 
-    #[Route('/api/time-entry/{id}', name: 'api_time_entry_view', methods: ["GET"])]
+    #[Route('/api/time-entry/{id}', name: 'api_time_entry_view', methods: ['GET'])]
     public function view(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
@@ -241,7 +234,7 @@ class ApiTimeEntryController extends BaseController
         return $this->jsonNoNulls($apiTimeEntry);
     }
 
-    #[Route('/api/time-entry/{id}', name: 'api_time_entry_edit', methods: ["PUT"])]
+    #[Route('/api/time-entry/{id}', name: 'api_time_entry_edit', methods: ['PUT'])]
     #[Route('/json/time-entry/{id}', name: 'json_time_entry_update', methods: ['PUT'])]
     public function edit(
         Request $request,
@@ -296,9 +289,8 @@ class ApiTimeEntryController extends BaseController
      * To continue a time-entry means to create a new time entry with the same tags.
      * It's you "continuing" to do something again.
      *
-     * @param TimeEntryRepository $timeEntryRepository
-     * @param string $id
      * @return Response
+     *
      * @throws Exception
      */
     #[Route('/api/time-entry/{id}/continue', name: 'api_time_entry_continue', methods: ['POST'])]
@@ -317,13 +309,7 @@ class ApiTimeEntryController extends BaseController
 
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($runningTimeEntry)) {
-            throw new ApiProblemException(
-                ApiProblem::invalidAction(
-                    TimeEntryController::CODE_RUNNING_TIMER,
-                    'You have a running timer',
-                    ['resource' => $runningTimeEntry->getIdString()]
-                )
-            );
+            throw new ApiProblemException(ApiProblem::invalidAction(TimeEntryController::CODE_RUNNING_TIMER, 'You have a running timer', ['resource' => $runningTimeEntry->getIdString()]));
         }
 
         $tagLinks = $tagLinkRepository->findForTimeEntry($existingTimeEntry);
@@ -351,12 +337,12 @@ class ApiTimeEntryController extends BaseController
 
         $data = [
             'timeEntry' => $apiTimeEntry,
-            'url' => $url
+            'url' => $url,
         ];
 
         if (boolval($request->query->get('template', 'false'))) {
             $data['template'] = $this->renderView('time_entry/partials/_time-entry.html.twig', [
-                'timeEntry' => $timeEntry
+                'timeEntry' => $timeEntry,
             ]);
         }
 
@@ -374,12 +360,7 @@ class ApiTimeEntryController extends BaseController
         }
 
         if ($timeEntry->isOver()) {
-            throw new ApiProblemException(
-                ApiProblem::invalidAction(
-                    TimeEntryController::CODE_TIME_ENTRY_OVER,
-                    'Time entry is already over'
-                )
-            );
+            throw new ApiProblemException(ApiProblem::invalidAction(TimeEntryController::CODE_TIME_ENTRY_OVER, 'Time entry is already over'));
         }
 
         $timeEntry->stop();
@@ -403,7 +384,7 @@ class ApiTimeEntryController extends BaseController
         return $this->jsonNoNulls($apiTimeEntry);
     }
 
-    #[Route('/api/time-entry/{id}/resume', name: 'api_time_entry_resume', methods: ["PUT"])]
+    #[Route('/api/time-entry/{id}/resume', name: 'api_time_entry_resume', methods: ['PUT'])]
     public function resume(TimeEntryRepository $timeEntryRepository, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -441,7 +422,7 @@ class ApiTimeEntryController extends BaseController
         return $this->jsonNoNulls($apiTimeEntry);
     }
 
-    #[Route('/api/time-entry/{id}', name: 'api_time_entry_delete', methods: ["DELETE"])]
+    #[Route('/api/time-entry/{id}', name: 'api_time_entry_delete', methods: ['DELETE'])]
     public function delete(TimeEntryRepository $timeEntryRepository, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -511,8 +492,8 @@ class ApiTimeEntryController extends BaseController
         );
     }
 
-    #[Route('/api/time-entry/{id}/tags', name: 'api_time_entry_tags', methods: ["GET"])]
-    #[Route('/json/time-entry/{id}/tags', name: 'json_time_entry_tags', methods: ["GET"])]
+    #[Route('/api/time-entry/{id}/tags', name: 'api_time_entry_tags', methods: ['GET'])]
+    #[Route('/json/time-entry/{id}/tags', name: 'json_time_entry_tags', methods: ['GET'])]
     public function indexTag(
         Request $request,
         TimeEntryRepository $timeEntryRepository,
@@ -608,12 +589,7 @@ class ApiTimeEntryController extends BaseController
         $manager = $this->getDoctrine()->getManager();
 
         if (!$timeEntry->assignedToTask()) {
-            throw new ApiProblemException(
-                ApiProblem::invalidAction(
-                    TaskController::CODE_NO_ASSIGNED_TASK,
-                    'Time entry has no assigned task',
-                )
-            );
+            throw new ApiProblemException(ApiProblem::invalidAction(TaskController::CODE_NO_ASSIGNED_TASK, 'Time entry has no assigned task'));
         }
 
         $timeEntry->removeTask();
@@ -664,7 +640,7 @@ class ApiTimeEntryController extends BaseController
         if (str_starts_with($request->getPathInfo(), '/json')) {
             $response = [
                 'statisticValue' => $apiStatisticValue,
-                'view' => $this->renderView('statistic_value/partials/_statistic-value.html.twig', ['value' => $statisticValue])
+                'view' => $this->renderView('statistic_value/partials/_statistic-value.html.twig', ['value' => $statisticValue]),
             ];
 
             return $this->jsonNoNulls($response, Response::HTTP_CREATED);

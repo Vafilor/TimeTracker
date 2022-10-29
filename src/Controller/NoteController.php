@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Api\ApiTag;
 use App\Entity\Note;
 use App\Form\AddNoteFormType;
 use App\Form\EditNoteFormType;
@@ -60,18 +59,18 @@ class NoteController extends BaseController
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'note.createdAt',
-            'direction' => 'desc'
+            'direction' => 'desc',
         ]);
 
         $form = $this->createForm(AddNoteFormType::class, new AddNoteModel(), [
             'action' => $this->generateUrl('note_create'),
-            'timezone' => $this->getUser()->getTimezone()
+            'timezone' => $this->getUser()->getTimezone(),
         ]);
 
         return $this->renderForm('note/index.html.twig', [
             'pagination' => $pagination,
             'filterForm' => $filterForm,
-            'form' => $form
+            'form' => $form,
         ]);
     }
 
@@ -111,13 +110,13 @@ class NoteController extends BaseController
         $filterForm = $this->createIndexFilterForm($formFactory);
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'note.createdAt',
-            'direction' => 'desc'
+            'direction' => 'desc',
         ]);
 
         return $this->renderForm('note/index.html.twig', [
             'pagination' => $pagination,
             'filterForm' => $filterForm,
-            'form' => $form
+            'form' => $form,
         ]);
     }
 

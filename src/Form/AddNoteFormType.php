@@ -19,19 +19,19 @@ class AddNoteFormType extends AbstractType
             ->add('title', TextType::class, [
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'title'
-                ]
+                    'placeholder' => 'title',
+                ],
             ])
             ->add('content', TextType::class, [
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'content'
-                ]
+                    'placeholder' => 'content',
+                ],
             ])
             ->add('forDate', DateType::class, [
                 'widget' => 'single_text',
                 'view_timezone' => $options['timezone'],
-                'required' => false
+                'required' => false,
             ])
         ;
     }

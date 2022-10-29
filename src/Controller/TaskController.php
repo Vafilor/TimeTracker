@@ -4,27 +4,22 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Api\ApiTag;
-use App\Api\ApiTask;
 use App\Entity\Task;
 use App\Form\ActionTaskFormType;
 use App\Form\AddTaskFormType;
-use App\Form\ExampleFormType;
-use App\Form\Model\ActionTaskModel;
-use App\Form\Model\AddTaskModel;
-use App\Form\Model\FilterTaskModel;
-use App\Form\Model\EditTaskModel;
 use App\Form\EditTaskFormType;
 use App\Form\FilterTaskFormType;
+use App\Form\Model\ActionTaskModel;
+use App\Form\Model\AddTaskModel;
+use App\Form\Model\EditTaskModel;
+use App\Form\Model\FilterTaskModel;
 use App\Manager\TaskManager;
 use App\Repository\TaskRepository;
 use DateTime;
-use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
 use LogicException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -32,8 +27,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TaskController extends BaseController
 {
-    const CODE_NO_PARENT_TASK = 'code_no_parent_task';
-    const CODE_NO_ASSIGNED_TASK = 'code_no_assigned_task';
+    public const CODE_NO_PARENT_TASK = 'code_no_parent_task';
+    public const CODE_NO_ASSIGNED_TASK = 'code_no_assigned_task';
 
     private TaskRepository $taskRepository;
 
@@ -80,11 +75,11 @@ class TaskController extends BaseController
             $queryBuilder = $this->taskRepository->applyNoSubtasks($queryBuilder);
         }
 
-        if ($request->query->get('sort', '') === 'task.completedAt') {
+        if ('task.completedAt' === $request->query->get('sort', '')) {
             $queryBuilder = $this->taskRepository->applyCompleted($queryBuilder);
         }
 
-        if ($request->query->get('sort', '') === 'task.timeEstimate') {
+        if ('task.timeEstimate' === $request->query->get('sort', '')) {
             $direction = $request->query->get('direction');
 
             // We add a fake column h_timeEstimate since timeEstimate values can be null
@@ -99,7 +94,7 @@ class TaskController extends BaseController
             $queryBuilder,
             [
                 'sort' => 'task.createdAt',
-                'direction' => 'desc'
+                'direction' => 'desc',
             ]
         );
 
@@ -108,7 +103,7 @@ class TaskController extends BaseController
             new AddTaskModel(),
             [
                 'timezone' => $this->getUser()->getTimezone(),
-                'action' => $this->generateUrl('task_create')
+                'action' => $this->generateUrl('task_create'),
             ],
         );
 
@@ -117,12 +112,12 @@ class TaskController extends BaseController
             [
                 'pagination' => $pagination,
                 'filterForm' => $filterForm,
-                'form' => $form
+                'form' => $form,
             ]
         );
     }
 
-    #[Route('/task_partial', name: 'task_index_partial', methods: ["GET"])]
+    #[Route('/task_partial', name: 'task_index_partial', methods: ['GET'])]
     public function partialIndex(
         Request $request,
         TaskRepository $taskRepository,
@@ -162,12 +157,12 @@ class TaskController extends BaseController
             $queryBuilder,
             [
                 'sort' => 'task.createdAt',
-                'direction' => 'desc'
+                'direction' => 'desc',
             ]
         );
 
         return $this->render('task/partials/_task_list.html.twig', [
-            'pagination' => $pagination
+            'pagination' => $pagination,
         ]);
     }
 
@@ -186,7 +181,7 @@ class TaskController extends BaseController
             new AddTaskModel(),
             [
                 'timezone' => $this->getUser()->getTimezone(),
-                'action' => $this->generateUrl('task_create')
+                'action' => $this->generateUrl('task_create'),
             ]
         );
 
@@ -206,6 +201,7 @@ class TaskController extends BaseController
                 $taskTemplate = $taskRepository->findOrException($data->getTaskTemplate());
                 if (!$taskTemplate->isTemplate()) {
                     $this->addFlash('danger', 'Task template is not set as a template');
+
                     return $this->redirectToRoute('task_index');
                 }
 
@@ -227,7 +223,7 @@ class TaskController extends BaseController
             $queryBuilder,
             [
                 'sort' => 'task.createdAt',
-                'direction' => 'desc'
+                'direction' => 'desc',
             ]
         );
 
@@ -236,12 +232,13 @@ class TaskController extends BaseController
         return $this->renderForm('task/index.html.twig', [
            'pagination' => $pagination,
            'filterForm' => $filterForm,
-           'form' => $form
+           'form' => $form,
        ]);
     }
 
     #[Route('/today/task/active', name: 'task_active')]
-    public function active(Request $request, TaskRepository $taskRepository, PaginatorInterface $paginator): Response {
+    public function active(Request $request, TaskRepository $taskRepository, PaginatorInterface $paginator): Response
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $taskRepository->findActiveTasks($this->getUser());
@@ -252,17 +249,17 @@ class TaskController extends BaseController
             $queryBuilder,
             [
                 'sort' => 'task.createdAt',
-                'direction' => 'desc'
+                'direction' => 'desc',
             ]
         );
 
         $form = $this->createForm(ActionTaskFormType::class, new ActionTaskModel(), [
-            'action' => $this->generateUrl('task_form_complete')
+            'action' => $this->generateUrl('task_form_complete'),
         ]);
 
         return $this->renderForm('task/active.html.twig', [
             'pagination' => $pagination,
-            'form' => $form
+            'form' => $form,
         ]);
     }
 
@@ -311,7 +308,7 @@ class TaskController extends BaseController
             [
                 'task' => $task,
                 'form' => $form->createView(),
-                'subtasks' => $task->getSubtasks()
+                'subtasks' => $task->getSubtasks(),
             ]
         );
     }
@@ -329,7 +326,7 @@ class TaskController extends BaseController
         $lineage = $task->getLineage();
 
         return $this->render('task/partials/_breadcrumbs.html.twig', [
-            'tasks' => $lineage
+            'tasks' => $lineage,
         ]);
     }
 
@@ -343,7 +340,7 @@ class TaskController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $completed = $request->query->get('value', 'complete') === 'complete';
+        $completed = 'complete' === $request->query->get('value', 'complete');
         if ($completed && !$task->completed()) {
             $task->complete();
         } elseif (!$completed && $task->completed()) {
@@ -374,11 +371,11 @@ class TaskController extends BaseController
                 throw $this->createAccessDeniedException();
             }
 
-            if ($data->getAction() !== "complete") {
-                throw new LogicException("Only complete is supported");
+            if ('complete' !== $data->getAction()) {
+                throw new LogicException('Only complete is supported');
             }
 
-            $completed = $data->getValue() === "true";
+            $completed = 'true' === $data->getValue();
             if ($completed && !$task->completed()) {
                 $task->complete();
             } elseif (!$completed && $task->completed()) {
@@ -404,7 +401,7 @@ class TaskController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $closed = $request->query->get('value', 'closed') === 'close';
+        $closed = 'close' === $request->query->get('value', 'closed');
         if ($closed && !$task->closed()) {
             $task->close();
         } elseif (!$closed && $task->closed()) {
@@ -413,12 +410,11 @@ class TaskController extends BaseController
 
         $this->flush();
 
-        $action = $closed ? "Closed" : "Re-opened";
+        $action = $closed ? 'Closed' : 'Re-opened';
         $this->addFlash('success', "$action '{$task->getName()}'");
 
         return $this->redirectToRoute('task_index');
     }
-
 
     #[Route('/task/{id}/delete', name: 'task_delete')]
     public function remove(Request $request, TaskRepository $taskRepository, string $id): Response
@@ -434,7 +430,7 @@ class TaskController extends BaseController
 
         $task->softDelete($now);
         $parentIds = [$task->getIdString()];
-        while (count($parentIds) !== 0) {
+        while (0 !== count($parentIds)) {
             $subtasks = $taskRepository->findByKeys('parent', $parentIds);
             $parentIds = [];
 

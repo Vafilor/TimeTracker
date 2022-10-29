@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Form\Model;
 
 use App\Entity\Task;
-use DateInterval;
 use DateTime;
 
 class EditTaskModel
@@ -60,6 +59,7 @@ class EditTaskModel
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -75,6 +75,7 @@ class EditTaskModel
         }
 
         $this->description = $description;
+
         return $this;
     }
 
@@ -86,6 +87,7 @@ class EditTaskModel
     public function setCompletedAt(?DateTime $completedAt): self
     {
         $this->completedAt = $completedAt;
+
         return $this;
     }
 
@@ -102,6 +104,7 @@ class EditTaskModel
     public function setParentTask(?string $parentTask): self
     {
         $this->parentTask = $parentTask;
+
         return $this;
     }
 
@@ -113,6 +116,7 @@ class EditTaskModel
     public function setDueAt(?DateTime $dueAt): self
     {
         $this->dueAt = $dueAt;
+
         return $this;
     }
 
@@ -124,6 +128,7 @@ class EditTaskModel
     public function setTemplate(bool $template): self
     {
         $this->template = $template;
+
         return $this;
     }
 
@@ -135,6 +140,7 @@ class EditTaskModel
     public function setTimeEstimate(?int $timeEstimate): self
     {
         $this->timeEstimate = $timeEstimate;
+
         return $this;
     }
 
@@ -146,6 +152,7 @@ class EditTaskModel
     public function setPriority(int $priority): self
     {
         $this->priority = $priority;
+
         return $this;
     }
 
@@ -157,6 +164,7 @@ class EditTaskModel
     public function setActive(bool $active): self
     {
         $this->active = $active;
+
         return $this;
     }
 }

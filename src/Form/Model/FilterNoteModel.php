@@ -22,7 +22,7 @@ class FilterNoteModel
 
     public function hasTags(): bool
     {
-        return !is_null($this->tags) && $this->tags !== '';
+        return !is_null($this->tags) && '' !== $this->tags;
     }
 
     /**
@@ -30,7 +30,7 @@ class FilterNoteModel
      */
     public function getTagsArray(): array
     {
-        if (is_null($this->tags) || $this->tags === '') {
+        if (is_null($this->tags) || '' === $this->tags) {
             return [];
         }
 
@@ -47,6 +47,7 @@ class FilterNoteModel
     public function setTags(?string $tags): self
     {
         $this->tags = $tags;
+
         return $this;
     }
 
@@ -57,12 +58,13 @@ class FilterNoteModel
 
     public function hasContent(): bool
     {
-        return !is_null($this->content) && $this->content !== '';
+        return !is_null($this->content) && '' !== $this->content;
     }
 
     public function setContent(?string $content): self
     {
         $this->content = $content;
+
         return $this;
     }
 }

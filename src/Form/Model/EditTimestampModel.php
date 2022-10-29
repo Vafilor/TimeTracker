@@ -33,6 +33,7 @@ class EditTimestampModel
     public function setCreatedAt(?DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -53,6 +54,7 @@ class EditTimestampModel
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 }

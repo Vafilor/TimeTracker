@@ -19,23 +19,23 @@ class StatisticValue
     use UUIDTrait;
     use CreateTimestampableTrait;
 
-    #[ORM\Column(type: "float")]
+    #[ORM\Column(type: 'float')]
     private float $value;
 
-    #[ORM\Column(type: "datetime")]
+    #[ORM\Column(type: 'datetime')]
     protected DateTime $startedAt;
 
-    #[ORM\Column(type: "datetime", nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?DateTime $endedAt;
 
-    #[ORM\ManyToOne(targetEntity: Statistic::class, inversedBy: "statisticValues")]
+    #[ORM\ManyToOne(targetEntity: Statistic::class, inversedBy: 'statisticValues')]
     #[ORM\JoinColumn(nullable: false)]
     private Statistic $statistic;
 
-    #[ORM\ManyToOne(targetEntity: TimeEntry::class, inversedBy: "statisticValues")]
+    #[ORM\ManyToOne(targetEntity: TimeEntry::class, inversedBy: 'statisticValues')]
     private ?TimeEntry $timeEntry;
 
-    #[ORM\ManyToOne(targetEntity: Timestamp::class, inversedBy: "statisticValues")]
+    #[ORM\ManyToOne(targetEntity: Timestamp::class, inversedBy: 'statisticValues')]
     private ?Timestamp $timestamp;
 
     public static function fromResource(Statistic $statistic, float $value, Timestamp|TimeEntry $resource): StatisticValue
@@ -52,7 +52,7 @@ class StatisticValue
 
     public static function fromTimestamp(Statistic $statistic, float $value, Timestamp $timestamp): StatisticValue
     {
-        if ($statistic->getTimeType() !== TimeType::INSTANT) {
+        if (TimeType::INSTANT !== $statistic->getTimeType()) {
             throw new InvalidArgumentException("Statistic is not an 'instant' type. Unable to associate to timestamp");
         }
 
@@ -79,7 +79,7 @@ class StatisticValue
         DateTime $startedAt,
         ?DateTime $endedAt = null): StatisticValue
     {
-        if ($statistic->getTimeType() !== TimeType::INTERVAL) {
+        if (TimeType::INTERVAL !== $statistic->getTimeType()) {
             throw new InvalidArgumentException("Statistic is not an 'interval' type. Unable to associate to time-entry");
         }
 
@@ -132,6 +132,7 @@ class StatisticValue
     {
         $startedAt->setTimezone(new DateTimeZone('UTC'));
         $this->startedAt = $startedAt;
+
         return $this;
     }
 
@@ -156,6 +157,7 @@ class StatisticValue
         }
 
         $this->endedAt = $endedAt;
+
         return $this;
     }
 

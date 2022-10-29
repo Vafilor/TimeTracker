@@ -6,7 +6,6 @@ namespace App\Form;
 
 use App\Form\Model\FilterTagModel;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -17,7 +16,7 @@ class FilterTagFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'required' => false
+                'required' => false,
             ])
         ;
     }

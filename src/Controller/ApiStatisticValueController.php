@@ -23,10 +23,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiStatisticValueController extends BaseController
 {
-    const CODE_DAY_TAKEN = 'code_day_taken';
+    public const CODE_DAY_TAKEN = 'code_day_taken';
 
-    #[Route('/api/record', name: 'api_statistic_value_create', methods: ["POST"])]
-    #[Route('/json/record', name: 'json_statistic_value_create', methods: ["POST"])]
+    #[Route('/api/record', name: 'api_statistic_value_create', methods: ['POST'])]
+    #[Route('/json/record', name: 'json_statistic_value_create', methods: ['POST'])]
     public function addForDay(
         Request $request,
         StatisticValueManager $statisticValueManager,
@@ -35,22 +35,18 @@ class ApiStatisticValueController extends BaseController
     ): JsonResponse {
         $form = $this->createForm(AddStatisticValueFormType::class, new AddStatisticValueModel(), [
             'csrf_protection' => false,
-            'timezone'=> $this->getUser()->getTimezone(),
+            'timezone' => $this->getUser()->getTimezone(),
         ]);
 
         $data = $this->getJsonBody($request);
         try {
             $form->submit($data);
         } catch (InvalidArgumentException $invalidArgumentException) {
-            throw new ApiProblemException(
-                new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR)
-            );
+            throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
         }
 
         if (!$form->isSubmitted()) {
-            throw new ApiProblemException(
-                ApiFormError::invalidAction('bad_data', 'Form not submitted')
-            );
+            throw new ApiProblemException(ApiFormError::invalidAction('bad_data', 'Form not submitted'));
         }
 
         if (!$form->isValid()) {
@@ -83,7 +79,7 @@ class ApiStatisticValueController extends BaseController
         if (str_starts_with($request->getPathInfo(), '/json')) {
             $response = [
                 'statisticValue' => $apiModel,
-                'view' => $this->renderView('statistic_value/partials/_statistic-value.html.twig', ['value' => $statisticValue])
+                'view' => $this->renderView('statistic_value/partials/_statistic-value.html.twig', ['value' => $statisticValue]),
             ];
 
             return $this->jsonNoNulls($response, Response::HTTP_CREATED);

@@ -74,6 +74,7 @@ class TransferTask
 
     /**
      * @param Task[]|iterable $entities
+     *
      * @return TransferTask[]
      */
     public static function fromEntities(iterable $entities): array

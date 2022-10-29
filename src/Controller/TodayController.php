@@ -66,7 +66,7 @@ class TodayController extends BaseController
         return $this->render('today/index.html.twig', [
             'pagination' => $pagination,
             'latestTimeEntry' => $latestTimeEntry,
-            'totalTime' => $totalTime
+            'totalTime' => $totalTime,
         ]);
     }
 }

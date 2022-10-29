@@ -23,8 +23,7 @@ class ReportController extends BaseController
         Request $request,
         TimeEntryRepository $timeEntryRepository,
         PaginatorInterface $paginator
-    ): Response
-    {
+    ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $userTimeZone = $this->getUser()->getTimezone();
@@ -67,7 +66,7 @@ class ReportController extends BaseController
 
         return $this->render('report/today.html.twig', [
             'summary' => $summary,
-            'totalTime' => $totalTime
+            'totalTime' => $totalTime,
         ]);
     }
 
@@ -127,7 +126,7 @@ class ReportController extends BaseController
         return $this->render('report/tag_time_entries.html.twig', [
             'tag' => $tag,
             'data' => $data,
-            'total' => DateTimeUtil::dateIntervalFromSeconds($totalSeconds)
+            'total' => DateTimeUtil::dateIntervalFromSeconds($totalSeconds),
         ]);
     }
 }

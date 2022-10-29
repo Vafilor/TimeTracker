@@ -6,7 +6,6 @@ namespace App\Util;
 
 use DateInterval;
 use DateTime;
-use DateTimeZone;
 use LogicException;
 
 class DateRange
@@ -15,8 +14,6 @@ class DateRange
     private DateTime $end;
 
     /**
-     * @param DateTime $start
-     * @param DateTime $end
      * @return DateRange[]
      */
     public static function splitIntoDays(DateTime $start, DateTime $end): array

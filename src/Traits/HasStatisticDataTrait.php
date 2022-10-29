@@ -28,9 +28,13 @@ use Symfony\Component\HttpFoundation\Response;
 trait HasStatisticDataTrait
 {
     abstract protected function createForm(string $type, $data = null, array $options = []): FormInterface;
+
     abstract public function getJsonBody(Request $request, array $default = null): array;
+
     abstract public function persist(mixed $obj, bool $flush = false): void;
+
     abstract public function doctrineRemove(mixed $obj, bool $flush = false): void;
+
     abstract public function jsonNoNulls($data, int $status = 200, array $headers = [], array $context = []): JsonResponse;
 
     public function addStatisticValueRequest(
@@ -55,15 +59,11 @@ trait HasStatisticDataTrait
         try {
             $form->submit($data);
         } catch (InvalidArgumentException $invalidArgumentException) {
-            throw new ApiProblemException(
-                new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR)
-            );
+            throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
         }
 
         if (!$form->isSubmitted()) {
-            throw new ApiProblemException(
-                ApiFormError::invalidAction('bad_data', 'Form not submitted')
-            );
+            throw new ApiProblemException(ApiFormError::invalidAction('bad_data', 'Form not submitted'));
         }
 
         if (!$form->isValid()) {

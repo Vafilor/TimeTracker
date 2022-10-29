@@ -41,6 +41,7 @@ class EditNoteModel
     public function setTitle(?string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
 
@@ -57,6 +58,7 @@ class EditNoteModel
     public function setContent(?string $content): self
     {
         $this->content = $content;
+
         return $this;
     }
 
@@ -68,6 +70,7 @@ class EditNoteModel
     public function setForDate(?DateTime $forDate): self
     {
         $this->forDate = $forDate;
+
         return $this;
     }
 }

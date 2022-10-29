@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
- #[ORM\Entity(repositoryClass: StatisticRepository::class)]
+#[ORM\Entity(repositoryClass: StatisticRepository::class)]
 class Statistic
 {
     use UUIDTrait;
@@ -24,34 +24,34 @@ class Statistic
     use TaggableTrait;
     use AssignableToUserTrait;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $icon;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $canonicalName;
 
-    #[ORM\Column(type: "text")]
+    #[ORM\Column(type: 'text')]
     private string $description;
 
     /**
-     * Hex color string, includes #. e.g. #FF0000
+     * Hex color string, includes #. e.g. #FF0000.
      */
-    #[ORM\Column(type:"string", length:7)]
+    #[ORM\Column(type: 'string', length: 7)]
     private string $color;
 
     /**
      * The unit of the statistic, like meters, cups, beats per minute.
      */
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: 'string')]
     private string $unit;
 
     /**
      * @var string One of 'instance' | 'interval'
      */
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $timeType;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -61,13 +61,13 @@ class Statistic
     /**
      * @var TagLink[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "statistic", targetEntity: TagLink::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'statistic', targetEntity: TagLink::class, orphanRemoval: true)]
     private Collection $tagLinks;
 
     /**
      * @var StatisticValue[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "statistic", targetEntity: StatisticValue::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'statistic', targetEntity: StatisticValue::class, orphanRemoval: true)]
     private Collection $statisticValues;
 
     public static function canonicalizeName(string $name): string
@@ -106,7 +106,7 @@ class Statistic
 
         $this->canonicalName = self::canonicalizeName($name);
 
-        if (strlen($this->canonicalName) === 0) {
+        if (0 === strlen($this->canonicalName)) {
             throw new InvalidArgumentException('Name can not be blank once whitespace is removed.');
         }
 
@@ -166,6 +166,7 @@ class Statistic
     public function setColor(string $color): self
     {
         $this->color = $color;
+
         return $this;
     }
 
@@ -177,6 +178,7 @@ class Statistic
     public function setUnit(string $unit): self
     {
         $this->unit = $unit;
+
         return $this;
     }
 }

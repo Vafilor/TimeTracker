@@ -8,9 +8,9 @@ use App\Api\ApiTag;
 use App\Entity\TagLink;
 use App\Entity\Timestamp;
 use App\Form\AddTimestampFormType;
+use App\Form\EditTimestampFormType;
 use App\Form\Model\AddTimestampModel;
 use App\Form\Model\EditTimestampModel;
-use App\Form\EditTimestampFormType;
 use App\Manager\TagManager;
 use App\Manager\TimestampManager;
 use App\Repository\StatisticValueRepository;
@@ -39,16 +39,16 @@ class TimestampController extends BaseController
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'timestamp.createdAt',
-            'direction' => 'desc'
+            'direction' => 'desc',
         ]);
 
         $form = $this->createForm(AddTimestampFormType::class, new AddTimestampModel(), [
-            'action' => $this->generateUrl('timestamp_create')
+            'action' => $this->generateUrl('timestamp_create'),
         ]);
 
         return $this->renderForm('timestamp/index.html.twig', [
             'pagination' => $pagination,
-            'form' => $form
+            'form' => $form,
         ]);
     }
 
@@ -63,7 +63,7 @@ class TimestampController extends BaseController
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $form = $this->createForm(AddTimestampFormType::class, new AddTimestampModel(), [
-            'action' => $this->generateUrl('timestamp_create')
+            'action' => $this->generateUrl('timestamp_create'),
         ]);
 
         $form->handleRequest($request);
@@ -91,16 +91,16 @@ class TimestampController extends BaseController
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'timestamp.createdAt',
-            'direction' => 'desc'
+            'direction' => 'desc',
         ]);
 
         return $this->renderForm('timestamp/index.html.twig', [
             'pagination' => $pagination,
-            'form' => $form
+            'form' => $form,
         ]);
     }
 
-    #[Route('/timestamp/{id}/repeat', name: 'timestamp_repeat', methods: ["POST"])]
+    #[Route('/timestamp/{id}/repeat', name: 'timestamp_repeat', methods: ['POST'])]
     public function repeat(
         Request $request,
         TimestampManager $timestampManager,
@@ -213,7 +213,7 @@ class TimestampController extends BaseController
         $statisticValues = $statisticValueRepository->findForResource($timestamp);
 
         return $this->render('statistic_value/partials/_statistic-value-index.html.twig', [
-            'values' => $statisticValues
+            'values' => $statisticValues,
         ]);
     }
 }

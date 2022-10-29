@@ -19,9 +19,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @method TagLink|null find($id, $lockMode = null, $lockVersion = null)
- * @method TagLink findOrException($id, $lockMode = null, $lockVersion = null)
+ * @method TagLink      findOrException($id, $lockMode = null, $lockVersion = null)
  * @method TagLink|null findOneBy(array $criteria, array $orderBy = null)
- * @method TagLink findOneByOrException(array $criteria, array $orderBy = null)
+ * @method TagLink      findOneByOrException(array $criteria, array $orderBy = null)
  * @method TagLink[]    findAll()
  * @method TagLink[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
@@ -42,7 +42,6 @@ class TagLinkRepository extends ServiceEntityRepository
     /**
      * Finds the TagLinks for a TimeEntry with the tags fetched.
      *
-     * @param TimeEntry $timeEntry
      * @return TagLink[]
      */
     public function findForTimeEntry(TimeEntry $timeEntry): array

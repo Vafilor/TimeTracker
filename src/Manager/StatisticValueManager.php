@@ -88,10 +88,7 @@ class StatisticValueManager
     }
 
     /**
-     * @param string $dateFormat
-     * @param DateTimeZone $timezone
      * @param iterable|StatisticValue[] $statisticValues
-     * @return array
      */
     public function groupByDay(string $dateFormat, DateTimeZone $timezone, iterable $statisticValues): array
     {

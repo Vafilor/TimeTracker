@@ -17,11 +17,6 @@ class Collections
      * For each item, gets the $key value from the item and returns an array of the keys.
      *
      * Note that the array might contain duplicates.
-     *
-     * @param $items
-     * @param $key
-     *
-     * @return array
      */
     public static function pluck(iterable $items, string $key): array
     {
@@ -38,11 +33,6 @@ class Collections
 
     /**
      * For each item, gets the $key value from the item and returns an array of the keys.
-     *
-     * @param $items
-     * @param $key
-     *
-     * @return array
      */
     public static function pluckNoDuplicates(iterable $items, string $key): array
     {
@@ -74,11 +64,6 @@ class Collections
      *
      * This method assumes the key will be unique.
      *
-     * @param $items
-     * @param $key
-     *
-     * @return array
-     *
      * @throws LogicException if the keys are not unique
      */
     public static function mapByKeyUnique(iterable $items, string $key): array
@@ -104,8 +89,6 @@ class Collections
      * Find an item in a collection, comparing by id.
      * If it exists, it is returned. Otherwise null is returned.
      *
-     * @param $items
-     *
      * @return mixed|null
      */
     public static function findByUuid(UuidInterface $id, iterable $items)
@@ -120,8 +103,6 @@ class Collections
     }
 
     /**
-     * @param $items
-     *
      * @return mixed
      *
      * @throws Exception

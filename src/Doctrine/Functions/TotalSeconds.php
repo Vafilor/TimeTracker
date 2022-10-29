@@ -11,7 +11,7 @@ use Doctrine\ORM\Query\SqlWalker;
 /**
  * "total_seconds" "(" ArithmeticPrimary "," ArithmeticPrimary ")"
  * First argument should be start datetime
- * Second argument should be end datetime
+ * Second argument should be end datetime.
  */
 class TotalSeconds extends FunctionNode
 {
@@ -27,7 +27,7 @@ class TotalSeconds extends FunctionNode
 
     /**
      * @override
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getSql(SqlWalker $sqlWalker)
     {
@@ -54,7 +54,7 @@ class TotalSeconds extends FunctionNode
 
     /**
      * @override
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function parse(Parser $parser)
     {

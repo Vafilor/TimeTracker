@@ -12,10 +12,6 @@ class TransferTaskLink
     public string $name;
     public string $assignedTo;
 
-    /**
-     * @param Task $task
-     * @return TransferTaskLink
-     */
     public static function fromTask(Task $task): TransferTaskLink
     {
         return new TransferTaskLink($task->getIdString(), $task->getName(), $task->getAssignedTo()->getUsername());

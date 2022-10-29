@@ -45,6 +45,7 @@ class TransferUser
 
     /**
      * @param User[]|iterable $entities
+     *
      * @return TransferUser[]
      */
     public static function fromEntities(iterable $entities): array

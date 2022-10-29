@@ -11,8 +11,8 @@ use App\Api\ApiProblem;
 use App\Api\ApiProblemException;
 use App\Api\ApiStatistic;
 use App\Entity\Statistic;
-use App\Form\Model\AddStatisticModel;
 use App\Form\AddStatisticFormType;
+use App\Form\Model\AddStatisticModel;
 use App\Manager\TagManager;
 use App\Repository\StatisticRepository;
 use App\Repository\TagLinkRepository;
@@ -30,8 +30,8 @@ class ApiStatisticController extends BaseController
 {
     use TaggableController;
 
-    #[Route('/api/statistic', name: 'api_statistic_index', methods: ["GET"])]
-    #[Route('/json/statistic', name: 'json_statistic_index', methods: ["GET"])]
+    #[Route('/api/statistic', name: 'api_statistic_index', methods: ['GET'])]
+    #[Route('/json/statistic', name: 'json_statistic_index', methods: ['GET'])]
     public function index(
         Request $request,
         StatisticRepository $statisticRepository,
@@ -65,7 +65,7 @@ class ApiStatisticController extends BaseController
             $queryBuilder,
             [
                 'sort' => 'statistic.name',
-                'direction' => 'asc'
+                'direction' => 'asc',
             ]
         );
 
@@ -74,8 +74,8 @@ class ApiStatisticController extends BaseController
         return $this->jsonNoNulls(ApiPagination::fromPagination($pagination, $items));
     }
 
-    #[Route('/api/statistic', name: 'api_statistic_create', methods: ["POST"])]
-    #[Route('/json/statistic', name: 'json_statistic_create', methods: ["POST"])]
+    #[Route('/api/statistic', name: 'api_statistic_create', methods: ['POST'])]
+    #[Route('/json/statistic', name: 'json_statistic_create', methods: ['POST'])]
     public function create(Request $request, StatisticRepository $statisticRepository): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -90,15 +90,11 @@ class ApiStatisticController extends BaseController
         try {
             $form->submit($data);
         } catch (InvalidArgumentException $invalidArgumentException) {
-            throw new ApiProblemException(
-                new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR)
-            );
+            throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
         }
 
         if (!$form->isSubmitted()) {
-            throw new ApiProblemException(
-                ApiFormError::invalidAction('bad_data', 'Form not submitted')
-            );
+            throw new ApiProblemException(ApiFormError::invalidAction('bad_data', 'Form not submitted'));
         }
 
         if (!$form->isValid()) {
@@ -133,7 +129,7 @@ class ApiStatisticController extends BaseController
         if (str_starts_with($request->getPathInfo(), '/json')) {
             $response = [
                 'statistic' => $apiStatistic,
-                'view' => $this->renderView('statistic/partials/_statistic.html.twig', ['statistic' => $statistic])
+                'view' => $this->renderView('statistic/partials/_statistic.html.twig', ['statistic' => $statistic]),
             ];
 
             return $this->jsonNoNulls($response, Response::HTTP_CREATED);
@@ -191,8 +187,8 @@ class ApiStatisticController extends BaseController
         );
     }
 
-    #[Route('/api/statistic/{id}/tags', name: 'api_statistic_tags', methods: ["GET"])]
-    #[Route('/json/statistic/{id}/tags', name: 'json_statistic_tags', methods: ["GET"])]
+    #[Route('/api/statistic/{id}/tags', name: 'api_statistic_tags', methods: ['GET'])]
+    #[Route('/json/statistic/{id}/tags', name: 'json_statistic_tags', methods: ['GET'])]
     public function indexTag(
         Request $request,
         StatisticRepository $statisticRepository,

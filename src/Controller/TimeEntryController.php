@@ -7,10 +7,10 @@ namespace App\Controller;
 use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Entity\TimeEntry;
-use App\Form\Model\FilterTimeEntryModel;
-use App\Form\Model\EditTimeEntryModel;
 use App\Form\EditTimeEntryFormType;
 use App\Form\FilterTimeEntryFormType;
+use App\Form\Model\EditTimeEntryModel;
+use App\Form\Model\FilterTimeEntryModel;
 use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TaskRepository;
@@ -23,8 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TimeEntryController extends BaseController
 {
-    const CODE_RUNNING_TIMER = 'code_running_timer';
-    const CODE_TIME_ENTRY_OVER = 'code_time_entry_over';
+    public const CODE_RUNNING_TIMER = 'code_running_timer';
+    public const CODE_TIME_ENTRY_OVER = 'code_time_entry_over';
 
     #[Route('/time-entry', name: 'time_entry_index')]
     public function index(
@@ -68,13 +68,13 @@ class TimeEntryController extends BaseController
 
         $pagination = $this->populatePaginationData($request, $paginator, $queryBuilder, [
             'sort' => 'time_entry.startedAt',
-            'direction' => 'desc'
+            'direction' => 'desc',
         ]);
 
         return $this->render('time_entry/index.html.twig', [
             'pagination' => $pagination,
             'filterForm' => $filterForm->createView(),
-            'task' => $task
+            'task' => $task,
         ]);
     }
 
@@ -86,6 +86,7 @@ class TimeEntryController extends BaseController
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($runningTimeEntry)) {
             $this->addFlash('danger', 'You already have a running time entry');
+
             return $this->redirectToRoute('time_entry_index');
         }
 
@@ -101,10 +102,6 @@ class TimeEntryController extends BaseController
     /**
      * To continue a time-entry means to create a new time entry with the same tags and task (if applicable)
      * It's you "continuing" to do something again.
-     *
-     * @param TimeEntryRepository $timeEntryRepository
-     * @param string $id
-     * @return Response
      */
     #[Route('/time-entry/{id}/continue', name: 'time_entry_continue')]
     public function continue(
@@ -121,6 +118,7 @@ class TimeEntryController extends BaseController
         $runningTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($runningTimeEntry)) {
             $this->addFlash('danger', 'You already have a running time entry');
+
             return $this->redirectToRoute('time_entry_index');
         }
 
@@ -194,6 +192,7 @@ class TimeEntryController extends BaseController
 
         if ($timeEntry->isOver()) {
             $this->addFlash('danger', 'Time Entry already finished');
+
             return $this->redirectToRoute('time_entry_index');
         }
 
@@ -215,11 +214,13 @@ class TimeEntryController extends BaseController
         $activeTimeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
         if (!is_null($activeTimeEntry)) {
             $this->addFlash('danger', 'You already have a running time entry');
+
             return $this->redirectToRoute('time_entry_index');
         }
 
         if (!$timeEntry->isOver()) {
             $this->addFlash('danger', 'Time Entry is still running');
+
             return $this->redirectToRoute('time_entry_index');
         }
 
@@ -269,7 +270,7 @@ class TimeEntryController extends BaseController
         $statisticValues = $statisticValueRepository->findForResource($timeEntry);
 
         return $this->render('statistic_value/partials/_statistic-value-index.html.twig', [
-            'values' => $statisticValues
+            'values' => $statisticValues,
         ]);
     }
 }

@@ -56,6 +56,7 @@ class TransferTimeEntry
 
     /**
      * @param TimeEntry[]|iterable $entities
+     *
      * @return TransferTimeEntry[]
      */
     public static function fromEntities(iterable $entities): array

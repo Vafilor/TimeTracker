@@ -19,8 +19,7 @@ class UserManager
         UserRepository $userRepository,
         UserPasswordEncoderInterface $userPasswordEncoder,
         EntityManagerInterface $objectManager
-    )
-    {
+    ) {
         $this->userRepository = $userRepository;
         $this->passwordEncoder = $userPasswordEncoder;
         $this->entityManager = $objectManager;

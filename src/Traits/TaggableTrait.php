@@ -15,7 +15,6 @@ use Doctrine\Common\Collections\Collection;
  * @property $tagLinks
  *
  * Trait TaggableTrait
- * @package App\Traits
  */
 trait TaggableTrait
 {
@@ -55,6 +54,6 @@ trait TaggableTrait
 
     public function hasTags(): bool
     {
-        return count($this->tagLinks) !== 0;
+        return 0 !== count($this->tagLinks);
     }
 }

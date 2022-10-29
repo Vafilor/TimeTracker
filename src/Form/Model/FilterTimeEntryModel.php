@@ -34,6 +34,7 @@ class FilterTimeEntryModel
     public function setStart(?DateTime $start): self
     {
         $this->start = $start;
+
         return $this;
     }
 
@@ -50,6 +51,7 @@ class FilterTimeEntryModel
     public function setEnd(?DateTime $end): self
     {
         $this->end = $end;
+
         return $this;
     }
 
@@ -60,7 +62,7 @@ class FilterTimeEntryModel
 
     public function hasTags(): bool
     {
-        return !is_null($this->tags) && $this->tags !== '';
+        return !is_null($this->tags) && '' !== $this->tags;
     }
 
     /**
@@ -68,14 +70,14 @@ class FilterTimeEntryModel
      */
     public function getTagsArray(): array
     {
-        if (is_null($this->tags) || $this->tags === '') {
+        if (is_null($this->tags) || '' === $this->tags) {
             return [];
         }
 
         $results = explode(',', $this->tags);
 
         $results = array_map(
-            fn($tagRaw) => str_replace(' ', '', $tagRaw),
+            fn ($tagRaw) => str_replace(' ', '', $tagRaw),
             $results
         );
 
@@ -85,6 +87,7 @@ class FilterTimeEntryModel
     public function setTags(?string $tags): self
     {
         $this->tags = $tags;
+
         return $this;
     }
 
@@ -101,6 +104,7 @@ class FilterTimeEntryModel
     public function setTaskId(?string $taskId): FilterTimeEntryModel
     {
         $this->taskId = $taskId;
+
         return $this;
     }
 }

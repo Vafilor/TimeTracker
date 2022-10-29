@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Form\Model\EditUserModel;
 use App\Form\EditUserFormType;
+use App\Form\Model\EditUserModel;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends BaseController
 {
     #[Route('/user/{id}/view', name: 'user_view')]
-    public function view(Request $request, UserRepository $userRepository, string $id): Response {
+    public function view(Request $request, UserRepository $userRepository, string $id): Response
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $user = $userRepository->find($id);

@@ -48,6 +48,7 @@ class TransferStatistic
 
     /**
      * @param Statistic[]|iterable $entities
+     *
      * @return TransferStatistic[]
      */
     public static function fromEntities(iterable $entities): array

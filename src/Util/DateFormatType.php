@@ -6,13 +6,13 @@ namespace App\Util;
 
 class DateFormatType
 {
-    const DATE = 'date';
-    const DATE_TIME = 'date_time';
-    const DATE_TIME_TODAY = 'date_time_today';
+    public const DATE = 'date';
+    public const DATE_TIME = 'date_time';
+    public const DATE_TIME_TODAY = 'date_time_today';
 
     public static function isValid(string $type): bool
     {
-        return $type === self::DATE || $type === self::DATE_TIME || $type === self::DATE_TIME_TODAY;
+        return self::DATE === $type || self::DATE_TIME === $type || self::DATE_TIME_TODAY === $type;
     }
 
     public static function invalidErrorMessage(string $type): string

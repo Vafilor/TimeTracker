@@ -33,6 +33,7 @@ class ApiStatistic
 
     /**
      * @param Statistic[]|iterable $entities
+     *
      * @return ApiStatistic[]
      */
     public static function fromEntities(iterable $entities, User $user, string $format = DateFormatType::DATE_TIME): array

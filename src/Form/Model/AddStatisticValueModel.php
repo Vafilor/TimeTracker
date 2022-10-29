@@ -34,19 +34,19 @@ class AddStatisticValueModel
     public function setStatisticName(?string $statisticName): self
     {
         $this->statisticName = $statisticName;
+
         return $this;
     }
 
     public function setValue(?float $value): self
     {
         $this->value = $value;
+
         return $this;
     }
 
     /**
      * Returns the statistic name in canonical form.
-     *
-     * @return string
      */
     public function getStatisticName(): string
     {
@@ -58,9 +58,6 @@ class AddStatisticValueModel
         return Statistic::canonicalizeName($this->statisticName);
     }
 
-    /**
-     * @return float
-     */
     public function getValue(): float
     {
         return $this->value;
@@ -78,6 +75,7 @@ class AddStatisticValueModel
         }
 
         $this->day = $day;
+
         return $this;
     }
 }

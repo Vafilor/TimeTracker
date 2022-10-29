@@ -13,7 +13,6 @@ use App\Traits\UpdateTimestampableTrait;
 use App\Traits\UUIDTrait;
 use DateInterval;
 use DateTime;
-use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -32,32 +31,32 @@ class TimeEntry
     use TaggableTrait;
     use AssignableToUserTrait;
 
-    #[ORM\Column(type: "datetime")]
+    #[ORM\Column(type: 'datetime')]
     protected DateTime $startedAt;
 
-    #[ORM\Column(type: "datetime", nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?DateTime $endedAt;
 
-    #[ORM\Column(type: "text")]
+    #[ORM\Column(type: 'text')]
     private string $description;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "timeEntries")]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'timeEntries')]
     #[ORM\JoinColumn(nullable: false)]
     private User $assignedTo;
 
     /**
      * @var TagLink[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "timeEntry", targetEntity: TagLink::class)]
+    #[ORM\OneToMany(mappedBy: 'timeEntry', targetEntity: TagLink::class)]
     private Collection $tagLinks;
 
     /**
      * @var StatisticValue[]|Collection
      */
-    #[ORM\OneToMany(targetEntity: StatisticValue::class, mappedBy: "timeEntry")]
+    #[ORM\OneToMany(targetEntity: StatisticValue::class, mappedBy: 'timeEntry')]
     private Collection $statisticValues;
 
-    #[ORM\ManyToOne(targetEntity: Task::class, inversedBy: "timeEntries")]
+    #[ORM\ManyToOne(targetEntity: Task::class, inversedBy: 'timeEntries')]
     private ?Task $task;
 
     public function __construct(User $assignedTo, DateTime $createdAt = null)
@@ -80,7 +79,7 @@ class TimeEntry
 
     public function isDescriptionEmpty(): bool
     {
-        return $this->description === '';
+        return '' === $this->description;
     }
 
     public function setDescription(string $description): self
@@ -98,6 +97,7 @@ class TimeEntry
     public function setStartedAt(DateTime $startedAt): self
     {
         $this->startedAt = $startedAt;
+
         return $this;
     }
 
@@ -114,6 +114,7 @@ class TimeEntry
     {
         if (!$this->isOver()) {
             $now = new DateTime('now', new DateTimeZone('UTC'));
+
             return $now->diff($this->startedAt);
         }
 
@@ -124,6 +125,7 @@ class TimeEntry
     {
         if (!$this->isOver()) {
             $now = new DateTime('now', new DateTimeZone('UTC'));
+
             return $now->getTimestamp() - $this->startedAt->getTimestamp();
         }
 
@@ -134,11 +136,10 @@ class TimeEntry
     {
         if (is_null($endedAt)) {
             $endedAt = new DateTime('now', new DateTimeZone('UTC'));
-            ;
         }
 
         if ($endedAt < $this->createdAt) {
-            throw new InvalidArgumentException("End time can not be before start time");
+            throw new InvalidArgumentException('End time can not be before start time');
         }
 
         $this->endedAt = $endedAt;
@@ -171,6 +172,7 @@ class TimeEntry
     {
         $endedAt->setTimezone(new DateTimeZone('UTC'));
         $this->endedAt = $endedAt;
+
         return $this;
     }
 
@@ -203,7 +205,6 @@ class TimeEntry
      * it is purely for this object in memory.
      * To persist the TagLink it must be persisted outside of this method.
      *
-     * @param TagLink $tagLink
      * @return $this
      */
     public function addTagLink(TagLink $tagLink): self

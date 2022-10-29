@@ -21,8 +21,8 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @method StatisticValue|null find($id, $lockMode = null, $lockVersion = null)
  * @method StatisticValue|null findOneBy(array $criteria, array $orderBy = null)
- * @method StatisticValue findOrException($id, $lockMode = null, $lockVersion = null)
- * @method StatisticValue findOneByOrException(array $criteria, array $orderBy = null)
+ * @method StatisticValue      findOrException($id, $lockMode = null, $lockVersion = null)
+ * @method StatisticValue      findOneByOrException(array $criteria, array $orderBy = null)
  * @method StatisticValue[]    findAll()
  * @method StatisticValue[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
@@ -103,9 +103,6 @@ class StatisticValueRepository extends ServiceEntityRepository implements FindBy
     }
 
     /**
-     * @param Statistic $statistic
-     * @param DateRange $dateRange
-     * @return StatisticValue|null
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function findForDay(Statistic $statistic, DateRange $dateRange): ?StatisticValue
@@ -122,7 +119,7 @@ class StatisticValueRepository extends ServiceEntityRepository implements FindBy
                     ->setParameters([
                         'statistic' => $statistic,
                         'start' => $start,
-                        'end' => $end
+                        'end' => $end,
                      ])
                     ->getQuery()
                     ->getOneOrNullResult()

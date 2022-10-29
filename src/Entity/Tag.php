@@ -22,16 +22,16 @@ class Tag
     use CreateTimestampableTrait;
     use AssignableToUserTrait;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $canonicalName;
 
     /**
-     * Hex color string, includes #. e.g. #FF0000
+     * Hex color string, includes #. e.g. #FF0000.
      */
-    #[ORM\Column(type: "string", length: 7)]
+    #[ORM\Column(type: 'string', length: 7)]
     private string $color;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -41,7 +41,7 @@ class Tag
     /**
      * @var TagLink[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "tag", targetEntity: TagLink::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'tag', targetEntity: TagLink::class, orphanRemoval: true)]
     private Collection $tagLinks;
 
     public function __construct(
@@ -79,7 +79,7 @@ class Tag
 
         $this->canonicalName = $this->canonicalizeName($name);
 
-        if (strlen($this->canonicalName) === 0) {
+        if (0 === strlen($this->canonicalName)) {
             throw new InvalidArgumentException('Name can not be blank once whitespace is removed.');
         }
 
@@ -89,6 +89,7 @@ class Tag
     public function setColor(string $color): self
     {
         $this->color = $color;
+
         return $this;
     }
 

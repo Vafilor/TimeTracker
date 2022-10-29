@@ -12,11 +12,10 @@ use App\Api\ApiProblemException;
 use App\Api\ApiTask;
 use App\Entity\Task;
 use App\Form\AddTaskFormType;
-use App\Form\Model\AddTaskModel;
-use App\Form\Model\FilterTaskModel;
-use App\Form\Model\EditTaskModel;
-use App\Form\EditTaskFormType;
 use App\Form\FilterTaskFormType;
+use App\Form\Model\AddTaskModel;
+use App\Form\Model\EditTaskModel;
+use App\Form\Model\FilterTaskModel;
 use App\Manager\TagManager;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
@@ -34,8 +33,8 @@ class ApiTaskController extends BaseController
 {
     use TaggableController;
 
-    #[Route('/api/task', name: 'api_task_index', methods: ["GET"])]
-    #[Route('/json/task', name: 'json_task_index', methods: ["GET"])]
+    #[Route('/api/task', name: 'api_task_index', methods: ['GET'])]
+    #[Route('/json/task', name: 'json_task_index', methods: ['GET'])]
     public function index(
         Request $request,
         TaskRepository $taskRepository,
@@ -76,7 +75,7 @@ class ApiTaskController extends BaseController
             $queryBuilder,
             [
                 'sort' => 'task.createdAt',
-                'direction' => 'desc'
+                'direction' => 'desc',
             ]
         );
 
@@ -85,8 +84,8 @@ class ApiTaskController extends BaseController
         return $this->jsonNoNulls(ApiPagination::fromPagination($pagination, $items));
     }
 
-    #[Route('/api/task', name: 'api_task_create', methods: ["POST"])]
-    #[Route('/json/task', name: 'json_task_create', methods: ["POST"])]
+    #[Route('/api/task', name: 'api_task_create', methods: ['POST'])]
+    #[Route('/json/task', name: 'json_task_create', methods: ['POST'])]
     public function create(
         Request $request,
         TaskRepository $taskRepository
@@ -98,7 +97,7 @@ class ApiTaskController extends BaseController
             new AddTaskModel(),
             [
                 'timezone' => $this->getUser()->getTimezone(),
-                'csrf_protection' => false
+                'csrf_protection' => false,
             ],
         );
 
@@ -111,9 +110,7 @@ class ApiTaskController extends BaseController
         }
 
         if (!$form->isSubmitted()) {
-            throw new ApiProblemException(
-                ApiFormError::invalidAction('bad_data', 'Form not submitted')
-            );
+            throw new ApiProblemException(ApiFormError::invalidAction('bad_data', 'Form not submitted'));
         }
 
         if (!$form->isValid()) {
@@ -140,7 +137,7 @@ class ApiTaskController extends BaseController
         if (str_starts_with($request->getPathInfo(), '/json')) {
             $response = [
                 'task' => $apiTask,
-                'view' => $this->renderView('task/partials/_task.html.twig', ['task' => $newTask])
+                'view' => $this->renderView('task/partials/_task.html.twig', ['task' => $newTask]),
             ];
 
             return $this->jsonNoNulls($response, Response::HTTP_CREATED);
@@ -149,7 +146,7 @@ class ApiTaskController extends BaseController
         return $this->jsonNoNulls($apiTask, Response::HTTP_CREATED);
     }
 
-    #[Route('/api/task/{id}', name: 'api_task_view', methods: ["GET"])]
+    #[Route('/api/task/{id}', name: 'api_task_view', methods: ['GET'])]
     public function view(
         Request $request,
         TaskRepository $taskRepository,
@@ -193,7 +190,7 @@ class ApiTaskController extends BaseController
      * If the body has a json field of "checked", as in
      * {
      *  "checked": true|false
-     * }
+     * }.
      *
      * then that value is used. Otherwise, it defaults to "true".
      */
@@ -311,12 +308,7 @@ class ApiTaskController extends BaseController
         }
 
         if (!$task->hasParent()) {
-            throw new ApiProblemException(
-                ApiProblem::invalidAction(
-                    TaskController::CODE_NO_PARENT_TASK,
-                    'Task has no parent task',
-                )
-            );
+            throw new ApiProblemException(ApiProblem::invalidAction(TaskController::CODE_NO_PARENT_TASK, 'Task has no parent task'));
         }
 
         $task->removeParent();
@@ -375,8 +367,8 @@ class ApiTaskController extends BaseController
         );
     }
 
-    #[Route('/api/task/{id}/tags', name: 'api_task_tags', methods: ["GET"])]
-    #[Route('/json/task/{id}/tags', name: 'json_task_tags', methods: ["GET"])]
+    #[Route('/api/task/{id}/tags', name: 'api_task_tags', methods: ['GET'])]
+    #[Route('/json/task/{id}/tags', name: 'json_task_tags', methods: ['GET'])]
     public function indexTag(
         Request $request,
         TaskRepository $taskRepository,

@@ -71,6 +71,7 @@ class EditStatisticModel
         }
 
         $this->timeType = $timeType;
+
         return $this;
     }
 
@@ -82,6 +83,7 @@ class EditStatisticModel
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -93,6 +95,7 @@ class EditStatisticModel
     public function setIcon(?string $icon): self
     {
         $this->icon = $icon;
+
         return $this;
     }
 
@@ -104,6 +107,7 @@ class EditStatisticModel
     public function setColor(string $color): self
     {
         $this->color = $color;
+
         return $this;
     }
 
@@ -119,6 +123,7 @@ class EditStatisticModel
         }
 
         $this->unit = $unit;
+
         return $this;
     }
 }

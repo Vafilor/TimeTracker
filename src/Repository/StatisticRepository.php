@@ -20,8 +20,8 @@ use InvalidArgumentException;
  * @method Statistic|null findOneBy(array $criteria, array $orderBy = null)
  * @method Statistic[]    findAll()
  * @method Statistic[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- * @method Statistic findOrException($id, $lockMode = null, $lockVersion = null)
- * @method Statistic findOneByOrException(array $criteria, array $orderBy = null)
+ * @method Statistic      findOrException($id, $lockMode = null, $lockVersion = null)
+ * @method Statistic      findOneByOrException(array $criteria, array $orderBy = null)
  */
 class StatisticRepository extends ServiceEntityRepository implements FindByKeysInterface
 {

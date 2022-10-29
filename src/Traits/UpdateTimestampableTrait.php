@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait UpdateTimestampableTrait
 {
-    #[ORM\Column(type: "datetime")]
+    #[ORM\Column(type: 'datetime')]
     protected DateTime $updatedAt;
 
     public function setUpdatedAt(DateTime $updatedAt): static

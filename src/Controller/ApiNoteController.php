@@ -28,8 +28,8 @@ class ApiNoteController extends BaseController
 {
     use TaggableController;
 
-    #[Route('/api/note', name: 'api_note_create', methods: ["POST"])]
-    #[Route('/json/note', name: 'json_note_create', methods: ["POST"])]
+    #[Route('/api/note', name: 'api_note_create', methods: ['POST'])]
+    #[Route('/json/note', name: 'json_note_create', methods: ['POST'])]
     public function create(
         Request $request
     ): JsonResponse {
@@ -40,7 +40,7 @@ class ApiNoteController extends BaseController
             new AddNoteModel(),
             [
                 'csrf_protection' => false,
-                'timezone' => $this->getUser()->getTimezone()
+                'timezone' => $this->getUser()->getTimezone(),
             ]
         );
 
@@ -75,12 +75,11 @@ class ApiNoteController extends BaseController
             throw new ApiProblemException($formError);
         }
 
-
         $error = new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_ACTION);
         throw new ApiProblemException($error);
     }
 
-    #[Route('/api/note/{id}', name: 'api_note_view', methods: ["GET"])]
+    #[Route('/api/note/{id}', name: 'api_note_view', methods: ['GET'])]
     public function view(
         Request $request,
         NoteRepository $noteRepository,
@@ -97,7 +96,7 @@ class ApiNoteController extends BaseController
         return $this->jsonNoNulls($apiNote);
     }
 
-    #[Route('/api/note/{id}', name: 'api_note_edit', methods: ["PUT"])]
+    #[Route('/api/note/{id}', name: 'api_note_edit', methods: ['PUT'])]
     #[Route('/json/note/{id}', name: 'json_note_update', methods: ['PUT'])]
     public function edit(
         Request $request,
@@ -195,8 +194,8 @@ class ApiNoteController extends BaseController
         );
     }
 
-    #[Route('/api/note/{id}/tags', name: 'api_note_tags', methods: ["GET"])]
-    #[Route('/json/note/{id}/tags', name: 'json_note_tags', methods: ["GET"])]
+    #[Route('/api/note/{id}/tags', name: 'api_note_tags', methods: ['GET'])]
+    #[Route('/json/note/{id}/tags', name: 'json_note_tags', methods: ['GET'])]
     public function indexTag(
         Request $request,
         NoteRepository $noteRepository,

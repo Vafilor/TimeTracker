@@ -19,8 +19,8 @@ class AddTaskFormType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'attr' => [
-                    'placeholder' => 'What do you want to achieve?'
-                ]
+                    'placeholder' => 'What do you want to achieve?',
+                ],
             ])
             ->add('description', TextareaType::class, [
                 'required' => false,
@@ -31,10 +31,10 @@ class AddTaskFormType extends AbstractType
                 'view_timezone' => $options['timezone'],
             ])
             ->add('parentTask', TextType::class, [
-                'required' => false
+                'required' => false,
             ])
             ->add('taskTemplate', TextType::class, [
-                'required' => false
+                'required' => false,
             ])
         ;
     }

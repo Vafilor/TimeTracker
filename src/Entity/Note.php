@@ -25,10 +25,10 @@ class Note
     use AssignableToUserTrait;
     use TaggableTrait;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $title;
 
-    #[ORM\Column(type: "text")]
+    #[ORM\Column(type: 'text')]
     private string $content;
 
     /**
@@ -36,17 +36,17 @@ class Note
      * 1.1.2020, I can set that to this variable. I may remember things on different times and add to them
      * later, or I may add a note for a day later.
      */
-    #[ORM\Column(type: "datetime", nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTime $forDate;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "notes")]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'notes')]
     #[ORM\JoinColumn(nullable: false)]
     private User $assignedTo;
 
     /**
      * @var TagLink[]|Collection
      */
-    #[ORM\OneToMany(targetEntity: TagLink::class, mappedBy: "note")]
+    #[ORM\OneToMany(targetEntity: TagLink::class, mappedBy: 'note')]
     private Collection $tagLinks;
 
     public function __construct(User $assignedTo, string $title = '', string $content = '')
@@ -95,6 +95,7 @@ class Note
         $forDate?->setTimezone(new DateTimeZone('UTC'));
 
         $this->forDate = $forDate;
+
         return $this;
     }
 }

@@ -9,14 +9,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ApiProblem
 {
-    const TYPE_VALIDATION_ERROR = 'validator_error';
-    const TYPE_INVALID_REQUEST_BODY = 'invalid_body_format';
-    const TYPE_INVALID_ACTION = 'invalid_action';
+    public const TYPE_VALIDATION_ERROR = 'validator_error';
+    public const TYPE_INVALID_REQUEST_BODY = 'invalid_body_format';
+    public const TYPE_INVALID_ACTION = 'invalid_action';
 
     private static array $titles = [
         self::TYPE_VALIDATION_ERROR => 'There was a validation error',
         self::TYPE_INVALID_REQUEST_BODY => 'Invalid JSON format',
-        self::TYPE_INVALID_ACTION => 'Invalid action'
+        self::TYPE_INVALID_ACTION => 'Invalid action',
     ];
 
     private int $statusCode;

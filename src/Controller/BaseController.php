@@ -29,8 +29,8 @@ class BaseController extends AbstractController
 {
     use DatabaseUtilitiesTrait;
 
-    const PAGINATION_PER_PAGE = 10;
-    const PAGINATION_MAX_PER_PAGE = 50;
+    public const PAGINATION_PER_PAGE = 10;
+    public const PAGINATION_MAX_PER_PAGE = 50;
 
     /**
      * Populates the pagination with default values from the request.
@@ -38,8 +38,6 @@ class BaseController extends AbstractController
      * E.g. items per page should be greater than 0 and less than a max (set as a constant in this class).
      *
      * If 'sort' is not in the request, default parameters are used.
-     *
-     * @param $query
      */
     public function populatePaginationData(Request $request, PaginatorInterface $paginator, QueryBuilder $query, array $defaultParams = []): PaginationInterface
     {
@@ -85,10 +83,6 @@ class BaseController extends AbstractController
      * getJsonBody attempts to decode the request content into an associative array via json_decode.
      * If the result is null, and no default is provided, a 400 error is thrown with a code indicating an invalid body.
      * If the result is null, and a non-null default is provided, the default is returned.
-     *
-     * @param Request $request
-     * @param array|null $default
-     * @return array
      */
     public function getJsonBody(Request $request, array $default = null): array
     {
@@ -98,9 +92,7 @@ class BaseController extends AbstractController
                 return $default;
             }
 
-            throw new ApiProblemException(
-                new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_REQUEST_BODY)
-            );
+            throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_INVALID_REQUEST_BODY));
         }
 
         return $data;
@@ -123,12 +115,6 @@ class BaseController extends AbstractController
 
     /**
      * Changes the serializer so that nulls are not output in the response, they are removed.
-     *
-     * @param $data
-     * @param int $status
-     * @param array $headers
-     * @param array $context
-     * @return JsonResponse
      */
     public function jsonNoNulls($data, int $status = 200, array $headers = [], array $context = []): JsonResponse
     {
@@ -138,9 +124,6 @@ class BaseController extends AbstractController
     /**
      * Checks to make sure the input keys exist in the array.
      * If they do not, an ApiProblemException is thrown with status code 400.
-     *
-     * @param array $data
-     * @param string ...$keys
      */
     public function ensureKeysExist(array $data, string ...$keys): void
     {
@@ -152,7 +135,7 @@ class BaseController extends AbstractController
             }
         }
 
-        if (count($missingKeys) === 0) {
+        if (0 === count($missingKeys)) {
             return;
         }
 

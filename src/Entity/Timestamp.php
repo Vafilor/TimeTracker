@@ -24,9 +24,9 @@ class Timestamp
 
     /**
      * Any content you wish to add to a timestamp,
-     * like "server reports out of memory error this time"
+     * like "server reports out of memory error this time".
      */
-    #[ORM\Column(type: "text")]
+    #[ORM\Column(type: 'text')]
     private string $description;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -36,13 +36,13 @@ class Timestamp
     /**
      * @var TagLink[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "timestamp", targetEntity: TagLink::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'timestamp', targetEntity: TagLink::class, orphanRemoval: true)]
     private Collection $tagLinks;
 
     /**
      * @var StatisticValue[]|Collection
      */
-    #[ORM\OneToMany(mappedBy: "timestamp", targetEntity: StatisticValue::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'timestamp', targetEntity: StatisticValue::class, orphanRemoval: true)]
     private Collection $statisticValues;
 
     public function __construct(User $assignedTo)
@@ -60,7 +60,6 @@ class Timestamp
      * it is purely for this object in memory.
      * To persist the TagLink it must be persisted outside of this method.
      *
-     * @param TagLink $tagLink
      * @return $this
      */
     public function addTagLink(TagLink $tagLink): self
@@ -86,6 +85,7 @@ class Timestamp
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 }

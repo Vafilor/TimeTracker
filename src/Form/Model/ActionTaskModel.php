@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Form\Model;
 
-class ActionTaskModel {
+class ActionTaskModel
+{
     private ?string $taskId;
     private ?string $action;
     private ?string $value;
@@ -24,6 +25,7 @@ class ActionTaskModel {
     public function setTaskId(?string $taskId): self
     {
         $this->taskId = $taskId;
+
         return $this;
     }
 
@@ -35,6 +37,7 @@ class ActionTaskModel {
     public function setAction(?string $action): self
     {
         $this->action = $action;
+
         return $this;
     }
 
@@ -46,6 +49,7 @@ class ActionTaskModel {
     public function setValue(?string $value): self
     {
         $this->value = $value;
+
         return $this;
     }
 }

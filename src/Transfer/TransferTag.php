@@ -34,6 +34,7 @@ class TransferTag
 
     /**
      * @param Tag[]|iterable $entities
+     *
      * @return TransferTag[]
      */
     public static function fromEntities(iterable $entities): array

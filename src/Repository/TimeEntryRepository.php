@@ -18,9 +18,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @method TimeEntry|null find($id, $lockMode = null, $lockVersion = null)
- * @method TimeEntry findOrException($id, $lockMode = null, $lockVersion = null)
+ * @method TimeEntry      findOrException($id, $lockMode = null, $lockVersion = null)
  * @method TimeEntry|null findOneBy(array $criteria, array $orderBy = null)
- * @method TimeEntry findOneByOrException(array $criteria, array $orderBy = null)
+ * @method TimeEntry      findOneByOrException(array $criteria, array $orderBy = null)
  * @method TimeEntry[]    findAll()
  * @method TimeEntry[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  * @method TimeEntry[] findByKeys(string $key, mixed $values);
@@ -157,7 +157,8 @@ class TimeEntryRepository extends ServiceEntityRepository implements FindByKeysI
         return $queryBuilder;
     }
 
-    public function findForTagQueryBuilder(Tag $tag): QueryBuilder {
+    public function findForTagQueryBuilder(Tag $tag): QueryBuilder
+    {
         $queryBuilder = $this->createDefaultQueryBuilder()
                              ->join('time_entry.tagLinks', 'tag_link')
                              ->join('tag_link.tag', 'tag')

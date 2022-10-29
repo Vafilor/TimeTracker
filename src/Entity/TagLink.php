@@ -13,30 +13,30 @@ class TagLink
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private ?int $id;
 
-    #[ORM\ManyToOne(targetEntity: TimeEntry::class, inversedBy: "tagLinks")]
+    #[ORM\ManyToOne(targetEntity: TimeEntry::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: true)]
     private ?TimeEntry $timeEntry;
 
-    #[ORM\ManyToOne(targetEntity: Timestamp::class, inversedBy: "tagLinks")]
+    #[ORM\ManyToOne(targetEntity: Timestamp::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Timestamp $timestamp;
 
-    #[ORM\ManyToOne(targetEntity: Task::class, inversedBy: "tagLinks")]
+    #[ORM\ManyToOne(targetEntity: Task::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Task $task;
 
-    #[ORM\ManyToOne(targetEntity: Note::class, inversedBy: "tagLinks")]
+    #[ORM\ManyToOne(targetEntity: Note::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Note $note;
 
-    #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: "tagLinks")]
+    #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: false)]
     private Tag $tag;
 
-    #[ORM\ManyToOne(targetEntity: Statistic::class, inversedBy: "tagLinks")]
+    #[ORM\ManyToOne(targetEntity: Statistic::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Statistic $statistic;
 
@@ -55,7 +55,7 @@ class TagLink
         } elseif ($resource instanceof Note) {
             $this->note = $resource;
         } else {
-            throw new InvalidArgumentException("Resource for TagLink not supported");
+            throw new InvalidArgumentException('Resource for TagLink not supported');
         }
     }
 
@@ -76,7 +76,7 @@ class TagLink
 
     public function getTask(): ?Task
     {
-        return$this->task;
+        return $this->task;
     }
 
     public function getStatistic(): ?Statistic

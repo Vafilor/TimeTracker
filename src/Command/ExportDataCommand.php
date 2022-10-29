@@ -21,6 +21,7 @@ use App\Transfer\TransferUser;
 use App\Util\Collections;
 use Doctrine\ORM\QueryBuilder;
 use Generator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,7 +30,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
     name: 'app:data:export',
@@ -84,26 +84,29 @@ class ExportDataCommand extends Command
         $outputPath = $input->getArgument('path');
 
         if (is_null($outputPath)) {
-            $outputPath = __DIR__ . DIRECTORY_SEPARATOR . 'export';
+            $outputPath = __DIR__.DIRECTORY_SEPARATOR.'export';
         }
 
         while (strlen($outputPath) > 0 && str_ends_with($outputPath, DIRECTORY_SEPARATOR)) {
             $outputPath = substr($outputPath, 0, count($outputPath) - 1);
         }
 
-        if (strlen($outputPath) === 0) {
+        if (0 === strlen($outputPath)) {
             $io->error('path is not valid');
+
             return Command::FAILURE;
         }
 
         if (is_file($outputPath)) {
             $io->error("'$outputPath' refers to a file. Needs to be a directory.");
+
             return Command::FAILURE;
         }
 
         if (!is_dir($outputPath)) {
             if (!mkdir($outputPath, 0777, true)) {
                 $io->error('Unable to create directory to output path');
+
                 return Command::FAILURE;
             }
         }
@@ -112,34 +115,34 @@ class ExportDataCommand extends Command
 
         $io->writeln("Exporting data to $outputPath");
 
-        $io->writeln("Exporting Users...");
+        $io->writeln('Exporting Users...');
         $fileExportOrder = array_merge($fileExportOrder, $this->exportUsers($outputPath));
 
-        $io->writeln("Exporting Tags...");
+        $io->writeln('Exporting Tags...');
         $fileExportOrder = array_merge($fileExportOrder, $this->exportTags($outputPath));
 
-        $io->writeln("Exporting Timestamps...");
+        $io->writeln('Exporting Timestamps...');
         $fileExportOrder = array_merge($fileExportOrder, $this->exportTimestamps($outputPath));
 
-        $io->writeln("Exporting Tasks...");
+        $io->writeln('Exporting Tasks...');
         $fileExportOrder = array_merge($fileExportOrder, $this->exportTasks($outputPath));
 
-        $io->writeln("Exporting Time Entries...");
+        $io->writeln('Exporting Time Entries...');
         $fileExportOrder = array_merge($fileExportOrder, $this->exportTimeEntries($outputPath));
 
-        $io->writeln("Exporting Statistics...");
+        $io->writeln('Exporting Statistics...');
         $fileExportOrder = array_merge($fileExportOrder, $this->exportStatistics($outputPath));
 
-        $io->writeln("Exporting Statistic Values...");
+        $io->writeln('Exporting Statistic Values...');
         $fileExportOrder = array_merge($fileExportOrder, $this->exportStatisticValues($outputPath));
 
-        $io->writeln("Exporting Notes...");
+        $io->writeln('Exporting Notes...');
         $fileExportOrder = array_merge($fileExportOrder, $this->exportNotes($outputPath));
 
-        $fileExportOrderPath = $outputPath . DIRECTORY_SEPARATOR . 'order.json';
+        $fileExportOrderPath = $outputPath.DIRECTORY_SEPARATOR.'order.json';
 
         // Make sure the paths in the fileExportOrder are relative
-        $prefixLength = strlen($outputPath . DIRECTORY_SEPARATOR);
+        $prefixLength = strlen($outputPath.DIRECTORY_SEPARATOR);
         $fileExportOrder = array_map(
             fn (string $path) => substr($path, $prefixLength),
             $fileExportOrder
@@ -158,10 +161,6 @@ class ExportDataCommand extends Command
      *
      * Each result has key => value where key is the chunk index, starting from 1, and value is the results of the query.
      * No empty results are output.
-     *
-     * @param QueryBuilder $queryBuilder
-     * @param int $chunkSize
-     * @return Generator
      */
     public static function paginate(QueryBuilder $queryBuilder, int $chunkSize = 500): Generator
     {
@@ -171,12 +170,12 @@ class ExportDataCommand extends Command
         $queryBuilder->setMaxResults($chunkSize);
 
         $results = $queryBuilder->getQuery()->getResult();
-        while (count($results) !== 0) {
+        while (0 !== count($results)) {
             yield $chunk => $results;
 
             $queryBuilder = $queryBuilder->setFirstResult($chunk * $chunkSize);
             $results = $queryBuilder->getQuery()->getResult();
-            $chunk++;
+            ++$chunk;
         }
     }
 
@@ -213,7 +212,7 @@ class ExportDataCommand extends Command
                                             ->orderBy('tag.createdAt')
         ;
 
-        $filePrefix = $path . DIRECTORY_SEPARATOR . 'tags';
+        $filePrefix = $path.DIRECTORY_SEPARATOR.'tags';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTag::fromEntities($items));
     }
@@ -224,7 +223,7 @@ class ExportDataCommand extends Command
                                              ->orderBy('user.createdAt')
         ;
 
-        $filePrefix = $path . DIRECTORY_SEPARATOR . 'users';
+        $filePrefix = $path.DIRECTORY_SEPARATOR.'users';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferUser::fromEntities($items));
     }
@@ -235,7 +234,7 @@ class ExportDataCommand extends Command
                                                   ->orderBy('timestamp.createdAt')
         ;
 
-        $filePrefix = $path . DIRECTORY_SEPARATOR . 'timestamps';
+        $filePrefix = $path.DIRECTORY_SEPARATOR.'timestamps';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTimestamp::fromEntities($items));
     }
@@ -251,9 +250,6 @@ class ExportDataCommand extends Command
      * Each file, in order, makes sure required parents are in the previous file.
      *
      * This does not mean the first few files are all parent-less tasks though.
-     *
-     * @param string $path
-     * @return array
      */
     private function exportTasks(string $path): array
     {
@@ -265,7 +261,7 @@ class ExportDataCommand extends Command
         //
         // This is accomplished by keeping track of each paginated query as a Generator
 
-        $filePrefix = $path . DIRECTORY_SEPARATOR . 'tasks';
+        $filePrefix = $path.DIRECTORY_SEPARATOR.'tasks';
         $newFilePaths = [];
 
         // Get tasks with no parents, sort by createdAt so there is a consistent ordering.
@@ -274,13 +270,12 @@ class ExportDataCommand extends Command
                                              ->orderBy('task.createdAt')
         ;
 
-
         // Keep track of the chunk so we know what to number the files
         $chunk = 1;
 
         // Start with the no parents as a generator
         $generators = [self::paginate($queryBuilder)];
-        while (count($generators) !== 0) {
+        while (0 !== count($generators)) {
             // Get the first generator, take it off the Queue as it may be finished.
             $generator = array_shift($generators);
 
@@ -299,7 +294,7 @@ class ExportDataCommand extends Command
             // We're storing the parent ids now. To preserve memory,
             // get the children and make that generator the next one we handle
             $parentIds = Collections::pluckNoDuplicates($tasks, 'idString');
-            if (count($parentIds) !== 0) {
+            if (0 !== count($parentIds)) {
                 $childTaskQueryBuilder = $this->taskRepository->findByKeysQuery('parent', $parentIds);
                 $childTaskGenerator = self::paginate($childTaskQueryBuilder);
                 array_unshift($generators, $childTaskGenerator);
@@ -308,7 +303,7 @@ class ExportDataCommand extends Command
             // Put the old generator back on, but at the end so we do it later
             $generators[] = $generator;
 
-            $chunk++;
+            ++$chunk;
         }
 
         return $newFilePaths;
@@ -320,7 +315,7 @@ class ExportDataCommand extends Command
                                                   ->orderBy('time_entry.createdAt')
         ;
 
-        $filePrefix = $path . DIRECTORY_SEPARATOR . 'time_entries';
+        $filePrefix = $path.DIRECTORY_SEPARATOR.'time_entries';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferTimeEntry::fromEntities($items));
     }
@@ -331,7 +326,7 @@ class ExportDataCommand extends Command
                                                   ->orderBy('statistic.createdAt')
         ;
 
-        $filePrefix = $path . DIRECTORY_SEPARATOR . 'statistics';
+        $filePrefix = $path.DIRECTORY_SEPARATOR.'statistics';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferStatistic::fromEntities($items));
     }
@@ -342,7 +337,7 @@ class ExportDataCommand extends Command
                                                        ->orderBy('statistic_value.createdAt')
         ;
 
-        $filePrefix = $path . DIRECTORY_SEPARATOR . 'statistic_values';
+        $filePrefix = $path.DIRECTORY_SEPARATOR.'statistic_values';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferStatisticValue::fromEntities($items));
     }
@@ -353,7 +348,7 @@ class ExportDataCommand extends Command
                                              ->orderBy('note.createdAt')
         ;
 
-        $filePrefix = $path . DIRECTORY_SEPARATOR . 'notes';
+        $filePrefix = $path.DIRECTORY_SEPARATOR.'notes';
 
         return $this->exportChunk($filePrefix, $queryBuilder, fn ($items) => TransferNote::fromEntities($items));
     }

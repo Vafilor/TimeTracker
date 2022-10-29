@@ -20,25 +20,25 @@ class EditStatisticFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'required' => false
+                'required' => false,
             ])
             ->add('color', ColorType::class)
             ->add('icon', TextType::class, [
                 'help' => "Choose a free icon from <a href=\"https://fontawesome.com/\" target='_blank'>Font Awesome</a>",
                 'help_html' => true,
-                'required' => false
+                'required' => false,
             ])
             ->add('description', TextareaType::class, [
-                'required' => false
+                'required' => false,
             ])
             ->add('unit', TextType::class, [
-                'required' => false
+                'required' => false,
             ])
             ->add('timeType', ChoiceType::class, [
                 'choices' => [
                     TimeType::INSTANT => 'instant',
-                    TimeType::INTERVAL => 'interval'
-                ]
+                    TimeType::INTERVAL => 'interval',
+                ],
             ])
         ;
     }

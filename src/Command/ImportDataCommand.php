@@ -24,6 +24,7 @@ use App\Transfer\TransferTimestamp;
 use App\Transfer\TransferUser;
 use App\Util\Collections;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,7 +33,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
     name: 'app:data:import',
@@ -101,25 +101,28 @@ class ImportDataCommand extends Command
         $inputPath = $input->getArgument('path');
 
         if (is_null($inputPath)) {
-            $inputPath = __DIR__ . DIRECTORY_SEPARATOR . 'export';
+            $inputPath = __DIR__.DIRECTORY_SEPARATOR.'export';
         }
 
         while (strlen($inputPath) > 0 && str_ends_with($inputPath, DIRECTORY_SEPARATOR)) {
             $inputPath = substr($inputPath, 0, strlen($inputPath) - 1);
         }
 
-        if (strlen($inputPath) === 0) {
+        if (0 === strlen($inputPath)) {
             $io->error('path is not valid');
+
             return Command::FAILURE;
         }
 
         if (is_file($inputPath)) {
             $io->error("'$inputPath' refers to a file. Needs to be a directory.");
+
             return Command::FAILURE;
         }
 
         if (!is_dir($inputPath)) {
             $io->error("'$inputPath' does not point to a directory.");
+
             return Command::FAILURE;
         }
 
@@ -129,7 +132,7 @@ class ImportDataCommand extends Command
         $fileImportOrder = $this->getFileImportOrder($inputPath);
 
         foreach ($fileImportOrder as $filePath) {
-            $absoluteFilePath = $inputPath . DIRECTORY_SEPARATOR . $filePath;
+            $absoluteFilePath = $inputPath.DIRECTORY_SEPARATOR.$filePath;
 
             $file = new File($absoluteFilePath);
             $fileName = $file->getFilename();
@@ -138,36 +141,37 @@ class ImportDataCommand extends Command
             $io->writeln("Processing file '$filePath'");
 
             if (str_starts_with($fileName, 'users')) {
-                $data = $this->serializer->deserialize($content, TransferUser::class . '[]', 'json');
+                $data = $this->serializer->deserialize($content, TransferUser::class.'[]', 'json');
                 $this->importUsers($io, $data);
             } elseif (str_starts_with($fileName, 'tags')) {
-                $data = $this->serializer->deserialize($content, TransferTag::class . '[]', 'json');
+                $data = $this->serializer->deserialize($content, TransferTag::class.'[]', 'json');
                 $this->importTags($io, $data);
             } elseif (str_starts_with($fileName, 'timestamps')) {
-                $data = $this->serializer->deserialize($content, TransferTimestamp::class . '[]', 'json');
+                $data = $this->serializer->deserialize($content, TransferTimestamp::class.'[]', 'json');
                 $this->importTimestamps($io, $data);
             } elseif (str_starts_with($fileName, 'tasks')) {
-                $data = $this->serializer->deserialize($content, TransferTask::class . '[]', 'json');
+                $data = $this->serializer->deserialize($content, TransferTask::class.'[]', 'json');
                 $this->importTasks($io, $data);
             } elseif (str_starts_with($fileName, 'time_entries')) {
-                $data = $this->serializer->deserialize($content, TransferTimeEntry::class . '[]', 'json');
+                $data = $this->serializer->deserialize($content, TransferTimeEntry::class.'[]', 'json');
                 $this->importTimeEntries($io, $data);
             } elseif (str_starts_with($fileName, 'statistics')) {
-                $data = $this->serializer->deserialize($content, TransferStatistic::class . '[]', 'json');
+                $data = $this->serializer->deserialize($content, TransferStatistic::class.'[]', 'json');
                 $this->importStatistics($io, $data);
             } elseif (str_starts_with($fileName, 'statistic_values')) {
-                $data = $this->serializer->deserialize($content, TransferStatisticValue::class . '[]', 'json');
+                $data = $this->serializer->deserialize($content, TransferStatisticValue::class.'[]', 'json');
                 $this->importStatisticValues($io, $data);
             } elseif (str_starts_with($fileName, 'notes')) {
-                $data = $this->serializer->deserialize($content, TransferNote::class . '[]', 'json');
+                $data = $this->serializer->deserialize($content, TransferNote::class.'[]', 'json');
                 $this->importNotes($io, $data);
             } else {
-                $io->error("Unsupported import file '${filePath}'");
+                $io->error("Unsupported import file '{$filePath}'");
+
                 return Command::FAILURE;
             }
         }
 
-        $io->success("Data successfully imported");
+        $io->success('Data successfully imported');
 
         return Command::SUCCESS;
     }
@@ -175,7 +179,6 @@ class ImportDataCommand extends Command
     /**
      * Goes through a collection of items and yields all of its tags, one by one.
      *
-     * @param iterable $sources
      * @return \Generator
      */
     private function pluckTagLinks(iterable $sources)
@@ -188,7 +191,6 @@ class ImportDataCommand extends Command
     /**
      * Goes through a collection of items and yields all of its tasks (if available) one by one.
      *
-     * @param iterable $sources
      * @return \Generator
      */
     private function pluckTasks(iterable $sources)
@@ -208,9 +210,6 @@ class ImportDataCommand extends Command
      * TODO can psalm allow us to specify this? I guess it's something like
      * implements interface<T>.... and then the input object is anything that implements interface, with any T.
      * and return is array<string, T>
-     *
-     * @param $transfers
-     * @return array
      */
     private function makeEntityMap(iterable $transfers): array
     {
@@ -229,10 +228,6 @@ class ImportDataCommand extends Command
 
     /**
      * Removes all items that are already in the database, identified by the id.
-     *
-     * @param array $transferItems
-     * @param FindByKeysInterface $repository
-     * @return array
      */
     private function filterOutById(array $transferItems, FindByKeysInterface $repository): array
     {
@@ -254,14 +249,14 @@ class ImportDataCommand extends Command
 
     private function getFileImportOrder(string $directoryPath): array
     {
-        $path = $directoryPath . DIRECTORY_SEPARATOR . 'order.json';
+        $path = $directoryPath.DIRECTORY_SEPARATOR.'order.json';
 
         $fileContents = file_get_contents($path);
+
         return json_decode($fileContents, true);
     }
 
     /**
-     * @param SymfonyStyle $io
      * @param TransferUser[] $transferUsers
      */
     private function importUsers(SymfonyStyle $io, array $transferUsers)
@@ -285,7 +280,6 @@ class ImportDataCommand extends Command
     }
 
     /**
-     * @param SymfonyStyle $io
      * @param TransferTag[] $transferTags
      */
     private function importTags(SymfonyStyle $io, array $transferTags)
@@ -323,7 +317,6 @@ class ImportDataCommand extends Command
     }
 
     /**
-     * @param SymfonyStyle $io
      * @param TransferTimestamp[] $transferTimestamps
      */
     private function importTimestamps(SymfonyStyle $io, array $transferTimestamps)
@@ -355,7 +348,6 @@ class ImportDataCommand extends Command
     }
 
     /**
-     * @param SymfonyStyle $io
      * @param TransferTask[] $transferTasks
      */
     private function importTasks(SymfonyStyle $io, array $transferTasks)
@@ -395,7 +387,6 @@ class ImportDataCommand extends Command
     }
 
     /**
-     * @param SymfonyStyle $io
      * @param TransferTimeEntry[] $transferTimeEntries
      */
     private function importTimeEntries(SymfonyStyle $io, array $transferTimeEntries)
@@ -433,7 +424,6 @@ class ImportDataCommand extends Command
     }
 
     /**
-     * @param SymfonyStyle $io
      * @param TransferStatistic[] $transferStatistics
      */
     private function importStatistics(SymfonyStyle $io, array $transferStatistics)
@@ -468,7 +458,7 @@ class ImportDataCommand extends Command
         $transferStatisticValues = $this->filterOutById($transferStatisticValues, $this->statisticValueRepository);
 
         $statisticIds = Collections::pluck($transferStatisticValues, 'statisticId');
-        
+
         $this->statisticLoader->loadByIds($statisticIds);
 
         $timeEntryIds = [];
@@ -504,7 +494,6 @@ class ImportDataCommand extends Command
     }
 
     /**
-     * @param SymfonyStyle $io
      * @param TransferNote[] $transferNotes
      */
     private function importNotes(SymfonyStyle $io, array $transferNotes)

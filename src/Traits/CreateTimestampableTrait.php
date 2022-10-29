@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait CreateTimestampableTrait
 {
-    #[ORM\Column(type: "datetime")]
+    #[ORM\Column(type: 'datetime')]
     protected DateTime $createdAt;
 
     /**

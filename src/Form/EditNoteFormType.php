@@ -21,12 +21,12 @@ class EditNoteFormType extends AbstractType
                 'required' => true,
             ])
             ->add('content', TextareaType::class, [
-                'required' => false
+                'required' => false,
             ])
             ->add('forDate', DateType::class, [
                 'widget' => 'single_text',
                 'view_timezone' => $options['timezone'],
-                'required' => false
+                'required' => false,
             ])
         ;
     }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Form\Model;
 
-use App\Entity\Task;
 use App\Entity\TimeEntry;
 use DateTime;
 
@@ -41,6 +40,7 @@ class EditTimeEntryModel
         }
 
         $this->description = $description;
+
         return $this;
     }
 
@@ -57,6 +57,7 @@ class EditTimeEntryModel
     public function setStartedAt(?DateTime $startedAt): self
     {
         $this->startedAt = $startedAt;
+
         return $this;
     }
 
@@ -73,6 +74,7 @@ class EditTimeEntryModel
     public function setEndedAt(?DateTime $endedAt): self
     {
         $this->endedAt = $endedAt;
+
         return $this;
     }
 

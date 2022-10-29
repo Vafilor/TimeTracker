@@ -15,9 +15,9 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Timestamp|null find($id, $lockMode = null, $lockVersion = null)
- * @method Timestamp findOrException($id, $lockMode = null, $lockVersion = null)
+ * @method Timestamp      findOrException($id, $lockMode = null, $lockVersion = null)
  * @method Timestamp|null findOneBy(array $criteria, array $orderBy = null)
- * @method Timestamp findOneByOrException(array $criteria, array $orderBy = null)
+ * @method Timestamp      findOneByOrException(array $criteria, array $orderBy = null)
  * @method Timestamp[]    findAll()
  * @method Timestamp[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  * @method Timestamp[] findByKeys(string $key, mixed $values);

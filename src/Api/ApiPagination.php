@@ -30,7 +30,8 @@ class ApiPagination
         return $result;
     }
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->totalCount = 0;
         $this->count = 0;
         $this->page = 0;
