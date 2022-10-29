@@ -213,6 +213,7 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
         return $this->findByUserQueryBuilder($user)
             ->andWhere('task.active = :active')
             ->andWhere('task.completedAt IS NULL')
+            ->andWhere('task.closedAt IS NULL')
             ->setParameter('active', true)
         ;
     }
