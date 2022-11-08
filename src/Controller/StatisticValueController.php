@@ -87,7 +87,6 @@ class StatisticValueController extends BaseController
 
     #[Route('/record/{id}/delete', name: 'statistic_value_delete')]
     public function remove(
-        Request $request,
         StatisticValueRepository $statisticValueRepository,
         string $id
     ): Response {

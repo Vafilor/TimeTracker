@@ -165,7 +165,6 @@ class ApiStatisticController extends BaseController
     #[Route('/api/statistic/{id}/tag/{tagName}', name: 'api_statistic_tag_delete', methods: ['DELETE'])]
     #[Route('/json/statistic/{id}/tag/{tagName}', name: 'json_statistic_tag_delete', methods: ['DELETE'])]
     public function removeTag(
-        Request $request,
         StatisticRepository $statisticRepository,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
@@ -190,7 +189,6 @@ class ApiStatisticController extends BaseController
     #[Route('/api/statistic/{id}/tags', name: 'api_statistic_tags', methods: ['GET'])]
     #[Route('/json/statistic/{id}/tags', name: 'json_statistic_tags', methods: ['GET'])]
     public function indexTag(
-        Request $request,
         StatisticRepository $statisticRepository,
         string $id
     ): JsonResponse {

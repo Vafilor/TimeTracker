@@ -7,21 +7,21 @@ namespace App\Manager;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserManager
 {
     private UserRepository $userRepository;
-    private UserPasswordEncoderInterface $passwordEncoder;
+    private UserPasswordHasherInterface $userPasswordHasher;
     private EntityManagerInterface $entityManager;
 
     public function __construct(
-        UserRepository $userRepository,
-        UserPasswordEncoderInterface $userPasswordEncoder,
-        EntityManagerInterface $objectManager
+        UserRepository              $userRepository,
+        UserPasswordHasherInterface $userPasswordHasher,
+        EntityManagerInterface      $objectManager
     ) {
         $this->userRepository = $userRepository;
-        $this->passwordEncoder = $userPasswordEncoder;
+        $this->userPasswordHasher = $userPasswordHasher;
         $this->entityManager = $objectManager;
     }
 
@@ -33,7 +33,7 @@ class UserManager
 
         // encode the plain password
         $user->setPassword(
-            $this->passwordEncoder->encodePassword(
+            $this->userPasswordHasher->hashPassword(
                 $user,
                 $password
             )
@@ -50,7 +50,7 @@ class UserManager
         $user = $this->userRepository->findOneByOrException(['username' => $username]);
 
         $user->setPassword(
-            $this->passwordEncoder->encodePassword(
+            $this->userPasswordHasher->encodePassword(
                 $user,
                 $newPassword
             )

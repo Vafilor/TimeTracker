@@ -81,7 +81,6 @@ class ApiNoteController extends BaseController
 
     #[Route('/api/note/{id}', name: 'api_note_view', methods: ['GET'])]
     public function view(
-        Request $request,
         NoteRepository $noteRepository,
         string $id
     ): JsonResponse {
@@ -173,7 +172,6 @@ class ApiNoteController extends BaseController
     #[Route('/api/note/{id}/tag/{tagName}', name: 'api_note_tag_delete', methods: ['DELETE'])]
     #[Route('/json/note/{id}/tag/{tagName}', name: 'json_note_tag_delete', methods: ['DELETE'])]
     public function deleteTag(
-        Request $request,
         NoteRepository $noteRepository,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
@@ -198,7 +196,6 @@ class ApiNoteController extends BaseController
     #[Route('/api/note/{id}/tags', name: 'api_note_tags', methods: ['GET'])]
     #[Route('/json/note/{id}/tags', name: 'json_note_tags', methods: ['GET'])]
     public function indexTag(
-        Request $request,
         NoteRepository $noteRepository,
         string $id
     ): JsonResponse {

@@ -105,7 +105,6 @@ class ApiTimestampController extends BaseController
 
     #[Route('/api/timestamp/{id}', name: 'api_timestamp_view', methods: ['GET'])]
     public function view(
-        Request $request,
         TimestampRepository $timestampRepository,
         string $id
     ): Response {
@@ -174,7 +173,6 @@ class ApiTimestampController extends BaseController
 
     #[Route('/api/timestamp/{id}/delete', name: 'api_timestamp_delete', methods: ['DELETE'])]
     public function remove(
-        Request $request,
         TimestampRepository $timestampRepository,
         string $id
     ): Response {
@@ -256,7 +254,6 @@ class ApiTimestampController extends BaseController
     #[Route('/api/timestamp/{id}/tag/{tagName}', name: 'api_timestamp_tag_delete', methods: ['DELETE'])]
     #[Route('/json/timestamp/{id}/tag/{tagName}', name: 'json_timestamp_tag_delete', methods: ['DELETE'])]
     public function removeTag(
-        Request $request,
         TimestampRepository $timestampRepository,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
@@ -281,7 +278,6 @@ class ApiTimestampController extends BaseController
     #[Route('/api/timestamp/{id}/tags', name: 'api_timestamp_tags', methods: ['GET'])]
     #[Route('/json/timestamp/{id}/tags', name: 'json_timestamp_tags', methods: ['GET'])]
     public function indexTag(
-        Request $request,
         TimestampRepository $timestampRepository,
         string $id
     ): JsonResponse {
@@ -333,7 +329,6 @@ class ApiTimestampController extends BaseController
     #[Route('/api/timestamp/{id}/statistic/{statisticId}', name: 'api_timestamp_statistic_delete', methods: ['DELETE'])]
     #[Route('/json/timestamp/{id}/statistic/{statisticId}', name: 'json_timestamp_statistic_delete', methods: ['DELETE'])]
     public function removeStatisticValue(
-        Request $request,
         TimestampRepository $timestampRepository,
         StatisticValueRepository $statisticValueRepository,
         string $id,

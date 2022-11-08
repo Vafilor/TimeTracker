@@ -9,9 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class EditStatisticValueModel
 {
-    /**
-     * @Assert\NotNull(message="This value should not be blank.")
-     */
+    #[Assert\NotNull(message: 'This value should not be blank.')]
     private ?float $value;
 
     public static function fromEntity(StatisticValue $statisticValue): self

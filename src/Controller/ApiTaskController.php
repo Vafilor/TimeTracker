@@ -148,7 +148,6 @@ class ApiTaskController extends BaseController
 
     #[Route('/api/task/{id}', name: 'api_task_view', methods: ['GET'])]
     public function view(
-        Request $request,
         TaskRepository $taskRepository,
         string $id
     ): JsonResponse {
@@ -166,7 +165,7 @@ class ApiTaskController extends BaseController
 
     #[Route('/json/task/{id}/lineage', name: 'json_task_lineage', methods: ['GET'])]
     #[Route('/api/task/{id}/lineage', name: 'api_task_lineage', methods: ['GET'])]
-    public function getLineage(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
+    public function getLineage(TaskRepository $taskRepository, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -304,7 +303,7 @@ class ApiTaskController extends BaseController
 
     #[Route('/json/task/{id}/parent', name: 'json_task_parent_delete', methods: ['DELETE'])]
     #[Route('/api/task/{id}/parent', name: 'api_task_parent_delete', methods: ['DELETE'])]
-    public function removeParentTask(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
+    public function removeParentTask(TaskRepository $taskRepository, string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -351,7 +350,6 @@ class ApiTaskController extends BaseController
     #[Route('/api/task/{id}/tag/{tagName}', name: 'api_task_tag_delete', methods: ['DELETE'])]
     #[Route('/json/task/{id}/tag/{tagName}', name: 'json_task_tag_delete', methods: ['DELETE'])]
     public function deleteTag(
-        Request $request,
         TaskRepository $taskRepository,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
@@ -376,7 +374,6 @@ class ApiTaskController extends BaseController
     #[Route('/api/task/{id}/tags', name: 'api_task_tags', methods: ['GET'])]
     #[Route('/json/task/{id}/tags', name: 'json_task_tags', methods: ['GET'])]
     public function indexTag(
-        Request $request,
         TaskRepository $taskRepository,
         string $id
     ): JsonResponse {

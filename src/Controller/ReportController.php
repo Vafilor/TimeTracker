@@ -12,7 +12,6 @@ use App\Util\DateTimeUtil;
 use DateTime;
 use DateTimeZone;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -20,7 +19,6 @@ class ReportController extends BaseController
 {
     #[Route('/report/today', name: 'report_today')]
     public function today(
-        Request $request,
         TimeEntryRepository $timeEntryRepository,
         PaginatorInterface $paginator
     ): Response {
@@ -72,7 +70,6 @@ class ReportController extends BaseController
 
     #[Route('/report/tag/{id}/time-entry', name: 'report_tag_time_entry')]
     public function reportTimeEntry(
-        Request $request,
         TagRepository $tagRepository,
         TimeEntryRepository $timeEntryRepository,
         string $id

@@ -254,7 +254,6 @@ class TimeEntryController extends BaseController
 
     #[Route('/time-entry/{id}/records', name: 'time_entry_record_index')]
     public function _recordIndex(
-        Request $request,
         TimeEntryRepository $timeEntryRepository,
         StatisticValueRepository $statisticValueRepository,
         PaginatorInterface $paginator,

@@ -116,7 +116,6 @@ class ApiTagController extends BaseController
 
     #[Route('/api/tag/{name}', name: 'api_tag_view')]
     public function view(
-        Request $request,
         TagRepository $tagRepository,
         string $name
     ): JsonResponse {

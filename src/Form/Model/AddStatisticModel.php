@@ -10,9 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AddStatisticModel
 {
-    /**
-     * @Assert\NotBlank()
-     */
+    #[Assert\NotBlank]
     private string $name;
     private string $description;
     private string $timeType;

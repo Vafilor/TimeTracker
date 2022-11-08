@@ -168,7 +168,6 @@ class NoteController extends BaseController
 
     #[Route('/note/{id}/delete', name: 'note_delete')]
     public function remove(
-        Request $request,
         NoteRepository $noteRepository,
         string $id
     ): Response {

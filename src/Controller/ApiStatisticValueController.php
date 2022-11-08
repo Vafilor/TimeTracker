@@ -118,7 +118,6 @@ class ApiStatisticValueController extends BaseController
     #[Route('/api/statistic-value/{id}', name: 'api_statistic_value_delete', methods: ['DELETE'])]
     #[Route('/json/statistic-value/{id}', name: 'json_statistic_value_delete', methods: ['DELETE'])]
     public function removeStatisticValue(
-        Request $request,
         StatisticValueRepository $statisticValueRepository,
         string $id,
     ): JsonResponse {

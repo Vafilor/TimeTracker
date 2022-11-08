@@ -102,7 +102,6 @@ class TimestampController extends BaseController
 
     #[Route('/timestamp/{id}/repeat', name: 'timestamp_repeat', methods: ['POST'])]
     public function repeat(
-        Request $request,
         TimestampManager $timestampManager,
         TimestampRepository $timestampRepository,
         string $id): Response
@@ -176,7 +175,6 @@ class TimestampController extends BaseController
 
     #[Route('/timestamp/{id}/delete', name: 'timestamp_delete')]
     public function remove(
-        Request $request,
         TimestampRepository $timestampRepository,
         string $id
     ): Response {
@@ -197,7 +195,6 @@ class TimestampController extends BaseController
 
     #[Route('/timestamp/{id}/records', name: 'timestamp_record_index')]
     public function _recordIndex(
-        Request $request,
         TimestampRepository $timestampRepository,
         StatisticValueRepository $statisticValueRepository,
         PaginatorInterface $paginator,

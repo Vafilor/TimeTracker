@@ -7,13 +7,12 @@ namespace App\Controller;
 use App\Repository\TaskRepository;
 use App\Util\DateTimeUtil;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ApiReportController extends BaseController
 {
     #[Route('/json/report/task/{taskId}', name: 'json_report_task_entry', methods: ['GET'])]
-    public function taskReport(Request $request, TaskRepository $taskRepository, string $taskId): JsonResponse
+    public function taskReport(TaskRepository $taskRepository, string $taskId): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 

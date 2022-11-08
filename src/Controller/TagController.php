@@ -168,7 +168,6 @@ class TagController extends BaseController
 
     #[Route('/tag/{id}/delete', name: 'tag_delete')]
     public function remove(
-        Request $request,
         TagRepository $tagRepository,
         string $id
     ): Response {

@@ -11,15 +11,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AddStatisticValueModel
 {
-    /**
-     * @Assert\NotBlank()
-     */
+    #[Assert\NotBlank]
     private ?string $statisticName;
 
-    /**
-     * @Assert\NotNull()
-     * @Assert\GreaterThan(0)
-     */
+    #[Assert\NotNull]
+    #[Assert\GreaterThan(0)]
     private ?float $value;
 
     private ?DateTime $day;

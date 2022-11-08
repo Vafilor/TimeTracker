@@ -9,9 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AddNoteModel
 {
-    /**
-     * @Assert\NotBlank()
-     */
+    #[Assert\NotBlank]
     private string $title;
     private string $content;
     private ?DateTime $forDate;

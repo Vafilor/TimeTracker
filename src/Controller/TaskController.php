@@ -314,7 +314,7 @@ class TaskController extends BaseController
     }
 
     #[Route('/task/{id}/lineage', name: 'task_lineage', methods: ['GET'])]
-    public function getLineage(Request $request, TaskRepository $taskRepository, string $id): Response
+    public function getLineage(TaskRepository $taskRepository, string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -342,6 +342,7 @@ class TaskController extends BaseController
 
         if ($task->isTemplate()) {
             $this->addFlash('danger', 'Can not complete template tasks');
+
             return $this->redirectToRoute('task_index');
         }
 
@@ -383,6 +384,7 @@ class TaskController extends BaseController
 
             if ($task->isTemplate()) {
                 $this->addFlash('danger', 'Can not complete template tasks');
+
                 return $this->redirectToRoute($redirectTo);
             }
 
@@ -412,6 +414,7 @@ class TaskController extends BaseController
 
         if ($task->isTemplate()) {
             $this->addFlash('danger', 'Can not close template tasks');
+
             return $this->redirectToRoute('task_index');
         }
 
@@ -431,7 +434,7 @@ class TaskController extends BaseController
     }
 
     #[Route('/task/{id}/delete', name: 'task_delete')]
-    public function remove(Request $request, TaskRepository $taskRepository, string $id): Response
+    public function remove(TaskRepository $taskRepository, string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 

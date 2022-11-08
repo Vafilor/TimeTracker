@@ -219,7 +219,6 @@ class ApiTimeEntryController extends BaseController
 
     #[Route('/api/time-entry/{id}', name: 'api_time_entry_view', methods: ['GET'])]
     public function view(
-        Request $request,
         TimeEntryRepository $timeEntryRepository,
         string $id
     ): JsonResponse {
@@ -470,7 +469,6 @@ class ApiTimeEntryController extends BaseController
     #[Route('/api/time-entry/{id}/tag/{tagName}', name: 'api_time_entry_tag_delete', methods: ['DELETE'])]
     #[Route('/json/time-entry/{id}/tag/{tagName}', name: 'json_time_entry_tag_delete', methods: ['DELETE'])]
     public function deleteTag(
-        Request $request,
         TimeEntryRepository $timeEntryRepository,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
@@ -495,7 +493,6 @@ class ApiTimeEntryController extends BaseController
     #[Route('/api/time-entry/{id}/tags', name: 'api_time_entry_tags', methods: ['GET'])]
     #[Route('/json/time-entry/{id}/tags', name: 'json_time_entry_tags', methods: ['GET'])]
     public function indexTag(
-        Request $request,
         TimeEntryRepository $timeEntryRepository,
         string $id
     ): JsonResponse {
@@ -576,7 +573,6 @@ class ApiTimeEntryController extends BaseController
     #[Route('/api/time-entry/{id}/task', name: 'api_time_entry_task_delete', methods: ['DELETE'])]
     #[Route('/json/time-entry/{id}/task', name: 'json_time_entry_task_delete', methods: ['DELETE'])]
     public function removeTask(
-        Request $request,
         TimeEntryRepository $timeEntryRepository,
         string $id
     ): JsonResponse {
@@ -600,7 +596,7 @@ class ApiTimeEntryController extends BaseController
 
     #[Route('/api/time-entry/active', name: 'api_time_entry_active', methods: ['GET'])]
     #[Route('/json/time-entry/active', name: 'json_time_entry_active', methods: ['GET'])]
-    public function getActiveTimeEntry(Request $request, TimeEntryRepository $timeEntryRepository): JsonResponse
+    public function getActiveTimeEntry(TimeEntryRepository $timeEntryRepository): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findRunningTimeEntry($this->getUser());
@@ -652,7 +648,6 @@ class ApiTimeEntryController extends BaseController
     #[Route('/api/time-entry/{id}/statistic/{statisticId}', name: 'api_time_entry_statistic_delete', methods: ['DELETE'])]
     #[Route('/json/time-entry/{id}/statistic/{statisticId}', name: 'json_time_entry_statistic_delete', methods: ['DELETE'])]
     public function removeStatisticValue(
-        Request $request,
         TimeEntryRepository $timeEntryRepository,
         StatisticValueRepository $statisticValueRepository,
         string $id,
