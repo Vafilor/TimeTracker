@@ -1,4 +1,4 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import { useFlash } from "../use-flash/use-flash";
 
 export default class extends Controller {

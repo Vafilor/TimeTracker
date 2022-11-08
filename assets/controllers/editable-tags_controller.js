@@ -1,4 +1,4 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import { createRemovableTag, createTag } from "../ts/components/tags";
 
 export default class extends Controller {

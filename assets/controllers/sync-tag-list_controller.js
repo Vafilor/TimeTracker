@@ -1,4 +1,4 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import { TagApi } from "../ts/core/api/tag_api";
 import { useFlash } from "../use-flash/use-flash";
 import { createRemovableTag } from "../ts/components/tags";

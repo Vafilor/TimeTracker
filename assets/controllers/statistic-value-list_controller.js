@@ -1,4 +1,4 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import { useDebounce } from "stimulus-use";
 
 const axios = require('axios').default;

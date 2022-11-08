@@ -1,4 +1,4 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import { TaskList } from "../ts/components/task";
 import $ from "jquery";
 import Flashes from "../ts/components/flashes";

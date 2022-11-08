@@ -1,4 +1,4 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import { StatisticValueApi } from "../ts/core/api/statistic_value_api";
 import { useDispatch } from "stimulus-use";
 import { useFlash } from "../use-flash/use-flash";

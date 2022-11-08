@@ -1,4 +1,4 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import { timeAgo } from '../ts/components/time';
 
 export default class extends Controller {

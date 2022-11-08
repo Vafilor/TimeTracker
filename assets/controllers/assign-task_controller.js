@@ -1,4 +1,4 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import { TaskApi } from "../ts/core/api/task_api";
 import { ApiError } from "../ts/core/api/errors";
 import { useFlash } from "../use-flash/use-flash";
