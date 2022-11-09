@@ -6,10 +6,11 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\MappedSuperclass]
-abstract class BaseUser implements UserInterface
+abstract class BaseUser implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Column(type: 'string', length: 180, unique: true)]
     protected string $email;
@@ -59,6 +60,7 @@ abstract class BaseUser implements UserInterface
     }
 
     /**
+     * TODO remove
      * A visual identifier that represents this user.
      *
      * @see UserInterface
@@ -66,6 +68,16 @@ abstract class BaseUser implements UserInterface
     public function getUsername(): string
     {
         return (string) $this->username;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
     }
 
     public function setUsername(string $username): self
