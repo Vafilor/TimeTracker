@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-// TODO - redo this class.
+
 export interface CreateFlashOptions {
     type: string;
     title?: string;
@@ -15,51 +15,45 @@ export interface FlashOptions {
     cancelable?: boolean;
 }
 
-const defaultOptions = {
-    bubbles: true,
-    cancelable: true
-}
-
 export class UseFlash  {
-    bubbles: boolean
-    cancelable: boolean
+    declare targetElement: Element;
 
-    constructor(controller: Controller, options: FlashOptions = {}) {
-        // super(controller, options)
-        //
-        // this.targetElement = options.element ?? controller.element
-        // this.bubbles = options.bubbles ?? defaultOptions.bubbles
-        // this.cancelable = options.cancelable ?? defaultOptions.cancelable
+    private bubbles: boolean
+    private cancelable: boolean
+
+    constructor(private readonly controller: Controller, options: FlashOptions = {}) {
+        this.controller = controller;
+
+        this.targetElement = options.element ?? controller.element;
+        this.bubbles = options.bubbles ?? true;
+        this.cancelable = options.cancelable ?? true;
 
         this.enhanceController()
     }
 
-    // flash = (detail: CreateFlashOptions): CustomEvent => {
-    flash = (detail: CreateFlashOptions) => {
-        // const { controller, targetElement, bubbles, cancelable, log } = this
-        //
-        // // includes the emitting controller in the event detail
-        // Object.assign(detail, { controller })
-        //
-        // const eventName = 'flash:add';
-        //
-        // // creates the custom event
-        // const event = new CustomEvent(eventName, {
-        //     detail,
-        //     bubbles,
-        //     cancelable
-        // })
-        //
-        // // dispatch the event from the given element or by default from the root element of the controller
-        // targetElement.dispatchEvent(event)
-        //
-        // log('dispatch', { eventName, detail, bubbles, cancelable })
-        //
-        // return event
+    flash = (detail: CreateFlashOptions): CustomEvent => {
+        const { controller, targetElement, bubbles, cancelable } = this
+
+        // includes the emitting controller in the event detail
+        Object.assign(detail, { controller })
+
+        const eventName = 'flash:add';
+
+        // creates the custom event
+        const event = new CustomEvent(eventName, {
+            detail,
+            bubbles,
+            cancelable
+        });
+
+        // dispatch the event from the given element or by default from the root element of the controller
+        targetElement.dispatchEvent(event)
+
+        return event
     }
 
     private enhanceController() {
-        // Object.assign(this.controller, { flash: this.flash })
+        Object.assign(this.controller, { flash: this.flash })
     }
 }
 
