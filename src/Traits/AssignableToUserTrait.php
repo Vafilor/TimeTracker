@@ -7,8 +7,7 @@ namespace App\Traits;
 use App\Entity\User;
 
 /**
- * Trait AssignableTrait
- * @package App\Traits
+ * Trait AssignableTrait.
  *
  * Provides convenience methods for any Entity that is assignedTo a user.
  * Required: the entity has a property called $assignedTo.

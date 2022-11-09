@@ -16,9 +16,9 @@ class UserManager
     private EntityManagerInterface $entityManager;
 
     public function __construct(
-        UserRepository              $userRepository,
+        UserRepository $userRepository,
         UserPasswordHasherInterface $userPasswordHasher,
-        EntityManagerInterface      $objectManager
+        EntityManagerInterface $objectManager
     ) {
         $this->userRepository = $userRepository;
         $this->userPasswordHasher = $userPasswordHasher;
