@@ -11,20 +11,11 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserManager
 {
-    private UserRepository $userRepository;
-
-    private UserPasswordHasherInterface $userPasswordHasher;
-
-    private EntityManagerInterface $entityManager;
-
     public function __construct(
-        UserRepository $userRepository,
-        UserPasswordHasherInterface $userPasswordHasher,
-        EntityManagerInterface $objectManager
+        private UserRepository $userRepository,
+        private UserPasswordHasherInterface $userPasswordHasher,
+        private EntityManagerInterface $entityManager
     ) {
-        $this->userRepository = $userRepository;
-        $this->userPasswordHasher = $userPasswordHasher;
-        $this->entityManager = $objectManager;
     }
 
     public function createUser(string $email, string $username, string $password): User
