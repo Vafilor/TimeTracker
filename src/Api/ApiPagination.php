@@ -9,10 +9,15 @@ use Knp\Component\Pager\Pagination\PaginationInterface;
 class ApiPagination
 {
     public int $totalCount;
+
     public int $count;
+
     public int $page;
+
     public int $perPage;
+
     public int $totalPages;
+
     public array $data;
 
     public static function fromPagination(PaginationInterface $pagination, array $data): ApiPagination

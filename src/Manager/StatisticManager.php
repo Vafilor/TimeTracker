@@ -14,6 +14,7 @@ use InvalidArgumentException;
 class StatisticManager
 {
     private StatisticRepository $statisticRepository;
+
     private EntityManagerInterface $entityManager;
 
     public function __construct(StatisticRepository $statisticRepository, EntityManagerInterface $entityManager)

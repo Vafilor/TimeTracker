@@ -17,6 +17,7 @@ use Ramsey\Uuid\Uuid;
 class StatisticValue
 {
     use UUIDTrait;
+
     use CreateTimestampableTrait;
 
     #[ORM\Column(type: 'float')]

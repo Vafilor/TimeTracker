@@ -12,13 +12,21 @@ use Ramsey\Uuid\Uuid;
 class TransferTimeEntry
 {
     public string $id;
+
     public int $createdAt;
+
     public int $updatedAt;
+
     public int $startedAt;
+
     public ?int $endedAt = null;
+
     public ?int $deletedAt = null;
+
     public string $description;
+
     public ?TransferTaskLink $task = null;
+
     public string $assignedTo;
 
     /**

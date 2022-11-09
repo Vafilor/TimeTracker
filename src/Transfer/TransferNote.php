@@ -12,11 +12,17 @@ use Ramsey\Uuid\Uuid;
 class TransferNote
 {
     public string $id;
+
     public int $createdAt;
+
     public int $updatedAt;
+
     public string $title;
+
     public string $content;
+
     public string $assignedTo;
+
     public ?int $forDate;
 
     /**

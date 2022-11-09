@@ -12,8 +12,11 @@ use Ramsey\Uuid\Uuid;
 class TransferTimestamp
 {
     public string $id;
+
     public int $createdAt;
+
     public string $assignedTo;
+
     public string $description;
 
     /**

@@ -7,12 +7,19 @@ namespace App\Form\Model;
 class FilterTaskModel
 {
     private bool $showCompleted;
+
     private bool $showClosed;
+
     private ?string $content;
+
     private ?string $tags;
+
     private ?string $parentTask;
+
     private bool $showSubtasks;
+
     private bool $onlyShowPastDue;
+
     private bool $onlyTemplates;
 
     public function __construct()

@@ -19,7 +19,9 @@ use Ramsey\Uuid\Uuid;
 class Tag
 {
     use UUIDTrait;
+
     use CreateTimestampableTrait;
+
     use AssignableToUserTrait;
 
     #[ORM\Column(type: 'string', length: 255)]

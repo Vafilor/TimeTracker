@@ -21,7 +21,9 @@ use Doctrine\ORM\NonUniqueResultException;
 class StatisticValueManager
 {
     private StatisticRepository $statisticRepository;
+
     private StatisticValueRepository $statisticValueRepository;
+
     private EntityManagerInterface $entityManager;
 
     public function __construct(

@@ -10,6 +10,7 @@ use RuntimeException;
 class RepositoryKeyCache
 {
     private FindByKeysInterface $repository;
+
     private array $keyToObject;
 
     public function __construct(FindByKeysInterface $repository)

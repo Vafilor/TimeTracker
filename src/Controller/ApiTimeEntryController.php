@@ -42,6 +42,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTimeEntryController extends BaseController
 {
     use TaggableController;
+
     use HasStatisticDataTrait;
 
     /**

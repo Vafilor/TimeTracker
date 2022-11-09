@@ -12,7 +12,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class UserManager
 {
     private UserRepository $userRepository;
+
     private UserPasswordHasherInterface $userPasswordHasher;
+
     private EntityManagerInterface $entityManager;
 
     public function __construct(

@@ -12,19 +12,33 @@ use Ramsey\Uuid\Uuid;
 class TransferTask
 {
     public string $id;
+
     public int $createdAt;
+
     public int $updatedAt;
+
     public ?int $deletedAt = null;
+
     public ?int $dueAt = null;
+
     public string $name;
+
     public string $canonicalName; // Technically not needed, but handy to see in json.
+
     public string $assignedTo;
+
     public string $description;
+
     public ?int $completedAt = null;
+
     public ?int $closedAt = null;
+
     public int $priority;
+
     public ?string $parentId = null;
+
     public ?int $timeEstimate = null;
+
     public bool $active = false;
 
     /**

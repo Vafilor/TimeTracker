@@ -12,10 +12,15 @@ use Ramsey\Uuid\Uuid;
 class TransferTag
 {
     public string $id;
+
     public int $createdAt;
+
     public string $name;
+
     public string $canonicalName; // Technically not needed, but handy to see in json.
+
     public string $color;
+
     public string $assignedTo;
 
     public static function fromEntity(Tag $tag): TransferTag

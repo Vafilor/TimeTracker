@@ -9,7 +9,9 @@ use App\Entity\Task;
 class TransferTaskLink
 {
     public string $id;
+
     public string $name;
+
     public string $assignedTo;
 
     public static function fromTask(Task $task): TransferTaskLink

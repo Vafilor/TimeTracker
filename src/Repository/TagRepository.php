@@ -24,6 +24,7 @@ use Doctrine\Persistence\ManagerRegistry;
 class TagRepository extends ServiceEntityRepository implements FindByKeysInterface
 {
     use FindByKeysTrait;
+
     use FindOrExceptionTrait;
 
     public function __construct(ManagerRegistry $registry)

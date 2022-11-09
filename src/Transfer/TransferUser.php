@@ -11,16 +11,27 @@ use Ramsey\Uuid\Uuid;
 class TransferUser
 {
     public string $id;
+
     public ?string $email = null;
+
     public string $username;
+
     public bool $enabled;
+
     public string $password; // Hashed.
+
     public bool $isVerified;
+
     public int $createdAt;
+
     public string $timezone;
+
     public string $dateFormat;
+
     public string $dateTimeFormat;
+
     public string $todayDateTimeFormat;
+
     public string $durationFormat;
 
     public static function fromEntity(User $user): TransferUser

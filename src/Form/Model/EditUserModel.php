@@ -9,9 +9,13 @@ use App\Entity\User;
 class EditUserModel
 {
     private string $timezone;
+
     private string $dateFormat;
+
     private string $dateTimeFormat;
+
     private string $todayDateTimeFormat;
+
     private string $durationFormat;
 
     public static function fromEntity(User $user): self

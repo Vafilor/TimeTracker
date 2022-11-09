@@ -12,7 +12,9 @@ class AddStatisticModel
 {
     #[Assert\NotBlank]
     private string $name;
+
     private string $description;
+
     private string $timeType;
 
     public function __construct()

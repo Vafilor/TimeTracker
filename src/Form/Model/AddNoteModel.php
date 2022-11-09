@@ -11,7 +11,9 @@ class AddNoteModel
 {
     #[Assert\NotBlank]
     private string $title;
+
     private string $content;
+
     private ?DateTime $forDate;
 
     public function __construct(string $title = '', string $content = '')

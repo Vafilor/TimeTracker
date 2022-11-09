@@ -11,11 +11,17 @@ use App\Util\DateFormatType;
 class ApiNote
 {
     public string $id;
+
     public string $title;
+
     public string $content;
+
     public string $createdAt;
+
     public int $createdAtEpoch;
+
     public array $tags;
+
     public ?string $url = null;
 
     public static function fromEntity(Note $note, User $user, string $format = DateFormatType::DATE_TIME): self

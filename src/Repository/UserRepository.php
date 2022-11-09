@@ -24,6 +24,7 @@ use Doctrine\Persistence\ManagerRegistry;
 class UserRepository extends ServiceEntityRepository implements FindByKeysInterface
 {
     use FindOrExceptionTrait;
+
     use FindByKeysTrait;
 
     public function __construct(ManagerRegistry $registry)

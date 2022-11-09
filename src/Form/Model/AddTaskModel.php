@@ -10,10 +10,15 @@ use DateTime;
 class AddTaskModel
 {
     private string $name;
+
     private ?string $description;
+
     private ?DateTime $dueAt;
+
     private ?string $parentTask;
+
     private ?string $taskTemplate;
+
     private bool $active;
 
     public static function fromEntity(Task $task): self

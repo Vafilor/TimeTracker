@@ -20,8 +20,11 @@ use Ramsey\Uuid\Uuid;
 class Statistic
 {
     use UUIDTrait;
+
     use CreateTimestampableTrait;
+
     use TaggableTrait;
+
     use AssignableToUserTrait;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]

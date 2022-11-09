@@ -10,13 +10,21 @@ use DateTime;
 class EditTaskModel
 {
     private string $name;
+
     private ?string $description;
+
     private int $priority;
+
     private ?DateTime $completedAt;
+
     private ?DateTime $dueAt;
+
     private ?int $timeEstimate;
+
     private ?string $parentTask;
+
     private bool $template;
+
     private bool $active;
 
     public static function fromEntity(Task $task): self

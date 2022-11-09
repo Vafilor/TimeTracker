@@ -12,14 +12,23 @@ use Ramsey\Uuid\Uuid;
 class TransferStatistic
 {
     public string $id;
+
     public int $createdAt;
+
     public string $assignedTo;
+
     public string $name;
+
     public string $canonicalName; // Technically not needed, but handy to see in json.
+
     public string $description;
+
     public string $color;
+
     public string $unit;
+
     public string $timeType;
+
     public ?string $icon = null;
 
     /**

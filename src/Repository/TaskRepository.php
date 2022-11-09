@@ -28,6 +28,7 @@ use Doctrine\Persistence\ManagerRegistry;
 class TaskRepository extends ServiceEntityRepository implements FindByKeysInterface
 {
     use FindOrExceptionTrait;
+
     use FindByKeysTrait;
 
     public function __construct(ManagerRegistry $registry)

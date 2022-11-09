@@ -25,10 +25,15 @@ use Ramsey\Uuid\Uuid;
 class TimeEntry
 {
     use UUIDTrait;
+
     use CreateTimestampableTrait;
+
     use UpdateTimestampableTrait;
+
     use SoftDeletableTrait;
+
     use TaggableTrait;
+
     use AssignableToUserTrait;
 
     #[ORM\Column(type: 'datetime')]

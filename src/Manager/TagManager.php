@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class TagManager
 {
     private TagRepository $tagRepository;
+
     private EntityManagerInterface $entityManager;
 
     public function __construct(TagRepository $tagRepository, EntityManagerInterface $entityManager)

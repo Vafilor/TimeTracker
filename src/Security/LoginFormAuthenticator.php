@@ -19,8 +19,11 @@ use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticato
 class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 {
     private UserRepository $userRepository;
+
     private RouterInterface $router;
+
     private CsrfTokenManagerInterface $csrfTokenManager;
+
     private UserPasswordHasherInterface $userPasswordHasher;
 
     public function __construct(

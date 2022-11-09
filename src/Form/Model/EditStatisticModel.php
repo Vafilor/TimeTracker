@@ -11,11 +11,16 @@ use InvalidArgumentException;
 class EditStatisticModel
 {
     private string $name;
+
     private string $description;
+
     private string $timeType;
+
     // icon is optional
     private ?string $icon;
+
     private string $color;
+
     private string $unit;
 
     public static function fromEntity(Statistic $statistic): self

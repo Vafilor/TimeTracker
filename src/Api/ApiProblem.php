@@ -18,8 +18,11 @@ class ApiProblem
         self::TYPE_INVALID_REQUEST_BODY => 'Invalid JSON format',
         self::TYPE_INVALID_ACTION => 'Invalid action',
     ];
+
     private ?string $type;
+
     private string $title;
+
     private array $extraData;
 
     public static function missingKeysInBody(string ...$keys): ApiProblem

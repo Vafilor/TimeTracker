@@ -9,8 +9,11 @@ use DateTime;
 class FilterTimeEntryModel
 {
     private ?DateTime $start;
+
     private ?DateTime $end;
+
     private ?string $tags;
+
     private ?string $taskId;
 
     public function __construct()

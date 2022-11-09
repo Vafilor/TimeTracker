@@ -34,6 +34,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTimestampController extends BaseController
 {
     use TaggableController;
+
     use HasStatisticDataTrait;
 
     public function __construct(private DateTimeFormatter $dateTimeFormatter)

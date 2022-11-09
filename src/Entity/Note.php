@@ -20,9 +20,13 @@ use Ramsey\Uuid\Uuid;
 class Note
 {
     use UUIDTrait;
+
     use CreateTimestampableTrait;
+
     use UpdateTimestampableTrait;
+
     use AssignableToUserTrait;
+
     use TaggableTrait;
 
     #[ORM\Column(type: 'string', length: 255)]

@@ -18,8 +18,11 @@ use Ramsey\Uuid\Uuid;
 class Timestamp
 {
     use UUIDTrait;
+
     use CreateTimestampableTrait;
+
     use TaggableTrait;
+
     use AssignableToUserTrait;
 
     /**

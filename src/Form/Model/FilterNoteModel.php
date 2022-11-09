@@ -7,6 +7,7 @@ namespace App\Form\Model;
 class FilterNoteModel
 {
     private ?string $tags;
+
     private ?string $content;
 
     public function __construct()

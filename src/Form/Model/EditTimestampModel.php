@@ -10,6 +10,7 @@ use DateTime;
 class EditTimestampModel
 {
     private ?DateTime $createdAt = null;
+
     private ?string $description = null;
 
     public static function fromEntity(Timestamp $timestamp): self

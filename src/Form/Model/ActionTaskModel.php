@@ -7,7 +7,9 @@ namespace App\Form\Model;
 class ActionTaskModel
 {
     private ?string $taskId;
+
     private ?string $action;
+
     private ?string $value;
 
     public function __construct()

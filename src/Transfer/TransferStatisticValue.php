@@ -11,12 +11,19 @@ use App\Util\DateTimeUtil;
 class TransferStatisticValue
 {
     public string $id;
+
     public int $createdAt;
+
     public float $value;
+
     public int $startedAt;
+
     public ?int $endedAt = null;
+
     public string $statisticId;
+
     public ?string $timeEntryId = null;
+
     public ?string $timestampId = null;
 
     public static function fromEntity(StatisticValue $value): TransferStatisticValue

@@ -41,19 +41,33 @@ use Symfony\Component\Serializer\SerializerInterface;
 class ImportDataCommand extends Command
 {
     private Serializer $serializer;
+
     private TagRepository $tagRepository;
+
     private TimestampRepository $timestampRepository;
+
     private TaskRepository $taskRepository;
+
     private TimeEntryRepository $timeEntryRepository;
+
     private StatisticRepository $statisticRepository;
+
     private EntityManagerInterface $entityManager;
+
     private RepositoryKeyCache $userLoader;
+
     private RepositoryKeyCache $tagLoader;
+
     private RepositoryKeyCache $taskLoader;
+
     private RepositoryKeyCache $statisticLoader;
+
     private RepositoryKeyCache $timeEntryLoader;
+
     private RepositoryKeyCache $timestampLoader;
+
     private StatisticValueRepository $statisticValueRepository;
+
     private NoteRepository $noteRepository;
 
     public function __construct(

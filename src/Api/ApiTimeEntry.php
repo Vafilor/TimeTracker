@@ -11,17 +11,29 @@ use App\Util\DateFormatType;
 class ApiTimeEntry
 {
     public string $id;
+
     public string $createdAt;
+
     public string $updatedAt;
+
     public int $updatedAtEpoch;
+
     public string $startedAt;
+
     public int $startedAtEpoch;
+
     public ?string $endedAt = null;
+
     public ?int $endedAtEpoch = null;
+
     public string $description;
+
     public ?string $duration = null;
+
     public ?string $taskId = null;
+
     public ?string $url = null;
+
     public array $tags;
 
     /**

@@ -18,6 +18,7 @@ use Ramsey\Uuid\Uuid;
 class User extends BaseUser
 {
     use UUIDTrait;
+
     use CreateTimestampableTrait;
 
     #[ORM\Column(type: 'string')]

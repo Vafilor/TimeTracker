@@ -11,10 +11,15 @@ use App\Util\DateFormatType;
 class ApiStatistic
 {
     public string $canonicalName;
+
     public string $createdAt;
+
     public int $createdAtEpoch;
+
     public string $color;
+
     public string $unit;
+
     public ?string $icon;
 
     public static function fromEntity(Statistic $statistic, User $user, string $format = DateFormatType::DATE_TIME): ApiStatistic

@@ -28,6 +28,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class TimeEntryRepository extends ServiceEntityRepository implements FindByKeysInterface
 {
     use FindOrExceptionTrait;
+
     use FindByKeysTrait;
 
     public function __construct(ManagerRegistry $registry)

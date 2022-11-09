@@ -11,11 +11,17 @@ use App\Util\DateFormatType;
 class ApiTask
 {
     public string $description;
+
     public string $createdAt;
+
     public int $createdAtEpoch;
+
     public ?string $completedAt = null;
+
     public ?int $completedAtEpoch = null;
+
     public ?string $url = null;
+
     public array $tags;
 
     public static function fromEntity(Task $task, User $user, string $format = DateFormatType::DATE_TIME): ApiTask
