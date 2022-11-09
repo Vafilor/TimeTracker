@@ -12,6 +12,7 @@ use DateTime;
 use DateTimeZone;
 use Detection\MobileDetect;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\Pagination\PaginationInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,6 +32,15 @@ class BaseController extends AbstractController
 
     public const PAGINATION_PER_PAGE = 10;
     public const PAGINATION_MAX_PER_PAGE = 50;
+
+    public function __construct(private ManagerRegistry $managerRegistry)
+    {
+    }
+
+    public function getDoctrine(): ManagerRegistry
+    {
+        return $this->managerRegistry;
+    }
 
     /**
      * Populates the pagination with default values from the request.
