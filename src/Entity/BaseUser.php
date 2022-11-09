@@ -21,7 +21,7 @@ abstract class BaseUser implements UserInterface
     protected bool $enabled;
 
     #[ORM\Column(type: 'string', length: 180, nullable: true)]
-    protected ?string $confirmationToken;
+    protected ?string $confirmationToken = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private DateTime $passwordRequestedAt;

@@ -14,23 +14,23 @@ class TagLink
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private ?int $id;
+    private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: TimeEntry::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: true)]
-    private ?TimeEntry $timeEntry;
+    private ?TimeEntry $timeEntry = null;
 
     #[ORM\ManyToOne(targetEntity: Timestamp::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: true)]
-    private ?Timestamp $timestamp;
+    private ?Timestamp $timestamp = null;
 
     #[ORM\ManyToOne(targetEntity: Task::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: true)]
-    private ?Task $task;
+    private ?Task $task = null;
 
     #[ORM\ManyToOne(targetEntity: Note::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: true)]
-    private ?Note $note;
+    private ?Note $note = null;
 
     #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: false)]
@@ -38,7 +38,7 @@ class TagLink
 
     #[ORM\ManyToOne(targetEntity: Statistic::class, inversedBy: 'tagLinks')]
     #[ORM\JoinColumn(nullable: true)]
-    private ?Statistic $statistic;
+    private ?Statistic $statistic = null;
 
     public function __construct(TimeEntry|Timestamp|Task|Statistic|Note $resource, Tag $tag)
     {

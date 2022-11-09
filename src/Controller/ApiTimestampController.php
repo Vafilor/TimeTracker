@@ -36,11 +36,8 @@ class ApiTimestampController extends BaseController
     use TaggableController;
     use HasStatisticDataTrait;
 
-    private DateTimeFormatter $dateTimeFormatter;
-
-    public function __construct(DateTimeFormatter $dateTimeFormatter)
+    public function __construct(private DateTimeFormatter $dateTimeFormatter)
     {
-        $this->dateTimeFormatter = $dateTimeFormatter;
     }
 
     #[Route('/api/timestamp', name: 'api_timestamp_index', methods: ['GET'])]
@@ -150,7 +147,7 @@ class ApiTimestampController extends BaseController
 
         try {
             $form->submit($data);
-        } catch (InvalidArgumentException $invalidArgumentException) {
+        } catch (InvalidArgumentException) {
             throw new ApiProblemException(new ApiProblem(Response::HTTP_BAD_REQUEST, ApiProblem::TYPE_VALIDATION_ERROR));
         }
 

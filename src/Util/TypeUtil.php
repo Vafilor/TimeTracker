@@ -8,7 +8,7 @@ class TypeUtil
 {
     public static function getClassName($obj)
     {
-        $classname = get_class($obj);
+        $classname = $obj::class;
 
         if ($pos = strrpos($classname, '\\')) {
             return substr($classname, $pos + 1);

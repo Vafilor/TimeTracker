@@ -9,8 +9,6 @@ use DateTime;
 
 class EditNoteModel
 {
-    private ?string $title;
-    private ?string $content;
     private ?DateTime $forDate;
 
     public static function fromEntity(Note $note): self
@@ -21,10 +19,8 @@ class EditNoteModel
         return $model;
     }
 
-    public function __construct(string $title, string $content)
+    public function __construct(private ?string $title, private ?string $content)
     {
-        $this->title = $title;
-        $this->content = $content;
         $this->forDate = null;
     }
 

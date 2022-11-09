@@ -11,7 +11,7 @@ use Ramsey\Uuid\Uuid;
 class TransferUser
 {
     public string $id;
-    public ?string $email;
+    public ?string $email = null;
     public string $username;
     public bool $enabled;
     public string $password; // Hashed.

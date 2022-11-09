@@ -16,12 +16,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class CreateUserCommand extends Command
 {
-    private UserManager $userManager;
-
-    public function __construct(UserManager $userManager)
+    public function __construct(private UserManager $userManager)
     {
-        $this->userManager = $userManager;
-
         parent::__construct();
     }
 

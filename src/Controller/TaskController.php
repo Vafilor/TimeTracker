@@ -30,11 +30,8 @@ class TaskController extends BaseController
     public const CODE_NO_PARENT_TASK = 'code_no_parent_task';
     public const CODE_NO_ASSIGNED_TASK = 'code_no_assigned_task';
 
-    private TaskRepository $taskRepository;
-
-    public function __construct(TaskRepository $taskRepository)
+    public function __construct(private TaskRepository $taskRepository)
     {
-        $this->taskRepository = $taskRepository;
     }
 
     private function createIndexFilterForm(FormFactoryInterface $formFactory): FormInterface

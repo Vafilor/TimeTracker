@@ -17,12 +17,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 )]
 class UserChangePasswordCommand extends Command
 {
-    private UserManager $userManager;
-
-    public function __construct(UserManager $userManager)
+    public function __construct(private UserManager $userManager)
     {
-        $this->userManager = $userManager;
-
         parent::__construct();
     }
 
@@ -68,7 +64,7 @@ class UserChangePasswordCommand extends Command
 
         try {
             $this->userManager->changePassword($username, $password);
-        } catch (NotFoundHttpException $exception) {
+        } catch (NotFoundHttpException) {
             $io->error("User not found for username '$username'");
 
             return Command::FAILURE;

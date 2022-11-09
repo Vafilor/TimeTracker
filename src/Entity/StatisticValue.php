@@ -26,17 +26,17 @@ class StatisticValue
     protected DateTime $startedAt;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    protected ?DateTime $endedAt;
+    protected ?DateTime $endedAt = null;
 
     #[ORM\ManyToOne(targetEntity: Statistic::class, inversedBy: 'statisticValues')]
     #[ORM\JoinColumn(nullable: false)]
     private Statistic $statistic;
 
     #[ORM\ManyToOne(targetEntity: TimeEntry::class, inversedBy: 'statisticValues')]
-    private ?TimeEntry $timeEntry;
+    private ?TimeEntry $timeEntry = null;
 
     #[ORM\ManyToOne(targetEntity: Timestamp::class, inversedBy: 'statisticValues')]
-    private ?Timestamp $timestamp;
+    private ?Timestamp $timestamp = null;
 
     public static function fromResource(Statistic $statistic, float $value, Timestamp|TimeEntry $resource): StatisticValue
     {

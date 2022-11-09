@@ -9,9 +9,9 @@ use DateTime;
 
 class EditTimeEntryModel
 {
-    private ?DateTime $startedAt;
-    private ?DateTime $endedAt;
-    private ?string $description;
+    private ?DateTime $startedAt = null;
+    private ?DateTime $endedAt = null;
+    private ?string $description = null;
 
     public static function fromEntity(TimeEntry $timeEntry): EditTimeEntryModel
     {

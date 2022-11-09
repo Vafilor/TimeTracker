@@ -17,11 +17,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EditTaskFormType extends AbstractType
 {
-    private TextTimeIntervalSecondsTransformer $textDateIntervalTransformer;
-
-    public function __construct(TextTimeIntervalSecondsTransformer $textDateIntervalTransformer)
+    public function __construct(private TextTimeIntervalSecondsTransformer $textDateIntervalTransformer)
     {
-        $this->textDateIntervalTransformer = $textDateIntervalTransformer;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)

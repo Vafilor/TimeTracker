@@ -10,7 +10,6 @@ use App\Util\DateFormatType;
 
 class ApiStatistic
 {
-    public string $name;
     public string $canonicalName;
     public string $createdAt;
     public int $createdAtEpoch;
@@ -46,9 +45,8 @@ class ApiStatistic
         return $items;
     }
 
-    public function __construct(string $name)
+    public function __construct(public string $name)
     {
-        $this->name = $name;
         $this->url = null;
         $this->icon = null;
     }

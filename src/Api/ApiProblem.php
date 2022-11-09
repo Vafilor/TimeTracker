@@ -18,8 +18,6 @@ class ApiProblem
         self::TYPE_INVALID_REQUEST_BODY => 'Invalid JSON format',
         self::TYPE_INVALID_ACTION => 'Invalid action',
     ];
-
-    private int $statusCode;
     private ?string $type;
     private string $title;
     private array $extraData;
@@ -58,18 +56,15 @@ class ApiProblem
         return $problem;
     }
 
-    public function __construct(int $statusCode, string $type = null)
+    public function __construct(private int $statusCode, string $type = null)
     {
         $this->extraData = [];
-        $this->statusCode = $statusCode;
 
         if (is_null($type)) {
             // no type? The default is about:blank and the title should be
             // the standard status code message
             $type = 'about:blank';
-            $title = isset(Response::$statusTexts[$statusCode])
-                ? Response::$statusTexts[$statusCode]
-                : "Unknown Status Code $statusCode";
+            $title = Response::$statusTexts[$statusCode] ?? "Unknown Status Code $statusCode";
         } else {
             if (!isset(static::$titles[$type])) {
                 throw new InvalidArgumentException("No title for type $type");

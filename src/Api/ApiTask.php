@@ -10,8 +10,6 @@ use App\Util\DateFormatType;
 
 class ApiTask
 {
-    public string $id;
-    public string $name;
     public string $description;
     public string $createdAt;
     public int $createdAtEpoch;
@@ -52,10 +50,8 @@ class ApiTask
         return $items;
     }
 
-    public function __construct(string $id, string $name)
+    public function __construct(public string $id, public string $name)
     {
-        $this->id = $id;
-        $this->name = $name;
         $this->description = '';
         $this->completedAt = null;
         $this->url = null;

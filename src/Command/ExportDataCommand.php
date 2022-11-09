@@ -37,37 +37,17 @@ use Symfony\Component\Serializer\SerializerInterface;
 )]
 class ExportDataCommand extends Command
 {
-    private Serializer $serializer;
-    private TagRepository $tagRepository;
-    private UserRepository $userRepository;
-    private TimestampRepository $timestampRepository;
-    private TaskRepository $taskRepository;
-    private TimeEntryRepository $timeEntryRepository;
-    private StatisticRepository $statisticRepository;
-    private StatisticValueRepository $statisticValueRepository;
-    private NoteRepository $noteRepository;
-
     public function __construct(
-        SerializerInterface $serializer,
-        TagRepository $tagRepository,
-        UserRepository $userRepository,
-        TimestampRepository $timestampRepository,
-        TaskRepository $taskRepository,
-        TimeEntryRepository $timeEntryRepository,
-        StatisticRepository $statisticRepository,
-        StatisticValueRepository $statisticValueRepository,
-        NoteRepository $noteRepository
+        private SerializerInterface $serializer,
+        private TagRepository $tagRepository,
+        private UserRepository $userRepository,
+        private TimestampRepository $timestampRepository,
+        private TaskRepository $taskRepository,
+        private TimeEntryRepository $timeEntryRepository,
+        private StatisticRepository $statisticRepository,
+        private StatisticValueRepository $statisticValueRepository,
+        private NoteRepository $noteRepository
     ) {
-        $this->serializer = $serializer;
-        $this->tagRepository = $tagRepository;
-        $this->userRepository = $userRepository;
-        $this->timestampRepository = $timestampRepository;
-        $this->taskRepository = $taskRepository;
-        $this->timeEntryRepository = $timeEntryRepository;
-        $this->statisticRepository = $statisticRepository;
-        $this->statisticValueRepository = $statisticValueRepository;
-        $this->noteRepository = $noteRepository;
-
         parent::__construct();
     }
 
@@ -88,7 +68,7 @@ class ExportDataCommand extends Command
         }
 
         while (strlen($outputPath) > 0 && str_ends_with($outputPath, DIRECTORY_SEPARATOR)) {
-            $outputPath = substr($outputPath, 0, count($outputPath) - 1);
+            $outputPath = substr($outputPath, 0, (is_countable($outputPath) ? count($outputPath) : 0) - 1);
         }
 
         if (0 === strlen($outputPath)) {
@@ -170,7 +150,7 @@ class ExportDataCommand extends Command
         $queryBuilder->setMaxResults($chunkSize);
 
         $results = $queryBuilder->getQuery()->getResult();
-        while (0 !== count($results)) {
+        while (0 !== (is_countable($results) ? count($results) : 0)) {
             yield $chunk => $results;
 
             $queryBuilder = $queryBuilder->setFirstResult($chunk * $chunkSize);

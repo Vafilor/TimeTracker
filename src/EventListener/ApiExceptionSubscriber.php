@@ -14,11 +14,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiExceptionSubscriber implements EventSubscriberInterface
 {
-    private bool $debug;
-
-    public function __construct(bool $debug = false)
+    public function __construct(private bool $debug = false)
     {
-        $this->debug = $debug;
     }
 
     public function onKernelException(ExceptionEvent $event)

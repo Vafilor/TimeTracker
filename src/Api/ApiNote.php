@@ -16,7 +16,7 @@ class ApiNote
     public string $createdAt;
     public int $createdAtEpoch;
     public array $tags;
-    public ?string $url;
+    public ?string $url = null;
 
     public static function fromEntity(Note $note, User $user, string $format = DateFormatType::DATE_TIME): self
     {

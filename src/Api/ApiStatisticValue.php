@@ -10,10 +10,6 @@ use App\Util\DateFormatType;
 
 class ApiStatisticValue
 {
-    public string $id;
-    public float $value;
-    public ApiStatistic $statistic;
-
     public static function fromEntity(StatisticValue $statisticValue, User $user, string $format = DateFormatType::DATE_TIME): ApiStatisticValue
     {
         return new ApiStatisticValue(
@@ -38,10 +34,7 @@ class ApiStatisticValue
         return $items;
     }
 
-    public function __construct(ApiStatistic $statistic, string $id, float $value)
+    public function __construct(public ApiStatistic $statistic, public string $id, public float $value)
     {
-        $this->statistic = $statistic;
-        $this->id = $id;
-        $this->value = $value;
     }
 }

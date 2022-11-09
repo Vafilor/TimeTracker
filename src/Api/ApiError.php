@@ -6,10 +6,6 @@ namespace App\Api;
 
 class ApiError
 {
-    private string $code;
-    private string $message;
-    private array $extraData;
-
     public static function missingProperty(string $property): ApiError
     {
         return ApiError::propertyError(ApiProblem::TYPE_VALIDATION_ERROR, 'Missing value', $property);
@@ -27,11 +23,8 @@ class ApiError
         return new ApiError($code, $message, $extra);
     }
 
-    public function __construct(string $code, string $message, array $extraData = [])
+    public function __construct(private string $code, private string $message, private array $extraData = [])
     {
-        $this->code = $code;
-        $this->message = $message;
-        $this->extraData = $extraData;
     }
 
     public function toArray(): array

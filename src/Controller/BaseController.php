@@ -86,7 +86,7 @@ class BaseController extends AbstractController
      */
     public function getJsonBody(Request $request, array $default = null): array
     {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (is_null($data)) {
             if (!is_null($default)) {
                 return $default;

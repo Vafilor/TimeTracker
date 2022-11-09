@@ -69,7 +69,7 @@ class StatisticValueManager
                 if (!is_null($statisticValue)) {
                     throw new StatisticValueDayConflict($conflictMessage);
                 }
-            } catch (NonUniqueResultException $exception) {
+            } catch (NonUniqueResultException) {
                 throw new StatisticValueDayConflict($conflictMessage);
             }
         }

@@ -10,9 +10,6 @@ use LogicException;
 
 class DateRange
 {
-    private DateTime $start;
-    private DateTime $end;
-
     /**
      * @return DateRange[]
      */
@@ -51,10 +48,8 @@ class DateRange
         return new DateRange($start, $end);
     }
 
-    public function __construct(DateTime $start, DateTime $end)
+    public function __construct(private DateTime $start, private DateTime $end)
     {
-        $this->start = $start;
-        $this->end = $end;
     }
 
     public function getStart(): DateTime

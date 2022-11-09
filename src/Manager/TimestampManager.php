@@ -10,11 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class TimestampManager
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
     }
 
     /**

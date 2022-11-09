@@ -9,9 +9,6 @@ use App\Entity\TagLink;
 
 class ApiTag
 {
-    public string $name;
-    public string $color;
-
     public static function fromEntity(Tag $tag): ApiTag
     {
         return new ApiTag($tag->getName(), $tag->getCanonicalName(), $tag->getColor());
@@ -47,9 +44,7 @@ class ApiTag
         return $items;
     }
 
-    public function __construct(string $name, string $canonicalName, string $color)
+    public function __construct(public string $name, string $canonicalName, public string $color)
     {
-        $this->name = $name;
-        $this->color = $color;
     }
 }

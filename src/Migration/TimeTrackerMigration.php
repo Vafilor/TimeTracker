@@ -30,37 +30,23 @@ abstract class TimeTrackerMigration extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $platformName = $this->platform->getName();
-        switch ($platformName) {
-            case 'sqlite':
-                $this->upSqlite($schema);
-                break;
-            case 'postgresql':
-                $this->upPostgresql($schema);
-                break;
-            case 'mysql':
-                $this->upMysql($schema);
-                break;
-            default:
-                throw new Exception("Unsupported database '{$platformName}'");
-        }
+        match ($platformName) {
+            'sqlite' => $this->upSqlite($schema),
+            'postgresql' => $this->upPostgresql($schema),
+            'mysql' => $this->upMysql($schema),
+            default => throw new Exception("Unsupported database '{$platformName}'"),
+        };
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $platformName = $this->platform->getName();
-        switch ($platformName) {
-            case 'sqlite':
-                $this->downSqlite($schema);
-                break;
-            case 'postgresql':
-                $this->downPostgresql($schema);
-                break;
-            case 'mysql':
-                $this->downMysql($schema);
-                break;
-            default:
-                throw new Exception("Unsupported database '{$platformName}'");
-        }
+        match ($platformName) {
+            'sqlite' => $this->downSqlite($schema),
+            'postgresql' => $this->downPostgresql($schema),
+            'mysql' => $this->downMysql($schema),
+            default => throw new Exception("Unsupported database '{$platformName}'"),
+        };
     }
 }

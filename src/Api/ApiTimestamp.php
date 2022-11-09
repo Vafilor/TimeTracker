@@ -15,7 +15,7 @@ class ApiTimestamp
     public string $id;
     public string $createdAt;
     public int $createdAtEpoch;
-    public ?string $createdAgo; // human friendly string of how long ago the timestamp was created. e.g. '5 seconds ago'
+    public ?string $createdAgo = null; // human friendly string of how long ago the timestamp was created. e.g. '5 seconds ago'
     public array $tags;
 
     public static function fromEntity(

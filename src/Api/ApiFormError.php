@@ -12,7 +12,7 @@ class ApiFormError extends ApiProblem
 {
     public static function formatPropertyPath(string $name): string
     {
-        if (0 === strpos($name, 'children[')) {
+        if (str_starts_with($name, 'children[')) {
             // 9 is for the length of "children[
             // We subtract 10 for "children[]" we don't want the ending ].
             return substr($name, 9, strlen($name) - 10);
