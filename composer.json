@@ -15,7 +15,6 @@
         "erusev/parsedown": "^1.7",
         "knplabs/knp-paginator-bundle": "^5.4",
         "knplabs/knp-time-bundle": "^1.16",
-        "lexik/jwt-authentication-bundle": "^2.11",
         "mobiledetect/mobiledetectlib": "^2.8",
         "phpdocumentor/reflection-docblock": "^5.2",
         "ramsey/uuid-doctrine": "^1.6",
