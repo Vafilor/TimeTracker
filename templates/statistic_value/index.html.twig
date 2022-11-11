@@ -21,13 +21,12 @@
             }
         }) }}
         <div
-            {{ stimulus_controller({
-                'autocomplete': {
+            {{ stimulus_controller('autocomplete', {
                     url: path('partial_statistic_index', { timeType: 'interval'} ),
                     minLength: -1,
                     passValue: true
-                },
-            }) }}
+                }
+            ) }}
             class="autocomplete-2 col position-relative">
             {{ form_widget(form.statisticName, { attr: {class: 'd-none', 'data-autocomplete-target': 'hidden'}}) }}
             <input

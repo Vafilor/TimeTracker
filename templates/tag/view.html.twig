@@ -38,9 +38,9 @@
             <td>Preview</td>
             <td>
                 <div
-                    {{ stimulus_controller({
-                        'style-setter': { key: tag.idString ~ '-color', property: 'backgroundColor' },
-                    }) }}
+                    {{ stimulus_controller('style-setter',
+                        { key: tag.idString ~ '-color', property: 'backgroundColor' }
+                    ) }}
                     data-action="value-emitter:change@window->style-setter#setProperty"
                     class="tag js-tag-preview"
                     style="background-color: {{ tag.color }}">

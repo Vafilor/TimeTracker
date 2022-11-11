@@ -16,14 +16,14 @@ class AppExtension extends AbstractExtension implements ServiceSubscriberInterfa
     {
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('keyList', [RequestRuntime::class, 'keyList']),
         ];
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('zeroDuration', [$this, 'zeroDuration']),

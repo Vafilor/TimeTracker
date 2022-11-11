@@ -71,12 +71,11 @@
             class="d-flex mt-1 js-add-statistic add-statistic">
 
             <div
-                {{ stimulus_controller({
-                    'autocomplete': {
+                {{ stimulus_controller('autocomplete', {
                         url: path('partial_statistic_index', { timeType: 'instant' }),
                         minLength: -1,
                     },
-                }) }}
+                ) }}
                 class="autocomplete-2 position-relative"
             >
                 <label for="timestamp-statistic-search" class="visually-hidden">Search statistics</label>

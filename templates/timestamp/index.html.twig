@@ -60,14 +60,14 @@
         }) }}
             <div class="col">
                 <div
-                    {{ stimulus_controller({
-                        'tag-list': {
+                    {{ stimulus_controller('tag-list', {
                             autocompleteId: 'timestamp_tag_index'
-                        },
-                        'focus-redirect': {
+                        })
+                    }}
+                    {{ stimulus_controller('focus-redirect', {
                             targetId: 'timestamp-tag-search'
-                        }
-                    }) }}
+                        })
+                    }}
                     class="tag-list tag-list-autocomplete border rounded h-100 bg-weak-white d-flex align-items-center"
                     data-action="removable-tag:remove->tag-list#removeTag">
                     <span class="ps-2 pe-2 text-placeholder">Tags</span>

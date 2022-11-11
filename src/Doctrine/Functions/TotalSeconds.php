@@ -29,7 +29,7 @@ class TotalSeconds extends FunctionNode
      * @override
      * {@inheritdoc}
      */
-    public function getSql(SqlWalker $sqlWalker)
+    public function getSql(SqlWalker $sqlWalker): string
     {
         $platformName = $sqlWalker->getConnection()->getDatabasePlatform()->getName();
 

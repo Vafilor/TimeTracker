@@ -22,18 +22,17 @@
 
     <div class="d-flex justify-content-between">
         <div
-            {{ stimulus_controller({
-                'app-autocomplete': {
+            {{ stimulus_controller('app-autocomplete', {
                     url: path('task_index_partial'),
                     minLength: -1,
                     queryName: 'content',
                     type: 'task',
                     params: { showCompleted: 1 }|json_encode
-                },
-                'assign-task': {
+                }
+            ) }}
+            {{ stimulus_controller('assign-task', {
                     url: path('json_time_entry_task_create', { id: timeEntry.idString }),
                     removeUrl: path('json_time_entry_task_delete', { id: timeEntry.idString })
-                }
             }) }}
             class="autocomplete-2 autocomplete-search-group position-relative"
             data-action="autocomplete.change->assign-task#assign"
@@ -215,12 +214,11 @@
                 }) }}>
 
                 <div
-                    {{ stimulus_controller({
-                        'autocomplete': {
+                    {{ stimulus_controller('autocomplete', {
                             url: path('partial_statistic_index', { timeType: 'interval' }),
                             minLength: -1,
                         },
-                    }) }}
+                    ) }}
                     class="autocomplete-2 position-relative"
                 >
                     <label for="time-entry-statistic-search" class="visually-hidden">Search statistics</label>

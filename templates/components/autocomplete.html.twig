@@ -82,13 +82,12 @@
 {% macro addTag(resource, id) %}
 <div
     {% if id %}id="{{ id }}"{% endif %}
-    {{ stimulus_controller({
-        'autocomplete-tags': {
+    {{ stimulus_controller('autocomplete-tags', {
             url: path('tag_index_partial'),
             minLength: -1,
             type: 'tag'
-        },
-    }) }}
+        }
+    ) }}
     class="autocomplete-2 autocomplete-search-group position-relative"
     data-action="tag:add@window->autocomplete-tags#excludeTagEvent tag:remove@window->autocomplete-tags#includeTagEvent"
 >
