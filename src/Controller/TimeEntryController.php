@@ -80,7 +80,7 @@ class TimeEntryController extends BaseController
     }
 
     #[Route('/time-entry/create', name: 'time_entry_create')]
-    public function create(TimeEntryRepository $timeEntryRepository, EntityManagerInterface $entityManager,): Response
+    public function create(TimeEntryRepository $timeEntryRepository, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 

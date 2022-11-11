@@ -43,6 +43,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTimeEntryController extends BaseController
 {
     use TaggableController;
+
     use HasStatisticDataTrait;
 
     /**
@@ -507,7 +508,8 @@ class ApiTimeEntryController extends BaseController
 
     #[Route('/api/time-entry/{id}/tags', name: 'api_time_entry_tags', methods: ['GET'])]
     #[Route('/json/time-entry/{id}/tags', name: 'json_time_entry_tags', methods: ['GET'])]
-    public function indexTag(TimeEntryRepository $timeEntryRepository, string $id): JsonResponse {
+    public function indexTag(TimeEntryRepository $timeEntryRepository, string $id): JsonResponse
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
         if (!$timeEntry->isAssignedTo($this->getUser())) {

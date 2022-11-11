@@ -390,7 +390,8 @@ class ApiTaskController extends BaseController
 
     #[Route('/api/task/{id}/tags', name: 'api_task_tags', methods: ['GET'])]
     #[Route('/json/task/{id}/tags', name: 'json_task_tags', methods: ['GET'])]
-    public function indexTag(TaskRepository $taskRepository, string $id): JsonResponse {
+    public function indexTag(TaskRepository $taskRepository, string $id): JsonResponse
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $task = $taskRepository->findOrException($id);
         if (!$task->isAssignedTo($this->getUser())) {

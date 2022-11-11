@@ -104,7 +104,8 @@ class ApiTimestampController extends BaseController
     }
 
     #[Route('/api/timestamp/{id}', name: 'api_timestamp_view', methods: ['GET'])]
-    public function view(TimestampRepository $timestampRepository, string $id): Response {
+    public function view(TimestampRepository $timestampRepository, string $id): Response
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $timestampRepository->findCreateQueryBuilder($id);
@@ -173,7 +174,8 @@ class ApiTimestampController extends BaseController
     public function remove(
         TimestampRepository $timestampRepository,
         EntityManagerInterface $entityManager,
-        string $id): Response {
+        string $id): Response
+    {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timestamp = $timestampRepository->findOrException($id);
         if (!$timestamp->isAssignedTo($this->getUser())) {
