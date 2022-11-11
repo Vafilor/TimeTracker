@@ -8,10 +8,12 @@ use App\Entity\Task;
 use App\Form\ActionTaskFormType;
 use App\Form\AddTaskFormType;
 use App\Form\EditTaskFormType;
+use App\Form\EditTaskPartialFormType;
 use App\Form\FilterTaskFormType;
 use App\Form\Model\ActionTaskModel;
 use App\Form\Model\AddTaskModel;
 use App\Form\Model\EditTaskModel;
+use App\Form\Model\EditTaskPartialModel;
 use App\Form\Model\FilterTaskModel;
 use App\Manager\TaskManager;
 use App\Repository\TaskRepository;
@@ -310,6 +312,50 @@ class TaskController extends BaseController
                 'subtasks' => $task->getSubtasks(),
             ]
         );
+    }
+
+    #[Route('/task/{id}/partial_edit', name: 'task_partial_edit', methods: ['GET', 'POST'])]
+    public function partialEdit(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        TaskRepository $taskRepository,
+        string $id): Response
+    {
+        $task = $taskRepository->findOrException($id);
+
+        $form = $this->createForm(
+            EditTaskPartialFormType::class,
+            EditTaskPartialModel::fromEntity($task),
+            [
+                'action' => $this->generateUrl('task_partial_edit', ['id' => $id]),
+                'timezone' => $this->getUser()->getTimezone(),
+            ]
+        );
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var EditTaskPartialModel $data */
+            $data = $form->getData();
+
+            $task->setName($data->getName());
+            $task->setPriority($data->getPriority());
+            $task->setCompletedAt($data->getCompletedAt());
+            $task->setDueAt($data->getDueAt());
+            $task->setTimeEstimate($data->getTimeEstimate());
+            $task->setActive($data->isActive());
+
+            $entityManager->flush();
+
+            $this->addFlash("success", "Task '{$task->getName()}' updated");
+
+            return new Response(null, Response::HTTP_FOUND, [
+                'Turbo-location' => $request->headers->get('referer')
+            ]);
+        }
+
+        return $this->renderForm('task/partials/_edit.html.twig', [
+            'form' => $form,
+        ]);
     }
 
     #[Route('/task/{id}/lineage', name: 'task_lineage', methods: ['GET'])]

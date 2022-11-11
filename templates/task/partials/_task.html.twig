@@ -60,7 +60,13 @@
             </table>
         </div>
         <div class="flex-shrink-0">
-            <a href="{{ path('task_view', {id: task.idString}) }}" class="d-none d-md-inline-block">Time Entries</a>
+            {% if edit %}
+                <button
+                        {{ stimulus_action('modal-form', 'openModal', null, {'task-id': task.idString} ) }}
+                        class="btn btn-secondary">
+                    Edit
+                </button>
+            {% endif %}
             <a href="{{ path('task_view', {id: task.idString}) }}" class="btn btn-primary js-view ms-md-2">View</a>
         </div>
     </div>

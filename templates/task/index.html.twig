@@ -12,7 +12,12 @@
 
 {% block content_body %}
     <div
-         {{ stimulus_controller('task-index-page-bridge') }}
+         {{
+            stimulus_controller('task-index-page-bridge') |
+            stimulus_controller('modal-form', {
+                'edit-url-template': url('task_partial_edit', {id: '{{ID}}'})
+            })
+         }}
          class="resource js-data"
          data-duration-format="{{ app.user.durationFormat }}"
          data-date-format="date_time_today"
@@ -225,12 +230,31 @@
 
         <div class="stack-list task-list js-task-list mt-2 mb-2">
             {% for task in pagination %}
-                {{ include('task/partials/_task.html.twig', {task: task }) }}
+                {{ include('task/partials/_task.html.twig', {task: task, edit: true }) }}
             {% else %}
                 <div class="text-center mt-2 mb-2 js-no-tasks">No tasks found</div>
             {% endfor %}
         </div>
 
         {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+
+        <div class="modal fade" tabindex="-1" {{ stimulus_target('modal-form', 'modal') }}>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit task</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <turbo-frame
+                            id="task-partial-edit"
+                            class="modal-body"
+                            loading="lazy"
+                            {{ stimulus_target('modal-form', 'frame') }}
+                            src="">
+                        Loading...
+                    </turbo-frame>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
