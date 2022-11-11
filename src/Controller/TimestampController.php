@@ -168,8 +168,8 @@ class TimestampController extends BaseController
             return $this->redirectToRoute('timestamp_index');
         }
 
-        return $this->render('timestamp/view.html.twig', [
-            'form' => $form->createView(),
+        return $this->renderForm('timestamp/view.html.twig', [
+            'form' => $form,
             'timestamp' => $timestamp,
             'tags' => ApiTag::fromEntities($timestamp->getTags()),
         ]);

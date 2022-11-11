@@ -72,9 +72,9 @@ class TimeEntryController extends BaseController
             'direction' => 'desc',
         ]);
 
-        return $this->render('time_entry/index.html.twig', [
+        return $this->renderForm('time_entry/index.html.twig', [
             'pagination' => $pagination,
-            'filterForm' => $filterForm->createView(),
+            'filterForm' => $filterForm,
             'task' => $task,
         ]);
     }
@@ -175,9 +175,9 @@ class TimeEntryController extends BaseController
             $entityManager->flush();
         }
 
-        return $this->render('time_entry/view.html.twig', [
+        return $this->renderForm('time_entry/view.html.twig', [
             'timeEntry' => $timeEntry,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 

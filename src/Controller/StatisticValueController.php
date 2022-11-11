@@ -84,9 +84,9 @@ class StatisticValueController extends BaseController
             $entityManager->flush();
         }
 
-        return $this->render('statistic_value/view.html.twig', [
+        return $this->renderForm('statistic_value/view.html.twig', [
             'statisticValue' => $statisticValue,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 

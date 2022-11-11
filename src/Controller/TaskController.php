@@ -302,11 +302,11 @@ class TaskController extends BaseController
             return $this->redirectToRoute('task_index');
         }
 
-        return $this->render(
+        return $this->renderForm(
             'task/view.html.twig',
             [
                 'task' => $task,
-                'form' => $form->createView(),
+                'form' => $form,
                 'subtasks' => $task->getSubtasks(),
             ]
         );

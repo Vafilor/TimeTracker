@@ -160,11 +160,11 @@ class NoteController extends BaseController
             $this->addFlash('success', 'Note successfully updated');
         }
 
-        return $this->render(
+        return $this->renderForm(
             'note/view.html.twig',
             [
                 'note' => $note,
-                'form' => $form->createView(),
+                'form' => $form,
             ]
         );
     }

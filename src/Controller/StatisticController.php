@@ -187,9 +187,9 @@ class StatisticController extends BaseController
             }
         }
 
-        return $this->render('statistic/view.html.twig', [
+        return $this->renderForm('statistic/view.html.twig', [
             'statistic' => $statistic,
-            'form' => $form->createView(),
+            'form' => $form,
             'tags' => ApiTag::fromEntities($statistic->getTags()),
         ]);
     }

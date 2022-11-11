@@ -164,9 +164,9 @@ class TagController extends BaseController
         $count = $tagRepository->getReferenceCount($tag);
         $totalTime = $tagRepository->getTimeEntryDuration($tag);
 
-        return $this->render('tag/view.html.twig', [
+        return $this->renderForm('tag/view.html.twig', [
             'tag' => $tag,
-            'form' => $form->createView(),
+            'form' => $form,
             'references' => $count,
             'duration' => DateTimeUtil::dateIntervalFromSeconds($totalTime),
         ]);
