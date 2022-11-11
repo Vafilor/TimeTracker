@@ -48,7 +48,7 @@ class TurboHelper {
         }
 
         event.preventDefault();
-        Turbo.clearCache();
+        Turbo.cache.clear();
         Turbo.visit(redirectLocation);
     }
 }

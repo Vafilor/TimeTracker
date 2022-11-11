@@ -1,6 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
 import { Modal } from 'bootstrap';
-import { visit } from '@hotwired/turbo';
 
 export default class extends Controller {
     static targets = ['modal', 'frame'];
@@ -9,21 +8,6 @@ export default class extends Controller {
     }
 
     #modal = null;
-
-    connect() {
-        this.element.addEventListener('turbo:before-fetch-response', (event) => {
-            const fetchResponse = event.detail.fetchResponse;
-            const redirectLocation = fetchResponse.response.headers.get('Turbo-Location');
-            if (!redirectLocation) {
-                return;
-            }
-            visit(redirectLocation);
-        });
-    }
-
-    disconnect() {
-        // \
-    }
 
     async openModal(event) {
         const taskId = event.params.taskId;
