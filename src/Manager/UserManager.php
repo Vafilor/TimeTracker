@@ -43,7 +43,7 @@ class UserManager
         $user = $this->userRepository->findOneByOrException(['username' => $username]);
 
         $user->setPassword(
-            $this->userPasswordHasher->encodePassword(
+            $this->userPasswordHasher->hashPassword(
                 $user,
                 $newPassword
             )
