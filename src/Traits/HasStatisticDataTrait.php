@@ -19,6 +19,7 @@ use App\Form\Model\AddStatisticValueModel;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
 use App\Util\TimeType;
+use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,14 +32,11 @@ trait HasStatisticDataTrait
 
     abstract public function getJsonBody(Request $request, array $default = null): array;
 
-    abstract public function persist(mixed $obj, bool $flush = false): void;
-
-    abstract public function doctrineRemove(mixed $obj, bool $flush = false): void;
-
     abstract public function jsonNoNulls($data, int $status = 200, array $headers = [], array $context = []): JsonResponse;
 
     public function addStatisticValueRequest(
         Request $request,
+        EntityManagerInterface $entityManager,
         StatisticRepository $statisticRepository,
         StatisticValueRepository $statisticValueRepository,
         User $assignedTo,
@@ -78,7 +76,7 @@ trait HasStatisticDataTrait
         $statistic = $statisticRepository->findWithUserNameCanonical($assignedTo, $data->getCanonicalStatisticName(), $timeType);
         if (is_null($statistic)) {
             $statistic = new Statistic($assignedTo, $data->getStatisticName(), $timeType);
-            $this->persist($statistic);
+            $entityManager->persist($statistic);
         } else {
             $existingStatisticValue = $statisticValueRepository->findForStatisticResource($statistic, $resource);
             if (!is_null($existingStatisticValue)) {
@@ -95,18 +93,21 @@ trait HasStatisticDataTrait
 
         $statisticValue = StatisticValue::fromResource($statistic, $value, $resource);
 
-        $this->persist($statisticValue, true);
+        $entityManager->persist($statisticValue);
+        $entityManager->flush();
 
         return $statisticValue;
     }
 
     public function removeStatisticValueRequest(
+        EntityManagerInterface $entityManager,
         StatisticValueRepository $statisticValueRepository,
         string $statisticId
     ): JsonResponse {
         $statisticValue = $statisticValueRepository->findOrException($statisticId);
 
-        $this->doctrineRemove($statisticValue, true);
+        $entityManager->remove($statisticValue);
+        $entityManager->flush();
 
         return $this->jsonNoContent();
     }

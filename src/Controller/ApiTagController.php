@@ -14,6 +14,7 @@ use App\Entity\Tag;
 use App\Form\AddTagFormType;
 use App\Form\Model\AddTagModel;
 use App\Repository\TagRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -68,6 +69,7 @@ class ApiTagController extends BaseController
     #[Route('/api/tag', name: 'api_tag_create', methods: ['POST'])]
     public function create(
         Request $request,
+        EntityManagerInterface $entityManager,
         TagRepository $tagRepository
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -102,8 +104,8 @@ class ApiTagController extends BaseController
             }
 
             $tag = new Tag($this->getUser(), $name);
-            $this->getDoctrine()->getManager()->persist($tag);
-            $this->getDoctrine()->getManager()->flush();
+            $entityManager->persist($tag);
+            $entityManager->flush();
 
             return $this->jsonNoNulls(ApiTag::fromEntity($tag), Response::HTTP_CREATED);
         } elseif (!$form->isValid()) {

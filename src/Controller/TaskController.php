@@ -16,6 +16,7 @@ use App\Form\Model\FilterTaskModel;
 use App\Manager\TaskManager;
 use App\Repository\TaskRepository;
 use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use LogicException;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -166,6 +167,7 @@ class TaskController extends BaseController
     #[Route('/task/create', name: 'task_create')]
     public function create(
         Request $request,
+        EntityManagerInterface $entityManager,
         TaskRepository $taskRepository,
         TaskManager $taskManager,
         PaginatorInterface $paginator,
@@ -205,9 +207,8 @@ class TaskController extends BaseController
                 $taskManager->applyTemplate($newTask, $taskTemplate);
             }
 
-            $manager = $this->getDoctrine()->getManager();
-            $manager->persist($newTask);
-            $manager->flush();
+            $entityManager->persist($newTask);
+            $entityManager->flush();
 
             return $this->redirectToRoute('task_index');
         }
@@ -263,6 +264,7 @@ class TaskController extends BaseController
     #[Route('/task/{id}/view', name: 'task_view')]
     public function view(
         Request $request,
+        EntityManagerInterface $entityManager,
         string $id
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -293,7 +295,7 @@ class TaskController extends BaseController
             $task->setTimeEstimate($data->getTimeEstimate());
             $task->setActive($data->isActive());
 
-            $this->flush();
+            $entityManager->flush();
 
             $this->addFlash('success', 'Task successfully updated');
 
@@ -328,7 +330,11 @@ class TaskController extends BaseController
     }
 
     #[Route('/task/{id}/complete', name: 'task_complete')]
-    public function complete(Request $request, TaskRepository $taskRepository, string $id): Response
+    public function complete(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        TaskRepository $taskRepository,
+        string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -350,7 +356,7 @@ class TaskController extends BaseController
             $task->clearCompleted();
         }
 
-        $this->flush();
+        $entityManager->flush();
 
         $this->addFlash('success', "Completed '{$task->getName()}'");
 
@@ -358,7 +364,10 @@ class TaskController extends BaseController
     }
 
     #[Route('/task/complete', name: 'task_form_complete')]
-    public function formComplete(Request $request, TaskRepository $taskRepository): Response
+    public function formComplete(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        TaskRepository $taskRepository): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -392,7 +401,7 @@ class TaskController extends BaseController
                 $task->clearCompleted();
             }
 
-            $this->flush();
+            $entityManager->flush();
             $this->addFlash('success', "Completed '{$task->getName()}'");
         }
 
@@ -400,7 +409,11 @@ class TaskController extends BaseController
     }
 
     #[Route('/task/{id}/close', name: 'task_close')]
-    public function close(Request $request, TaskRepository $taskRepository, string $id): Response
+    public function close(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        TaskRepository $taskRepository,
+        string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -422,7 +435,7 @@ class TaskController extends BaseController
             $task->clearClosed();
         }
 
-        $this->flush();
+        $entityManager->flush();
 
         $action = $closed ? 'Closed' : 'Re-opened';
         $this->addFlash('success', "$action '{$task->getName()}'");
@@ -431,7 +444,10 @@ class TaskController extends BaseController
     }
 
     #[Route('/task/{id}/delete', name: 'task_delete')]
-    public function remove(TaskRepository $taskRepository, string $id): Response
+    public function remove(
+        TaskRepository $taskRepository,
+        EntityManagerInterface $entityManager,
+        string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -454,7 +470,7 @@ class TaskController extends BaseController
             }
         }
 
-        $this->flush();
+        $entityManager->flush();
 
         $this->addFlash('success', "Task '{$task->getName()}' and it's children have been deleted");
 

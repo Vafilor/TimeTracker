@@ -18,6 +18,7 @@ use App\Repository\NoteRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Traits\TaggableController;
+use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +32,8 @@ class ApiNoteController extends BaseController
     #[Route('/api/note', name: 'api_note_create', methods: ['POST'])]
     #[Route('/json/note', name: 'json_note_create', methods: ['POST'])]
     public function create(
-        Request $request
+        Request $request,
+        EntityManagerInterface $entityManager
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -58,9 +60,8 @@ class ApiNoteController extends BaseController
 
             $newNote = new Note($this->getUser(), $data->getTitle(), $data->getContent());
 
-            $manager = $this->getDoctrine()->getManager();
-            $manager->persist($newNote);
-            $manager->flush();
+            $entityManager->persist($newNote);
+            $entityManager->flush();
 
             $apiNote = ApiNote::fromEntity($newNote, $this->getUser());
             if (str_starts_with($request->getPathInfo(), '/json')) {
@@ -99,6 +100,7 @@ class ApiNoteController extends BaseController
     #[Route('/json/note/{id}', name: 'json_note_update', methods: ['PUT'])]
     public function edit(
         Request $request,
+        EntityManagerInterface $entityManager,
         NoteRepository $noteRepository,
         string $id
     ): JsonResponse {
@@ -133,7 +135,7 @@ class ApiNoteController extends BaseController
                 $note->setContent($data->getContent());
             }
 
-            $this->getDoctrine()->getManager()->flush();
+            $entityManager->flush();
         } elseif (!$form->isValid()) {
             $formError = new ApiFormError($form->getErrors(true));
             throw new ApiProblemException($formError);
@@ -148,6 +150,7 @@ class ApiNoteController extends BaseController
     #[Route('/json/note/{id}/tag', name: 'json_note_tag_create', methods: ['POST'])]
     public function addTag(
         Request $request,
+        EntityManagerInterface $entityManager,
         NoteRepository $noteRepository,
         TagManager $tagManager,
         TagLinkRepository $tagLinkRepository,
@@ -162,6 +165,7 @@ class ApiNoteController extends BaseController
 
         return $this->addTagRequest(
             $request,
+            $entityManager,
             $tagManager,
             $tagLinkRepository,
             $this->getUser(),
@@ -172,6 +176,7 @@ class ApiNoteController extends BaseController
     #[Route('/api/note/{id}/tag/{tagName}', name: 'api_note_tag_delete', methods: ['DELETE'])]
     #[Route('/json/note/{id}/tag/{tagName}', name: 'json_note_tag_delete', methods: ['DELETE'])]
     public function deleteTag(
+        EntityManagerInterface $entityManager,
         NoteRepository $noteRepository,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
@@ -185,6 +190,7 @@ class ApiNoteController extends BaseController
         }
 
         return $this->removeTagRequest(
+            $entityManager,
             $tagRepository,
             $tagLinkRepository,
             $this->getUser(),

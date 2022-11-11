@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Form\EditUserFormType;
 use App\Form\Model\EditUserModel;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,7 +15,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends BaseController
 {
     #[Route('/user/{id}/view', name: 'user_view')]
-    public function view(Request $request, UserRepository $userRepository, string $id): Response
+    public function view(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+        string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -40,7 +45,7 @@ class UserController extends BaseController
             $user->setDateTimeFormat($data->getDateTimeFormat());
             $user->setTodayDateTimeFormat($data->getTodayDateTimeFormat());
 
-            $this->getDoctrine()->getManager()->flush();
+            $entityManager->flush();
 
             $this->addFlash('success', 'User settings updated');
         }

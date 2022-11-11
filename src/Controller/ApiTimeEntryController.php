@@ -30,6 +30,7 @@ use App\Traits\HasStatisticDataTrait;
 use App\Traits\TaggableController;
 use DateTime;
 use DateTimeZone;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
@@ -42,7 +43,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiTimeEntryController extends BaseController
 {
     use TaggableController;
-
     use HasStatisticDataTrait;
 
     /**
@@ -143,6 +143,7 @@ class ApiTimeEntryController extends BaseController
     #[Route('/json/time-entry', name: 'json_time_entry_create', methods: ['POST'])]
     public function create(
         Request $request,
+        EntityManagerInterface $entityManager,
         TimeEntryRepository $timeEntryRepository,
         TagManager $tagManager,
         TaskRepository $taskRepository,
@@ -154,8 +155,6 @@ class ApiTimeEntryController extends BaseController
             throw new ApiProblemException(ApiProblem::invalidAction(TimeEntryController::CODE_RUNNING_TIMER, 'You have a running timer', ['resource' => $runningTimeEntry->getIdString()]));
         }
 
-        $manager = $this->getDoctrine()->getManager();
-
         $timeEntry = new TimeEntry($this->getUser());
 
         $data = $this->getJsonBody($request, []);
@@ -165,7 +164,7 @@ class ApiTimeEntryController extends BaseController
             $tagObjects = $tagManager->findOrCreateByNames($tagNames, $this->getUser());
             foreach ($tagObjects as $tag) {
                 $tagLink = new TagLink($timeEntry, $tag);
-                $manager->persist($tagLink);
+                $entityManager->persist($tagLink);
             }
         }
         if (array_key_exists('taskId', $data)) {
@@ -173,8 +172,8 @@ class ApiTimeEntryController extends BaseController
             $timeEntry->setTask($task);
         }
 
-        $manager->persist($timeEntry);
-        $manager->flush();
+        $entityManager->persist($timeEntry);
+        $entityManager->flush();
 
         if (!array_key_exists('time_format', $data)) {
             $timeFormat = 'date';
@@ -238,6 +237,7 @@ class ApiTimeEntryController extends BaseController
     #[Route('/json/time-entry/{id}', name: 'json_time_entry_update', methods: ['PUT'])]
     public function edit(
         Request $request,
+        EntityManagerInterface $entityManager,
         TimeEntryRepository $timeEntryRepository,
         string $id
     ): JsonResponse {
@@ -274,7 +274,7 @@ class ApiTimeEntryController extends BaseController
                 $timeEntry->setEndedAt($data->getEndedAt());
             }
 
-            $this->getDoctrine()->getManager()->flush();
+            $entityManager->flush();
         } elseif (!$form->isValid()) {
             $formError = new ApiFormError($form->getErrors(true));
             throw new ApiProblemException($formError);
@@ -297,6 +297,7 @@ class ApiTimeEntryController extends BaseController
     #[Route('/json/time-entry/{id}/continue', name: 'json_time_entry_continue', methods: ['POST'])]
     public function continue(
         Request $request,
+        EntityManagerInterface $entityManager,
         TimeEntryRepository $timeEntryRepository,
         TagLinkRepository $tagLinkRepository,
         string $id
@@ -313,19 +314,18 @@ class ApiTimeEntryController extends BaseController
         }
 
         $tagLinks = $tagLinkRepository->findForTimeEntry($existingTimeEntry);
-        $manager = $this->getDoctrine()->getManager();
 
         $timeEntry = new TimeEntry($this->getUser());
         foreach ($tagLinks as $tagLink) {
             $copy = new TagLink($timeEntry, $tagLink->getTag());
             $timeEntry->addTagLink($copy);
-            $manager->persist($copy);
+            $entityManager->persist($copy);
         }
 
         $timeEntry->setTask($existingTimeEntry->getTask());
 
-        $manager->persist($timeEntry);
-        $manager->flush();
+        $entityManager->persist($timeEntry);
+        $entityManager->flush();
 
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
 
@@ -351,7 +351,11 @@ class ApiTimeEntryController extends BaseController
 
     #[Route('/api/time-entry/{id}/stop', name: 'api_time_entry_stop', methods: ['PUT'])]
     #[Route('/json/time-entry/{id}/stop', name: 'json_time_entry_stop', methods: ['PUT'])]
-    public function stop(Request $request, TimeEntryRepository $timeEntryRepository, string $id): JsonResponse
+    public function stop(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        TimeEntryRepository $timeEntryRepository,
+        string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findWithTagFetchOrException($id);
@@ -364,7 +368,7 @@ class ApiTimeEntryController extends BaseController
         }
 
         $timeEntry->stop();
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         $data = $this->getJsonBody($request);
         if (!array_key_exists('time_format', $data)) {
@@ -385,7 +389,10 @@ class ApiTimeEntryController extends BaseController
     }
 
     #[Route('/api/time-entry/{id}/resume', name: 'api_time_entry_resume', methods: ['PUT'])]
-    public function resume(TimeEntryRepository $timeEntryRepository, string $id): JsonResponse
+    public function resume(
+        TimeEntryRepository $timeEntryRepository,
+        EntityManagerInterface $entityManager,
+        string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
@@ -415,7 +422,7 @@ class ApiTimeEntryController extends BaseController
         }
 
         $timeEntry->resume();
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         $apiTimeEntry = ApiTimeEntry::fromEntity($timeEntry, $this->getUser());
 
@@ -423,7 +430,10 @@ class ApiTimeEntryController extends BaseController
     }
 
     #[Route('/api/time-entry/{id}', name: 'api_time_entry_delete', methods: ['DELETE'])]
-    public function delete(TimeEntryRepository $timeEntryRepository, string $id): JsonResponse
+    public function delete(
+        TimeEntryRepository $timeEntryRepository,
+        EntityManagerInterface $entityManager,
+        string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
@@ -437,7 +447,7 @@ class ApiTimeEntryController extends BaseController
 
         $timeEntry->softDelete();
 
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         return $this->jsonNoContent();
     }
@@ -446,6 +456,7 @@ class ApiTimeEntryController extends BaseController
     #[Route('/json/time-entry/{id}/tag', name: 'json_time_entry_tag_create', methods: ['POST'])]
     public function addTag(
         Request $request,
+        EntityManagerInterface $entityManager,
         TimeEntryRepository $timeEntryRepository,
         TagManager $tagManager,
         TagLinkRepository $tagLinkRepository,
@@ -460,6 +471,7 @@ class ApiTimeEntryController extends BaseController
 
         return $this->addTagRequest(
             $request,
+            $entityManager,
             $tagManager,
             $tagLinkRepository,
             $this->getUser(),
@@ -470,6 +482,7 @@ class ApiTimeEntryController extends BaseController
     #[Route('/api/time-entry/{id}/tag/{tagName}', name: 'api_time_entry_tag_delete', methods: ['DELETE'])]
     #[Route('/json/time-entry/{id}/tag/{tagName}', name: 'json_time_entry_tag_delete', methods: ['DELETE'])]
     public function deleteTag(
+        EntityManagerInterface $entityManager,
         TimeEntryRepository $timeEntryRepository,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
@@ -483,6 +496,7 @@ class ApiTimeEntryController extends BaseController
         }
 
         return $this->removeTagRequest(
+            $entityManager,
             $tagRepository,
             $tagLinkRepository,
             $this->getUser(),
@@ -493,10 +507,7 @@ class ApiTimeEntryController extends BaseController
 
     #[Route('/api/time-entry/{id}/tags', name: 'api_time_entry_tags', methods: ['GET'])]
     #[Route('/json/time-entry/{id}/tags', name: 'json_time_entry_tags', methods: ['GET'])]
-    public function indexTag(
-        TimeEntryRepository $timeEntryRepository,
-        string $id
-    ): JsonResponse {
+    public function indexTag(TimeEntryRepository $timeEntryRepository, string $id): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
         if (!$timeEntry->isAssignedTo($this->getUser())) {
@@ -511,6 +522,7 @@ class ApiTimeEntryController extends BaseController
     #[Route('/json/time-entry/{id}/task', name: 'json_time_entry_task_create', methods: ['POST'])]
     public function addTask(
         Request $request,
+        EntityManagerInterface $entityManager,
         TaskRepository $taskRepository,
         TimeEntryRepository $timeEntryRepository,
         string $id
@@ -535,8 +547,6 @@ class ApiTimeEntryController extends BaseController
 
         $taskName = $data['name'];
 
-        $manager = $this->getDoctrine()->getManager();
-
         $createdTask = false;
         /** @var Task|null $task */
         $task = null;
@@ -549,12 +559,12 @@ class ApiTimeEntryController extends BaseController
 
         if (is_null($task)) {
             $task = new Task($this->getUser(), $taskName);
-            $manager->persist($task);
+            $entityManager->persist($task);
             $createdTask = true;
         }
 
         $timeEntry->setTask($task);
-        $manager->flush();
+        $entityManager->flush();
 
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
@@ -575,6 +585,7 @@ class ApiTimeEntryController extends BaseController
     #[Route('/json/time-entry/{id}/task', name: 'json_time_entry_task_delete', methods: ['DELETE'])]
     public function removeTask(
         TimeEntryRepository $timeEntryRepository,
+        EntityManagerInterface $entityManager,
         string $id
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -583,14 +594,12 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $manager = $this->getDoctrine()->getManager();
-
         if (!$timeEntry->assignedToTask()) {
             throw new ApiProblemException(ApiProblem::invalidAction(TaskController::CODE_NO_ASSIGNED_TASK, 'Time entry has no assigned task'));
         }
 
         $timeEntry->removeTask();
-        $manager->flush();
+        $entityManager->flush();
 
         return $this->jsonNoContent();
     }
@@ -614,6 +623,7 @@ class ApiTimeEntryController extends BaseController
     #[Route('/json/time-entry/{id}/statistic', name: 'json_time_entry_statistic_create', methods: ['POST'])]
     public function addStatisticValue(
         Request $request,
+        EntityManagerInterface $entityManager,
         TimeEntryRepository $timeEntryRepository,
         StatisticRepository $statisticRepository,
         StatisticValueRepository $statisticValueRepository,
@@ -627,6 +637,7 @@ class ApiTimeEntryController extends BaseController
 
         $statisticValue = $this->addStatisticValueRequest(
             $request,
+            $entityManager,
             $statisticRepository,
             $statisticValueRepository,
             $this->getUser(),
@@ -649,6 +660,7 @@ class ApiTimeEntryController extends BaseController
     #[Route('/api/time-entry/{id}/statistic/{statisticId}', name: 'api_time_entry_statistic_delete', methods: ['DELETE'])]
     #[Route('/json/time-entry/{id}/statistic/{statisticId}', name: 'json_time_entry_statistic_delete', methods: ['DELETE'])]
     public function removeStatisticValue(
+        EntityManagerInterface $entityManager,
         TimeEntryRepository $timeEntryRepository,
         StatisticValueRepository $statisticValueRepository,
         string $id,
@@ -660,6 +672,6 @@ class ApiTimeEntryController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        return $this->removeStatisticValueRequest($statisticValueRepository, $statisticId);
+        return $this->removeStatisticValueRequest($entityManager, $statisticValueRepository, $statisticId);
     }
 }

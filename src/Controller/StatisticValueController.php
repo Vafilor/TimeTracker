@@ -12,6 +12,7 @@ use App\Form\Model\EditStatisticValueModel;
 use App\Manager\StatisticValueManager;
 use App\Repository\StatisticValueRepository;
 use DateTimeZone;
+use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,7 +57,11 @@ class StatisticValueController extends BaseController
     }
 
     #[Route('/record/{id}/view', name: 'statistic_value_view')]
-    public function view(Request $request, StatisticValueRepository $statisticValueRepository, string $id): Response
+    public function view(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        StatisticValueRepository $statisticValueRepository,
+        string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -76,7 +81,7 @@ class StatisticValueController extends BaseController
 
             $this->addFlash('success', 'Record successfully updated.');
 
-            $this->getDoctrine()->getManager()->flush();
+            $entityManager->flush();
         }
 
         return $this->render('statistic_value/view.html.twig', [
@@ -87,6 +92,7 @@ class StatisticValueController extends BaseController
 
     #[Route('/record/{id}/delete', name: 'statistic_value_delete')]
     public function remove(
+        EntityManagerInterface $entityManager,
         StatisticValueRepository $statisticValueRepository,
         string $id
     ): Response {
@@ -97,7 +103,8 @@ class StatisticValueController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $this->doctrineRemove($statisticValue, true);
+        $entityManager->remove($statisticValue);
+        $entityManager->flush();
 
         $this->addFlash('success', 'Record successfully removed');
 
@@ -107,6 +114,7 @@ class StatisticValueController extends BaseController
     #[Route('/record/create', name: 'statistic_value_create', methods: ['POST'])]
     public function addForDay(
         Request $request,
+        EntityManagerInterface $entityManager,
         StatisticValueManager $statisticValueManager,
         StatisticValueRepository $statisticValueRepository,
         PaginatorInterface $paginator
@@ -131,7 +139,7 @@ class StatisticValueController extends BaseController
                 );
             }
 
-            $this->flush();
+            $entityManager->flush();
 
             return $this->redirectToRoute('statistic_value_index');
         }

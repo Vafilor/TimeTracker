@@ -15,6 +15,7 @@ use App\Repository\StatisticValueRepository;
 use App\Repository\TagLinkRepository;
 use App\Repository\TaskRepository;
 use App\Repository\TimeEntryRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -79,7 +80,7 @@ class TimeEntryController extends BaseController
     }
 
     #[Route('/time-entry/create', name: 'time_entry_create')]
-    public function create(TimeEntryRepository $timeEntryRepository): Response
+    public function create(TimeEntryRepository $timeEntryRepository, EntityManagerInterface $entityManager,): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -92,9 +93,8 @@ class TimeEntryController extends BaseController
 
         $timeEntry = new TimeEntry($this->getUser());
 
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($timeEntry);
-        $manager->flush();
+        $entityManager->persist($timeEntry);
+        $entityManager->flush();
 
         return $this->redirectToRoute('time_entry_view', ['id' => $timeEntry->getIdString()]);
     }
@@ -105,6 +105,7 @@ class TimeEntryController extends BaseController
      */
     #[Route('/time-entry/{id}/continue', name: 'time_entry_continue')]
     public function continue(
+        EntityManagerInterface $entityManager,
         TimeEntryRepository $timeEntryRepository,
         TagLinkRepository $tagLinkRepository,
         string $id
@@ -123,17 +124,16 @@ class TimeEntryController extends BaseController
         }
 
         $tagLinks = $tagLinkRepository->findForTimeEntry($existingTimeEntry);
-        $manager = $this->getDoctrine()->getManager();
 
         $timeEntry = new TimeEntry($this->getUser());
         $timeEntry->setTask($existingTimeEntry->getTask());
         foreach ($tagLinks as $tagLink) {
             $copy = new TagLink($timeEntry, $tagLink->getTag());
-            $manager->persist($copy);
+            $entityManager->persist($copy);
         }
 
-        $manager->persist($timeEntry);
-        $manager->flush();
+        $entityManager->persist($timeEntry);
+        $entityManager->flush();
 
         return $this->redirectToRoute('time_entry_view', ['id' => $timeEntry->getIdString()]);
     }
@@ -141,6 +141,7 @@ class TimeEntryController extends BaseController
     #[Route('/time-entry/{id}/view', name: 'time_entry_view')]
     public function view(
         Request $request,
+        EntityManagerInterface $entityManager,
         TimeEntryRepository $timeEntryRepository,
         string $id
     ): Response {
@@ -171,7 +172,7 @@ class TimeEntryController extends BaseController
 
             $this->addFlash('success', 'Time entry has been updated');
 
-            $this->getDoctrine()->getManager()->flush();
+            $entityManager->flush();
         }
 
         return $this->render('time_entry/view.html.twig', [
@@ -181,7 +182,10 @@ class TimeEntryController extends BaseController
     }
 
     #[Route('/time-entry/{id}/stop', name: 'time_entry_stop')]
-    public function stop(TimeEntryRepository $timeEntryRepository, string $id): Response
+    public function stop(
+        TimeEntryRepository $timeEntryRepository,
+        EntityManagerInterface $entityManager,
+        string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -197,13 +201,16 @@ class TimeEntryController extends BaseController
         }
 
         $timeEntry->stop();
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         return $this->redirectToRoute('time_entry_view', ['id' => $id]);
     }
 
     #[Route('/time-entry/{id}/resume', name: 'time_entry_resume')]
-    public function resume(TimeEntryRepository $timeEntryRepository, string $id): Response
+    public function resume(
+        TimeEntryRepository $timeEntryRepository,
+        EntityManagerInterface $entityManager,
+        string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
@@ -225,13 +232,16 @@ class TimeEntryController extends BaseController
         }
 
         $timeEntry->resume();
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         return $this->redirectToRoute('time_entry_view', ['id' => $id]);
     }
 
     #[Route('/time-entry/{id}/delete', name: 'time_entry_delete')]
-    public function delete(TimeEntryRepository $timeEntryRepository, string $id): Response
+    public function delete(
+        TimeEntryRepository $timeEntryRepository,
+        EntityManagerInterface $entityManager,
+        string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timeEntry = $timeEntryRepository->findOrException($id);
@@ -245,7 +255,7 @@ class TimeEntryController extends BaseController
 
         $timeEntry->softDelete();
 
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         $this->addFlash('success', 'Time entry deleted');
 

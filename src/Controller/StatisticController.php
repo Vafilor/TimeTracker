@@ -15,6 +15,7 @@ use App\Form\Model\AddStatisticModel;
 use App\Form\Model\EditStatisticModel;
 use App\Repository\StatisticRepository;
 use App\Util\TimeType;
+use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -97,6 +98,7 @@ class StatisticController extends BaseController
     #[Route('/statistic/create', name: 'statistic_create')]
     public function create(
         Request $request,
+        EntityManagerInterface $entityManager,
         StatisticRepository $statisticRepository,
         PaginatorInterface $paginator): Response
     {
@@ -121,7 +123,8 @@ class StatisticController extends BaseController
             $statistic->setDescription($data->getDescription());
             $statistic->setTimeType($data->getTimeType());
 
-            $this->persist($statistic, true);
+            $entityManager->persist($statistic);
+            $entityManager->flush();
 
             $this->addFlash('success', "Statistic '$name' has been created");
 
@@ -143,7 +146,11 @@ class StatisticController extends BaseController
     }
 
     #[Route('/statistic/{id}/view', name: 'statistic_view')]
-    public function view(Request $request, StatisticRepository $statisticRepository, string $id): Response
+    public function view(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        StatisticRepository $statisticRepository,
+        string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $statistic = $statisticRepository->findOrException($id);
@@ -175,7 +182,7 @@ class StatisticController extends BaseController
             }
 
             if (!$error) {
-                $this->getDoctrine()->getManager()->flush();
+                $entityManager->flush();
                 $this->addFlash('success', "Statistic '{$statistic->getName()}' has been updated");
             }
         }
@@ -189,6 +196,7 @@ class StatisticController extends BaseController
 
     #[Route('/statistic/{id}/delete', name: 'statistic_delete')]
     public function remove(
+        EntityManagerInterface $entityManager,
         StatisticRepository $statisticRepository,
         string $id
     ): Response {
@@ -199,7 +207,8 @@ class StatisticController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $this->doctrineRemove($statistic, true);
+        $entityManager->remove($statistic);
+        $entityManager->flush();
 
         $this->addFlash('success', 'Statistic successfully removed');
 

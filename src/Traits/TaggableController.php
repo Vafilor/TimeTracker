@@ -22,6 +22,7 @@ use App\Manager\TagManager;
 use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Util\TypeUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -40,16 +41,13 @@ trait TaggableController
 
     abstract public function getJsonBody(Request $request, array $default = null): array;
 
-    abstract public function persist(mixed $obj, bool $flush = false): void;
-
-    abstract public function doctrineRemove(mixed $obj, bool $flush = false): void;
-
     abstract public function jsonNoNulls($data, int $status = 200, array $headers = [], array $context = []): JsonResponse;
 
     abstract public function jsonNoContent(): JsonResponse;
 
     public function addTagRequest(
         Request $request,
+        EntityManagerInterface $entityManager,
         TagManager $tagManager,
         TagLinkRepository $tagLinkRepository,
         User $assignedTo,
@@ -87,7 +85,8 @@ trait TaggableController
 
         $tagLink = new TagLink($resource, $tag);
 
-        $this->persist($tagLink, true);
+        $entityManager->persist($tagLink);
+        $entityManager->flush();
 
         $apiTag = ApiTag::fromEntity($tag);
 
@@ -95,6 +94,7 @@ trait TaggableController
     }
 
     public function removeTagRequest(
+        EntityManagerInterface $entityManager,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
         User $assignedTo,
@@ -113,7 +113,8 @@ trait TaggableController
             throw new ApiProblemException(ApiProblem::invalidAction(TagController::CODE_TAG_NOT_ASSOCIATED, "Tag '$tagName' is not associated to this $className"));
         }
 
-        $this->doctrineRemove($existingLink, true);
+        $entityManager->remove($existingLink);
+        $entityManager->flush();
 
         return $this->jsonNoContent();
     }

@@ -21,6 +21,7 @@ use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Repository\TaskRepository;
 use App\Traits\TaggableController;
+use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -88,6 +89,7 @@ class ApiTaskController extends BaseController
     #[Route('/json/task', name: 'json_task_create', methods: ['POST'])]
     public function create(
         Request $request,
+        EntityManagerInterface $entityManager,
         TaskRepository $taskRepository
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -128,9 +130,8 @@ class ApiTaskController extends BaseController
             $newTask->setParent($parentTask);
         }
 
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($newTask);
-        $manager->flush();
+        $entityManager->persist($newTask);
+        $entityManager->flush();
 
         $apiTask = ApiTask::fromEntity($newTask, $this->getUser());
 
@@ -197,6 +198,7 @@ class ApiTaskController extends BaseController
     #[Route('/json/task/{id}/check', name: 'json_task_complete', methods: ['PUT'])]
     public function complete(
         Request $request,
+        EntityManagerInterface $entityManager,
         TaskRepository $taskRepository,
         string $id
     ): JsonResponse {
@@ -225,7 +227,7 @@ class ApiTaskController extends BaseController
             $task->clearCompleted();
         }
 
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
@@ -234,7 +236,11 @@ class ApiTaskController extends BaseController
 
     #[Route('/json/task/{id}', name: 'json_task_update', methods: ['PUT'])]
     #[Route('/api/task/{id}', name: 'api_task_update', methods: ['PUT'])]
-    public function update(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
+    public function update(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        TaskRepository $taskRepository,
+        string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -253,7 +259,7 @@ class ApiTaskController extends BaseController
             $task->setParent($parent);
         }
 
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         $apiTask = ApiTask::fromEntity($task, $this->getUser());
 
@@ -262,7 +268,11 @@ class ApiTaskController extends BaseController
 
     #[Route('/json/task/{id}/parent', name: 'json_task_parent_update', methods: ['PUT'])]
     #[Route('/api/task/{id}/parent', name: 'api_task_parent_update', methods: ['PUT'])]
-    public function updateParentTask(Request $request, TaskRepository $taskRepository, string $id): JsonResponse
+    public function updateParentTask(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        TaskRepository $taskRepository,
+        string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -290,7 +300,7 @@ class ApiTaskController extends BaseController
         $parent = $taskRepository->findOrException($data['parentTaskId']);
         $task->setParent($parent);
 
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         $apiTask = ApiTask::fromEntity($parent, $this->getUser());
 
@@ -303,7 +313,10 @@ class ApiTaskController extends BaseController
 
     #[Route('/json/task/{id}/parent', name: 'json_task_parent_delete', methods: ['DELETE'])]
     #[Route('/api/task/{id}/parent', name: 'api_task_parent_delete', methods: ['DELETE'])]
-    public function removeParentTask(TaskRepository $taskRepository, string $id): JsonResponse
+    public function removeParentTask(
+        EntityManagerInterface $entityManager,
+        TaskRepository $taskRepository,
+        string $id): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -317,7 +330,7 @@ class ApiTaskController extends BaseController
         }
 
         $task->removeParent();
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         return $this->jsonNoContent();
     }
@@ -326,6 +339,7 @@ class ApiTaskController extends BaseController
     #[Route('/json/task/{id}/tag', name: 'json_task_tag_create', methods: ['POST'])]
     public function addTag(
         Request $request,
+        EntityManagerInterface $entityManager,
         TaskRepository $taskRepository,
         TagManager $tagManager,
         TagLinkRepository $tagLinkRepository,
@@ -340,6 +354,7 @@ class ApiTaskController extends BaseController
 
         return $this->addTagRequest(
             $request,
+            $entityManager,
             $tagManager,
             $tagLinkRepository,
             $this->getUser(),
@@ -350,6 +365,7 @@ class ApiTaskController extends BaseController
     #[Route('/api/task/{id}/tag/{tagName}', name: 'api_task_tag_delete', methods: ['DELETE'])]
     #[Route('/json/task/{id}/tag/{tagName}', name: 'json_task_tag_delete', methods: ['DELETE'])]
     public function deleteTag(
+        EntityManagerInterface $entityManager,
         TaskRepository $taskRepository,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
@@ -363,6 +379,7 @@ class ApiTaskController extends BaseController
         }
 
         return $this->removeTagRequest(
+            $entityManager,
             $tagRepository,
             $tagLinkRepository,
             $this->getUser(),
@@ -373,10 +390,7 @@ class ApiTaskController extends BaseController
 
     #[Route('/api/task/{id}/tags', name: 'api_task_tags', methods: ['GET'])]
     #[Route('/json/task/{id}/tags', name: 'json_task_tags', methods: ['GET'])]
-    public function indexTag(
-        TaskRepository $taskRepository,
-        string $id
-    ): JsonResponse {
+    public function indexTag(TaskRepository $taskRepository, string $id): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $task = $taskRepository->findOrException($id);
         if (!$task->isAssignedTo($this->getUser())) {

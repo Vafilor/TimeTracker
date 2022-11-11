@@ -102,6 +102,7 @@ class TimestampController extends BaseController
 
     #[Route('/timestamp/{id}/repeat', name: 'timestamp_repeat', methods: ['POST'])]
     public function repeat(
+        EntityManagerInterface $entityManager,
         TimestampManager $timestampManager,
         TimestampRepository $timestampRepository,
         string $id): Response
@@ -119,7 +120,7 @@ class TimestampController extends BaseController
 //        }
 
         $timestampManager->repeat($timestamp);
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         return $this->redirectToRoute('timestamp_index');
     }
@@ -130,6 +131,7 @@ class TimestampController extends BaseController
     #[Route('/timestamp/{id}/view', name: 'timestamp_view')]
     public function view(
         Request $request,
+        EntityManagerInterface $entityManager,
         TimestampRepository $timestampRepository,
         string $id
     ): Response {
@@ -159,7 +161,7 @@ class TimestampController extends BaseController
             $timestamp->setCreatedAt($data->getCreatedAt());
             $timestamp->setDescription($data->getDescription());
 
-            $this->flush();
+            $entityManager->flush();
 
             $this->addFlash('success', 'Updated timestamp');
 
@@ -175,6 +177,7 @@ class TimestampController extends BaseController
 
     #[Route('/timestamp/{id}/delete', name: 'timestamp_delete')]
     public function remove(
+        EntityManagerInterface $entityManager,
         TimestampRepository $timestampRepository,
         string $id
     ): Response {
@@ -184,9 +187,8 @@ class TimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($timestamp);
-        $manager->flush();
+        $entityManager->remove($timestamp);
+        $entityManager->flush();
 
         $this->addFlash('success', 'Timestamp was removed');
 

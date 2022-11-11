@@ -23,6 +23,7 @@ use App\Repository\TagRepository;
 use App\Repository\TimestampRepository;
 use App\Traits\HasStatisticDataTrait;
 use App\Traits\TaggableController;
+use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Knp\Bundle\TimeBundle\DateTimeFormatter;
 use Knp\Component\Pager\PaginatorInterface;
@@ -64,13 +65,14 @@ class ApiTimestampController extends BaseController
     }
 
     #[Route('/api/timestamp', name: 'api_timestamp_create', methods: ['POST'])]
-    public function create(Request $request, TagManager $tagManager): Response
+    public function create(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        TagManager $tagManager): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $now = $this->now();
         $timestamp = new Timestamp($this->getUser());
-
-        $manager = $this->getDoctrine()->getManager();
 
         $data = $this->getJsonBody($request, []);
         if (array_key_exists('tags', $data)) {
@@ -80,12 +82,12 @@ class ApiTimestampController extends BaseController
             foreach ($tagObjects as $tag) {
                 $tagLink = new TagLink($timestamp, $tag);
                 $timestamp->addTagLink($tagLink);
-                $manager->persist($tagLink);
+                $entityManager->persist($tagLink);
             }
         }
 
-        $manager->persist($timestamp);
-        $manager->flush();
+        $entityManager->persist($timestamp);
+        $entityManager->flush();
 
         $apiTimestamp = ApiTimestamp::fromEntity($this->dateTimeFormatter, $timestamp, $this->getUser(), $now);
 
@@ -102,10 +104,7 @@ class ApiTimestampController extends BaseController
     }
 
     #[Route('/api/timestamp/{id}', name: 'api_timestamp_view', methods: ['GET'])]
-    public function view(
-        TimestampRepository $timestampRepository,
-        string $id
-    ): Response {
+    public function view(TimestampRepository $timestampRepository, string $id): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
         $queryBuilder = $timestampRepository->findCreateQueryBuilder($id);
@@ -129,6 +128,7 @@ class ApiTimestampController extends BaseController
     #[Route('/json/timestamp/{id}', name: 'json_timestamp_update', methods: ['PUT'])]
     public function edit(
         Request $request,
+        EntityManagerInterface $entityManager,
         TimestampRepository $timestampRepository,
         string $id
     ): JsonResponse {
@@ -158,7 +158,7 @@ class ApiTimestampController extends BaseController
 
             $timestamp->setDescription($data->getDescription());
 
-            $this->flush();
+            $entityManager->flush();
         } elseif (!$form->isValid()) {
             $formError = new ApiFormError($form->getErrors(true));
             throw new ApiProblemException($formError);
@@ -172,17 +172,16 @@ class ApiTimestampController extends BaseController
     #[Route('/api/timestamp/{id}/delete', name: 'api_timestamp_delete', methods: ['DELETE'])]
     public function remove(
         TimestampRepository $timestampRepository,
-        string $id
-    ): Response {
+        EntityManagerInterface $entityManager,
+        string $id): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $timestamp = $timestampRepository->findOrException($id);
         if (!$timestamp->isAssignedTo($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
-        $manager = $this->getDoctrine()->getManager();
-        $manager->remove($timestamp);
-        $manager->flush();
+        $entityManager->remove($timestamp);
+        $entityManager->flush();
 
         return $this->jsonNoContent();
     }
@@ -191,6 +190,7 @@ class ApiTimestampController extends BaseController
     #[Route('/json/timestamp/{id}/repeat', name: 'json_timestamp_repeat', methods: ['POST'])]
     public function repeat(
         Request $request,
+        EntityManagerInterface $entityManager,
         DateTimeFormatter $dateTimeFormatter,
         TimestampRepository $timestampRepository,
         TimestampManager $timestampManager,
@@ -204,7 +204,7 @@ class ApiTimestampController extends BaseController
 
         $newTimestamp = $timestampManager->repeat($timestamp);
 
-        $this->getDoctrine()->getManager()->flush();
+        $entityManager->flush();
 
         $apiTimestamp = ApiTimestamp::fromEntity(
             $dateTimeFormatter,
@@ -229,6 +229,7 @@ class ApiTimestampController extends BaseController
     #[Route('/json/timestamp/{id}/tag', name: 'json_timestamp_tag_create', methods: ['POST'])]
     public function addTag(
         Request $request,
+        EntityManagerInterface $entityManager,
         TimestampRepository $timestampRepository,
         TagManager $tagManager,
         TagLinkRepository $tagLinkRepository,
@@ -242,6 +243,7 @@ class ApiTimestampController extends BaseController
 
         return $this->addTagRequest(
             $request,
+            $entityManager,
             $tagManager,
             $tagLinkRepository,
             $this->getUser(),
@@ -252,6 +254,7 @@ class ApiTimestampController extends BaseController
     #[Route('/api/timestamp/{id}/tag/{tagName}', name: 'api_timestamp_tag_delete', methods: ['DELETE'])]
     #[Route('/json/timestamp/{id}/tag/{tagName}', name: 'json_timestamp_tag_delete', methods: ['DELETE'])]
     public function removeTag(
+        EntityManagerInterface $entityManager,
         TimestampRepository $timestampRepository,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
@@ -265,6 +268,7 @@ class ApiTimestampController extends BaseController
         }
 
         return $this->removeTagRequest(
+            $entityManager,
             $tagRepository,
             $tagLinkRepository,
             $this->getUser(),
@@ -292,6 +296,7 @@ class ApiTimestampController extends BaseController
     #[Route('/json/timestamp/{id}/statistic', name: 'json_timestamp_statistic_create', methods: ['POST'])]
     public function addStatisticValue(
         Request $request,
+        EntityManagerInterface $entityManager,
         TimestampRepository $timestampRepository,
         StatisticRepository $statisticRepository,
         StatisticValueRepository $statisticValueRepository,
@@ -305,6 +310,7 @@ class ApiTimestampController extends BaseController
 
         $statisticValue = $this->addStatisticValueRequest(
             $request,
+            $entityManager,
             $statisticRepository,
             $statisticValueRepository,
             $this->getUser(),
@@ -327,6 +333,7 @@ class ApiTimestampController extends BaseController
     #[Route('/api/timestamp/{id}/statistic/{statisticId}', name: 'api_timestamp_statistic_delete', methods: ['DELETE'])]
     #[Route('/json/timestamp/{id}/statistic/{statisticId}', name: 'json_timestamp_statistic_delete', methods: ['DELETE'])]
     public function removeStatisticValue(
+        EntityManagerInterface $entityManager,
         TimestampRepository $timestampRepository,
         StatisticValueRepository $statisticValueRepository,
         string $id,
@@ -338,6 +345,6 @@ class ApiTimestampController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        return $this->removeStatisticValueRequest($statisticValueRepository, $statisticId);
+        return $this->removeStatisticValueRequest($entityManager, $statisticValueRepository, $statisticId);
     }
 }

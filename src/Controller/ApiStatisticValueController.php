@@ -15,6 +15,7 @@ use App\Form\Model\AddStatisticValueModel;
 use App\Manager\StatisticValueManager;
 use App\Repository\StatisticRepository;
 use App\Repository\StatisticValueRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +30,7 @@ class ApiStatisticValueController extends BaseController
     #[Route('/json/record', name: 'json_statistic_value_create', methods: ['POST'])]
     public function addForDay(
         Request $request,
+        EntityManagerInterface $entityManager,
         StatisticValueManager $statisticValueManager,
         StatisticRepository $statisticRepository,
         StatisticValueRepository $statisticValueRepository
@@ -72,7 +74,7 @@ class ApiStatisticValueController extends BaseController
             throw new ApiProblemException($problem);
         }
 
-        $this->flush();
+        $entityManager->flush();
 
         $apiModel = ApiStatisticValue::fromEntity($statisticValue, $this->getUser());
 
@@ -92,6 +94,7 @@ class ApiStatisticValueController extends BaseController
     #[Route('/json/statistic-value/{id}', name: 'json_statistic_value_update', methods: ['PUT'])]
     public function updateStatisticValue(
         Request $request,
+        EntityManagerInterface $entityManager,
         StatisticValueRepository $statisticValueRepository,
         string $id,
     ): JsonResponse {
@@ -108,7 +111,7 @@ class ApiStatisticValueController extends BaseController
 
         $statisticValue->setValue($value);
 
-        $this->flush();
+        $entityManager->flush();
 
         $apiModel = ApiStatisticValue::fromEntity($statisticValue, $this->getUser());
 
@@ -119,6 +122,7 @@ class ApiStatisticValueController extends BaseController
     #[Route('/json/statistic-value/{id}', name: 'json_statistic_value_delete', methods: ['DELETE'])]
     public function removeStatisticValue(
         StatisticValueRepository $statisticValueRepository,
+        EntityManagerInterface $entityManager,
         string $id,
     ): JsonResponse {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -128,7 +132,8 @@ class ApiStatisticValueController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $this->doctrineRemove($statisticValue, true);
+        $entityManager->remove($statisticValue);
+        $entityManager->flush();
 
         return $this->jsonNoContent();
     }

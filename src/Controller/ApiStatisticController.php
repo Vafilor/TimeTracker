@@ -19,6 +19,7 @@ use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Traits\TaggableController;
 use App\Util\TimeType;
+use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -76,7 +77,10 @@ class ApiStatisticController extends BaseController
 
     #[Route('/api/statistic', name: 'api_statistic_create', methods: ['POST'])]
     #[Route('/json/statistic', name: 'json_statistic_create', methods: ['POST'])]
-    public function create(Request $request, StatisticRepository $statisticRepository): JsonResponse
+    public function create(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        StatisticRepository $statisticRepository): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -122,7 +126,8 @@ class ApiStatisticController extends BaseController
         $statistic->setDescription($data->getDescription());
         $statistic->setTimeType($data->getTimeType());
 
-        $this->persist($statistic, true);
+        $entityManager->persist($statistic);
+        $entityManager->flush();
 
         $apiStatistic = ApiStatistic::fromEntity($statistic, $this->getUser());
 
@@ -142,6 +147,7 @@ class ApiStatisticController extends BaseController
     #[Route('/json/statistic/{id}/tag', name: 'json_statistic_tag_create', methods: ['POST'])]
     public function addTag(
         Request $request,
+        EntityManagerInterface $entityManager,
         StatisticRepository $statisticRepository,
         TagManager $tagManager,
         TagLinkRepository $tagLinkRepository,
@@ -155,6 +161,7 @@ class ApiStatisticController extends BaseController
 
         return $this->addTagRequest(
             $request,
+            $entityManager,
             $tagManager,
             $tagLinkRepository,
             $this->getUser(),
@@ -165,6 +172,7 @@ class ApiStatisticController extends BaseController
     #[Route('/api/statistic/{id}/tag/{tagName}', name: 'api_statistic_tag_delete', methods: ['DELETE'])]
     #[Route('/json/statistic/{id}/tag/{tagName}', name: 'json_statistic_tag_delete', methods: ['DELETE'])]
     public function removeTag(
+        EntityManagerInterface $entityManager,
         StatisticRepository $statisticRepository,
         TagRepository $tagRepository,
         TagLinkRepository $tagLinkRepository,
@@ -178,6 +186,7 @@ class ApiStatisticController extends BaseController
         }
 
         return $this->removeTagRequest(
+            $entityManager,
             $tagRepository,
             $tagLinkRepository,
             $this->getUser(),

@@ -13,6 +13,7 @@ use App\Form\Model\EditTagModel;
 use App\Form\Model\FilterTagModel;
 use App\Repository\TagRepository;
 use App\Util\DateTimeUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,6 +82,7 @@ class TagController extends BaseController
     #[Route('/tag/create', name: 'tag_create')]
     public function create(
         Request $request,
+        EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,
         FormFactoryInterface $formFactory,
         TagRepository $tagRepository
@@ -104,8 +106,8 @@ class TagController extends BaseController
             }
 
             $tag = new Tag($this->getUser(), $name, $data->getColor());
-            $this->getDoctrine()->getManager()->persist($tag);
-            $this->getDoctrine()->getManager()->flush();
+            $entityManager->persist($tag);
+            $entityManager->flush();
 
             $this->addFlash('success', "Tag '$name' has been created");
 
@@ -131,7 +133,11 @@ class TagController extends BaseController
     }
 
     #[Route('/tag/{id}/view', name: 'tag_view')]
-    public function view(Request $request, TagRepository $tagRepository, string $id): Response
+    public function view(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        TagRepository $tagRepository,
+        string $id): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $tag = $tagRepository->findOrException($id);
@@ -149,8 +155,8 @@ class TagController extends BaseController
             $color = $data->getColor();
             $tag->setColor($color);
 
-            $this->getDoctrine()->getManager()->persist($tag);
-            $this->getDoctrine()->getManager()->flush();
+            $entityManager->persist($tag);
+            $entityManager->flush();
 
             $this->addFlash('success', "Tag '{$tag->getName()}' has been updated");
         }
@@ -168,6 +174,7 @@ class TagController extends BaseController
 
     #[Route('/tag/{id}/delete', name: 'tag_delete')]
     public function remove(
+        EntityManagerInterface $entityManager,
         TagRepository $tagRepository,
         string $id
     ): Response {
@@ -178,7 +185,8 @@ class TagController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $this->doctrineRemove($tag, true);
+        $entityManager->remove($tag);
+        $entityManager->flush();
 
         $this->addFlash('success', 'Tag successfully removed');
 

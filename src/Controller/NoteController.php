@@ -12,6 +12,7 @@ use App\Form\Model\AddNoteModel;
 use App\Form\Model\EditNoteModel;
 use App\Form\Model\FilterNoteModel;
 use App\Repository\NoteRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -77,6 +78,7 @@ class NoteController extends BaseController
     #[Route('/note/create', name: 'note_create')]
     public function create(
         Request $request,
+        EntityManagerInterface $entityManager,
         NoteRepository $noteRepository,
         PaginatorInterface $paginator,
         FormFactoryInterface $formFactory,
@@ -97,9 +99,9 @@ class NoteController extends BaseController
             $newNote = new Note($this->getUser(), $data->getTitle(), $data->getContent());
             $newNote->setForDate($data->getForDate());
 
-            $manager = $this->getDoctrine()->getManager();
-            $manager->persist($newNote);
-            $manager->flush();
+            $entityManager->getManager();
+            $entityManager->persist($newNote);
+            $entityManager->flush();
 
             return $this->redirectToRoute('note_index');
         }
@@ -123,6 +125,7 @@ class NoteController extends BaseController
     #[Route('/note/{id}/view', name: 'note_view')]
     public function view(
         Request $request,
+        EntityManagerInterface $entityManager,
         NoteRepository $noteRepository,
         string $id
     ): Response {
@@ -152,7 +155,7 @@ class NoteController extends BaseController
             }
             $note->setForDate($data->getForDate());
 
-            $this->flush();
+            $entityManager->flush();
 
             $this->addFlash('success', 'Note successfully updated');
         }
@@ -169,6 +172,7 @@ class NoteController extends BaseController
     #[Route('/note/{id}/delete', name: 'note_delete')]
     public function remove(
         NoteRepository $noteRepository,
+        EntityManagerInterface $entityManager,
         string $id
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -178,7 +182,8 @@ class NoteController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $this->doctrineRemove($note, true);
+        $entityManager->remove($note);
+        $entityManager->flush();
 
         $this->addFlash('success', 'Note successfully removed');
 
