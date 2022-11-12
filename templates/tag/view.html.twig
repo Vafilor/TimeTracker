@@ -85,11 +85,16 @@
         </button>
     </div>
     {{ form_end(form) }}
-
 </div>
 
 <!-- Delete modal -->
-<div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal-label" aria-hidden="true">
+<div
+    id="delete-modal"
+    class="modal fade"
+    tabindex="-1"
+    aria-labelledby="delete-modal-label"
+    aria-hidden="true"
+    data-turbo="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -97,13 +102,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
-            <div class="modal-body">
-                This will delete the tag
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ path('tag_delete', {id: tag.id}) }}" class="btn btn-danger">Delete</a>
-            </div>
+            <turbo-frame
+                    id="tag-partial-remove"
+                    class="modal-body"
+                    loading="lazy"
+                    src={{ path('tag_delete', {id: tag.id}) }}
+            >
+                Loading...
+            </turbo-frame>
         </div>
     </div>
 </div>

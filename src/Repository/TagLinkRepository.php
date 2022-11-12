@@ -85,4 +85,19 @@ class TagLinkRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    public function replaceTag(Tag $oldTag, Tag $newTag)
+    {
+        // TODO this doesn't exclude cases where the new tag is already associated to the entity
+        return $this->createDefaultQueryBuilder()
+            ->update('App:TagLink', 'tagLink')
+            ->set('tagLink.tag', ':newTag')
+            ->andWhere('tagLink.tag = :oldTag')
+            ->setParameters([
+                'oldTag' => $oldTag,
+                'newTag' => $newTag,
+            ])
+            ->getQuery()
+            ->getResult();
+    }
 }

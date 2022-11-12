@@ -1,0 +1,44 @@
+<turbo-frame id="tag-partial-remove">
+    {% if resourceCount != 0 %}
+    <p>
+        This tag is referenced by <strong>{{ resourceCount }}</strong> resources.
+        You can choose a tag to replace it with.
+    </p>
+    {% endif %}
+    {{ form_start(form) }}
+    {{ form_label(form.replacementTag) }}
+    <div {{ stimulus_controller('autocomplete', {
+        url: path('tag_index_partial', {exclude: tag.canonicalName}),
+        minLength: -1,
+        passValue: true,
+    }) }}>
+        <input
+            type="search"
+            class="form-control"
+            data-autocomplete-target="input"
+            placeholder="name"
+            autocomplete="off"
+        />
+        <ul
+            class="list-group results w-100"
+            data-autocomplete-target="results">
+        </ul>
+        <div
+                class="loading"
+                hidden
+                data-autocomplete-target="loading">
+            <div class="spinner-border spinner-border-sm text-primary me-1" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            Searching...
+        </div>
+        {{ form_widget(form.replacementTag, {
+            attr: {
+                class: 'd-none',
+                'data-autocomplete-target': "hidden"
+            }
+        }) }}
+    </div>
+    <button type="submit" class="btn btn-danger mt-2">Delete</button>
+    {{ form_end(form) }}
+</turbo-frame>

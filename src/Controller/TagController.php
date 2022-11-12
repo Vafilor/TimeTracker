@@ -6,16 +6,20 @@ namespace App\Controller;
 
 use App\Entity\Tag;
 use App\Form\AddTagFormType;
+use App\Form\DeleteTagFormType;
 use App\Form\EditTagFormType;
 use App\Form\FilterTagFormType;
 use App\Form\Model\AddTagModel;
+use App\Form\Model\DeleteTagModel;
 use App\Form\Model\EditTagModel;
 use App\Form\Model\FilterTagModel;
+use App\Repository\TagLinkRepository;
 use App\Repository\TagRepository;
 use App\Util\DateTimeUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpClient\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -172,10 +176,12 @@ class TagController extends BaseController
         ]);
     }
 
-    #[Route('/tag/{id}/delete', name: 'tag_delete')]
+    #[Route('/tag/{id}/delete', name: 'tag_delete', methods: ['GET', 'POST'])]
     public function remove(
+        Request $request,
         EntityManagerInterface $entityManager,
         TagRepository $tagRepository,
+        TagLinkRepository $tagLinkRepository,
         string $id
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -185,12 +191,38 @@ class TagController extends BaseController
             throw $this->createAccessDeniedException();
         }
 
-        $entityManager->remove($tag);
-        $entityManager->flush();
+        $form = $this->createForm(DeleteTagFormType::class, null, [
+            'action' => $this->generateUrl('tag_delete', ['id' => $id]),
+        ]);
 
-        $this->addFlash('success', 'Tag successfully removed');
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var DeleteTagModel $data */
+            $data = $form->getData();
+            if ($data->getReplacementTag()) {
+                $replacementTag = $tagRepository->findOneBy(['canonicalName' => $data->getReplacementTag()]);
+                if ($tag->equalIds($replacementTag)) {
+                    throw new InvalidArgumentException('You can not replace the tag to be deleted with itself');
+                }
 
-        return $this->redirectToRoute('tag_index');
+                $tagLinkRepository->replaceTag($tag, $replacementTag);
+            }
+
+            $entityManager->remove($tag);
+            $entityManager->flush();
+
+            $this->addFlash('success', "Tag '{$tag->getName()}' successfully removed");
+
+            return new Response(null, Response::HTTP_FOUND, [
+                'Turbo-Location' => $this->generateUrl('tag_index'),
+            ]);
+        }
+
+        return $this->renderForm('tag/partials/_remove.html.twig', [
+            'tag' => $tag,
+            'form' => $form,
+            'resourceCount' => $tag->getTagLinks()->count(),
+        ]);
     }
 
     #[Route('/tag_partial', name: 'tag_index_partial', methods: ['GET'])]

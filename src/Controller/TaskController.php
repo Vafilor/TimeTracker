@@ -18,7 +18,6 @@ use App\Form\Model\EditTaskPartialModel;
 use App\Form\Model\FilterTaskModel;
 use App\Manager\TagManager;
 use App\Manager\TaskManager;
-use App\Repository\TagLinkRepository;
 use App\Repository\TaskRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -323,7 +322,6 @@ class TaskController extends BaseController
         EntityManagerInterface $entityManager,
         TagManager $tagManager,
         TaskRepository $taskRepository,
-        TagLinkRepository $tagLinkRepository,
         string $id): Response
     {
         $task = $taskRepository->findOrException($id);
@@ -367,7 +365,7 @@ class TaskController extends BaseController
             $this->addFlash('success', "Task '{$task->getName()}' updated");
 
             return new Response(null, Response::HTTP_FOUND, [
-                'Turbo-location' => $request->headers->get('referer'),
+                'Turbo-Location' => $request->headers->get('referer'),
             ]);
         }
 
