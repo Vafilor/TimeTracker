@@ -60,7 +60,7 @@
             </table>
         </div>
         <div class="flex-shrink-0">
-            {% if edit %}
+            {% if edit is defined and edit %}
                 <button
                         {{ stimulus_action('modal-form', 'openModal', null, {'task-id': task.idString} ) }}
                         class="btn btn-secondary">
