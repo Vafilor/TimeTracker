@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\TagLink;
 use App\Entity\Task;
 use App\Form\ActionTaskFormType;
 use App\Form\AddTaskFormType;
@@ -15,7 +16,9 @@ use App\Form\Model\AddTaskModel;
 use App\Form\Model\EditTaskModel;
 use App\Form\Model\EditTaskPartialModel;
 use App\Form\Model\FilterTaskModel;
+use App\Manager\TagManager;
 use App\Manager\TaskManager;
+use App\Repository\TagLinkRepository;
 use App\Repository\TaskRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -318,7 +321,9 @@ class TaskController extends BaseController
     public function partialEdit(
         Request $request,
         EntityManagerInterface $entityManager,
+        TagManager $tagManager,
         TaskRepository $taskRepository,
+        TagLinkRepository $tagLinkRepository,
         string $id): Response
     {
         $task = $taskRepository->findOrException($id);
@@ -344,12 +349,25 @@ class TaskController extends BaseController
             $task->setTimeEstimate($data->getTimeEstimate());
             $task->setActive($data->isActive());
 
+            foreach ($task->getTagLinks() as $tagLink) {
+                $entityManager->remove($tagLink);
+            }
+
+            if (null !== $data->getTags()) {
+                $tagNames = explode(',', $data->getTags());
+                foreach ($tagNames as $tagName) {
+                    $tag = $tagManager->findOrCreateByName($tagName, $task->getAssignedTo());
+                    $tagLink = new TagLink($task, $tag);
+                    $entityManager->persist($tagLink);
+                }
+            }
+
             $entityManager->flush();
 
-            $this->addFlash("success", "Task '{$task->getName()}' updated");
+            $this->addFlash('success', "Task '{$task->getName()}' updated");
 
             return new Response(null, Response::HTTP_FOUND, [
-                'Turbo-location' => $request->headers->get('referer')
+                'Turbo-location' => $request->headers->get('referer'),
             ]);
         }
 

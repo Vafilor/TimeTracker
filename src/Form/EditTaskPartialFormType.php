@@ -51,6 +51,10 @@ class EditTaskPartialFormType extends AbstractType
                 'required' => false,
                 'label' => 'Active',
             ])
+            ->add('tags', TextType::class, [
+                'label' => 'Tags',
+                'required' => false,
+            ])
         ;
 
         $builder->get('timeEstimate')->addViewTransformer($this->textDateIntervalTransformer);

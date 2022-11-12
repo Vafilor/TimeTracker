@@ -2,7 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 import { createRemovableTag } from "../ts/components/tags";
 
 export default class extends Controller {
-    static targets = ['hidden'];
+    static targets = ['hidden', 'tags'];
     static values = {
         autocompleteId: String
     }
@@ -64,7 +64,11 @@ export default class extends Controller {
         }
 
         const newElement = createRemovableTag(name, color);
-        this.element.appendChild(newElement);
+        if (this.hasTagsTarget) {
+            this.tagsTarget.appendChild(newElement);
+        } else {
+            this.element.appendChild(newElement);
+        }
 
         this.#updateHiddenElement();
     }

@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AddTagModel
 {
-    #[Assert\NotBlank(normalizer: 'trim', message: 'Tag name can not be blank')]
+    #[Assert\NotBlank(message: 'Tag name can not be blank', normalizer: 'trim')]
     private string $name;
 
     private ?string $color;

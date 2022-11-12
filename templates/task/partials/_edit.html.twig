@@ -1,6 +1,40 @@
+{% import 'components/autocomplete.html.twig' as autocomplete %}
+
 <turbo-frame id="task-partial-edit">
     {{ form_start(form) }}
-    {{ form_widget(form) }}
+    {{ form_row(form.name) }}
+    {{ form_row(form.priority) }}
+    {{ form_row(form.completedAt) }}
+    {{ form_row(form.dueAt) }}
+    {{ form_row(form.timeEstimate) }}
+    {{ form_row(form.active) }}
+
+    {{ form_label(form.tags) }}
+    <div
+        {{ stimulus_controller('tag-list') }}
+        class="tag-list tag-list-autocomplete d-flex many-rows flex-wrap align-items-center mb-2"
+        data-tag-list-tags-csv-value="{{ form.vars.data.tags }}"
+        data-action="autocomplete.change->tag-list#requestAddFromAutocomplete removable-tag:remove@window->tag-list#removeTag tag:add->tag-list#add">
+
+        <div class="js-tag-list-view" {{ stimulus_target('tag-list', 'tags') }}>
+            {% for tag in form.vars.data.tagsArray %}
+                {{ include('tag/partials/_removable-tag.html.twig', { tag: tag}) }}
+            {% endfor %}
+        </div>
+
+        {{ form_widget(form.tags, {
+            attr: {
+                class: 'd-none',
+                'data-tag-list-target': 'hidden',
+                value: form.vars.data.tags
+            }})
+        }}
+
+        <div class="mb-2">
+            {{ autocomplete.addTag('task-partial-edit') }}
+        </div>
+    </div>
+
     <button type="submit" class="btn btn-primary">Submit</button>
     {{ form_end(form) }}
 </turbo-frame>

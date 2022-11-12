@@ -21,6 +21,8 @@ class EditTaskPartialModel
 
     private bool $active;
 
+    private ?string $tags;
+
     public static function fromEntity(Task $task): self
     {
         $model = new EditTaskPartialModel();
@@ -30,6 +32,7 @@ class EditTaskPartialModel
         $model->setDueAt($task->getDueAt());
         $model->setTimeEstimate($task->getTimeEstimate());
         $model->setActive($task->isActive());
+        $model->setTags($task->getTagNames());
 
         return $model;
     }
@@ -42,6 +45,7 @@ class EditTaskPartialModel
         $this->timeEstimate = null;
         $this->priority = 0;
         $this->active = false;
+        $this->tags = null;
     }
 
     public function getName(): string
@@ -112,6 +116,40 @@ class EditTaskPartialModel
     public function setActive(bool $active): self
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    public function getTags(): ?string
+    {
+        return $this->tags;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function getTagsArray(): array
+    {
+        if (is_null($this->tags) || '' === $this->tags) {
+            return [];
+        }
+
+        $results = explode(',', $this->tags);
+
+        $results = array_map(
+            fn ($tagRaw) => [
+                'name' => str_replace(' ', '', $tagRaw),
+                'color' => '#5d5d5d',
+            ],
+            $results
+        );
+
+        return $results;
+    }
+
+    public function setTags(?string $tags): self
+    {
+        $this->tags = $tags;
 
         return $this;
     }
