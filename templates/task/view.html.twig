@@ -112,17 +112,48 @@
 
     <ul class="nav nav-tabs mt-3" id="description-tab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button type="button" class="nav-link active activity-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" role="tab" aria-controls="home" aria-selected="true">
+            <button
+                    id="activity-tab"
+                    type="button"
+                    class="nav-link active activity-link"
+                    data-bs-target="#activity"
+                    role="tab"
+                    aria-controls="home"
+                    aria-selected="true"
+                    {{ stimulus_controller('bootstrap-tab') }}
+                    {{ stimulus_action('bootstrap-tab', 'activateTab') }}
+            >
                 Activity
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button type="button" class="nav-link activity-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#subtasks" role="tab" aria-controls="home" aria-selected="true">
+            <button
+                    id="activity-tab"
+                    type="button"
+                    class="nav-link activity-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#subtasks"
+                    role="tab"
+                    aria-controls="home"
+                    aria-selected="true"
+                    {{ stimulus_controller('bootstrap-tab') }}
+                    {{ stimulus_action('bootstrap-tab', 'activateTab') }}
+            >
                 Subtasks
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button type="button" class="nav-link markdown-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#markdown" role="tab" aria-controls="home" aria-selected="true">
+            <button
+                    id="home-tab"
+                    type="button"
+                    class="nav-link markdown-link"
+                    data-bs-target="#markdown"
+                    role="tab"
+                    aria-controls="home"
+                    aria-selected="true"
+                    {{ stimulus_controller('bootstrap-tab') }}
+                    {{ stimulus_action('bootstrap-tab', 'activateTab') }}
+            >
                 <span
                     {{ stimulus_controller('toggle-class', {
                         className: 'd-none',
@@ -136,10 +167,33 @@
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button type="button" class="nav-link" id="markdown-tab" data-bs-toggle="tab" data-bs-target="#preview" role="tab" aria-controls="profile" aria-selected="false">Preview</button>
+            <button
+                    id="markdown-tab"
+                    type="button"
+                    class="nav-link"
+                    data-bs-target="#preview"
+                    role="tab"
+                    aria-controls="profile"
+                    aria-selected="false"
+                    {{ stimulus_controller('bootstrap-tab') }}
+                    {{ stimulus_action('bootstrap-tab', 'activateTab') }}
+            >
+                Preview
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button type="button" class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" role="tab" aria-selected="false">Details</button>
+            <button
+                    id="details-tab"
+                    type="button"
+                    class="nav-link"
+                    data-bs-target="#details"
+                    role="tab"
+                    aria-selected="false"
+                    {{ stimulus_controller('bootstrap-tab') }}
+                    {{ stimulus_action('bootstrap-tab', 'activateTab') }}
+            >
+                Details
+            </button>
         </li>
     </ul>
     <div class="tab-content">
