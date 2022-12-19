@@ -99,7 +99,6 @@ class NoteController extends BaseController
             $newNote = new Note($this->getUser(), $data->getTitle(), $data->getContent());
             $newNote->setForDate($data->getForDate());
 
-            $entityManager->getManager();
             $entityManager->persist($newNote);
             $entityManager->flush();
 
