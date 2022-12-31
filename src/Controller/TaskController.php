@@ -269,6 +269,7 @@ class TaskController extends BaseController
     public function view(
         Request $request,
         EntityManagerInterface $entityManager,
+        TaskRepository $taskRepository,
         string $id
     ): Response {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -311,7 +312,7 @@ class TaskController extends BaseController
             [
                 'task' => $task,
                 'form' => $form,
-                'subtasks' => $task->getSubtasks(),
+                'subtasks' => $taskRepository->findForParent($task)->getQuery()->getResult(),
             ]
         );
     }

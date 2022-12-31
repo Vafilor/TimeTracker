@@ -219,4 +219,21 @@ class TaskRepository extends ServiceEntityRepository implements FindByKeysInterf
             ->setParameter('active', true)
         ;
     }
+
+    /**
+     * Finds all subtasks of the given $parentTask.
+     * Deleted tasks are skipped, and the results are ordered by createdAt ASC
+     *
+     * @param Task $parentTask
+     * @return QueryBuilder
+     */
+    public function findForParent(Task $parentTask): QueryBuilder
+    {
+        return $this->createDefaultQueryBuilder()
+            ->andWhere('task.parent = :parent')
+            ->andWhere('task.deletedAt IS NULL')
+            ->setParameter('parent', $parentTask)
+            ->orderBy('task.createdAt', 'ASC')
+        ;
+    }
 }

@@ -21,7 +21,6 @@ export class TaskList {
         this.$container.find('.js-task').each((index, element) => {
             this.addTaskElement($(element));
         })
-
     }
 
     private addTaskElement($element: JQuery) {
@@ -70,7 +69,7 @@ export class TaskList {
     public addTask(task: ApiTask, view: string) {
         const $view = $(view);
         this.addTaskElement($view);
-        this.$container.prepend($view);
+        this.$container.append($view);
     }
 }
 
