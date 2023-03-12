@@ -24,9 +24,9 @@ yarn-error.log
 
 /.idea/
 
-### > Tools
+###> Tools
 /tools/**/vendor
-### < Tools
+###< Tools
 
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php
@@ -35,13 +35,12 @@ yarn-error.log
 
 ###> application
 /src/Command/export
-
-# Don't store pem keys, have the user generate their own
-/config/jwt/*
 ###< application
 
 ###> Mac
 .DS_Store
 ###< Mac
 
-
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###

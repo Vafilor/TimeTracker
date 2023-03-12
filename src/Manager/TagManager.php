@@ -23,7 +23,7 @@ class TagManager
 
     /**
      * parseFromString will take a comma delimited string of tag names and return an array of them.
-     * Leading and trailing whitesapce from each name is removed.
+     * Leading and trailing whitespace from each name is removed.
      *
      * @return string[]
      */

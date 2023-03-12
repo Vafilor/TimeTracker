@@ -104,6 +104,18 @@
     "laminas/laminas-code": {
         "version": "4.1.0"
     },
+    "lexik/jwt-authentication-bundle": {
+        "version": "2.18",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.5",
+            "ref": "5b2157bcd5778166a5696e42f552ad36529a07a6"
+        },
+        "files": [
+            "config/packages/lexik_jwt_authentication.yaml"
+        ]
+    },
     "mobiledetect/mobiledetectlib": {
         "version": "2.8.37"
     },
