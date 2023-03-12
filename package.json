@@ -15,7 +15,7 @@
     "@hotwired/turbo": "^7.0.1",
     "@popperjs/core": "^2.9.2",
     "@symfony/stimulus-bridge": "^3.2.0",
-    "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/Resources/assets",
+    "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
     "@symfony/webpack-encore": "^4.0.0",
     "@types/bootstrap": "^5.0.0",
     "@types/jquery": "^3.5.5",
