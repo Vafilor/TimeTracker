@@ -24,7 +24,6 @@ yarn-error.log
 
 /.idea/
 
-###<
 ### > Tools
 /tools/**/vendor
 ### < Tools
@@ -36,8 +35,13 @@ yarn-error.log
 
 ###> application
 /src/Command/export
+
+# Don't store pem keys, have the user generate their own
+/config/jwt/*
 ###< application
 
 ###> Mac
 .DS_Store
 ###< Mac
+
+
