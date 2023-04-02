@@ -11,6 +11,8 @@ class EditTaskPartialModel
 {
     private string $name;
 
+    private string $description;
+
     private int $priority;
 
     private ?DateTime $completedAt;
@@ -27,6 +29,7 @@ class EditTaskPartialModel
     {
         $model = new EditTaskPartialModel();
         $model->setName($task->getName());
+        $model->setDescription($task->getDescription());
         $model->setPriority($task->getPriority());
         $model->setCompletedAt($task->getCompletedAt());
         $model->setDueAt($task->getDueAt());
@@ -57,6 +60,17 @@ class EditTaskPartialModel
     {
         $this->name = $name;
 
+        return $this;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
         return $this;
     }
 

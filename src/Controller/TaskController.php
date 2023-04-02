@@ -342,6 +342,7 @@ class TaskController extends BaseController
             $data = $form->getData();
 
             $task->setName($data->getName());
+            $task->setDescription($data->getDescription());
             $task->setPriority($data->getPriority());
             $task->setCompletedAt($data->getCompletedAt());
             $task->setDueAt($data->getDueAt());
