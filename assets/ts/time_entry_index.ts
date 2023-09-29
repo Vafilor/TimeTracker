@@ -156,6 +156,11 @@ export class TimeEntryIndexPage {
         this.timeEntries.set(view.id, view);
 
         this.$timeEntryList.prepend(view.$container);
+
+        const $noTodayContent = $(".js-no-today-content");
+        if (!$noTodayContent.hasClass("d-none")) {
+            $noTodayContent.addClass("d-none");
+        }
     }
 
     async createTimeEntry() {
