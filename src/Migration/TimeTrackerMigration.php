@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Migration;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 use Exception;
@@ -28,25 +31,25 @@ abstract class TimeTrackerMigration extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $platformName = $this->platform->getName();
-        match ($platformName) {
-            'sqlite' => $this->upSqlite($schema),
-            'postgresql' => $this->upPostgresql($schema),
-            'mysql' => $this->upMysql($schema),
-            default => throw new Exception("Unsupported database '{$platformName}'"),
-        };
+        if ($this->platform instanceof PostgreSQLPlatform) {
+            $this->upPostgresql($schema);
+        } else if($this->platform instanceof AbstractMySQLPlatform) {
+            $this->upMysql($schema);
+        } else if($this->platform instanceof SQLitePlatform) {
+            $this->upSqlite($schema);
+        }
     }
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-        $platformName = $this->platform->getName();
-        match ($platformName) {
-            'sqlite' => $this->downSqlite($schema),
-            'postgresql' => $this->downPostgresql($schema),
-            'mysql' => $this->downMysql($schema),
-            default => throw new Exception("Unsupported database '{$platformName}'"),
-        };
+        if ($this->platform instanceof PostgreSQLPlatform) {
+            $this->downPostgresql($schema);
+        } else if($this->platform instanceof AbstractMySQLPlatform) {
+            $this->downMysql($schema);
+        } else if($this->platform instanceof SQLitePlatform) {
+            $this->downSqlite($schema);
+        }
+
+        throw new Exception("Unsupported database platform");
     }
 }
