@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2c592f23ee7582dcc10325c94822ab9b",
+    "content-hash": "41099684cf87a83142d4f487ba51546f",
     "packages": [
         {
             "name": "brick/math",
@@ -1820,35 +1820,35 @@
         },
         {
             "name": "knplabs/knp-paginator-bundle",
-            "version": "v6.0.1",
+            "version": "v6.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/KnpLabs/KnpPaginatorBundle.git",
-                "reference": "92d676e7e68f8e99587d78e7f30d8217de6be18b"
+                "reference": "f51fe26df07a08c1b3f272474401ef8a008b190c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/KnpPaginatorBundle/zipball/92d676e7e68f8e99587d78e7f30d8217de6be18b",
-                "reference": "92d676e7e68f8e99587d78e7f30d8217de6be18b",
+                "url": "https://api.github.com/repos/KnpLabs/KnpPaginatorBundle/zipball/f51fe26df07a08c1b3f272474401ef8a008b190c",
+                "reference": "f51fe26df07a08c1b3f272474401ef8a008b190c",
                 "shasum": ""
             },
             "require": {
-                "knplabs/knp-components": "^4.0",
-                "php": "^8.0",
-                "symfony/config": "^6.0",
-                "symfony/dependency-injection": "^6.0",
-                "symfony/event-dispatcher": "^6.0",
-                "symfony/http-foundation": "^6.0",
-                "symfony/http-kernel": "^6.0",
-                "symfony/routing": "^6.0",
-                "symfony/translation": "^6.0",
+                "knplabs/knp-components": "^4.1",
+                "php": "^8.1",
+                "symfony/config": "^6.3 || ^7.0",
+                "symfony/dependency-injection": "^6.3 || ^7.0",
+                "symfony/event-dispatcher": "^6.3 || ^7.0",
+                "symfony/http-foundation": "^6.3 || ^7.0",
+                "symfony/http-kernel": "^6.3 || ^7.0",
+                "symfony/routing": "^6.3 || ^7.0",
+                "symfony/translation": "^6.3 || ^7.0",
                 "twig/twig": "^3.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.8",
+                "phpstan/phpstan": "^1.9",
                 "phpunit/phpunit": "^9.5",
-                "symfony/expression-language": "^6.0",
-                "symfony/templating": "^6.0"
+                "symfony/expression-language": "^6.3 || ^7.0",
+                "symfony/templating": "^6.3 || ^7.0"
             },
             "type": "symfony-bundle",
             "extra": {
@@ -1868,15 +1868,15 @@
             "authors": [
                 {
                     "name": "KnpLabs Team",
-                    "homepage": "http://knplabs.com"
+                    "homepage": "https://knplabs.com"
                 },
                 {
                     "name": "Symfony Community",
-                    "homepage": "http://github.com/KnpLabs/KnpPaginatorBundle/contributors"
+                    "homepage": "https://github.com/KnpLabs/KnpPaginatorBundle/contributors"
                 }
             ],
             "description": "Paginator bundle for Symfony to automate pagination and simplify sorting and other features",
-            "homepage": "http://github.com/KnpLabs/KnpPaginatorBundle",
+            "homepage": "https://github.com/KnpLabs/KnpPaginatorBundle",
             "keywords": [
                 "bundle",
                 "knp",
@@ -1888,9 +1888,9 @@
             ],
             "support": {
                 "issues": "https://github.com/KnpLabs/KnpPaginatorBundle/issues",
-                "source": "https://github.com/KnpLabs/KnpPaginatorBundle/tree/v6.0.1"
+                "source": "https://github.com/KnpLabs/KnpPaginatorBundle/tree/v6.3.0"
             },
-            "time": "2022-12-26T18:09:52+00:00"
+            "time": "2023-11-19T08:15:37+00:00"
         },
         {
             "name": "knplabs/knp-time-bundle",
