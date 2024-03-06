@@ -13,7 +13,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 class Tag
@@ -52,7 +52,7 @@ class Tag
         string $color = '#5d5d5d',
         DateTime $createdAt = null
     ) {
-        $this->id = Uuid::uuid4();
+        $this->id = Uuid::v4();
         $this->assignTo($assignedTo);
         $this->setName($name);
         $this->color = $color;

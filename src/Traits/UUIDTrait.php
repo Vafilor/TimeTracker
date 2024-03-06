@@ -5,25 +5,26 @@ declare(strict_types=1);
 namespace App\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 
 trait UUIDTrait
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    protected UuidInterface $id;
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    protected Uuid $id;
 
-    public function getId(): UuidInterface
+    public function getId(): Uuid
     {
         return $this->id;
     }
 
     public function getIdString(): string
     {
-        return $this->id->toString();
+        return $this->id->toRfc4122();
     }
 
-    public function setId(UuidInterface $uuid): static
+    public function setId(Uuid $uuid): static
     {
         $this->id = $uuid;
 

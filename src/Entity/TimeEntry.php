@@ -18,7 +18,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: TimeEntryRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -66,7 +66,7 @@ class TimeEntry
 
     public function __construct(User $assignedTo, DateTime $createdAt = null)
     {
-        $this->id = Uuid::uuid4();
+        $this->id = Uuid::v4();
         $this->markCreated($createdAt);
         $this->assignTo($assignedTo);
         $this->description = '';

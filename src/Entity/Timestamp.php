@@ -12,7 +12,7 @@ use App\Traits\UUIDTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: TimestampRepository::class)]
 class Timestamp
@@ -50,7 +50,7 @@ class Timestamp
 
     public function __construct(User $assignedTo)
     {
-        $this->id = Uuid::uuid4();
+        $this->id = Uuid::v4();
         $this->markCreated();
         $this->assignTo($assignedTo);
         $this->description = '';
