@@ -49,7 +49,7 @@ class StatisticValueController extends BaseController
 
         $form->handleRequest($request);
 
-        return $this->renderForm('statistic_value/index.html.twig', [
+        return $this->render('statistic_value/index.html.twig', [
             'pagination' => $pagination,
             'data' => $data,
             'form' => $form,
@@ -84,7 +84,7 @@ class StatisticValueController extends BaseController
             $entityManager->flush();
         }
 
-        return $this->renderForm('statistic_value/view.html.twig', [
+        return $this->render('statistic_value/view.html.twig', [
             'statisticValue' => $statisticValue,
             'form' => $form,
         ]);
@@ -156,7 +156,7 @@ class StatisticValueController extends BaseController
             $pagination->getItems()
         );
 
-        return $this->renderForm('statistic_value/index.html.twig', [
+        return $this->render('statistic_value/index.html.twig', [
             'pagination' => $pagination,
             'data' => $data,
             'form' => $form,

@@ -109,7 +109,7 @@ class TaskController extends BaseController
             ],
         );
 
-        return $this->renderForm(
+        return $this->render(
             'task/index.html.twig',
             [
                 'pagination' => $pagination,
@@ -231,7 +231,7 @@ class TaskController extends BaseController
 
         $filterForm = $this->createIndexFilterForm($formFactory);
 
-        return $this->renderForm('task/index.html.twig', [
+        return $this->render('task/index.html.twig', [
            'pagination' => $pagination,
            'filterForm' => $filterForm,
            'form' => $form,
@@ -259,7 +259,7 @@ class TaskController extends BaseController
             'action' => $this->generateUrl('task_form_complete'),
         ]);
 
-        return $this->renderForm('task/active.html.twig', [
+        return $this->render('task/active.html.twig', [
             'pagination' => $pagination,
             'form' => $form,
         ]);
@@ -307,7 +307,7 @@ class TaskController extends BaseController
             return $this->redirectToRoute('task_index');
         }
 
-        return $this->renderForm(
+        return $this->render(
             'task/view.html.twig',
             [
                 'task' => $task,
@@ -371,7 +371,7 @@ class TaskController extends BaseController
             ]);
         }
 
-        return $this->renderForm('task/partials/_edit.html.twig', [
+        return $this->render('task/partials/_edit.html.twig', [
             'form' => $form,
         ]);
     }

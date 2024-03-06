@@ -46,7 +46,7 @@ class TimestampController extends BaseController
             'action' => $this->generateUrl('timestamp_create'),
         ]);
 
-        return $this->renderForm('timestamp/index.html.twig', [
+        return $this->render('timestamp/index.html.twig', [
             'pagination' => $pagination,
             'form' => $form,
         ]);
@@ -94,7 +94,7 @@ class TimestampController extends BaseController
             'direction' => 'desc',
         ]);
 
-        return $this->renderForm('timestamp/index.html.twig', [
+        return $this->render('timestamp/index.html.twig', [
             'pagination' => $pagination,
             'form' => $form,
         ]);
@@ -168,7 +168,7 @@ class TimestampController extends BaseController
             return $this->redirectToRoute('timestamp_index');
         }
 
-        return $this->renderForm('timestamp/view.html.twig', [
+        return $this->render('timestamp/view.html.twig', [
             'form' => $form,
             'timestamp' => $timestamp,
             'tags' => ApiTag::fromEntities($timestamp->getTags()),
