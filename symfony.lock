@@ -71,9 +71,6 @@
     "erusev/parsedown": {
         "version": "1.7.4"
     },
-    "friendsofphp/proxy-manager-lts": {
-        "version": "v1.0.3"
-    },
     "knplabs/knp-components": {
         "version": "v3.0.2"
     },
@@ -82,9 +79,6 @@
     },
     "knplabs/knp-time-bundle": {
         "version": "v1.16.0"
-    },
-    "laminas/laminas-code": {
-        "version": "4.1.0"
     },
     "lexik/jwt-authentication-bundle": {
         "version": "2.20",
@@ -361,9 +355,6 @@
         "version": "v5.2.4"
     },
     "symfony/property-info": {
-        "version": "v5.2.4"
-    },
-    "symfony/proxy-manager-bridge": {
         "version": "v5.2.4"
     },
     "symfony/routing": {
