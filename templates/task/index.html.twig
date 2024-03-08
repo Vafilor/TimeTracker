@@ -6,10 +6,6 @@
 
 {% block title %}Tasks{% endblock %}
 
-{% block metas %}
-    <meta name="turbo-cache-control" content="no-preview">
-{% endblock %}
-
 {% block content_body %}
     <div
          {{
@@ -37,27 +33,28 @@
             <div class="filter-title">Filter</div>
             {{ form_start(filterForm, {
                 attr: {
-                    'data-controller': "load-form page-filter-form",
-                    'data-action': "submit->load-form#start submit->page-filter-form#submit",
+                    'data-controller': "autosubmit",
                 }
             }) }}
             {{ form_errors(filterForm) }}
             <div class="d-flex flex-column flex-md-row">
-                    {{ form_row(filterForm.showCompleted, { attr: { 'data-controller': 'false-checkbox' }}) }}
+                    {{ form_row(filterForm.showCompleted, { attr: { 'data-action': "autosubmit#submit" } }) }}
                 <div class="ms-md-3">
-                    {{ form_row(filterForm.showClosed, { attr: { 'data-controller': 'false-checkbox' }}) }}
+                    {{ form_row(filterForm.showClosed, { attr: { 'data-action': "autosubmit#submit" } }) }}
                 </div>
                 <div class="ms-md-3">
-                    {{ form_row(filterForm.showSubtasks, { attr: { 'data-controller': 'false-checkbox' }}) }}
+                    {{ form_row(filterForm.showSubtasks, { attr: { 'data-action': "autosubmit#submit" } }) }}
                 </div>
                 <div class="ms-md-3">
-                    {{ form_row(filterForm.onlyShowPastDue, { attr: { 'data-controller': 'false-checkbox' }}) }}
+                    {{ form_row(filterForm.onlyShowPastDue, { attr: { 'data-action': "autosubmit#submit" } }) }}
                 </div>
                 <div class="ms-md-3">
-                    {{ form_row(filterForm.onlyTemplates, { attr: { 'data-controller': 'false-checkbox' }}) }}
+                    {{ form_row(filterForm.onlyTemplates, { attr: { 'data-action': "autosubmit#submit" } }) }}
                 </div>
             </div>
-            {{ form_row(filterForm.content) }}
+            {{ form_row(filterForm.content, {
+                attr: { 'data-action': "autosubmit#debouncedSubmit", }
+            }) }}
             {{ form_row(filterForm.parentTask, {
                 attr: {class: 'd-none'},
                 label_attr: {class: 'd-none'}
@@ -67,9 +64,15 @@
             <div
                 {{ stimulus_controller('tag-list') }}
                 data-tag-list-tags-csv-value="{{ app.request.query.get('tags') }}"
-                data-action="autocomplete.change->tag-list#requestAddFromAutocomplete tag:add->tag-list#add tag:remove@window->tag-list#remove"
+                data-action="autocomplete.change->tag-list#requestAddFromAutocomplete tag:add->tag-list#add removable-tag:remove@window->tag-list#removeTag tag-list:change->autosubmit#submit"
                 class="d-flex align-items-center mb-2">
                 <div class="tag-list tag-list-autocomplete" {{ stimulus_target('tag-list', 'tags') }}>
+                    {% if app.request.query.get('tags') %}
+                        {% for tagName in app.request.query.get('tags')|split(',') %}
+                            {{ include('tag/partials/_removable-tag.html.twig', { tag: { name: tagName, color: '#5d5d5d' }} ) }}
+                        {% endfor %}
+                    {% endif %}
+
                     {{ form_widget(filterForm.tags, {
                         attr: {
                             class: 'd-none',
@@ -82,85 +85,71 @@
                 {{ autocomplete.addTag('task-filter') }}
             </div>
 
-            <button
-                    type="submit"
-                    class="btn btn-primary"
-                    data-load-form-target="button">
-                <span
-                        class="spinner-border spinner-border-sm d-none"
-                        data-load-form-target="loading"
-                        role="status"
-                        aria-hidden="true">
-                </span>
-                Search
-            </button>
             {{ form_end(filterForm) }}
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="dropdown mb-2">
-                <label>Sort</label>
-                <button
-                        id="task-sort"
-                        {{ stimulus_controller('bootstrap-dropdown') }}
-                        class="btn dropdown-toggle bg-white border border-gray ms-2"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    {% if pagination.isSorted('task.createdAt') and pagination.direction == 'desc' %}
-                        Newest
-                    {% elseif pagination.isSorted('task.createdAt') and pagination.direction == 'asc'  %}
-                        Oldest
-                    {% elseif pagination.isSorted('task.timeEstimate') and pagination.direction == 'asc' %}
-                        Fastest (estimate)
-                    {% elseif pagination.isSorted('task.timeEstimate') and pagination.direction == 'desc' %}
-                        Slowest (estimate)
-                    {% elseif pagination.isSorted('task.priority') and pagination.direction == 'asc' %}
-                        Lowest Priority
-                    {% elseif pagination.isSorted('task.priority') and pagination.direction == 'desc' %}
-                        Highest Priority
-                    {% elseif pagination.isSorted('task.dueAt') and pagination.direction == 'asc' %}
-                        Due soon
-                    {% elseif pagination.isSorted('task.name') and pagination.direction == 'asc' %}
-                        Name - asc
-                    {% elseif pagination.isSorted('task.name') and pagination.direction == 'desc' %}
-                        Name - desc
-                    {% elseif pagination.isSorted('task.completedAt') and pagination.direction == 'asc' %}
-                        Completed - oldest
-                    {% elseif pagination.isSorted('task.completedAt') and pagination.direction == 'desc' %}
-                        Completed - latest
-                    {% endif %}
-                </button>
-                <div class="dropdown-menu" aria-labelledby="task-sort">
-                    {{ knp_pagination_sortable(pagination, 'Newest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
-                    {{ knp_pagination_sortable(pagination, 'Oldest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
-                    {{ knp_pagination_sortable(pagination, 'Fastest (estimate)', 'task.timeEstimate', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
-                    {{ knp_pagination_sortable(pagination, 'Slowest (estimate)', 'task.timeEstimate', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
-                    {{ knp_pagination_sortable(pagination, 'Highest Priority', 'task.priority', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
-                    {{ knp_pagination_sortable(pagination, 'Lowest Priority', 'task.priority', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
-                    {{ knp_pagination_sortable(pagination, 'Due soon', 'task.dueAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
-                    {{ knp_pagination_sortable(pagination, 'Name - asc', 'task.name', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
-                    {{ knp_pagination_sortable(pagination, 'Name - desc', 'task.name', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
-                    {{ knp_pagination_sortable(pagination, 'Completed - oldest', 'task.completedAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
-                    {{ knp_pagination_sortable(pagination, 'Completed - latest', 'task.completedAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+        <turbo-frame id="task-list-frame" data-turbo-action="advance">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="dropdown mb-2">
+                    <label>Sort</label>
+                    <button
+                            id="task-sort"
+                            {{ stimulus_controller('bootstrap-dropdown') }}
+                            class="btn dropdown-toggle bg-white border border-gray ms-2"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        {% if pagination.isSorted('task.createdAt') and pagination.direction == 'desc' %}
+                            Newest
+                        {% elseif pagination.isSorted('task.createdAt') and pagination.direction == 'asc'  %}
+                            Oldest
+                        {% elseif pagination.isSorted('task.timeEstimate') and pagination.direction == 'asc' %}
+                            Fastest (estimate)
+                        {% elseif pagination.isSorted('task.timeEstimate') and pagination.direction == 'desc' %}
+                            Slowest (estimate)
+                        {% elseif pagination.isSorted('task.priority') and pagination.direction == 'asc' %}
+                            Lowest Priority
+                        {% elseif pagination.isSorted('task.priority') and pagination.direction == 'desc' %}
+                            Highest Priority
+                        {% elseif pagination.isSorted('task.dueAt') and pagination.direction == 'asc' %}
+                            Due soon
+                        {% elseif pagination.isSorted('task.name') and pagination.direction == 'asc' %}
+                            Name - asc
+                        {% elseif pagination.isSorted('task.name') and pagination.direction == 'desc' %}
+                            Name - desc
+                        {% elseif pagination.isSorted('task.completedAt') and pagination.direction == 'asc' %}
+                            Completed - oldest
+                        {% elseif pagination.isSorted('task.completedAt') and pagination.direction == 'desc' %}
+                            Completed - latest
+                        {% endif %}
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="task-sort">
+                        {{ knp_pagination_sortable(pagination, 'Newest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                        {{ knp_pagination_sortable(pagination, 'Oldest', 'task.createdAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                        {{ knp_pagination_sortable(pagination, 'Fastest (estimate)', 'task.timeEstimate', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                        {{ knp_pagination_sortable(pagination, 'Slowest (estimate)', 'task.timeEstimate', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                        {{ knp_pagination_sortable(pagination, 'Highest Priority', 'task.priority', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                        {{ knp_pagination_sortable(pagination, 'Lowest Priority', 'task.priority', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                        {{ knp_pagination_sortable(pagination, 'Due soon', 'task.dueAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                        {{ knp_pagination_sortable(pagination, 'Name - asc', 'task.name', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                        {{ knp_pagination_sortable(pagination, 'Name - desc', 'task.name', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                        {{ knp_pagination_sortable(pagination, 'Completed - oldest', 'task.completedAt', { class: 'dropdown-item' }, { direction: 'asc' }, 'pagination/dropdown.html.twig'  ) }}
+                        {{ knp_pagination_sortable(pagination, 'Completed - latest', 'task.completedAt', { class: 'dropdown-item' }, { direction: 'desc' }, 'pagination/dropdown.html.twig'  ) }}
+                    </div>
                 </div>
+
+                {% if 0 != pagination.totalItemCount %}
+                    <div>{{ pagination.count}} / {{ pagination.totalItemCount }} tasks</div>
+                {% endif %}
             </div>
-            {% if 0 != pagination.totalItemCount %}
-                <div>{{ pagination.count}} / {{ pagination.totalItemCount }} tasks</div>
-            {% endif %}
-        </div>
 
-        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+            {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
 
-        <div class="inline-form-header mb-2">Add Task</div>
+            <div class="inline-form-header mb-2">Add Task</div>
 
-        {{ form_start(form, {
-            attr: {
-                class: 'row g-2',
-                'data-controller': "load-form",
-                'data-action': "submit->load-form#start",
-            }
-        }) }}
+            {{ form_start(form, {
+                attr: {class: 'row g-2'}
+            }) }}
             <div class="col">
                 {{ form_widget(form.name, {
                     attr: {
@@ -171,7 +160,7 @@
             </div>
             <div class="col-3">
                 <div
-                    {{ stimulus_controller('app-autocomplete', {
+                        {{ stimulus_controller('app-autocomplete', {
                             url: path('task_index_partial'),
                             minLength: -1,
                             queryName: 'content',
@@ -225,17 +214,18 @@
                     Create
                 </button>
             </div>
-        {{ form_end(form) }}
+            {{ form_end(form) }}
 
-        <div class="stack-list task-list js-task-list mt-2 mb-2">
-            {% for task in pagination %}
-                {{ include('task/partials/_task.html.twig', {task: task, edit: true }) }}
-            {% else %}
-                <div class="text-center mt-2 mb-2 js-no-tasks">No tasks found</div>
-            {% endfor %}
-        </div>
+            <div class="stack-list task-list js-task-list mt-2 mb-2">
+                {% for task in pagination %}
+                    {{ include('task/partials/_task.html.twig', {task: task, edit: true, link: "_top" }) }}
+                {% else %}
+                    <div class="text-center mt-2 mb-2 js-no-tasks">No tasks found</div>
+                {% endfor %}
+            </div>
 
-        {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+            {{ knp_pagination_render(pagination, null, {}, {'align': 'center'}) }}
+        </turbo-frame>
 
         <div class="modal fade" tabindex="-1" {{ stimulus_target('modal-form', 'modal') }}>
             <div class="modal-dialog">

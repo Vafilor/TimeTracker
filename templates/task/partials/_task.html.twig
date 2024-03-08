@@ -67,7 +67,14 @@
                     Edit
                 </button>
             {% endif %}
-            <a href="{{ path('task_view', {id: task.idString}) }}" class="btn btn-primary js-view ms-md-2">View</a>
+            <a
+                {% if link is defined %}
+                data-turbo-frame="{{ link }}"
+                {% endif %}
+                href="{{ path('task_view', {id: task.idString}) }}"
+                class="btn btn-primary js-view ms-md-2">
+                View
+            </a>
         </div>
     </div>
     <div class="tag-list js-tag-list many-rows {% if task.hasTags %}mt-1{% endif %}" data-initial-tags-name="{{ task.tagNames() }}">
