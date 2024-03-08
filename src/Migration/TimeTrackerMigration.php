@@ -37,6 +37,8 @@ abstract class TimeTrackerMigration extends AbstractMigration
             $this->upMysql($schema);
         } else if($this->platform instanceof SQLitePlatform) {
             $this->upSqlite($schema);
+        } else {
+            throw new Exception("Unsupported database platform");
         }
     }
 
@@ -48,8 +50,8 @@ abstract class TimeTrackerMigration extends AbstractMigration
             $this->downMysql($schema);
         } else if($this->platform instanceof SQLitePlatform) {
             $this->downSqlite($schema);
+        } else {
+            throw new Exception("Unsupported database platform");
         }
-
-        throw new Exception("Unsupported database platform");
     }
 }
