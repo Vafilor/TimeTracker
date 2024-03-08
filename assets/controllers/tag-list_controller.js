@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { createRemovableTag } from "../ts/components/tags";
+import { useDispatch } from "stimulus-use";
 
 export default class extends Controller {
     static targets = ['hidden', 'tags'];
@@ -12,6 +13,8 @@ export default class extends Controller {
             this.requestAddFromAutocomplete = this.requestAddFromAutocomplete.bind(this);
             document.getElementById(this.autocompleteIdValue).addEventListener('autocomplete.change', this.requestAddFromAutocomplete);
         }
+
+        useDispatch(this);
     }
 
     disconnect() {
@@ -25,17 +28,22 @@ export default class extends Controller {
 
     #updateHiddenElement() {
         const tags = this.element.querySelectorAll(`[data-controller="removable-tag"]`);
-        if (tags.length === 0) {
-            this.hiddenTarget.value = null;
-            return;
+        let value = null;
+
+        if (tags.length !== 0) {
+            let csv = tags[0].dataset.removableTagNameValue;
+            for (let i = 1; i < tags.length; i++) {
+                csv += ',' + tags[i].dataset.removableTagNameValue;
+            }
+
+            value = csv;
         }
 
-        let csv = tags[0].dataset.removableTagNameValue;
-        for(let i = 1; i < tags.length; i++) {
-            csv += ',' + tags[i].dataset.removableTagNameValue;
-        }
+        this.hiddenTarget.value = value;
 
-        this.hiddenTarget.value = csv;
+        this.dispatch('change', {
+            value
+        });
     }
 
     requestAddFromAutocomplete(event) {
