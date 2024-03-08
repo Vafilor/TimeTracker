@@ -68,7 +68,7 @@ class NoteController extends BaseController
             'timezone' => $this->getUser()->getTimezone(),
         ]);
 
-        return $this->renderForm('note/index.html.twig', [
+        return $this->render('note/index.html.twig', [
             'pagination' => $pagination,
             'filterForm' => $filterForm,
             'form' => $form,
@@ -114,7 +114,7 @@ class NoteController extends BaseController
             'direction' => 'desc',
         ]);
 
-        return $this->renderForm('note/index.html.twig', [
+        return $this->render('note/index.html.twig', [
             'pagination' => $pagination,
             'filterForm' => $filterForm,
             'form' => $form,
@@ -159,7 +159,7 @@ class NoteController extends BaseController
             $this->addFlash('success', 'Note successfully updated');
         }
 
-        return $this->renderForm(
+        return $this->render(
             'note/view.html.twig',
             [
                 'note' => $note,

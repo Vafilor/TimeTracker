@@ -50,7 +50,7 @@ class UserController extends BaseController
             $this->addFlash('success', 'User settings updated');
         }
 
-        return $this->renderForm('user/view.html.twig', [
+        return $this->render('user/view.html.twig', [
             'user' => $user,
             'form' => $form,
         ]);

@@ -13,7 +13,7 @@ use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: NoteRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -55,7 +55,7 @@ class Note
 
     public function __construct(User $assignedTo, string $title = '', string $content = '')
     {
-        $this->id = Uuid::uuid4();
+        $this->id = Uuid::v4();
         $this->markCreated();
         $this->updatedAt = $this->createdAt;
         $this->title = $title;

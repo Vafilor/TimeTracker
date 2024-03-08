@@ -45,7 +45,7 @@ class StatisticController extends BaseController
             'action' => $this->generateUrl('statistic_create'),
         ]);
 
-        return $this->renderForm('statistic/index.html.twig', [
+        return $this->render('statistic/index.html.twig', [
             'pagination' => $pagination,
             'form' => $form,
         ]);
@@ -139,7 +139,7 @@ class StatisticController extends BaseController
             'direction' => 'desc',
         ]);
 
-        return $this->renderForm('statistic/index.html.twig', [
+        return $this->render('statistic/index.html.twig', [
             'pagination' => $pagination,
             'form' => $form,
         ]);
@@ -187,7 +187,7 @@ class StatisticController extends BaseController
             }
         }
 
-        return $this->renderForm('statistic/view.html.twig', [
+        return $this->render('statistic/view.html.twig', [
             'statistic' => $statistic,
             'form' => $form,
             'tags' => ApiTag::fromEntities($statistic->getTags()),

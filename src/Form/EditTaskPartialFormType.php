@@ -21,7 +21,7 @@ class EditTaskPartialFormType extends AbstractType
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('name', TextType::class)
@@ -62,7 +62,7 @@ class EditTaskPartialFormType extends AbstractType
         $builder->get('timeEstimate')->addViewTransformer($this->textDateIntervalTransformer);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(['data_class' => EditTaskPartialModel::class]);
 

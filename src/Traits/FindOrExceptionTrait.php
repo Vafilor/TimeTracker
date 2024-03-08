@@ -12,7 +12,7 @@ trait FindOrExceptionTrait
 
     abstract public function findOneBy(array $criteria, array $orderBy = null);
 
-    public function findOrException($id, $lockMode = null, $lockVersion = null)
+    public function findOrException($id, $lockMode = null, $lockVersion = null): object
     {
         $result = $this->find($id, $lockMode, $lockVersion);
 
@@ -23,7 +23,7 @@ trait FindOrExceptionTrait
         return $result;
     }
 
-    public function findOneByOrException(array $criteria, array $orderBy = null)
+    public function findOneByOrException(array $criteria, array $orderBy = null): object
     {
         $result = $this->findOneBy($criteria, $orderBy);
 

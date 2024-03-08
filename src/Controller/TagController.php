@@ -76,7 +76,7 @@ class TagController extends BaseController
             'action' => $this->generateUrl('tag_create'),
         ]);
 
-        return $this->renderForm('tag/index.html.twig', [
+        return $this->render('tag/index.html.twig', [
             'pagination' => $pagination,
             'form' => $createForm,
             'filterForm' => $filterForm,
@@ -168,7 +168,7 @@ class TagController extends BaseController
         $count = $tagRepository->getReferenceCount($tag);
         $totalTime = $tagRepository->getTimeEntryDuration($tag);
 
-        return $this->renderForm('tag/view.html.twig', [
+        return $this->render('tag/view.html.twig', [
             'tag' => $tag,
             'form' => $form,
             'references' => $count,
@@ -218,7 +218,7 @@ class TagController extends BaseController
             ]);
         }
 
-        return $this->renderForm('tag/partials/_remove.html.twig', [
+        return $this->render('tag/partials/_remove.html.twig', [
             'tag' => $tag,
             'form' => $form,
             'resourceCount' => $tag->getTagLinks()->count(),

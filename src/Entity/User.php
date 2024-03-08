@@ -11,7 +11,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
@@ -58,7 +58,7 @@ class User extends BaseUser
     {
         parent::__construct();
 
-        $this->id = Uuid::uuid4();
+        $this->id = Uuid::v4();
         $this->timezone = 'America/Los_Angeles';
         $this->dateFormat = 'm/d/Y';
         $this->dateTimeFormat = 'm/d/Y h:i:s A';
