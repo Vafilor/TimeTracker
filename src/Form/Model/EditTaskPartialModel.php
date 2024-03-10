@@ -44,6 +44,7 @@ class EditTaskPartialModel
     {
         $this->name = '';
         $this->completedAt = null;
+        $this->description = '';
         $this->dueAt = null;
         $this->timeEstimate = null;
         $this->priority = 0;
@@ -68,9 +69,9 @@ class EditTaskPartialModel
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
-        $this->description = $description;
+        $this->description = $description ?? '';
         return $this;
     }
 

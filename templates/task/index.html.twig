@@ -34,6 +34,7 @@
             {{ form_start(filterForm, {
                 attr: {
                     'data-controller': "autosubmit",
+                    'data-turbo-frame': 'task-list-frame'
                 }
             }) }}
             {{ form_errors(filterForm) }}
@@ -148,7 +149,11 @@
             <div class="inline-form-header mb-2">Add Task</div>
 
             {{ form_start(form, {
-                attr: {class: 'row g-2'}
+                attr: {
+                    class: 'row g-2',
+                    'data-controller': 'load-form',
+                    'data-action': 'submit->load-form#start'
+                }
             }) }}
             <div class="col">
                 {{ form_widget(form.name, {
@@ -160,14 +165,14 @@
             </div>
             <div class="col-3">
                 <div
-                        {{ stimulus_controller('app-autocomplete', {
-                            url: path('task_index_partial'),
-                            minLength: -1,
-                            queryName: 'content',
-                            type: 'task',
-                            params: { showCompleted: 1, onlyTemplates: 1 }|json_encode
-                        }) }}
-                        class="autocomplete-2 position-relative">
+                    {{ stimulus_controller('app-autocomplete', {
+                        url: path('task_index_partial'),
+                        minLength: -1,
+                        queryName: 'content',
+                        type: 'task',
+                        params: { showCompleted: 1, onlyTemplates: 1 }|json_encode
+                    }) }}
+                    class="autocomplete-2 position-relative">
 
                     <label for="add-task-template" class="visually-hidden">Task template</label>
                     <input
@@ -206,10 +211,10 @@
                         class="btn btn-primary"
                         data-load-form-target="button">
                         <span
-                                class="spinner-border spinner-border-sm d-none"
-                                data-load-form-target="loading"
-                                role="status"
-                                aria-hidden="true">
+                            class="spinner-border spinner-border-sm d-none me-2"
+                            data-load-form-target="loading"
+                            role="status"
+                            aria-hidden="true">
                         </span>
                     Create
                 </button>
@@ -236,6 +241,7 @@
                     </div>
                     <turbo-frame
                             id="task-partial-edit"
+                            target="_top"
                             class="modal-body"
                             loading="lazy"
                             {{ stimulus_target('modal-form', 'frame') }}
