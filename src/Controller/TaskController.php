@@ -540,4 +540,32 @@ class TaskController extends BaseController
 
         return $this->redirectToRoute('task_index');
     }
+
+    #[Route('/task/{id}/check', name: 'task_check')]
+    public function check(Request $request, string $id, TaskRepository $taskRepository, EntityManagerInterface $entityManager): Response {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $task = $taskRepository->findOrException($id);
+        if (!$task->isAssignedTo($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+
+        if ($task->isTemplate()) {
+            $this->addFlash('task-error', 'Can not delete a template');
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        $completed = $request->getPayload()->get('checked') !== null;
+
+        if ($completed) {
+            $task->complete();
+        } else {
+            $task->clearCompleted();
+        }
+
+        $entityManager->flush();
+
+        return $this->redirect($request->headers->get('referer'));
+    }
 }

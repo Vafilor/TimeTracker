@@ -1,13 +1,24 @@
 {% macro display() %}
-    {% for label, messages in app.flashes %}
+    {% for label, messages in app.flashes(['success', 'danger', 'warning']) %}
         {% for message in messages %}
             {{ _self.create(label, message) }}
         {% endfor %}
     {% endfor %}
 {% endmacro %}
 
-{% macro create(label, message ) %}
-    <div class="alert alert-{{ label }} alert-dismissible fade show flash" role="alert" data-turbo-cache="false">
+{% macro create(label, message, temporary=true) %}
+    <div
+        class="alert alert-{{ label }} alert-dismissible fade show flash"
+        role="alert"
+        {% if temporary %}
+            data-turbo-temporary
+        {% else %}
+            {{ stimulus_controller('add-attribute', {
+                'name': 'data-turbo-temporary',
+                'delay': 100
+            }) }}
+        {% endif %}
+    >
         {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
         </button>
@@ -15,7 +26,7 @@
 {% endmacro %}
 
 {% macro deleted_warning(message) %}
-    <div class="alert alert-warning fade show flash" role="alert" data-turbo-cache="false">
+    <div class="alert alert-warning fade show flash" role="alert" data-turbo-temporary>
         <strong>Warning</strong>
         {{ message }}
     </div>

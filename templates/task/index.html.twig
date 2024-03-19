@@ -1,6 +1,7 @@
 {% extends 'sidebar.html.twig' %}
 {% import 'time/partials.html.twig' as time %}
 {% import 'components/autocomplete.html.twig' as autocomplete %}
+{% import 'flash/utilities.html.twig' as flashes %}
 
 {% block content_class %}w-100{% endblock %}
 
@@ -9,7 +10,6 @@
 {% block content_body %}
     <div
          {{
-            stimulus_controller('task-index-page-bridge') |
             stimulus_controller('modal-form', {
                 'edit-url-template': url('task_partial_edit', {id: '{{ID}}'})
             })
@@ -90,6 +90,29 @@
         </div>
 
         <turbo-frame id="task-list-frame" data-turbo-action="advance">
+            {# Errors can occur from various form submissions #}
+            {% for label, message in app.flashes('task-error') %}
+                <turbo-stream action="append" target="flash-messages">
+                    <template>
+                        {{ flashes.create('danger', message, false) }}
+                    </template>
+                </turbo-stream>
+            {% endfor %}
+
+            <form
+                  method="post"
+                  class="d-none"
+                  action="{{ path('task_check', {'id': 'REPLACE_ID'}) }}"
+                  data-controller="task-action"
+                  data-action="task-complete:complete@window->task-action#check"
+            >
+                <input
+                    type="checkbox"
+                    name="checked"
+                    data-task-action-target="check"
+                />
+            </form>
+
             <div class="d-flex justify-content-between align-items-center">
                 <div class="dropdown mb-2">
                     <label>Sort</label>
@@ -162,6 +185,7 @@
                         autocomplete: 'off'
                     }}
                 ) }}
+                {{ form_errors(form.name) }}
             </div>
             <div class="col-3">
                 <div

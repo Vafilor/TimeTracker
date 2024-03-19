@@ -72,64 +72,6 @@ export class TaskList {
         this.$container.append($view);
     }
 }
-
-export class CreateTaskForm {
-    private $input: JQuery;
-    private submitButton: LoadingButton;
-    public readonly taskCreated = new Observable<CreateTaskResponse>();
-
-    constructor(private $container, private parentId?: string) {
-        this.$input = this.$container.find('.js-name');
-        this.$input.on('keypress', (event) => {
-            if (event.key === 'Enter') {
-                // So form doesn't submit, if there is one.
-                event.preventDefault();
-                this.createTask(this.getInputValue());
-            }
-        });
-
-        this.submitButton = new LoadingButton(this.$container.find('.js-loading-button'));
-
-        this.submitButton.$container.on('click', (event) => {
-            const inputText = this.getInputValue();
-            if (inputText && inputText.length > 0) {
-                this.createTask(inputText);
-            }
-        });
-    }
-
-    private getInputValue(): string {
-        return this.$input.val() as string;
-    }
-
-    createTask(text: string) {
-        this.submitButton.startLoading();
-
-        TaskApi.create({
-            name: text,
-            parentTask: this.parentId
-        }).then((res) => {
-            this.submitButton.stopLoading();
-            this.taskCreated.emit(res.data);
-            this.$input.val('');
-        }).catch(() => {
-            this.submitButton.stopLoading();
-        });
-    }
-}
-
-export class TaskListFilter {
-    private $element: JQuery;
-    private flashes: Flashes;
-    private tagFilter: TagFilter;
-
-    constructor($element: JQuery, flashes: Flashes) {
-        this.$element = $element;
-        this.flashes = flashes;
-        this.tagFilter = new TagFilter($element);
-    }
-}
-
 export class TaskListItem {
     public readonly taskId: string;
     public readonly $container: JQuery;

@@ -41,12 +41,6 @@ export default class extends Controller {
 
         updateTotalTime(taskId);
 
-        const taskTable = new TaskList($('.js-task-list'), true, flashes);
-        const createForm = new CreateTaskForm($('.js-task-create'), taskId);
-        createForm.taskCreated.addObserver((response) => {
-            taskTable.addTask(response.task, response.view);
-        });
-
         const breadcrumbs = new Breadcrumbs($('.js-breadcrumbs'));
         const taskAssigner = new ParentTaskAssigner($('.js-autocomplete-task'), taskId, flashes);
         taskAssigner.parentTaskAssigned.addObserver(async (taskId) => {
